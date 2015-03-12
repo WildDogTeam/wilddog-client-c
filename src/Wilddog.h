@@ -5,9 +5,10 @@
  *      Author: x
  */
 
-#ifndef WILDDOG_H_
-#define WILDDOG_H_
+#ifndef __WILDDOG_H_
+#define __WILDDOG_H_
 #include "wilddog_config.h"
+#include "port.h"
 
 typedef struct {
 	char* queryString;
@@ -54,6 +55,6 @@ int wilddog_waitNotice(wilddog_t* wilddog, char* buffer,size_t length);
 int wilddog_stopObserve(wilddog_t* wilddog);
 
 
-int wilddog_free(wilddog_t*);
+int wilddog_destroy(wilddog_t*);
 
 #endif /* WILDDOG_H_ */

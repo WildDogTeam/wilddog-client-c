@@ -18,10 +18,11 @@ BUILD_PATH = ./build
 SRC_PATH = .
 
 # Target this makefile is building.
-TARGET = libwilddog.a
+TARGET = $(BUILD_PATH)/libwilddog.a
 
 # Find all build.mk makefiles in each source directory in the src tree.
-SRC_MAKEFILES := $(call rwildcard,$(SRC_PATH)/,build.mk)
+SRC_MAKEFILES := $(call rwildcard,$(SRC_PATH)/src,build.mk)
+
 
 # Include all build.mk defines source files.
 include $(SRC_MAKEFILES)
@@ -44,13 +45,12 @@ check_external_deps:
 	@echo ' '
 # Tool invocations
 $(TARGET) : $(ALLOBJ)
-
+	
 	$(AR) -r $@ $^
 	@echo ' '
 
 # C compiler to build .o from .c in $(BUILD_DIR)
 $(BUILD_PATH)/%.o : $(SRC_PATH)/%.c
-
 	$(MKDIR) $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $<
 	@echo

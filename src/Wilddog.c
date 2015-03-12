@@ -67,7 +67,7 @@ int wilddog_stopObserve(wilddog_t* wilddog){
 }
 
 
-int wilddog_free(wilddog_t*){
+int wilddog_destroy(wilddog_t* wilddog){
 	return 0;
 
 

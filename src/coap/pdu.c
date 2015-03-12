@@ -9,13 +9,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
-#include "coap_config.h"
+#include <assert.h>
+#include "pdu.h"
 #include "option.h"
 #include "coap_debug.h"
-#include "mem.h"
-#include <assert.h>
-
+#include "port.h"
 void
 coap_pdu_clear(coap_pdu_t *pdu, size_t size) {
   assert(pdu);
