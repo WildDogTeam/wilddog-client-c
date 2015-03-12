@@ -12,15 +12,13 @@
 typedef struct {
 	char* queryString;
 } wilddog_query_t;
-typedef struct {
-
-} wilddog_address_t;
 
 typedef struct {
 	char* appid;
 	char* token;
 	size_t socketId;
 } wilddog_t;
+
 
 wilddog_t* wilddog_init(char* appid, char* token);
 
@@ -37,12 +35,7 @@ wilddog_t* wilddog_init(char* appid, char* token);
 int wilddog_get(wilddog_t* wilddog, char* path, wilddog_query_t* query,
 		char* resultBuffer, size_t max);
 
-/*
- *
- *
- */
 int wilddog_put(wilddog_t* wilddog, char* path, char* buffer, size_t length);
-
 
 
 int wilddog_post(wilddog_t* wilddog, char* path, char* buffer, size_t length,
@@ -58,7 +51,7 @@ int wilddog_observe(wilddog_t* wilddog, char* path, wilddog_query_t* query,
 int wilddog_waitNotice(wilddog_t* wilddog, char* buffer,size_t length);
 
 
-int wilddog_stopObserve();
+int wilddog_stopObserve(wilddog_t* wilddog);
 
 
 int wilddog_free(wilddog_t*);

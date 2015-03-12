@@ -9,13 +9,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "pdu.h"
+
 #include "coap_config.h"
 #include "option.h"
 #include "coap_debug.h"
 #include "mem.h"
 #include <assert.h>
-
 
 void
 coap_pdu_clear(coap_pdu_t *pdu, size_t size) {

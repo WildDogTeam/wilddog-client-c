@@ -12,20 +12,19 @@
 #ifndef size_t
 #define size_t unsigned int
 #endif
-typedef int (*initSocketFunc_t)(size_t* socketId);
-typedef int (*freeSocketFunc_t)(size_t socketId);
-typedef int (*sendFunc_t)(size_t socketId,wilddog_address_t,char* tosend,size_t tosendLength);
-typedef int (*receiveFunc_t)(size_t socketId,wilddog_address_t,char* toreceive,size_t toreceiveLength);
-typedef int (*handlePackFunc_t)(coap_pdu_t* pack);
-typedef void*(*mallocFunc_t)(size_t size);
-typedef void (*freeFunc_t)(void*);
+
+typedef struct {
+	char* addr;
+} wilddog_address_t;
 
 
-initSocketFunc_t* wilddog_initSocket;
-freeSocketFunc_t* wilddog_freeSocket;
-sendFunc_t* wilddog_send;
-receiveFunc_t* wilddog_receive;
-mallocFunc_t* wilddog_malloc;
-freeFunc_t* wilddog_free;
+int (*wilddog_initSocket)(size_t* socketId);
+int (*wilddog_freeSocket)(size_t socketId);
+int (*wilddog_send)(size_t socketId,wilddog_address_t,char* tosend,size_t tosendLength);
+int (*wilddog_receive)(size_t socketId,wilddog_address_t,char* toreceive,size_t toreceiveLength);
+
+void*(*wilddog_malloc)(size_t size);
+void (*wilddog_free)(void*);
+
 
 #endif /* WILDDOG_CONFIG_H_ */

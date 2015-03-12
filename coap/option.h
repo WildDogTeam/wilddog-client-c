@@ -17,7 +17,6 @@
 
 #include "bits.h"
 #include "pdu.h"
-#include "option.h"
 
 /** 
  * Use byte-oriented access methods here because sliding a complex

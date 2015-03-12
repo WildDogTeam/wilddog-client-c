@@ -1,0 +1,6 @@
+
+SRC_DIR=src/
+INCLUDE_DIRS += $(SRC_DIR)
+CSRC += $(SRC_DIR)Wilddog.c
+CPPSRC +=
+ASRC +=
