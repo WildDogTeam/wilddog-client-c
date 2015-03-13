@@ -14,7 +14,7 @@
 #include <string.h>
 
 #include "option.h"
-#include "coap_debug.h"
+#include "wilddog_debug.h"
 
 coap_opt_t *
 options_start(coap_pdu_t *pdu) {

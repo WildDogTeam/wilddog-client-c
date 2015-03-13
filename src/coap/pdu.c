@@ -12,7 +12,7 @@
 #include <assert.h>
 #include "pdu.h"
 #include "option.h"
-#include "coap_debug.h"
+#include "wilddog_debug.h"
 #include "port.h"
 void
 coap_pdu_clear(coap_pdu_t *pdu, size_t size) {

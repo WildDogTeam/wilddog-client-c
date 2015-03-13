@@ -6,18 +6,21 @@
 #include <stdio.h>
 
 
-#define wd_malloc(size) malloc(size)
-#define wd_free(size) free(size)
+
 
 typedef struct {
-	char* addr;
+	char type;//0:IPv4 1:IPv6
+	char* ip;
+	int port;
 } wilddog_address_t;
 
+int wilddog_gethostbyname(char* ipString,char* host);
+int wilddog_openSocket(int* socketId);
+int wilddog_closeSocket(int socketId);
+int wilddog_send(int socketId,wilddog_address_t*,void* tosend,size_t tosendLength);
+int wilddog_receive(int socketId,wilddog_address_t*,void* toreceive,size_t toreceiveLength);
 
-int wilddog_initSocket(size_t* socketId);
-int wilddog_freeSocket(size_t socketId);
-int wilddog_send(size_t socketId,wilddog_address_t*,char* tosend,size_t tosendLength);
-int wilddog_receive(size_t socketId,wilddog_address_t*,char* toreceive,size_t toreceiveLength);
-
+void* wd_malloc(size_t size);
+void wd_free(void*);
 
 #endif

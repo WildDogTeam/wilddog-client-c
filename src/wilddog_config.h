@@ -8,9 +8,10 @@
 #ifndef __WILDDOG_CONFIG_H_
 #define __WILDDOG_CONFIG_H_
 
-#define WILDDOG_URL_SUFFIX ".io.wilddog.com"
+#define WILDDOG_HOST_SUFFIX ".io.wilddog.com"
 
-
+#define MAX_PATH_LEN 256;
+#define WILDDOG_SERVER_PORT 5683
 
 
 #endif /* WILDDOG_CONFIG_H_ */

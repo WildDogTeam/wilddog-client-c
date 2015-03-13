@@ -5,8 +5,8 @@
  *      Author: x
  */
 
-#ifndef _COAP_DEBUG_H_
-#define _COAP_DEBUG_H_
+#ifndef _WILDDOG_DEBUG_H_
+#define _WILDDOG_DEBUG_H_
 
 #include <stdint.h>
 #include <stddef.h>

@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <stdarg.h>
 #include <string.h>
-#include "coap_debug.h"
+#include "wilddog_debug.h"
 
 uint32_t log_level_at_run_time = LOG_LEVEL;
 

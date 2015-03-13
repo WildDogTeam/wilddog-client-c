@@ -17,8 +17,13 @@ typedef struct {
 typedef struct {
 	char* appid;
 	char* token;
-	size_t socketId;
+	wilddog_address_t remoteAddr;
+	int socketId;
+	char serverIp[64];
+	unsigned short msgId;
+
 } wilddog_t;
+
 
 
 wilddog_t* wilddog_init(char* appid, char* token);
