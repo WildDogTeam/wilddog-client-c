@@ -10,6 +10,8 @@
 #include "wilddog_config.h"
 #include "port.h"
 
+
+
 typedef struct {
 	char* queryString;
 } wilddog_query_t;
@@ -19,7 +21,7 @@ typedef struct {
 	char* token;
 	wilddog_address_t remoteAddr;
 	int socketId;
-	char serverIp[64];
+	char serverIp[48];
 	unsigned short msgId;
 
 } wilddog_t;
@@ -61,5 +63,7 @@ int wilddog_stopObserve(wilddog_t* wilddog);
 
 
 int wilddog_destroy(wilddog_t*);
+
+int wilddog_dump(wilddog_t* wilddog,char * buffer,size_t len);
 
 #endif /* WILDDOG_H_ */

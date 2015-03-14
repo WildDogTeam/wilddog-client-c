@@ -18,7 +18,7 @@ int wilddog_gethostbyname(char* ipString,char* host);
 int wilddog_openSocket(int* socketId);
 int wilddog_closeSocket(int socketId);
 int wilddog_send(int socketId,wilddog_address_t*,void* tosend,size_t tosendLength);
-int wilddog_receive(int socketId,wilddog_address_t*,void* toreceive,size_t toreceiveLength);
+int wilddog_receive(int socketId,wilddog_address_t*,void* toreceive,size_t toreceiveLength,size_t timeout);
 
 void* wd_malloc(size_t size);
 void wd_free(void*);

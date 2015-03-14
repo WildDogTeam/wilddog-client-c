@@ -1,6 +1,7 @@
 # Define the compiler/tools prefix
 #GCC_PREFIX = arm-none-eabi-
-
+GCC_PREFIX =
+PORT_PATH= ./ports/posix
 # Define tools
 CC = $(GCC_PREFIX)gcc
 AR = $(GCC_PREFIX)ar
@@ -17,13 +18,15 @@ BUILD_PATH = ./build
 
 SRC_PATH = .
 
+
 # Target this makefile is building.
 TARGET = $(BUILD_PATH)/libwilddog.a
 
 # Find all build.mk makefiles in each source directory in the src tree.
 SRC_MAKEFILES := $(call rwildcard,$(SRC_PATH)/src,build.mk)
+SRC_MAKEFILES += $(PORT_PATH)/build.mk
 
-
+all: check_external_deps $(TARGET)
 # Include all build.mk defines source files.
 include $(SRC_MAKEFILES)
 
@@ -39,7 +42,7 @@ ALLDEPS += $(addprefix $(BUILD_PATH)/, $(ASRC:.S=.o.d))
 CFLAGS += $(patsubst %,-I$(SRC_PATH)/%,$(INCLUDE_DIRS)) -I.
 CFLAGS += -MD -MP -MF $@.d
 # All Target
-all: check_external_deps $(TARGET)
+
 # Check for external dependancies, none in this case.
 check_external_deps:
 	@echo ' '
@@ -67,7 +70,7 @@ clean:
 	$(RM) $(ALLOBJ) $(ALLDEPS) $(TARGET)
 	@echo ' '
 
-.PHONY: all clean
+.PHONY: all clean sample
 .SECONDARY:
 
 # Include auto generated dependancy files

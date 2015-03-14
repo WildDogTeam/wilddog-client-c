@@ -78,6 +78,8 @@
  */
 #define COAP_RESPONSE_CODE(N) (((N)/100 << 5) | (N)%100)
 
+#define COAP_PARSE_RESPONSE_CODE(N) (((int)((N)>>5&0xFF))*100+(N)&0x1F)
+
 /* Determines the class of response code C */
 #define COAP_RESPONSE_CLASS(C) (((C) >> 5) & 0xFF)
 
@@ -141,15 +143,18 @@ typedef struct {
   unsigned char token[];	/* the actual token, if any */
 } coap_hdr_t;
 #else
+
 typedef struct {
-  unsigned int token_length:4;	/* length of Token */
-  unsigned int type:2;		/* type flag */
-  unsigned int version:2;	/* protocol version */
-  unsigned int code:8;	        /* request method (value 1--10) or response code (value 40-255) */
-  unsigned short id;		/* transaction id (network byte order!) */
-  unsigned char token[];	/* the actual token, if any */
+  unsigned int token_length:4;
+  unsigned int type:2;
+  unsigned int version:2;
+  unsigned int code:8;
+  unsigned short id;
+  unsigned char token[];
 } coap_hdr_t;
+
 #endif
+
 
 
 #define COAP_MESSAGE_IS_EMPTY(MSG)    ((MSG)->code == 0)
@@ -294,4 +299,5 @@ int coap_add_data(coap_pdu_t *pdu, unsigned int len, const unsigned char *data);
  */
 int coap_get_data(coap_pdu_t *pdu, size_t *len, unsigned char **data);
 
+void coap_show_pdu(const coap_pdu_t *pdu);
 #endif /* _PDU_H_ */
