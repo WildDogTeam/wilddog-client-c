@@ -39,7 +39,7 @@ coap_pdu_init(unsigned char type, unsigned char code,
     return NULL;
 
 
-  pdu = wd_malloc(sizeof(coap_pdu_t) + size);
+  pdu = malloc(sizeof(coap_pdu_t) + size);
 
 
   if (pdu) {
@@ -60,7 +60,7 @@ coap_new_pdu() {
 
 void
 coap_delete_pdu(coap_pdu_t *pdu) {
-  wd_free( pdu );
+  free( pdu );
 }
 
 int

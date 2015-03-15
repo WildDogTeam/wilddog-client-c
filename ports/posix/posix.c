@@ -73,10 +73,3 @@ int wilddog_receive(int socketId,wilddog_address_t* addr,void* buf,size_t bufLen
 	recvlen = recvfrom(socketId, buf, bufLen, 0, (struct sockaddr *)&remaddr, &addrlen);
 	return recvlen;
 }
-
-void* wd_malloc(size_t size){
-	return malloc(size);
-}
-void wd_free(void* p){
-	return free(p);
-}

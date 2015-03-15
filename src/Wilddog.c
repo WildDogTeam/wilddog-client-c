@@ -47,48 +47,14 @@ void _addOption(coap_pdu_t* coap_p, char * appid, char* path, char* token) {
 	}
 }
 
-wilddog_t* wilddog_init(char* appid, char* token) {
 
-	wilddog_t* res = wd_malloc(sizeof(wilddog_t));
-	memset(res, 0, sizeof(res));
-	/*
-	 res->appid=wd_malloc(strlen(appid)+1);
-	 strcpy(res->appid,appid);
-	 res->token=wd_malloc(strlen(token)+1);
-	 strcpy(res->token,token);
-	 */
-	res->appid = appid;
-	res->token = token;
-	res->remoteAddr.ip = res->serverIp;
-	res->remoteAddr.port = WILDDOG_SERVER_PORT;
-	char host[strlen(appid) + strlen(WILDDOG_HOST_SUFFIX) + 1];
-	strcpy(host, appid);
-	strcat(host, WILDDOG_HOST_SUFFIX);
-	if (wilddog_gethostbyname(res->serverIp, host) < 0) {
-		wd_free(res);
-		return NULL;
+int wilddog_get_raw(wilddog_t* wilddog,char* resultBuffer,size_t bufSize){
 
-	}
-	return res;
-}
-
-/*
- * appid:appid
- * path:path
- * resBuffer: response buffer
- * maxLength: the max length of the buffer
- * return:
- * reallength of response
- * if <0 error
- *
- */
-int wilddog_get(wilddog_t* wilddog, char* path, wilddog_query_t* query,
-		char* resultBuffer, size_t max) {
 	int returnCode;
 	//coap pack
 	coap_pdu_t* coap_p = coap_pdu_init(0, 1, htons(++wilddog->msgId),
 			COAP_MAX_SIZE);
-	_addOption(coap_p, wilddog->appid, path, wilddog->token);
+	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->token);
 	//if socket not created,create
 	if (wilddog->socketId == 0) {
 		returnCode = wilddog_openSocket(&(wilddog->socketId));
@@ -129,7 +95,14 @@ int wilddog_get(wilddog_t* wilddog, char* path, wilddog_query_t* query,
 	size_t dataLen;
 	unsigned char * dataPtr;
 	coap_get_data(receive_p, &dataLen, &dataPtr);
+	if(dataLen>bufSize){
+		coap_delete_pdu(receive_p);
+		return -4;
+
+	}
+
 	memcpy(resultBuffer, dataPtr, dataLen);
+
 	coap_delete_pdu(receive_p);
 	if ((statusCode / 100) == 2) {
 		//OK
@@ -138,19 +111,20 @@ int wilddog_get(wilddog_t* wilddog, char* path, wilddog_query_t* query,
 		return 0 - statusCode;
 	}
 
+
 }
 
 /*
  *
  *
  */
-int wilddog_put(wilddog_t* wilddog, char* path, char* buffer, size_t length) {
+int wilddog_put_raw(wilddog_t* wilddog, char* buffer, size_t length) {
 
 	int returnCode;
 	//coap pack
 	coap_pdu_t* coap_p = coap_pdu_init(0, 3, htons(++wilddog->msgId),
 			COAP_MAX_SIZE);
-	_addOption(coap_p, wilddog->appid, path, wilddog->token);
+	_addOption(coap_p, wilddog->appid,wilddog->path, wilddog->token);
 	coap_add_data(coap_p, length, buffer);
 	//if socket not created,create
 	if (wilddog->socketId == 0) {
@@ -211,14 +185,13 @@ int wilddog_put(wilddog_t* wilddog, char* path, char* buffer, size_t length) {
 	return returnCode;
 
 }
-
-int wilddog_post(wilddog_t* wilddog, char* path, char* buffer, size_t length,
+int wilddog_post_raw(wilddog_t* wilddog, char* path, char* buffer, size_t length,
 		char* resultBuffer, size_t max) {
-	int returnCode;
+		int returnCode;
 		//coap pack
 		coap_pdu_t* coap_p = coap_pdu_init(0, 2, htons(++wilddog->msgId),
 				COAP_MAX_SIZE);
-		_addOption(coap_p, wilddog->appid, path, wilddog->token);
+		_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->token);
 		coap_add_data(coap_p, length, buffer);
 		//if socket not created,create
 		if (wilddog->socketId == 0) {
@@ -270,14 +243,13 @@ int wilddog_post(wilddog_t* wilddog, char* path, char* buffer, size_t length,
 		coap_delete_pdu(receive_p);
 		return returnCode;
 }
-
-int wilddog_delete(wilddog_t* wilddog, char* path, char* buffer, size_t length) {
+int wilddog_delete_raw(wilddog_t* wilddog) {
 
 	int returnCode;
 	//coap pack
 	coap_pdu_t* coap_p = coap_pdu_init(0, 4, htons(++wilddog->msgId),
 			COAP_MAX_SIZE);
-	_addOption(coap_p, wilddog->appid, path, wilddog->token);
+	_addOption(coap_p, wilddog->appid,wilddog-> path, wilddog->token);
 	//if socket not created,create
 	if (wilddog->socketId == 0) {
 		returnCode = wilddog_openSocket(&(wilddog->socketId));
@@ -338,6 +310,101 @@ int wilddog_delete(wilddog_t* wilddog, char* path, char* buffer, size_t length) 
 
 }
 
+wilddog_t* wilddog_init(char* appid, char* path,char* token) {
+
+	wilddog_t* res = malloc(sizeof(wilddog_t));
+	memset(res, 0, sizeof(res));
+	res->appid = appid;
+	res->path=path;
+	res->token = token;
+	res->remoteAddr.ip = res->serverIp;
+	res->remoteAddr.port = WILDDOG_SERVER_PORT;
+	char host[strlen(appid) + strlen(WILDDOG_HOST_SUFFIX) + 1];
+	strcpy(host, appid);
+	strcat(host, WILDDOG_HOST_SUFFIX);
+	if (wilddog_gethostbyname(res->serverIp, host) < 0) {
+		free(res);
+		return NULL;
+
+	}
+	return res;
+}
+
+
+int wilddog_query(wilddog_t* wilddog) {
+	char buf[WILDDOG_BUF_SIZE];
+
+	int res=wilddog_get_raw(wilddog,buf,sizeof(buf));
+	if(res<0){
+		return res;
+	}
+	cJSON* data=cJSON_Parse(buf);
+	if(wilddog->data!=NULL){
+		cJSON_Delete(wilddog->data);
+		wilddog->data=data;
+	}
+	return 0;
+
+}
+int wilddog_set(wilddog_t* wilddog,cJSON* data){
+	char* buf=cJSON_Print(data);
+	size_t buflen=strlen(buf);
+	int res=wilddog_put_raw(wilddog,buf,buflen);
+	free(buf);
+	if(res<0){
+		return res;
+	}
+	if(wilddog->data!=NULL){
+		cJSON_Delete(wilddog->data);
+		wilddog->data=cJSON_Duplicate(data,1);
+	}
+}
+int wilddog_push(wilddog_t* wilddog,cJSON* data){
+	char resultBuf[64];
+	char* buf=cJSON_Print(data);
+	size_t buflen=strlen(buf);
+	int res=wilddog_post_raw(wilddog,buf,buflen,resultBuf,sizeof(resultBuf));
+	free(buf);
+	if(res<0){
+		return res;
+	}
+	cJSON* res=cJSON_Parse(resultBuf);
+	if(!res){
+		return -10;
+	}
+	cJSON* newKeyJson=cJSON_GetObjectItem(res,"newKey");
+	if(newKeyJson==NULL){
+		cJSON_Delete(res);
+		return -11;
+	}
+	char* newKey=newKeyJson->valuestring;
+	if(newKey==NULL||strlen(newKey)==0){
+		cJSON_Delete(res);
+		return -12;
+	}
+	if(wilddog->data==NULL){
+		wilddog->data=cJSON_CreateObject();
+
+	}
+	cJSON* copy=cJSON_Duplicate(data,1);
+	cJSON_AddItemToObject(wilddog->data,newKey,copy);
+	wilddog->newChild=copy;
+	return 0;
+}
+int wilddog_delete(wilddog_t* wilddog){
+	int res=wilddog_delete_raw(wilddog);
+	if(res<0){
+		return res;
+	}
+	if(wilddog->data!=NULL){
+		cJSON_Delete(wilddog->data);
+		wilddog->data=NULL;
+	}
+	return 0;
+
+}
+
+
 int wilddog_observe(wilddog_t* wilddog, char* path, wilddog_query_t* query,
 		char* resultBuffer, size_t max) {
 	return 0;
@@ -355,8 +422,13 @@ int wilddog_stopObserve(wilddog_t* wilddog) {
 
 int wilddog_destroy(wilddog_t* wilddog) {
 	if (wilddog) {
-		wd_free(wilddog);
-		wilddog = 0;
+		//free data
+		if(wilddog->data){
+			cJSON_Delete(wilddog->data);
+			wilddog->data=NULL;
+		}
+	    free(wilddog);
+		wilddog = NULL;
 	}
 	return 0;
 
