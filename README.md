@@ -1,5 +1,4 @@
-# client_coap
-
+#wilddog COAP client
 
 ## REST API
 
@@ -237,75 +236,110 @@ Token:<token>
 
 
 
-## C++ WRAPPER API
+## C WRAPPER API
 
-### Wilddog
+### init
+>####`wilddog_t* wilddog_init(char* appid,char* path,unsigned char* auth)`
+>初始化一个wilddog 客户端
+>* `appid`
+> 在wilddog平台申请的APPID
+>* `path`
+> wilddog客户端需要同步的路径
+>* `auth`
+>  服务端下发的,auth token,这个token可以通过多种方式获取
+>
+>返回指向wildog_t 结构体的指针
+>#### sample
+> ```c
 
-#### `Wilddog* ref=new Wilddog(string& url)`
-new 一个实例
-##### param
->* url:表示资源的URL
-> 
-##### return
->*   Wilddog 实例的指针
+>int main(){
+>char* appid;
+> char* path;
+> char* authtoken;
+>//init appid
+>//init path
+>//init auth
+>//...
+>//init client
+>wilddog_t* wd= wilddog_init(appid,path,authtoken);
+>//do something
+>//...
+>//recycle memeory
+>wilddog_destroy(wd)
+>}
+> ```
 
 
 
-#### `int Wilddog::destroy()`
-析构
-##### param
+### destroy
+>#### `int wilddog_destroy(wilddog_t* wilddog);`
+> 删除一个客户端 回首内存
+>* `wilddog`
+> `wilddog_t` 类型的指针,指向要删除的client结构体
+>
+>返回 `0`:成功 `<0`:失败
 
-##### return
+### setAuth
+> #### `void wilddog_setAuth(wilddog_t* wilddog,unsigned char* auth);`
+>更新auth
+>``` c
+>...
+>//aquired a new auth token
+>char* newToken="ABCD1234567890"
+>
+>wilddog_setAuth(wd,newToken);
+>...
+>```
 
+### query
 
+> #### `int wilddog_query(wilddog_t* wilddog,onCompleteFunc callback)`
+>* `wilddog`
+>* `callback`
+>#### sample
+>```c
+>void onQueryComplete(wilddog_t* wilddog,handle,int errCode){
+>    if(errCode<0)
+>        printf("query error:%d",errCode)
+>    else{
+>       cJSON* data= wilddog->data;
+>       //do something with data via cJSON API
+>    }
+>}
+>int main(){
+>    wilddog_t* wd =wilddog_init(<someappid>,<somepath>,<someAuth>);
+>    //...
+>    int handle=wilddog_query(wd,onQueryComplete);
+>    if(handle<0)
+>       return 0;
+>    while(1){
+>        //使用事件循环的方式,需要循环接收网络事件并处理.
+>        trySync(wd);
+>    }
+>}
+>```
 
+### set
+>#### `int wilddog_set(wilddog_t* wilddog,cJSON* data,onCompleteFunc callback)`
+>
 
+### push
+>#### `int wilddog_push(wilddog_t* wilddog,cJSON* data,onCompleteFunc callback)`
 
-#### 	`int Wilddog::setAuth(string& authCode)`
-##### params
->  authCode
+### delete
+>#### `int wilddog_delete(wilddog_t* wilddog,onCompleteFunc callback);`
 
-##### return
-#### `string* Wilddog::get()`
-对应rest的get
-#####param
+### on
+>#### `int wilddog_on(wilddog_t* wilddog,onDataFunc onDataChange,onCompleteFunc callback)`
 
-##### return
-> 指向返回结果缓存的指针.
+### off
+>#### `int wilddog_off(wilddog_t* wilddog);`
 
-#### `string* Wilddog::post(string& data)`
-对应rest的 post
-##### param
+### trySync
+>#### `int wilddog_trySync(wilddog_t* wilddog);`
 
-##### return
-
-#### `string* Wilddog::put(string& data)`
-对应 rest的put
-##### param
-
-##### return 
-
-#### `string* Wilddog::remove()`
-
-##### param
-
-##### return 
-
-#### string& Wilddog::observe()
-> 需要实现函数 `int (Wilddog::*NotificationHandler)(CoapPackage& response)`
-
-#### string& Wilddog::cancel()
-
-#### 适配考虑
-通过函数指针实现适配
-
-#### `int32_t (Wilddog::*_createSocket)()`
-
-#### `int (Wilddog::*_deleteSocket)(int32_t socketId)`
-
-#### `int (Wilddog::*_send)(int32_t socketId,WdAddress& addr,int8_t* buffer,uint32_t length)`
-
-#### `int (Wilddog::*_receive)(int32_t socketId,WdAddress& addr,int8_t* buffer,uint32_t length)`
+### wilddog_dump
+>#### `int wilddog_dump(wilddog_t* wilddog,char * buffer,size_t len)`
 
 
 
@@ -317,8 +351,63 @@ new 一个实例
 电灯出厂自带ID 3e4a32
 `COAP_URL:coap://shome.io.wilddog.com\n/devices/jackxy/light/3e4a32?token=<AuthToken>`
 (此处token 不同于coap传输协议中的token,此处是用户授权token,写在uri-query)
+```sequence
 
-![](http://jackxy.com:8080/content/images/2015/03/__SVG__4efd1e917fcc8bdccb7749a17ec5003d.png)
+
+
+手机->CLOUD:通过Auth接口获取AuthToken
+手机->CLOUD:通过android ios 客户端连到云端\n并关注/devices/jackxy/的变化
+手机->电灯:使其联网并给其一个AuthToken
+note right of 电灯:电灯被激活试图连接云端
+电灯->CLOUD:CON PUT \n{COAP_URL}\npayload:{"bright":0,"state":"off"}
+note left of CLOUD:云端sync所有关注\n相关节点的客户端
+CLOUD->手机:同步/devices/jackxy/light/3e4a32/\n{"bright":0,"state":"off"}
+note left of 手机:显示有一个\n电灯被添加
+note right of 电灯:连接成功监听数据变化
+电灯->CLOUD:CON GET\n{COAP_URL}\nObserve:0
+note left of 手机:用户控制将亮度调到85
+手机->CLOUD:同步/devices/jackxy/light/3e4a32/\n{"bright":85,"state":"on"}
+note right of CLOUD:云端同步所有\n关注相关节点\n的客户端
+CLOUD->电灯:ACK\nObserve:32\n{"bright":85,"state":"on"}
+note right of 电灯:执行操作
+
+
+```
+
+
+
+
+
+
+
+
+## 重要流程
+
+### observe 
+
+```sequence
+client->coap_broker: CON GET\n/abc/de\nObserve:0\nToken:1234
+note left of coap_broker: save the socket to map
+coap_broker-> core_server: reg
+note right of core_server: query data
+core_server->coap_broker: return data
+note right of coap_broker: query map of sockets
+coap_broker->client: ACK 2.05\nObserve:22 \nPayload:"hello world"\nToken:1234
+
+note right of core_server: ...\ntime flies\n...\nthere is a data change
+core_server->coap_broker: send notification
+note right of coap_broker: if notification is not full
+coap_broker->core_server: query full data
+core_server->coap_broker: return full data
+coap_broker->client: ACK 2.05\nObserve:43 \nPayload:"fuckGFW"\nToken:1234
+note left of client: ...\nnow i dont\n interest in\n /abc/de
+client->coap_broker: RST
+coap_broker->core_server: unreg
+
+
+```
+
+
 
 
 
