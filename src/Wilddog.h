@@ -9,64 +9,65 @@
 #define __WILDDOG_H_
 #include "wilddog_config.h"
 #include "port.h"
+#include "pdu.h"
 #include "cJSON.h"
-
-
+#include "utlist.h"
+typedef struct tagA wilddog_t;
+typedef struct tagB request_t;
+typedef void (*onDataFunc)(wilddog_t* wilddog,cJSON* value);
+typedef void (*onCompleteFunc)(wilddog_t* wilddog,int handle,int err);
 
 typedef struct {
 	char* queryString;
 } wilddog_query_t;
 
-typedef struct {
+typedef struct tagB {
+    coap_pdu_t* coap_msg;
+    unsigned char flag; //observe 0x01
+    unsigned int timestamp; //ms
+    request_t *next;
+    unsigned int maxAge;
+    int handle;
+    onCompleteFunc callback;
+}tagB;
+
+typedef struct tagA{
 	char* appid;
 	char* path;
-	char* token;
+	char* auth;
 	wilddog_address_t remoteAddr;
 	int socketId;
 	char serverIp[48];
 	unsigned short msgId;
+	unsigned int token;
 	cJSON* data;
 	cJSON* newChild;
+	request_t* sentQueue;
+	onDataFunc onData;
+	unsigned int timestamp;//ms
+}tagA;
 
-} wilddog_t;
-typedef void (*Wilddog_value_cb)(wilddog_t* wilddog,int code);
-typedef void (*Wilddog_childAdded_cb)(wilddog_t* wilddog,int code,char* newKey);
-typedef void (*Wilddog_childRemoved_cb)(wilddog_t* wilddog,int code,char* removedKey);
-typedef void (*Wilddog_childChanged_cb)(wilddog_t* wilddog,int code,char* changedKey);
 
 wilddog_t* wilddog_init(char* appid,char* path, char* token);
 
-/*
- * appid:appid
- * path:path
- * resBuffer: response buffer
- * maxLength: the max length of the buffer
+void wilddog_setAuth(wilddog_t* wilddog,unsigned char* auth);
+/**
  * return:
- * reallength of response
- * if <0 error
- *
+ * 	 >=0 handler <0 error code
  */
-int wilddog_setAuth(wilddog_t* wilddog,char* auth);
+int wilddog_query(wilddog_t* wilddog,onCompleteFunc callback);
 
-int wilddog_query(wilddog_t* wilddog) ;
+int wilddog_set(wilddog_t* wilddog,cJSON* data,onCompleteFunc callback);
 
-int wilddog_set(wilddog_t* wilddog,cJSON* data);
+int wilddog_push(wilddog_t* wilddog,cJSON* data,onCompleteFunc callback);
 
-int wilddog_push(wilddog_t* wilddog,cJSON* data);
+int wilddog_delete(wilddog_t* wilddog,onCompleteFunc callback);
 
-int wilddog_delete(wilddog_t* wilddog);
-
-int wilddog_onChildChanged(wilddog_t* wilddog,Wilddog_childChanged_cb cb);
-
-int wilddog_onValue(wilddog_t* wilddog,Wilddog_value_cb);
-
-int wilddog_onChildRemoved(wilddog_t* wilddog,Wilddog_childRemoved_cb cb);
-
-int wilddog_onChildAdded(wilddog_t* wilddog,Wilddog_childAdded_cb cb);
-
-int wilddog_trySync(wilddog_t* wilddog);
+int wilddog_on(wilddog_t* wilddog,onDataFunc onDataChange,onCompleteFunc callback);
 
 int wilddog_off(wilddog_t* wilddog);
+
+int wilddog_trySync(wilddog_t* wilddog);
 
 int wilddog_destroy(wilddog_t*);
 

@@ -7,58 +7,22 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include "Wilddog.h"
 
+char toPrint[1024];
 
-void showGet(wilddog_t* client,char* path) {
-	printf("GET %s %s \n",client->appid,path);
-	char buffer[100];
-	int result=wilddog_get(client,path,NULL,buffer,sizeof(buffer));
-	if(result>=0){
-		printf("result:\n %s \n",buffer);
+void onQueryComplete(wilddog_t* wilddog,int handle,int err){
+	wilddog_dump(wilddog,toPrint,sizeof(toPrint));
+	printf("%s",toPrint);
+	if(err){
+		printf("query error:%d\n",err);
 	}
 	else{
-		printf("error:%d\n",result);
+		printf("result:\n%s\n",cJSON_Print(wilddog->data));
 	}
 }
-void showPut(wilddog_t* client,char* path,char* data,size_t len) {
-	printf("PUT %s %s d:%s\n",client->appid,path,data);
-
-	int result=wilddog_put(client,path,data,len);
-
-	if(result>=0){
-		printf("put success\n");
-	}
-	else{
-		printf("error:%d\n",result);
-	}
-}
-void showDelete(wilddog_t* client,char* path) {
-	printf("DELETE %s %s \n",client->appid,path,data);
-
-	int result=wilddog_put(client,path);
-
-	if(result>=0){
-		printf("delete success\n");
-	}
-	else{
-		printf("error:%d\n",result);
-	}
-}
-void showPost(wilddog_t* client,char* path,char* data,size_t len) {
-	printf("POST %s %s d:%s\n",client->appid,path,data);
-	unsigned char resultBuf[32];
-	int result=wilddog_post(client,path,data,len,resultBuf,sizeof(resultBuf));
-
-	if(result>=0){
-		printf("post success\n%s\n",resultBuf);
-	}
-	else{
-		printf("error:%d\n",result);
-	}
-}
-
-//cmd post|get|put|observe appid -p path -t token
+//cmd post|get|put|observe appid -p path -t token -d data
 int main(int argc, char **argv) {
 
 #ifdef 	WORDS_BIGENDIAN
@@ -70,16 +34,17 @@ int main(int argc, char **argv) {
 	char dataInput[100];
 	int type=1;
 	int opt,i;
+	int argsDone=0;
 	while ((opt = getopt(argc, argv, "p:t:d:")) != -1) {
 		switch (opt) {
 		case 'p':
-			strcpy(path, optarg);
+			strcpy(path, (const char*)optarg);
 			break;
 		case 't':
-			strcpy(token, optarg);
+			strcpy(token, (const char*)optarg);
 			break;
 		case 'd':
-			strcpy(dataInput, optarg);
+			strcpy(dataInput, (const char*)optarg);
 			printf("test:%s",optarg);
 			break;
 		}
@@ -103,29 +68,37 @@ int main(int argc, char **argv) {
 		}
 		if(i==1){
 			strcpy(appid,argv[optind]);
+			argsDone=1;
 		}
 
 	}
-	char toPrint[200];
-	wilddog_t* client= wilddog_init(appid,token);
-	wilddog_dump(client,toPrint,sizeof(toPrint));
-	printf(toPrint);
-	switch (type) {
-		case 2:
-			showPost(client,path,dataInput,strlen(dataInput));
-			break;
-		case 3:
-			showPut(client,path,dataInput,strlen(dataInput));
-			break;
-		case 4:
-			showDelete(client,path);
-			break;
-		default:
-			showGet(client,path);
-			break;
+	if(!argsDone){
+		printf("Usage: cmd post|get|put|observe appid -p path -t token -d data \n");
+		return 0;
 	}
 
+	wilddog_t* client= wilddog_init(appid,path,token);
+	wilddog_dump(client,toPrint,sizeof(toPrint));
+	printf("%s",toPrint);
+	switch (type) {
+		case 2:
+
+			break;
+		case 3:
+
+			break;
+		case 4:
+
+			break;
+		default:
+			wilddog_query(client,onQueryComplete);
+			break;
+	}
+	while(1){
+		wilddog_trySync(client);
+
+	}
 
 	wilddog_destroy(client);
-
+	return 0;
 }

@@ -59,14 +59,14 @@ int wilddog_send(int socketId,wilddog_address_t* addr_in,void* tosend,size_t tos
 	return 0;
 
 }
-int wilddog_receive(int socketId,wilddog_address_t* addr,void* buf,size_t bufLen,size_t timeout){
+int wilddog_receive(int socketId,wilddog_address_t* addr,void* buf,size_t bufLen){
 	struct sockaddr_in remaddr;
 	socklen_t addrlen = sizeof(remaddr);
 	int recvlen;
 	struct timeval tv;
 
-	tv.tv_sec = timeout/1000;  /* 30 Secs Timeout */
-	tv.tv_usec = 0;  // Not init'ing this can cause strange errors
+	tv.tv_sec = 0;
+	tv.tv_usec = 1;
 
 	setsockopt(socketId, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval));
 
