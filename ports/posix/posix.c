@@ -17,6 +17,7 @@
 #include "port.h"
 
 int wilddog_gethostbyname(char* ipString,char* host){
+	printf("start gethostbyname\n");
 	struct hostent* hp;
 	struct sockaddr_in servaddr;
 	memset((char*)&servaddr, 0, sizeof(servaddr));

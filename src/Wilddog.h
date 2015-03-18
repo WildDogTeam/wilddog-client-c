@@ -45,6 +45,9 @@ typedef struct tagA{
 	request_t* sentQueue;
 	onDataFunc onData;
 	unsigned int timestamp;//ms
+	unsigned int lastSend;
+	unsigned int lastReceive;
+
 }tagA;
 
 

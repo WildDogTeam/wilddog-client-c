@@ -27,6 +27,13 @@ inline unsigned char nextToken(wilddog_t* wilddog) {
 	wilddog->token += 1;
 	return (unsigned char) (wilddog->token && (0xFF));
 }
+void wilddog_delete_request(request_t* req) {
+	if (req->coap_msg) {
+		coap_delete_pdu(req->coap_msg);
+	}
+	free(req);
+}
+
 #ifndef SYNC_TIME
 #define SYNC_TIME
 void syncTime(wilddog_t* wilddog) {
@@ -35,12 +42,16 @@ void syncTime(wilddog_t* wilddog) {
 
 #endif
 
-void _addOption(coap_pdu_t* coap_p, char * appid, char* path, char* auth) {
+void _addOption(coap_pdu_t* coap_p, char * appid, char* path, char* auth,char* observe) {
 	//add host
 	char host[strlen(appid) + strlen(WILDDOG_HOST_SUFFIX) + 1];
 	strcpy(host, appid);
 	strcat(host, WILDDOG_HOST_SUFFIX);
 	coap_add_option(coap_p, 3, strlen(host), host);
+	//add observe
+	if(observe){
+		coap_add_option(coap_p,6,1,observe);
+	}
 
 	//add path
 	char toTok[strlen(path)];
@@ -164,6 +175,7 @@ unsigned int diff(cJSON* old, cJSON* new) {
 void onAck(wilddog_t* wilddog, int handle, onCompleteFunc callback,
 		coap_pdu_t* req, coap_pdu_t* resp) {
 	int errorCode = 0;
+	WD_DEBUG("received ack code:%d ", codeToInt(resp->hdr->code));
 	if (codeToInt(resp->hdr->code) / 100 != 2) {
 		//TODO handle err
 		WD_ERROR("return code:%d", codeToInt(resp->hdr->code));
@@ -239,7 +251,8 @@ void onAck(wilddog_t* wilddog, int handle, onCompleteFunc callback,
 				cJSON_Delete(res);
 				return;
 			}
-			cJSON* keyNode = cJSON_GetObjectItem(res, "newKey");
+			cJSON* keyNode = cJSON_GetObjectItem(res, "newkey");
+
 			if (!keyNode) {
 				WD_ERROR("no new key returned");
 				if (callback) {
@@ -255,10 +268,10 @@ void onAck(wilddog_t* wilddog, int handle, onCompleteFunc callback,
 				if (wilddog->data == NULL) {
 					if (callback)
 						callback(wilddog, handle, WILDDOG_CODE_MALLOC_ERROR);
+					cJSON_Delete(res);
+					cJSON_Delete(childNode);
+					return;
 				}
-				cJSON_Delete(res);
-				cJSON_Delete(childNode);
-				return;
 			}
 			cJSON_AddItemToObject(wilddog->data, keyNode->valuestring,
 					childNode);
@@ -335,8 +348,7 @@ void wilddog_queueAge(wilddog_t* wilddog) {
 			if (curr) {
 
 				onTimeout(wilddog, curr);
-				coap_delete_pdu(curr->coap_msg);
-				free(curr);
+				wilddog_delete_request(curr);
 				curr = NULL;
 			}
 		}
@@ -344,42 +356,62 @@ void wilddog_queueAge(wilddog_t* wilddog) {
 }
 void wilddog_handleAck(wilddog_t* wilddog, coap_pdu_t* resp) {
 	unsigned int id = resp->hdr->id;
+	char* token = resp->hdr->token;
+	size_t tkl = resp->hdr->token_length;
 	request_t* tmp;
 	request_t* curr;
 	int processed = 0;
 	LL_FOREACH_SAFE(wilddog->sentQueue,curr,tmp)
 	{
-
-		if (curr->flag && 0x01) {
-			//observe
-			//TODO onNotify find request by token,
-			//send ping every x secound
-			//if receive ackping in y second reconnect
-
+		if (curr && curr->coap_msg->hdr->id == id) {
 			onAck(wilddog, curr->handle, curr->callback, curr->coap_msg, resp);
 			processed = 1;
-			break;
-		} else {
-			if (curr && curr->coap_msg->hdr->id == id) {
+			if (curr->flag && 0x01) {
+			} else {
 
 				LL_DELETE(wilddog->sentQueue, curr);
 				if (curr) {
-					onAck(wilddog, curr->handle, curr->callback, curr->coap_msg,
-							resp);
 					coap_delete_pdu(curr->coap_msg);
 					free(curr);
 					curr = NULL;
-					processed = 1;
 				}
+			}
+
+		} else if (tkl > 0) {
+			if (curr->flag | 0x01) {
+				//observe
+				if (tkl == curr->coap_msg->hdr->token_length) {
+					char* currToken = curr->coap_msg->hdr->token;
+					//find if token eql
+					int dif = 0;
+					int i = 0;
+					for (; i < tkl; i++) {
+						if (token[i] != currToken[i]) {
+							dif = 1;
+						}
+					}
+					if (dif == 0) {
+						// token eql,this is a notify
+						onAck(wilddog, curr->handle, NULL, curr->coap_msg,
+								resp);
+						processed = 1;
+
+					}
+				}
+
 			}
 
 		}
 
 	}
 	if (!processed) {
-		//client don't remeber the message id
+		//client don't remeber the message id send rst
 
 	}
+}
+void wilddog_handleRst(wilddog_t* willdog, coap_pdu_t* resp) {
+	WD_DEBUG("handle rst id:%u", resp->hdr->id);
+
 }
 
 int wilddog_sendGet(wilddog_t* wilddog, int handle, void* callback) {
@@ -387,7 +419,7 @@ int wilddog_sendGet(wilddog_t* wilddog, int handle, void* callback) {
 //coap pack
 	coap_pdu_t* coap_p = coap_pdu_init(0, 1, htons(++wilddog->msgId),
 	COAP_MAX_SIZE);
-	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth);
+	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth,NULL);
 //if socket not created,create
 	if (wilddog->socketId == 0) {
 		returnCode = wilddog_openSocket(&(wilddog->socketId));
@@ -400,6 +432,7 @@ int wilddog_sendGet(wilddog_t* wilddog, int handle, void* callback) {
 	}
 	returnCode = wilddog_send(wilddog->socketId, &(wilddog->remoteAddr),
 			coap_p->hdr, coap_p->length);
+	wilddog->lastSend = wilddog->timestamp;
 	if (returnCode < 0) {
 		coap_delete_pdu(coap_p);
 		return WILDDOG_CODE_SENDERROR;
@@ -420,7 +453,7 @@ int wilddog_sendPost(wilddog_t* wilddog, char* buffer, size_t length,
 //coap pack
 	coap_pdu_t* coap_p = coap_pdu_init(0, 2, htons(++wilddog->msgId),
 	COAP_MAX_SIZE);
-	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth);
+	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth,NULL);
 	coap_add_data(coap_p, length, buffer);
 //if socket not created,create
 	if (wilddog->socketId == 0) {
@@ -434,7 +467,7 @@ int wilddog_sendPost(wilddog_t* wilddog, char* buffer, size_t length,
 	}
 	returnCode = wilddog_send(wilddog->socketId, &(wilddog->remoteAddr),
 			coap_p->hdr, coap_p->length);
-
+	wilddog->lastSend = wilddog->timestamp;
 	if (returnCode < 0) {
 		coap_delete_pdu(coap_p);
 		return WILDDOG_CODE_SENDERROR;
@@ -457,11 +490,12 @@ int wilddog_sendPut(wilddog_t* wilddog, char* buffer, size_t length, int handle,
 	//coap pack
 	coap_pdu_t* coap_p = coap_pdu_init(0, 3, htons(++wilddog->msgId),
 	COAP_MAX_SIZE);
-	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth);
+	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth,NULL);
 	coap_add_data(coap_p, length, buffer);
 	//if socket not created,create
 	if (wilddog->socketId == 0) {
 		returnCode = wilddog_openSocket(&(wilddog->socketId));
+		wilddog->lastSend = wilddog->timestamp;
 		if (returnCode < 0) {
 			coap_delete_pdu(coap_p); //delete
 			coap_p = NULL;
@@ -494,10 +528,11 @@ int wilddog_sendDelete(wilddog_t* wilddog, int handle, void* callback) {
 	//coap pack
 	coap_pdu_t* coap_p = coap_pdu_init(0, 4, htons(++wilddog->msgId),
 	COAP_MAX_SIZE);
-	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth);
+	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth,NULL);
 	//if socket not created,create
 	if (wilddog->socketId == 0) {
 		returnCode = wilddog_openSocket(&(wilddog->socketId));
+		wilddog->lastSend = wilddog->timestamp;
 		if (returnCode < 0) {
 			coap_delete_pdu(coap_p); //delete
 			coap_p = NULL;
@@ -533,9 +568,9 @@ int wilddog_sendObserve(wilddog_t* wilddog, int handle, void* callback) {
 	COAP_MAX_SIZE);
 	unsigned char token = nextToken(wilddog);
 	coap_add_token(coap_p, 1, &token);
-	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth);
 	unsigned char observeid = 0;
-	coap_add_option(coap_p, COAP_OPTION_OBSERVE, 1, &observeid);
+	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth,&observeid);
+
 	//if socket not created,create
 	if (wilddog->socketId == 0) {
 		returnCode = wilddog_openSocket(&(wilddog->socketId));
@@ -548,6 +583,7 @@ int wilddog_sendObserve(wilddog_t* wilddog, int handle, void* callback) {
 	}
 	returnCode = wilddog_send(wilddog->socketId, &(wilddog->remoteAddr),
 			coap_p->hdr, coap_p->length);
+	wilddog->lastSend = wilddog->timestamp;
 	if (returnCode < 0) {
 		coap_delete_pdu(coap_p);
 		return WILDDOG_CODE_SENDERROR;
@@ -564,9 +600,9 @@ int wilddog_sendObserve(wilddog_t* wilddog, int handle, void* callback) {
 	return 0;
 
 }
-wilddog_sendRstToObserve(wilddog_t* wilddog, request_t* request) {
+int wilddog_sendRstToObserve(wilddog_t* wilddog, request_t* request) {
 	int returnCode = 0;
-	coap_pdu_t* toSend = coap_pdu_init(3, 0, htons(++wilddog->msgId),
+	coap_pdu_t* toSend = coap_pdu_init(3, 1, htons(++wilddog->msgId),
 	COAP_MAX_SIZE);
 	if (toSend == NULL) {
 		WD_ERROR("coap_addToken error");
@@ -585,6 +621,21 @@ wilddog_sendRstToObserve(wilddog_t* wilddog, request_t* request) {
 			toSend->hdr, toSend->length);
 	coap_delete_pdu(toSend);
 	return returnCode;
+}
+int wilddog_sendPing(wilddog_t* wilddog) {
+	int returnCode = 0;
+	coap_pdu_t* toSend = coap_pdu_init(0, 1, htons(++wilddog->msgId),
+	COAP_MAX_SIZE);
+	if (toSend == NULL) {
+		WD_ERROR("coap_addToken error");
+		return WILDDOG_CODE_COAP_TOBUF_ERROR;
+	}
+	returnCode = wilddog_send(wilddog->socketId, &(wilddog->remoteAddr),
+			toSend->hdr, toSend->length);
+	coap_delete_pdu(toSend);
+
+	return returnCode;
+
 }
 
 wilddog_t* wilddog_init(char* appid, char* path, char* auth) {
@@ -626,7 +677,7 @@ int wilddog_set(wilddog_t* wilddog, cJSON* data, onCompleteFunc callback) {
 	if (dataToSend == NULL) {
 		return WILDDOG_CODE_MALLOC_ERROR;
 	}
-	int res = wilddog_sendPut(wilddog, dataToSend, strcpy(dataToSend), handle,
+	int res = wilddog_sendPut(wilddog, dataToSend, strlen(dataToSend), handle,
 			callback);
 	free(dataToSend);
 	dataToSend = NULL;
@@ -641,7 +692,8 @@ int wilddog_push(wilddog_t* wilddog, cJSON* data, onCompleteFunc callback) {
 	if (dataToSend == NULL) {
 		return WILDDOG_CODE_MALLOC_ERROR;
 	}
-	int res = wilddog_sendPost(wilddog, dataToSend, strcpy);
+	int res = wilddog_sendPost(wilddog, dataToSend, strlen(dataToSend), handle,
+			callback);
 	free(dataToSend);
 	dataToSend = NULL;
 	if (res < 0) {
@@ -670,15 +722,21 @@ int wilddog_on(wilddog_t* wilddog, onDataFunc onDataChange,
 }
 
 int wilddog_off(wilddog_t* wilddog) {
-	wilddog->sentQueue;
+	request_t* head = wilddog->sentQueue;
 	request_t* tmp;
 	request_t* cur;
-	LL_FOREACH_SAFE(wilddog->sentQueue,cur,tmp)
+	LL_FOREACH_SAFE(head,cur,tmp)
 	{
-
+		//delete observe
+		if (cur->flag | 0x01) {
+			wilddog_sendRstToObserve(wilddog, cur);
+			LL_DELETE(head, cur);
+			wilddog_delete_request(cur);
+		}
 	}
-	int res = wilddog_sendRSToObserve(wilddog, request_t * request);
+	wilddog->onData = NULL;
 
+	return 0;
 }
 
 int wilddog_trySync(wilddog_t* wilddog) {
@@ -688,11 +746,29 @@ int wilddog_trySync(wilddog_t* wilddog) {
 //sync time
 	syncTime(wilddog);
 
+	//WD_DEBUG("test try synctimestamp:%u,lastsend:%u,lastreceive:%u",wilddog->timestamp,wilddog->lastSend,wilddog->lastReceive);
+	if (wilddog->timestamp - wilddog->lastReceive > WILDDOG_RECONNECT_THRESHOLD) {
+		WD_DEBUG("reconnect");
+		if (wilddog->socketId)
+			wilddog_closeSocket(wilddog->socketId);
+		wilddog_openSocket(&wilddog->socketId);
+		wilddog->lastReceive=wilddog->timestamp;
+	}
+
+	if (wilddog->timestamp - wilddog->lastSend > WILDDOG_PING_INTV) {
+		//send ping
+		wilddog->lastSend = wilddog->timestamp;
+		if (wilddog_sendPing(wilddog) < 0) {
+			WD_DEBUG("send ping error");
+		}
+
+	}
 	if ((receiveSize = wilddog_receive(wilddog->socketId, &wilddog->remoteAddr,
 			buf, sizeof(buf))) > 0) {
 		coap_pdu_t* resP = coap_new_pdu();
 		if (coap_pdu_parse(buf, (size_t) receiveSize, resP)) {
 			//success
+			wilddog->lastReceive = wilddog->timestamp;
 			if (resP->hdr->type == 0) { //CON
 
 			} else if (resP->hdr->type == 1) { //NON
@@ -700,7 +776,7 @@ int wilddog_trySync(wilddog_t* wilddog) {
 			} else if (resP->hdr->type == 2) { //ACK
 				wilddog_handleAck(wilddog, resP);
 			} else if (resP->hdr->type == 3) { //RST
-
+				wilddog_handleRst(wilddog, resP);
 			}
 
 		} else {
@@ -733,7 +809,7 @@ int wilddog_destroy(wilddog_t* wilddog) {
 			}
 		}
 		if (wilddog->socketId) {
-			wilddog_closeSocket(socketId);
+			wilddog_closeSocket(wilddog->socketId);
 		}
 		free(wilddog);
 		wilddog = NULL;
