@@ -42,15 +42,13 @@ void syncTime(wilddog_t* wilddog) {
 
 #endif
 
-void _addOption(coap_pdu_t* coap_p, char * appid, char* path, char* auth,char* observe) {
+void _addOption(coap_pdu_t* coap_p, char * host, char* path, char* auth,
+		char* observe) {
 	//add host
-	char host[strlen(appid) + strlen(WILDDOG_HOST_SUFFIX) + 1];
-	strcpy(host, appid);
-	strcat(host, WILDDOG_HOST_SUFFIX);
 	coap_add_option(coap_p, 3, strlen(host), host);
 	//add observe
-	if(observe){
-		coap_add_option(coap_p,6,1,observe);
+	if (observe) {
+		coap_add_option(coap_p, 6, 1, observe);
 	}
 
 	//add path
@@ -354,7 +352,7 @@ void wilddog_queueAge(wilddog_t* wilddog) {
 		}
 	}
 }
-void wilddog_handleAck(wilddog_t* wilddog, coap_pdu_t* resp) {
+void wilddog_handleResp(wilddog_t* wilddog, coap_pdu_t* resp) {
 	unsigned int id = resp->hdr->id;
 	char* token = resp->hdr->token;
 	size_t tkl = resp->hdr->token_length;
@@ -364,16 +362,20 @@ void wilddog_handleAck(wilddog_t* wilddog, coap_pdu_t* resp) {
 	LL_FOREACH_SAFE(wilddog->sentQueue,curr,tmp)
 	{
 		if (curr && curr->coap_msg->hdr->id == id) {
-			onAck(wilddog, curr->handle, curr->callback, curr->coap_msg, resp);
-			processed = 1;
-			if (curr->flag && 0x01) {
-			} else {
+			if (resp->hdr->type == 2) {
+				onAck(wilddog, curr->handle, curr->callback, curr->coap_msg,
+						resp);
+				processed = 1;
+				if (curr->flag && 0x01) {
+					//do not remove from queue
+				} else {
 
-				LL_DELETE(wilddog->sentQueue, curr);
-				if (curr) {
-					coap_delete_pdu(curr->coap_msg);
-					free(curr);
-					curr = NULL;
+					LL_DELETE(wilddog->sentQueue, curr);
+					if (curr) {
+						coap_delete_pdu(curr->coap_msg);
+						free(curr);
+						curr = NULL;
+					}
 				}
 			}
 
@@ -394,6 +396,11 @@ void wilddog_handleAck(wilddog_t* wilddog, coap_pdu_t* resp) {
 						// token eql,this is a notify
 						onAck(wilddog, curr->handle, NULL, curr->coap_msg,
 								resp);
+						if (curr->coap_msg->hdr->type == 0) {
+							//confirmable send ack
+							wilddog_sendAck(wilddog, resp);
+
+						}
 						processed = 1;
 
 					}
@@ -409,9 +416,17 @@ void wilddog_handleAck(wilddog_t* wilddog, coap_pdu_t* resp) {
 
 	}
 }
-void wilddog_handleRst(wilddog_t* willdog, coap_pdu_t* resp) {
-	WD_DEBUG("handle rst id:%u", resp->hdr->id);
-
+int wilddog_socketReconnect(wilddog_t* wilddog) {
+	//if socket not created,create
+	int returnCode = 0;
+	if (wilddog->socketId == 0) {
+		returnCode = wilddog_openSocket(&(wilddog->socketId));
+		if (returnCode < 0) {
+			WD_ERROR("wilddog_openSocket error:%d", returnCode);
+			return WILDDOG_CODE_NO_ALIVE_SOCKET;
+		}
+	}
+	return 0;
 }
 
 int wilddog_sendGet(wilddog_t* wilddog, int handle, void* callback) {
@@ -419,16 +434,11 @@ int wilddog_sendGet(wilddog_t* wilddog, int handle, void* callback) {
 //coap pack
 	coap_pdu_t* coap_p = coap_pdu_init(0, 1, htons(++wilddog->msgId),
 	COAP_MAX_SIZE);
-	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth,NULL);
-//if socket not created,create
-	if (wilddog->socketId == 0) {
-		returnCode = wilddog_openSocket(&(wilddog->socketId));
-		if (returnCode < 0) {
-			coap_delete_pdu(coap_p); //delete
-			coap_p = NULL;
-			WD_ERROR("wilddog_openSocket error:%d", returnCode);
-			return WILDDOG_CODE_NO_ALIVE_SOCKET;
-		}
+	_addOption(coap_p, wilddog->url->host, wilddog->url->path, wilddog->auth, NULL);
+	if ((returnCode = wilddog_socketReconnect(wilddog)) < 0) {
+		coap_delete_pdu(coap_p); //delete
+		coap_p = NULL;
+		return returnCode;
 	}
 	returnCode = wilddog_send(wilddog->socketId, &(wilddog->remoteAddr),
 			coap_p->hdr, coap_p->length);
@@ -453,17 +463,12 @@ int wilddog_sendPost(wilddog_t* wilddog, char* buffer, size_t length,
 //coap pack
 	coap_pdu_t* coap_p = coap_pdu_init(0, 2, htons(++wilddog->msgId),
 	COAP_MAX_SIZE);
-	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth,NULL);
+	_addOption(coap_p, wilddog->url->host, wilddog->url->path, wilddog->auth, NULL);
 	coap_add_data(coap_p, length, buffer);
-//if socket not created,create
-	if (wilddog->socketId == 0) {
-		returnCode = wilddog_openSocket(&(wilddog->socketId));
-		if (returnCode < 0) {
-			coap_delete_pdu(coap_p); //delete
-			coap_p = NULL;
-			WD_ERROR("wilddog_openSocket error:%d", returnCode);
-			return WILDDOG_CODE_NO_ALIVE_SOCKET;
-		}
+	if ((returnCode = wilddog_socketReconnect(wilddog)) < 0) {
+		coap_delete_pdu(coap_p); //delete
+		coap_p = NULL;
+		return returnCode;
 	}
 	returnCode = wilddog_send(wilddog->socketId, &(wilddog->remoteAddr),
 			coap_p->hdr, coap_p->length);
@@ -490,20 +495,14 @@ int wilddog_sendPut(wilddog_t* wilddog, char* buffer, size_t length, int handle,
 	//coap pack
 	coap_pdu_t* coap_p = coap_pdu_init(0, 3, htons(++wilddog->msgId),
 	COAP_MAX_SIZE);
-	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth,NULL);
+	_addOption(coap_p, wilddog->url->host, wilddog->url->path, wilddog->auth, NULL);
 	coap_add_data(coap_p, length, buffer);
-	//if socket not created,create
-	if (wilddog->socketId == 0) {
-		returnCode = wilddog_openSocket(&(wilddog->socketId));
-		wilddog->lastSend = wilddog->timestamp;
-		if (returnCode < 0) {
-			coap_delete_pdu(coap_p); //delete
-			coap_p = NULL;
-			WD_ERROR("wilddog_openSocket error:%d", returnCode);
-			return WILDDOG_CODE_NO_ALIVE_SOCKET;
-		}
-	}
 
+	if ((returnCode = wilddog_socketReconnect(wilddog)) < 0) {
+		coap_delete_pdu(coap_p); //delete
+		coap_p = NULL;
+		return returnCode;
+	}
 	returnCode = wilddog_send(wilddog->socketId, &(wilddog->remoteAddr),
 			coap_p->hdr, coap_p->length);
 
@@ -528,17 +527,12 @@ int wilddog_sendDelete(wilddog_t* wilddog, int handle, void* callback) {
 	//coap pack
 	coap_pdu_t* coap_p = coap_pdu_init(0, 4, htons(++wilddog->msgId),
 	COAP_MAX_SIZE);
-	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth,NULL);
+	_addOption(coap_p, wilddog->url->host, wilddog->url->path, wilddog->auth, NULL);
 	//if socket not created,create
-	if (wilddog->socketId == 0) {
-		returnCode = wilddog_openSocket(&(wilddog->socketId));
-		wilddog->lastSend = wilddog->timestamp;
-		if (returnCode < 0) {
-			coap_delete_pdu(coap_p); //delete
-			coap_p = NULL;
-			WD_ERROR("wilddog_openSocket error:%d", returnCode);
-			return WILDDOG_CODE_NO_ALIVE_SOCKET;
-		}
+	if ((returnCode = wilddog_socketReconnect(wilddog)) < 0) {
+		coap_delete_pdu(coap_p); //delete
+		coap_p = NULL;
+		return returnCode;
 	}
 
 	returnCode = wilddog_send(wilddog->socketId, &(wilddog->remoteAddr),
@@ -569,17 +563,14 @@ int wilddog_sendObserve(wilddog_t* wilddog, int handle, void* callback) {
 	unsigned char token = nextToken(wilddog);
 	coap_add_token(coap_p, 1, &token);
 	unsigned char observeid = 0;
-	_addOption(coap_p, wilddog->appid, wilddog->path, wilddog->auth,&observeid);
+	_addOption(coap_p, wilddog->url->host, wilddog->url->path, wilddog->auth,
+			&observeid);
 
 	//if socket not created,create
-	if (wilddog->socketId == 0) {
-		returnCode = wilddog_openSocket(&(wilddog->socketId));
-		if (returnCode < 0) {
-			coap_delete_pdu(coap_p); //delete
-			coap_p = NULL;
-			WD_ERROR("wilddog_openSocket error:%d", returnCode);
-			return WILDDOG_CODE_NO_ALIVE_SOCKET;
-		}
+	if ((returnCode = wilddog_socketReconnect(wilddog)) < 0) {
+		coap_delete_pdu(coap_p); //delete
+		coap_p = NULL;
+		return returnCode;
 	}
 	returnCode = wilddog_send(wilddog->socketId, &(wilddog->remoteAddr),
 			coap_p->hdr, coap_p->length);
@@ -622,6 +613,7 @@ int wilddog_sendRstToObserve(wilddog_t* wilddog, request_t* request) {
 	coap_delete_pdu(toSend);
 	return returnCode;
 }
+
 int wilddog_sendPing(wilddog_t* wilddog) {
 	int returnCode = 0;
 	coap_pdu_t* toSend = coap_pdu_init(0, 1, htons(++wilddog->msgId),
@@ -637,23 +629,40 @@ int wilddog_sendPing(wilddog_t* wilddog) {
 	return returnCode;
 
 }
+int wilddog_sendAck(wilddog_t* wilddog, coap_pdu_t* resp) {
+	int returnCode;
+	unsigned int id = resp->hdr->id;
+	size_t tkl = resp->hdr->token_length;
+	char* tk = resp->hdr->token;
+	coap_pdu_t* toSend = coap_pdu_init(2, 0, id, COAP_MAX_SIZE);
+	if (toSend == NULL) {
+		WD_ERROR("coap_addToken error");
+		return WILDDOG_CODE_COAP_TOBUF_ERROR;
+	}
+	returnCode = wilddog_send(wilddog->socketId, &(wilddog->remoteAddr),
+			toSend->hdr, toSend->length);
+	coap_delete_pdu(toSend);
 
-wilddog_t* wilddog_init(char* appid, char* path, char* auth) {
+	return returnCode;
 
+}
+
+
+wilddog_t* wilddog_new(char* url) {
+
+	struct parsed_url* url_st=parse_url(url);
+	char* host=url_st->host;
+	char h[strlen(url_st->host)+1];
+
+	char* appid=strtok(h,".");
 	wilddog_t* res = malloc(sizeof(wilddog_t));
 	memset(res, 0, sizeof(res));
-	res->appid = appid;
-	res->path = path;
-	res->auth = auth;
-	res->remoteAddr.ip = res->serverIp;
-	res->remoteAddr.port = WILDDOG_SERVER_PORT;
+	res->url=url_st;
 	res->msgId = 1;
 	res->token = 1;
+	res->connected = 1;
 
-	char host[strlen(appid) + strlen(WILDDOG_HOST_SUFFIX) + 1];
-	strcpy(host, appid);
-	strcat(host, WILDDOG_HOST_SUFFIX);
-	if (wilddog_gethostbyname(res->serverIp, host) < 0) {
+	if (wilddog_gethostbyname(&res->remoteAddr, res->url->host) < 0) {
 		free(res);
 		return NULL;
 	}
@@ -718,6 +727,8 @@ int wilddog_on(wilddog_t* wilddog, onDataFunc onDataChange,
 		return res;
 	}
 	wilddog->onData = onDataChange;
+	wilddog->observeHandle = handle;
+
 	return handle;
 }
 
@@ -748,11 +759,10 @@ int wilddog_trySync(wilddog_t* wilddog) {
 
 	//WD_DEBUG("test try synctimestamp:%u,lastsend:%u,lastreceive:%u",wilddog->timestamp,wilddog->lastSend,wilddog->lastReceive);
 	if (wilddog->timestamp - wilddog->lastReceive > WILDDOG_RECONNECT_THRESHOLD) {
-		WD_DEBUG("reconnect");
-		if (wilddog->socketId)
-			wilddog_closeSocket(wilddog->socketId);
-		wilddog_openSocket(&wilddog->socketId);
-		wilddog->lastReceive=wilddog->timestamp;
+		wilddog->connected = 0;
+		wilddog_socketReconnect(wilddog);
+		wilddog->lastReceive = wilddog->timestamp;
+
 	}
 
 	if (wilddog->timestamp - wilddog->lastSend > WILDDOG_PING_INTV) {
@@ -765,19 +775,21 @@ int wilddog_trySync(wilddog_t* wilddog) {
 	}
 	if ((receiveSize = wilddog_receive(wilddog->socketId, &wilddog->remoteAddr,
 			buf, sizeof(buf))) > 0) {
+
+		if (wilddog->connected == 0) {
+			if (wilddog->onData) {
+				//wilddog_sendObserve(wilddog, wilddog->observeHandle,wilddog->onData);
+				WD_DEBUG("onData");
+			}
+			wilddog->connected = 1;
+		}
+
 		coap_pdu_t* resP = coap_new_pdu();
 		if (coap_pdu_parse(buf, (size_t) receiveSize, resP)) {
 			//success
 			wilddog->lastReceive = wilddog->timestamp;
-			if (resP->hdr->type == 0) { //CON
 
-			} else if (resP->hdr->type == 1) { //NON
-
-			} else if (resP->hdr->type == 2) { //ACK
-				wilddog_handleAck(wilddog, resP);
-			} else if (resP->hdr->type == 3) { //RST
-				wilddog_handleRst(wilddog, resP);
-			}
+			wilddog_handleResp(wilddog, resP);
 
 		} else {
 			//error
@@ -794,7 +806,9 @@ int wilddog_trySync(wilddog_t* wilddog) {
 
 int wilddog_destroy(wilddog_t* wilddog) {
 	if (wilddog) {
-		//free data
+		if(wilddog->url){
+			parsed_url_free(wilddog->url);
+		}
 		if (wilddog->data) {
 			cJSON_Delete(wilddog->data);
 			wilddog->data = NULL;
@@ -818,21 +832,5 @@ int wilddog_destroy(wilddog_t* wilddog) {
 
 }
 
-int wilddog_dump(wilddog_t* wilddog, char * buffer, size_t len) {
-	char *def = "NULL";
-	char * datastr = def;
-	if (wilddog->data) {
-		datastr = cJSON_Print(wilddog->data);
-	}
-	snprintf(buffer, len,
-			"{\nappid:%s\npath:%s\nauth:%s\nip:%s\nport:%u\nsocketId:%d\ntoken:%ud\ndata:%s\n}\n",
-			wilddog->appid, wilddog->path, wilddog->auth, wilddog->serverIp,
-			wilddog->remoteAddr.port, wilddog->socketId, wilddog->token,
-			datastr);
-	if (datastr != def) {
-		free(datastr);
-	}
-	return 0;
 
-}
 

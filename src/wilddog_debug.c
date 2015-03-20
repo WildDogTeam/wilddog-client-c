@@ -53,5 +53,24 @@ void debug_output_(const char* c)
 }
 
 
+int wilddog_dump(wilddog_t* wilddog, char * buffer, size_t len) {
+	char *def = "NULL";
+	char * datastr = def;
+	if (wilddog->data) {
+		datastr = cJSON_Print(wilddog->data);
+	}
+	snprintf(buffer, len,
+			"{\nhost:%s\npath:%s\nauth:%s\nip:%u.%u.%u.%u\nport:%u\nsocketId:%d\ntoken:%ud\ndata:%s\n}\n",
+			wilddog->url->host, wilddog->url->path, wilddog->auth, wilddog->remoteAddr.ip[0],wilddog->remoteAddr.ip[1],wilddog->remoteAddr.ip[2],wilddog->remoteAddr.ip[3],
+			wilddog->remoteAddr.port, wilddog->socketId, wilddog->token,
+			datastr);
+	if (datastr != def) {
+		free(datastr);
+	}
+	return 0;
+
+}
+
+
 
 

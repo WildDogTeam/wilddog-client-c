@@ -46,19 +46,18 @@ int main(int argc, char **argv) {
 #ifdef 	WORDS_BIGENDIAN
 	printf("WORDS_BIGENDIAN \n");
 #endif
-	char path[100];
+	char url[1024];
+	char dataInput[1024];
 	char token[32];
-	char appid[32];
-	char dataInput[100];
+	memset(url,0,sizeof(url));
+	memset(dataInput,0,sizeof(dataInput));
+	memset(token,0,sizeof(token));
 	cJSON* data;
 	int type=1;
 	int opt,i;
 	int argsDone=0;
-	while ((opt = getopt(argc, argv, "p:t:d:")) != -1) {
+	while ((opt = getopt(argc, argv, "t:d:")) != -1) {
 		switch (opt) {
-		case 'p':
-			strcpy(path, (const char*)optarg);
-			break;
 		case 't':
 			strcpy(token, (const char*)optarg);
 			break;
@@ -88,20 +87,24 @@ int main(int argc, char **argv) {
 
 		}
 		if(i==1){
-			strcpy(appid,argv[optind]);
+			strcpy(url,argv[optind]);
 			argsDone=1;
 		}
 
 	}
 	if(!argsDone){
-		printf("Usage: cmd set|push|get|observe appid -p path -t token -d data \n");
+		printf("Usage: cmd set|push|get|observe url -t token -d data \n");
 		return 0;
 	}
 
-	wilddog_t* client= wilddog_init(appid,path,token);
+	wilddog_t* client= wilddog_new(url);
+
 	if(!client){
 		printf("can't connect to server \n");
 		return 0;
+	}
+	if(strlen(token)>0){
+		wilddog_setAuth(client,token);
 	}
 	wilddog_dump(client,toPrint,sizeof(toPrint));
 	printf("%s",toPrint);

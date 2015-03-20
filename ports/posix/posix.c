@@ -16,19 +16,15 @@
 #include <assert.h>
 #include "port.h"
 
-int wilddog_gethostbyname(char* ipString,char* host){
+int wilddog_gethostbyname(wilddog_address_t* addr,char* host){
 	printf("start gethostbyname\n");
 	struct hostent* hp;
-	struct sockaddr_in servaddr;
-	memset((char*)&servaddr, 0, sizeof(servaddr));
-	servaddr.sin_family = AF_INET;
-	servaddr.sin_port = htons(WILDDOG_SERVER_PORT);
 	if((hp=gethostbyname(host))==NULL){
 		return -1;
 	}
-	memcpy((void *)&servaddr.sin_addr, hp->h_addr_list[0], hp->h_length);
-	char* tmp=inet_ntoa(servaddr.sin_addr);
-	strcpy(ipString,tmp);
+	memcpy(addr->ip, hp->h_addr_list[0], hp->h_length);
+	addr->len = hp->h_length;
+	addr->port=htons(WILDDOG_SERVER_PORT);
 	return 0;
 }
 int wilddog_openSocket(int* socketId){
@@ -48,9 +44,15 @@ int wilddog_send(int socketId,wilddog_address_t* addr_in,void* tosend,size_t tos
 	struct sockaddr_in servaddr;    /* server address */
 	/* fill in the server's address and data */
 	memset((char*)&servaddr, 0, sizeof(servaddr));
-	servaddr.sin_family = AF_INET;
-	servaddr.sin_port = htons(addr_in->port);
-	servaddr.sin_addr.s_addr = inet_addr(addr_in->ip);
+	if(addr_in->len==4){
+		servaddr.sin_family = AF_INET;
+	}
+	else{
+		perror("unkown addr len");
+		return -1;
+	}
+	servaddr.sin_port = addr_in->port;
+	memcpy(&servaddr.sin_addr.s_addr,addr_in->ip,addr_in->len);
 
 	if(sendto(socketId, tosend, tosendLength, 0, (struct sockaddr *)&servaddr,
 	         sizeof(servaddr))<0){

@@ -12,6 +12,9 @@
 #include "pdu.h"
 #include "cJSON.h"
 #include "utlist.h"
+#include <stddef.h>
+#include "url_parser.h"
+
 typedef struct tagA wilddog_t;
 typedef struct tagB request_t;
 typedef void (*onDataFunc)(wilddog_t* wilddog,cJSON* value);
@@ -32,26 +35,31 @@ typedef struct tagB {
 }tagB;
 
 typedef struct tagA{
+	char* protocol;
 	char* appid;
 	char* path;
 	char* auth;
+	struct parsed_url* url;
 	wilddog_address_t remoteAddr;
 	int socketId;
-	char serverIp[48];
 	unsigned short msgId;
+	unsigned char connected;
 	unsigned int token;
 	cJSON* data;
 	cJSON* newChild;
 	request_t* sentQueue;
 	onDataFunc onData;
+	int observeHandle;
 	unsigned int timestamp;//ms
 	unsigned int lastSend;
 	unsigned int lastReceive;
 
+
+
 }tagA;
 
 
-wilddog_t* wilddog_init(char* appid,char* path, char* token);
+wilddog_t* wilddog_new(char* url);
 
 void wilddog_setAuth(wilddog_t* wilddog,unsigned char* auth);
 /**
@@ -64,7 +72,7 @@ int wilddog_set(wilddog_t* wilddog,cJSON* data,onCompleteFunc callback);
 
 int wilddog_push(wilddog_t* wilddog,cJSON* data,onCompleteFunc callback);
 
-int wilddog_delete(wilddog_t* wilddog,onCompleteFunc callback);
+int wilddog_remove(wilddog_t* wilddog,onCompleteFunc callback);
 
 int wilddog_on(wilddog_t* wilddog,onDataFunc onDataChange,onCompleteFunc callback);
 
@@ -74,6 +82,6 @@ int wilddog_trySync(wilddog_t* wilddog);
 
 int wilddog_destroy(wilddog_t*);
 
-int wilddog_dump(wilddog_t* wilddog,char * buffer,size_t len);
+
 
 #endif /* WILDDOG_H_ */

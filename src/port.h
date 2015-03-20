@@ -9,12 +9,12 @@
 
 
 typedef struct {
-	char type;//0:IPv4 1:IPv6
-	char* ip;
-	int port;
+	char len;//4 or 16
+	char ip[16];
+	unsigned short port;
 } wilddog_address_t;
 
-int wilddog_gethostbyname(char* ipString,char* host);
+int wilddog_gethostbyname(wilddog_address_t* addr,char* host);
 int wilddog_openSocket(int* socketId);
 int wilddog_closeSocket(int socketId);
 int wilddog_send(int socketId,wilddog_address_t*,void* tosend,size_t tosendLength);

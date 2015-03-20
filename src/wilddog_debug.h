@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-
+#include "Wilddog.h"
 
 #if !defined(arraySize)
 #   define arraySize(a)            (sizeof((a))/sizeof((a[0])))
@@ -43,5 +43,5 @@ void debug_output_(const char *) __attribute__ ((weak));
 #define WD_DEBUG(fmt, ...)  do { if ( __LOG_LEVEL_TEST(LOG_LEVEL_DEBUG))  {log_print_(LOG_LEVEL_DEBUG,__LINE__,__PRETTY_FUNCTION__,_FILE_PATH,fmt,##__VA_ARGS__);}}while(0)
 #define WD_WARN(fmt, ...)   do { if ( __LOG_LEVEL_TEST(LOG_LEVEL_WARN) )  {log_print_(LOG_LEVEL_WARN,__LINE__,__PRETTY_FUNCTION__,_FILE_PATH,fmt,##__VA_ARGS__);}}while(0)
 #define WD_ERROR(fmt, ...)  do { if ( __LOG_LEVEL_TEST(LOG_LEVEL_ERROR) ) {log_print_(LOG_LEVEL_ERROR,__LINE__,__PRETTY_FUNCTION__,_FILE_PATH,fmt,##__VA_ARGS__);}}while(0)
-
+int wilddog_dump(wilddog_t* wilddog,char * buffer,size_t len);
 #endif /* DEBUG_H_ */
