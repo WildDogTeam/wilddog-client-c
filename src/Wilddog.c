@@ -9,6 +9,10 @@
 #include "port.h"
 #include "wilddog_debug.h"
 #include "pdu.c"
+#include "cJSON.h"
+#include "utlist.h"
+#include "url_parser.h"
+
 char resBuf[WILDDOG_BUF_SIZE];
 int wilddog_handle = 0;
 void printBuf(unsigned char* iter, size_t size) {
@@ -651,13 +655,11 @@ int wilddog_sendAck(wilddog_t* wilddog, coap_pdu_t* resp) {
 wilddog_t* wilddog_new(char* url) {
 
 	struct parsed_url* url_st=parse_url(url);
-	char* host=url_st->host;
 	char h[strlen(url_st->host)+1];
-
-	char* appid=strtok(h,".");
 	wilddog_t* res = malloc(sizeof(wilddog_t));
 	memset(res, 0, sizeof(res));
 	res->url=url_st;
+	res->remoteAddr.port=WILDDOG_SERVER_PORT;
 	res->msgId = 1;
 	res->token = 1;
 	res->connected = 1;
