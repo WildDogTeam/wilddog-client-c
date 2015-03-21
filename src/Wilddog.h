@@ -35,10 +35,8 @@ typedef struct tagB {
 }tagB;
 
 typedef struct tagA{
-	char* protocol;
-	char* appid;
-	char* path;
-	char* auth;
+	unsigned char* protocol;
+	unsigned char* auth;
 	struct parsed_url* url;
 	wilddog_address_t remoteAddr;
 	int socketId;
@@ -59,7 +57,7 @@ typedef struct tagA{
 }tagA;
 
 
-wilddog_t* wilddog_new(char* url);
+wilddog_t* wilddog_new(unsigned char* url);
 
 void wilddog_setAuth(wilddog_t* wilddog,unsigned char* auth);
 /**

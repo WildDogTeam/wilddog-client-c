@@ -12,7 +12,6 @@
 #include "port.h"
 #include "wiced.h"
 
-#define DEFAULT_IP 192 168 1 189
 int wilddog_gethostbyname(wilddog_address_t* addr,char* host){
 	addr->len=4;
 	wiced_ip_address_t address;
@@ -24,7 +23,7 @@ int wilddog_gethostbyname(wilddog_address_t* addr,char* host){
 	return 0;
 }
 int wilddog_openSocket(int* socketId){
-	wiced_udp_socket_t* socket;
+	wiced_udp_socket_t* socket=malloc(sizeof(wiced_udp_socket_t));
 	if(wiced_udp_create_socket( socket, WICED_ANY_PORT,WICED_STA_INTERFACE)!=WICED_SUCCESS){
 		return -1;
 	}
@@ -33,6 +32,9 @@ int wilddog_openSocket(int* socketId){
 }
 int wilddog_closeSocket(int socketId){
 	wiced_udp_delete_socket((wiced_udp_socket_t*)socketId);
+	if(socketId){
+		free(socketId);
+	}
 	return 0;
 }
 int wilddog_send(int socketId,wilddog_address_t* addr_in,void* tosend,size_t tosendLength){
@@ -50,7 +52,7 @@ int wilddog_send(int socketId,wilddog_address_t* addr_in,void* tosend,size_t tos
 	}
 	memcpy(data, tosend, tosendLength);
 	wiced_packet_set_data_end(packet, (uint8_t*) (data + tosendLength));
-	if (wiced_udp_send(&socket, &ipaddr, addr_in->port, packet)
+	if (wiced_udp_send(socket, &ipaddr, addr_in->port, packet)
 			!= WICED_SUCCESS) {
 		WPRINT_APP_INFO(("UDP packet send failed\r\n"));
 		wiced_packet_delete(packet); /* Delete packet, since the send failed */
@@ -69,10 +71,10 @@ int wilddog_receive(int socketId,wilddog_address_t* addr_in,void* buf,size_t buf
 	wiced_ip_address_t recieve_ip_addr;
 	uint16_t receive_port;
 
-	if (wiced_udp_receive(&socket, &receive, 10) == WICED_SUCCESS) {
+	if (wiced_udp_receive(socket, &receive, 10) == WICED_SUCCESS) {
 		wiced_udp_packet_get_info(receive, &recieve_ip_addr, &receive_port);
 		WPRINT_APP_INFO(
-				("UDP Rx: receve packet from ip:%d port:%d ", recieve_ip_addr.ip.v4, receive_port));
+				("UDP Rx: receve packet from ip:%u port:%u ", recieve_ip_addr.ip.v4, receive_port));
 		if(!recieve_ip_addr.ip.v4==MAKE_IPV4_ADDRESS(addr_in->ip[0], addr_in->ip[1], addr_in->ip[2], addr_in->ip[3])){
 			return 0;
 		}
