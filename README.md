@@ -1,7 +1,3 @@
-# wilddog_client_coap
-
-
-
 ## 开发向导
 
 wilddog coap客户端是专为嵌入式设备设计的.嵌入式设备有各种平台.wilddog coap客户端在设计时充分考虑了在不同平台上运行的需求.为了解决适配问题,整个程序分为两部分
@@ -12,15 +8,10 @@ wilddog coap客户端是专为嵌入式设备设计的.嵌入式设备有各种�
 
 
 `int wilddog_gethostbyname(wilddog_address_t* addr,char* host);`
-
 `int wilddog_openSocket(int* socketId);`
-
 `int wilddog_closeSocket(int socketId);`
-
 `int wilddog_send(int socketId,wilddog_address_t*,void* tosend,size_t tosendLength);`
-
 `int wilddog_receive(int socketId,wilddog_address_t*,void* toreceive,size_t toreceiveLength);`
-
 
 每个函数的意义可以参见 `port.h` 定义.
 目前已经移植到 wiced 平台.
@@ -36,14 +27,10 @@ wilddog coap客户端是专为嵌入式设备设计的.嵌入式设备有各种�
 wiced 是第一个被移植的平台.编译例子程序需要将代码拷贝到 **wiced-sdk** 下,通过 **wiced-sdk** 编译工具进行编译
 
 ##### 编译方法 
-比如,要将 `ports/wiced/sample/gpioCtr.c` 放到 **wiced-sdk** 下编译,假设我的编译参数是 `wilddog.gpioctr`
 
+ports/wiced/app/wilddog
 **步骤:**
 
-* 将`src/*.c` `src/*.h``ports/wiced/*.c` 连同 `ports/wiced/sample/gpioCtr.c`    拷贝到 **wiced-sdk** 下 `Apps/wilddog/gpioctr` 下
-* 增加`Apps/wilddog/gpioctl/gpioctl.mk`
-* 按照 wiced-sdk 约定的方式将 以上加入的源码加入编译路径
-* 执行编译命令 比如 `sudo ./make wilddog.skel-BCM943362WCD4-ThreadX-NetX_Duo-SDIO` 
-* 将编译好的rom刷如开发板, 	**wiced-sdk** 开发的具体过程请参考 **wiced-sdk** 文档.
-
-
+* 将 ports/wiced/app/wilddog 拷贝到 **wiced-sdk** 下的 app 目录下
+* 在 **wiced-sdk** 执行编译命令 比如 `sudo ./make wilddog.skel-BCM943362WCD4-ThreadX-NetX_Duo-SDIO download` 
+* 其他参考(文档和sdk获取:http://www.broadcom.com/products/wiced/wifi/).
