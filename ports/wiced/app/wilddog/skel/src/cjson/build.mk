@@ -1,0 +1,7 @@
+
+CJSON_DIR=src/cjson/
+INCLUDE_DIRS += $(CJSON_DIR)
+CSRC += $(CJSON_DIR)cJSON.c
+
+CPPSRC +=
+ASRC +=

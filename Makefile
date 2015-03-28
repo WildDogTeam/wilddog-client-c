@@ -70,7 +70,12 @@ clean:
 	$(RM) $(ALLOBJ) $(ALLDEPS) $(TARGET)
 	@echo ' '
 
-.PHONY: all clean sample
+ports:
+	cp -r src/ ports/wiced/app/wilddog/skel/
+
+
+
+.PHONY: all clean sample ports
 .SECONDARY:
 
 # Include auto generated dependancy files
