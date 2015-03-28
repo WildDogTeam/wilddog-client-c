@@ -7,11 +7,16 @@ wilddog coap客户端是专为嵌入式设备设计的.嵌入式设备有各种�
 代码移植只需要实现`#include "port.h"` 中定义的几个函数:
 
 
-`int wilddog_gethostbyname(wilddog_address_t* addr,char* host);`
-`int wilddog_openSocket(int* socketId);`
-`int wilddog_closeSocket(int socketId);`
-`int wilddog_send(int socketId,wilddog_address_t*,void* tosend,size_t tosendLength);`
-`int wilddog_receive(int socketId,wilddog_address_t*,void* toreceive,size_t toreceiveLength);`
+* `int wilddog_gethostbyname(wilddog_address_t* addr,char* host);`
+
+* `int wilddog_openSocket(int* socketId);`
+
+* `int wilddog_closeSocket(int socketId);`
+
+* `int wilddog_send(int socketId,wilddog_address_t*,void* tosend,size_t tosendLength);`
+
+* `int wilddog_receive(int socketId,wilddog_address_t*,void* toreceive,size_t toreceiveLength);`
+
 
 每个函数的意义可以参见 `port.h` 定义.
 目前已经移植到 wiced 平台.
