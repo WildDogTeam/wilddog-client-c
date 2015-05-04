@@ -1,7 +1,7 @@
 # Define the compiler/tools prefix
 #GCC_PREFIX = arm-none-eabi-
 GCC_PREFIX =
-PORT_PATH= ./ports/posix
+PORT_PATH= ../../ports/posix
 # Define tools
 CC = $(GCC_PREFIX)gcc
 AR = $(GCC_PREFIX)ar
@@ -16,7 +16,7 @@ rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2
 
 BUILD_PATH = ./build
 
-SRC_PATH = .
+SRC_PATH = ../../
 
 
 # Target this makefile is building.
@@ -73,6 +73,17 @@ clean:
 ports:
 	cp -r src/ ports/wiced/app/wilddog/skel/
 
+#make samples
+SAMPLE=wilddog_linux_client
+
+$(SAMPLE) : $(SAMPLE).c $(TARGET) 
+
+	$(CC) $(CFLAGS) $(CPPFLAGS) -o $@ $(SAMPLE).c -L./build -lwilddog -lm
+	#mv $(SAMPLE) ./
+	
+
+sample: $(SAMPLE) 
+	@echo "making samples"	
 
 
 .PHONY: all clean sample ports
