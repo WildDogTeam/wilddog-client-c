@@ -24,7 +24,7 @@ wilddog coap客户端是专为嵌入式设备设计的.嵌入式设备有各种�
 ###移植和编译
 
 #### LINUX 
-直接运行 `make` 可以编译 `libwilddog.a` 运行 `make sample` 可编译一个简单的例子.
+在sample/posix下运行 `make` 可以编译 `libwilddog.a` 运行 `make sample` 可编译一个简单的例子.
 这个例子可以实现 `set` `query` `push` `delete``observe` 操作
 
 #### WICED
@@ -33,9 +33,9 @@ wiced 是第一个被移植的平台.编译例子程序需要将代码拷贝到 
 
 ##### 编译方法 
 
-ports/wiced/app/wilddog
+
 **步骤:**
 
-* 将 ports/wiced/app/wilddog 拷贝到 **wiced-sdk** 下的 app 目录下
-* 在 **wiced-sdk** 执行编译命令 比如 `sudo ./make wilddog.skel-BCM943362WCD4-ThreadX-NetX_Duo-SDIO download` 
+* 将代码拷贝到 **wiced-sdk** 下的 app 目录下
+* 在 **wiced-sdk** 执行编译命令 比如 `sudo ./make wilddog_client_coap.sample.wiced-BCM943362WCD4-ThreadX-NetX_Duo-SDIO download run` 
 * 其他参考(文档和sdk获取:http://www.broadcom.com/products/wiced/wifi/).
