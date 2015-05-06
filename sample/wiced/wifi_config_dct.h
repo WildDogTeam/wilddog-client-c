@@ -40,8 +40,8 @@ extern "C" {
 #define SOFT_AP_CHANNEL      1
 
 /* This is the default AP the device will connect to (as a client)*/
-#define CLIENT_AP_SSID       "your ssid"
-#define CLIENT_AP_PASSPHRASE "your password"
+#define CLIENT_AP_SSID       "3162"
+#define CLIENT_AP_PASSPHRASE "13051476111"
 #define CLIENT_AP_BSS_TYPE   WICED_BSS_TYPE_INFRASTRUCTURE
 #define CLIENT_AP_SECURITY   WICED_SECURITY_WPA2_MIXED_PSK
 #define CLIENT_AP_CHANNEL    1

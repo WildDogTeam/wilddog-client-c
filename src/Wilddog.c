@@ -12,6 +12,31 @@
 #include "cJSON.h"
 #include "utlist.h"
 #include "url_parser.h"
+
+int g_mallocCount = 0;
+int g_freeCount = 0;
+int g_currentMem = 0;
+
+void _setMem(int isadd, int size)
+{
+	if(1 == isadd)
+	{
+		g_mallocCount++;
+		g_currentMem += size;
+	}
+	else if(0 == isadd)
+	{
+		g_freeCount++;
+		g_currentMem -= size;
+	}
+}
+
+void _printMem()
+{
+	printf("%s, g_currentMem = %d, g_mallocCount = %d, g_freeCount = %d\n",__func__, g_currentMem, g_mallocCount, g_freeCount);
+}
+
+
 extern int wilddog_sendAck(wilddog_t* wilddog, coap_pdu_t* resp);
 //unsigned char resBuf[WILDDOG_BUF_SIZE];
 int wilddog_handle = 0;
@@ -36,6 +61,7 @@ void wilddog_delete_request(request_t* req) {
 		coap_delete_pdu(req->coap_msg);
 	}
 	free(req);
+	_setMem(0,sizeof(request_t));
 }
 
 #ifndef SYNC_TIME
@@ -378,6 +404,7 @@ void wilddog_handleResp(wilddog_t* wilddog, coap_pdu_t* resp) {
 					if (curr) {
 						coap_delete_pdu(curr->coap_msg);
 						free(curr);
+						_setMem(0,sizeof(request_t));
 						curr = NULL;
 					}
 				}
@@ -439,6 +466,8 @@ int wilddog_sendGet(wilddog_t* wilddog, int handle, void* callback) {
 	++wilddog->msgId;
 	coap_pdu_t* coap_p = coap_pdu_init(0, 1, htons(wilddog->msgId),
 	COAP_MAX_SIZE);
+	if(NULL == coap_p)
+		return WILDDOG_CODE_MALLOC_ERROR;
 	_addOption(coap_p, (unsigned char*)wilddog->url->host,(unsigned char*) wilddog->url->path, (unsigned char*)wilddog->auth, NULL);
 	if ((returnCode = wilddog_socketReconnect(wilddog)) < 0) {
 		coap_delete_pdu(coap_p); //delete
@@ -453,6 +482,13 @@ int wilddog_sendGet(wilddog_t* wilddog, int handle, void* callback) {
 		return WILDDOG_CODE_SENDERROR;
 	}
 	request_t* request = malloc(sizeof(request_t));
+	
+	if(NULL == request)
+	{
+		printf("%s malloc error!\n", __func__);
+		return -1;
+	}
+	_setMem(1,sizeof(request_t));
 	memset(request, 0, sizeof(request_t));
 	request->coap_msg = coap_p;
 	request->callback = callback;
@@ -486,6 +522,12 @@ int wilddog_sendPost(wilddog_t* wilddog, unsigned char* buffer, size_t length,
 	}
 
 	request_t* request = malloc(sizeof(request_t));
+	if(NULL == request)
+	{
+		printf("%s malloc error!\n", __func__);
+		return -1;
+	}
+
 	memset(request, 0, sizeof(request_t));
 	request->coap_msg = coap_p;
 	request->callback = callback;
@@ -520,6 +562,12 @@ int wilddog_sendPut(wilddog_t* wilddog, unsigned char* buffer, size_t length, in
 		return WILDDOG_CODE_SENDERROR;
 	}
 	request_t* request = malloc(sizeof(request_t));
+	if(NULL == request)
+	{
+		printf("%s malloc error!\n", __func__);
+		return -1;
+	}
+
 	memset(request, 0, sizeof(request_t));
 	request->coap_msg = coap_p;
 	request->callback = callback;
@@ -553,6 +601,12 @@ int wilddog_sendDelete(wilddog_t* wilddog, int handle, void* callback) {
 		return WILDDOG_CODE_SENDERROR;
 	}
 	request_t* request = malloc(sizeof(request_t));
+	if(NULL == request)
+	{
+		printf("%s malloc error!\n", __func__);
+		return -1;
+	}
+
 	memset(request, 0, sizeof(request_t));
 	request->coap_msg = coap_p;
 	request->callback = callback;
@@ -589,6 +643,11 @@ int wilddog_sendObserve(wilddog_t* wilddog, int handle, void* callback) {
 		return WILDDOG_CODE_SENDERROR;
 	}
 	request_t* request = malloc(sizeof(request_t));
+	if(NULL == request)
+	{
+		printf("%s malloc error!\n", __func__);
+		return -1;
+	}
 	memset(request, 0, sizeof(request_t));
 	request->coap_msg = coap_p;
 	request->callback = callback;
@@ -633,6 +692,7 @@ int wilddog_sendPing(wilddog_t* wilddog) {
 		WD_ERROR("coap_addToken error");
 		return WILDDOG_CODE_COAP_TOBUF_ERROR;
 	}
+	printf("%s, send ping!\n", __func__);
 	returnCode = wilddog_send(wilddog->socketId, &(wilddog->remoteAddr),
 			toSend->hdr, toSend->length);
 	coap_delete_pdu(toSend);
@@ -664,6 +724,12 @@ wilddog_t* wilddog_new(unsigned char* url) {
 
 	struct parsed_url* url_st=parse_url((const char*)url);
 	wilddog_t* res = malloc(sizeof(wilddog_t));
+	if(NULL == res)
+	{
+		printf("%s malloc error!\n", __func__);
+		return -1;
+	}
+
 	memset(res, 0, sizeof(wilddog_t));
 	res->url=url_st;
 	res->remoteAddr.port=WILDDOG_SERVER_PORT;
@@ -685,8 +751,10 @@ int wilddog_query(wilddog_t* wilddog, onCompleteFunc callback) {
 	int handle = ++wilddog_handle;
 	int res = wilddog_sendGet(wilddog, handle, callback);
 	if (res < 0) {
+	    printf("%s send fail!\n", __func__);
 		return res;
 	}
+	printf("%s handle = %d\n", __func__, handle);
 	return handle;
 }
 int wilddog_set(wilddog_t* wilddog, cJSON* data, onCompleteFunc callback) {
@@ -769,19 +837,25 @@ int wilddog_trySync(wilddog_t* wilddog) {
 	//WD_DEBUG("test try synctimestamp:%u,lastsend:%u,lastreceive:%u",wilddog->timestamp,wilddog->lastSend,wilddog->lastReceive);
 	if (wilddog->timestamp - wilddog->lastReceive > WILDDOG_RECONNECT_THRESHOLD) {
 		wilddog->connected = 0;
+		if (wilddog->socketId) {
+			wilddog_closeSocket(wilddog->socketId);
+			wilddog->socketId = 0;
+		}
+		printf("%s, socket reconnect ping\n", __func__);
 		wilddog_socketReconnect(wilddog);
 		wilddog->lastReceive = wilddog->timestamp;
-
 	}
 
 	if (wilddog->timestamp - wilddog->lastSend > WILDDOG_PING_INTV) {
 		//send ping
 		wilddog->lastSend = wilddog->timestamp;
+		printf("%s, send ping\n", __func__);
 		if (wilddog_sendPing(wilddog) < 0) {
 			WD_DEBUG("send ping error");
 		}
 
 	}
+	memset(buf, 0, WILDDOG_BUF_SIZE);
 	if ((receiveSize = wilddog_receive(wilddog->socketId, &wilddog->remoteAddr,
 			buf, sizeof(buf))) > 0) {
 
@@ -794,15 +868,23 @@ int wilddog_trySync(wilddog_t* wilddog) {
 		}
 
 		coap_pdu_t* resP = coap_new_pdu();
-		if (coap_pdu_parse(buf, (size_t) receiveSize, resP)) {
-			//success
-			wilddog->lastReceive = wilddog->timestamp;
-
-			wilddog_handleResp(wilddog, resP);
-
-		} else {
-			//error
+		if(NULL == resP)
+		{
+			printf("%s:fail to malloc!\n", __func__);
 			returnCode = -1;
+		}
+		else
+		{
+			if (coap_pdu_parse(buf, (size_t) receiveSize, resP)) {
+				//success
+				wilddog->lastReceive = wilddog->timestamp;
+
+				wilddog_handleResp(wilddog, resP);
+
+			} else {
+				//error
+				returnCode = -1;
+			}
 		}
 		coap_delete_pdu(resP);
 		resP = NULL;
@@ -813,7 +895,8 @@ int wilddog_trySync(wilddog_t* wilddog) {
 
 }
 
-int wilddog_destroy(wilddog_t* wilddog) {
+int wilddog_destroy(wilddog_t** pWilddog) {
+	wilddog_t* wilddog = *pWilddog;
 	if (wilddog) {
 		if(wilddog->url){
 			parsed_url_free(wilddog->url);
@@ -835,7 +918,7 @@ int wilddog_destroy(wilddog_t* wilddog) {
 			wilddog_closeSocket(wilddog->socketId);
 		}
 		free(wilddog);
-		wilddog = NULL;
+		*pWilddog = NULL;
 	}
 	return 0;
 

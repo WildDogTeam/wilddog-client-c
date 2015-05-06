@@ -31,26 +31,35 @@ int wilddog_gethostbyname(wilddog_address_t* addr,char* host){
 		address.ip.v4 = ip;
 	}
 	tmpIp = address.ip.v4;
+	/*test */
+	//tmpIp = WILDDOG_MAKE_IPV4(211,151,208,196);
 	tmpIp = htonl(tmpIp);
 	memcpy(addr->ip, &tmpIp,4);
 
 	return 0;
 }
+
 int wilddog_openSocket(int* socketId){
 	wiced_udp_socket_t* socket= NULL;
 
 	socket = malloc(sizeof(wiced_udp_socket_t));
-
+	if(NULL == socket)
+	{
+		printf("%s malloc error!\n", __func__);
+		return -1;
+	}
 	if(wiced_udp_create_socket( socket, WICED_ANY_PORT,WICED_STA_INTERFACE)!=WICED_SUCCESS){
 		return -1;
 	}
 	*socketId =(int)socket;//I can do this with 32bit machine
+
 	return 0;
 }
 int wilddog_closeSocket(int socketId){
 	wiced_udp_delete_socket((wiced_udp_socket_t*)socketId);
 	if(socketId){
-		close(socketId);
+		free(socketId);
+		socketId = 0;
 	}
 	return 0;
 }
@@ -67,7 +76,13 @@ int wilddog_send(int socketId,wilddog_address_t* addr_in,void* tosend,size_t tos
 		WPRINT_APP_INFO(("error create packet ...\r\n"));
 		return -1;
 	}
-	wiced_packet_set_data_start(packet,(uint8_t * )data);
+	if(aval < tosendLength)
+	{
+		wiced_packet_delete(packet); /* Delete packet, since the send failed */
+		WPRINT_APP_INFO(("too large length to translate! should be %d, want send %d\n", aval, tosendLength));
+		return -1;
+	}
+//	wiced_packet_set_data_start(packet,(uint8_t * )data);
 	memcpy(data, tosend, tosendLength);
 
 	wiced_packet_set_data_end(packet, (uint8_t*) (data + tosendLength));
@@ -85,17 +100,26 @@ int wilddog_send(int socketId,wilddog_address_t* addr_in,void* tosend,size_t tos
 }
 int wilddog_receive(int socketId,wilddog_address_t* addr_in,void* buf,size_t bufLen){
 	wiced_udp_socket_t* socket=(wiced_udp_socket_t*)socketId;
-	wiced_packet_t* receive = (wiced_packet_t*)buf;
+//	wiced_packet_t* receive = (wiced_packet_t*)buf;
+	wiced_packet_t* receive = NULL;
 	uint16_t aval;
 	uint8_t* rxData;
 	uint16_t rxDataLength;
 	wiced_ip_address_t recieve_ip_addr;
 	uint16_t receive_port;
-	//WPRINT_APP_INFO(("aaaa\n"));
-	if (wiced_udp_receive(socket, &receive, 1000) == WICED_SUCCESS) {
+	wiced_result_t result;
+	
+	result = wiced_udp_receive(socket, &receive, 500);
+	if (result == WICED_SUCCESS) {
+		memcpy(buf, receive, bufLen);
+		wiced_packet_delete(receive);
+		receive = (wiced_packet_t*)buf;
 		wiced_udp_packet_get_info(receive, &recieve_ip_addr, &receive_port);
+		{
+			unsigned int tmpIp = (unsigned int)recieve_ip_addr.ip.v4;
 		WPRINT_APP_INFO(
-				("UDP Rx: receve packet from ip:%u port:%u ", (unsigned int)recieve_ip_addr.ip.v4, receive_port));
+				("UDP Rx: receve packet from ip:%u.%u.%u.%u port:%u ", (tmpIp>>24) & 0xff, (tmpIp>>16) & 0xff, (tmpIp>> 8) & 0xff, tmpIp& 0xff, receive_port));
+		}
 		if(!recieve_ip_addr.ip.v4==MAKE_IPV4_ADDRESS(addr_in->ip[0], addr_in->ip[1], addr_in->ip[2], addr_in->ip[3])){
 			return 0;
 		}

@@ -14,6 +14,7 @@
 #include "option.h"
 #include "wilddog_debug.h"
 #include "port.h"
+
 void
 coap_pdu_clear(coap_pdu_t *pdu, size_t size) {
   assert(pdu);
@@ -30,7 +31,7 @@ coap_pdu_clear(coap_pdu_t *pdu, size_t size) {
 coap_pdu_t *
 coap_pdu_init(unsigned char type, unsigned char code, 
 	      unsigned short id, size_t size) {
-  coap_pdu_t *pdu;
+  coap_pdu_t *pdu = NULL;
 
 
   assert(size <= COAP_MAX_PDU_SIZE);
@@ -47,6 +48,7 @@ coap_pdu_init(unsigned char type, unsigned char code,
     pdu->hdr->id = id;
     pdu->hdr->type = type;
     pdu->hdr->code = code;
+	_setMem(1, sizeof(coap_pdu_t) + size);
   } 
   return pdu;
 }
@@ -61,6 +63,7 @@ coap_new_pdu() {
 void
 coap_delete_pdu(coap_pdu_t *pdu) {
   free( pdu );
+  _setMem(0, sizeof(coap_pdu_t) + COAP_MAX_PDU_SIZE);
 }
 
 int
@@ -88,7 +91,7 @@ coap_add_option(coap_pdu_t *pdu, unsigned short type, unsigned int len, const un
   
   assert(pdu);
   pdu->data = NULL;
-
+  printf("%s: type = %d, pdu->max_delta = %d\n", __func__, type, pdu->max_delta);
   if (type < pdu->max_delta) {
     WD_WARN("coap_add_option: options are not in correct order\n");
     return 0;

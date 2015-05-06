@@ -78,7 +78,7 @@ int wilddog_off(wilddog_t* wilddog);
 
 int wilddog_trySync(wilddog_t* wilddog);
 
-int wilddog_destroy(wilddog_t*);
+int wilddog_destroy(wilddog_t**);
 
 
 

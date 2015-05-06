@@ -69,7 +69,7 @@ int led_get_status(int index)
 int led_set_status(unsigned char status, int index)
 {
 	led_data_type* data = led_get_data_from_index(index);
-	printf("set %d, index = %d\n", status, index);
+//	printf("set %d, index = %d\n", status, index);
 	data->led_status = status;
 	if(TRUE == data->led_status)
 	{
@@ -136,12 +136,12 @@ static int findSubJson(cJSON * src, cJSON* data)
 		{
 			pCurrent = pCurrent->child;
 		}
-		printf("current:\n%s\n",pCurrent->string);
-		printJson(pCurrent);
-		printf("data:\n%s\n",data->string);
+//		printf("current:\n%s\n",pCurrent->string);
+//		printJson(pCurrent);
+//		printf("data:\n%s\n",data->string);
 		if(strcmp(pCurrent->string, data->string) == 0)
 		{
-			printf("match! %d\n", pCurrent->type);
+//			printf("match! %d\n", pCurrent->type);
 			switch(pCurrent->type)
 			{
 				case cJSON_False:
@@ -173,6 +173,7 @@ void onQueryComplete(wilddog_t* wilddog,int handle,int err){
     //printf("%s",toPrint);
     if(err){
         printf("query error:%d\n",err);
+		return;
     }
     else{
         printf("result:\n%s\n",cJSON_Print(wilddog->data));
@@ -182,7 +183,7 @@ void onQueryComplete(wilddog_t* wilddog,int handle,int err){
 		status = findSubJson(wilddog->data, led_data[i].data);
 		if(status >= 0)
 		{
-			printf("%s, %d\n",__func__, i);
+			//printf("%s, %d\n",__func__, i);
 			status = status > 0? 1: 0;
 			led_set_status(status, i);
 		}
@@ -196,6 +197,7 @@ void onQueryComplete2(wilddog_t* wilddog,int handle,int err){
     printf("%s",toPrint);
     if(err){
         printf("query error:%d\n",err);
+		return;
     }
     else{
         printf("result:\n%s\n",cJSON_Print(wilddog->data));
@@ -215,7 +217,7 @@ void onData(wilddog_t* wilddog,cJSON* value){
 		status = findSubJson(wilddog->data, led_data[i].data);
 		if(status >= 0)
 		{
-			printf("%s, %d\n",__func__, i);
+			//printf("%s, %d\n",__func__, i);
 			led_set_status(status, i);
 		}
 	}
@@ -236,18 +238,20 @@ void wilddog_get(int argc, char **argv)
 }
 void wilddog_client() {
 
-
+    int i = 0;
 	wiced_network_up(WICED_STA_INTERFACE, WICED_USE_EXTERNAL_DHCP_SERVER, NULL);
 
-	unsigned char* url="coap://led.wilddogio.com/";
+	unsigned char* url="coap://demo-iot.wilddogio.com/";
 	wilddog_t* client=wilddog_new(url);
 
 	led_data_init();
     wilddog_query(client,onQueryComplete);
-	wilddog_on(client, onData, onQueryComplete2);
+//	wilddog_on(client, onData, onQueryComplete2);
 	while (1) {
-	    wiced_rtos_delay_milliseconds(10);
-	   // WPRINT_APP_INFO(("syncing\n"));
+	    i++;
+	    if( i % 4 == 0)
+	        wilddog_query(client,onQueryComplete);
+
 	    wilddog_trySync(client);
 	}
 	wiced_deinit();
@@ -259,7 +263,7 @@ wiced_result_t wilddog_client_init(void)
 
     if(TRUE == wilddog_thread.is_initialized)
         return WICED_SUCCESS;
-    result = wiced_rtos_create_thread(&(wilddog_thread.thread), WICED_DEFAULT_LIBRARY_PRIORITY, "wilddog_d", wilddog_client, 3000, NULL);
+    result = wiced_rtos_create_thread(&(wilddog_thread.thread), WICED_DEFAULT_LIBRARY_PRIORITY, "wilddog_d", wilddog_client, 0x3000, NULL);
 
     if(WICED_SUCCESS == result)
         wilddog_thread.is_initialized = TRUE;

@@ -1,7 +1,7 @@
 /*
  * debug.c
  *
- *  Created on: 2014年11月6日
+ *  Created on: 2014骞�11鏈�6鏃�
  *      Author: x
  */
 #include <stdio.h>
@@ -61,8 +61,8 @@ int wilddog_dump(wilddog_t* wilddog, char * buffer, size_t len) {
 		datastr = cJSON_Print(wilddog->data);
 	}
 	snprintf(buffer, len,
-			"{\nhost:%s\npath:%s\nauth:%s\nip:%u.%u.%u.%u\nport:%u\nsocketId:%d\ntoken:%ud\ndata:%s\n}\n",
-			wilddog->url->host, wilddog->url->path, wilddog->auth, wilddog->remoteAddr.ip[0],wilddog->remoteAddr.ip[1],wilddog->remoteAddr.ip[2],wilddog->remoteAddr.ip[3],
+			"{\nhost:%s\npath:%s\nauth:%s\nip:%u.%u.%u.%u\nport:%u\nsocketId:%d\ntoken:%u\ndata:%s\n}\n",
+			wilddog->url->host, wilddog->url->path, wilddog->auth, (unsigned char)wilddog->remoteAddr.ip[0],(unsigned char)wilddog->remoteAddr.ip[1],(unsigned char)wilddog->remoteAddr.ip[2],(unsigned char)wilddog->remoteAddr.ip[3],
 			wilddog->remoteAddr.port, wilddog->socketId, wilddog->token,
 			datastr);
 	if (datastr != def) {
