@@ -168,6 +168,7 @@ static int findSubJson(cJSON * src, cJSON* data)
 void onQueryComplete(wilddog_t* wilddog,int handle,int err){
 	int i;
 	int status;
+	char * data=NULL;
 	printf("!!onQueryComplete\n");
     wilddog_dump(wilddog,toPrint,sizeof(toPrint));
     //printf("%s",toPrint);
@@ -176,7 +177,8 @@ void onQueryComplete(wilddog_t* wilddog,int handle,int err){
 		return;
     }
     else{
-        printf("result:\n%s\n",cJSON_Print(wilddog->data));
+		data=cJSON_Print(wilddog->data);
+        printf("result:\n%s\n",data);
     }
 	for(i = 0; i < LED_NUM; i++)
 	{
@@ -188,10 +190,15 @@ void onQueryComplete(wilddog_t* wilddog,int handle,int err){
 			led_set_status(status, i);
 		}
 	}
+	if(NULL != data)
+	{
+		free(data);
+	}
 	
 }
 void onQueryComplete2(wilddog_t* wilddog,int handle,int err){
 
+	char * data=NULL;
 	printf("!!onQueryComplete2\n");
     wilddog_dump(wilddog,toPrint,sizeof(toPrint));
     printf("%s",toPrint);
@@ -200,7 +207,10 @@ void onQueryComplete2(wilddog_t* wilddog,int handle,int err){
 		return;
     }
     else{
+		data=cJSON_Print(wilddog->data);
         printf("result:\n%s\n",cJSON_Print(wilddog->data));
+		if(NULL != data)
+			free(data);
     }
 
 
@@ -224,34 +234,41 @@ void onData(wilddog_t* wilddog,cJSON* value){
 
 	free(data);
 }
+extern void cJSON_InitHooks(cJSON_Hooks* hooks);
+int cJsonMallocCount = 0;
 
-void wilddog_get(int argc, char **argv)
+void* mymalloc(int size)
 {
-	int i;
-	char* url = argv[1];
-	wilddog_t* client=wilddog_new((unsigned char* )url);
-	wilddog_query(client,onQueryComplete);
-	for(i = 0; i < 1000; i++)
-	{
-		wilddog_trySync(client);
-	}
+	cJsonMallocCount++;
+	return malloc(size);
 }
-void wilddog_client() {
+void myfree(void* ptr)
+{
+	cJsonMallocCount--;
+	return free(ptr);
+}
 
+void wilddog_client() {
+	cJSON_Hooks hooks;
     int i = 0;
 	wiced_network_up(WICED_STA_INTERFACE, WICED_USE_EXTERNAL_DHCP_SERVER, NULL);
 
 	unsigned char* url="coap://demo-iot.wilddogio.com/";
 	wilddog_t* client=wilddog_new(url);
 
+	hooks.malloc_fn = mymalloc;
+	hooks.free_fn = myfree;
+	cJSON_InitHooks(&hooks);
 	led_data_init();
     wilddog_query(client,onQueryComplete);
 //	wilddog_on(client, onData, onQueryComplete2);
 	while (1) {
 	    i++;
 	    if( i % 4 == 0)
+	    {
 	        wilddog_query(client,onQueryComplete);
-
+			_printMem();
+	    }
 	    wilddog_trySync(client);
 	}
 	wiced_deinit();

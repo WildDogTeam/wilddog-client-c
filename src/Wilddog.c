@@ -30,10 +30,11 @@ void _setMem(int isadd, int size)
 		g_currentMem -= size;
 	}
 }
-
+extern int socketMallocTime;
+extern int cJsonMallocCount;
 void _printMem()
 {
-	printf("%s, g_currentMem = %d, g_mallocCount = %d, g_freeCount = %d\n",__func__, g_currentMem, g_mallocCount, g_freeCount);
+	printf("%s, cJsonMallocCount = %d, socketMallocTime = %d, g_currentMem = %d, g_mallocCount = %d, g_freeCount = %d\n",__func__, cJsonMallocCount, socketMallocTime, g_currentMem, g_mallocCount, g_freeCount);
 }
 
 
@@ -916,6 +917,7 @@ int wilddog_destroy(wilddog_t** pWilddog) {
 		}
 		if (wilddog->socketId) {
 			wilddog_closeSocket(wilddog->socketId);
+			wilddog->socketId = 0;
 		}
 		free(wilddog);
 		*pWilddog = NULL;

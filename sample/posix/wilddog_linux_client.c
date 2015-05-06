@@ -14,13 +14,16 @@
 char toPrint[1024];
 
 void onQueryComplete(wilddog_t* wilddog,int handle,int err){
+	char * data=NULL;
 	wilddog_dump(wilddog,toPrint,sizeof(toPrint));
 	printf("%s",toPrint);
 	if(err){
 		printf("query error:%d\n",err);
 	}
 	else{
-		printf("result:\n%s\n",cJSON_Print(wilddog->data));
+		data=cJSON_Print(wilddog->data);
+		printf("result:\n%s\n",data);
+		free(data);
 	}
 }
 void onData(wilddog_t* wilddog,cJSON* value){
@@ -31,13 +34,16 @@ void onData(wilddog_t* wilddog,cJSON* value){
 
 
 void onSetComplete(wilddog_t* wilddog,int handle,int err){
+	char * data=NULL;
 	wilddog_dump(wilddog,toPrint,sizeof(toPrint));
 	printf("aaaaaaa%s",toPrint);
 	if(err){
 		printf("set error:%d\n",err);
 	}
 	else{
-		printf("result:\n%s\n",cJSON_Print(wilddog->data));
+		data=cJSON_Print(wilddog->data);
+		printf("result:\n%s\n",data);
+		free(data);
 	}
 }
 //cmd post|get|put|observe appid -p path -t token -d data

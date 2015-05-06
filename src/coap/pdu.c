@@ -63,7 +63,7 @@ coap_new_pdu() {
 void
 coap_delete_pdu(coap_pdu_t *pdu) {
   free( pdu );
-  _setMem(0, sizeof(coap_pdu_t) + COAP_MAX_PDU_SIZE);
+  _setMem(0, sizeof(coap_pdu_t) + 1280);
 }
 
 int
