@@ -13,29 +13,7 @@
 #include "utlist.h"
 #include "url_parser.h"
 
-int g_mallocCount = 0;
-int g_freeCount = 0;
-int g_currentMem = 0;
 
-void _setMem(int isadd, int size)
-{
-	if(1 == isadd)
-	{
-		g_mallocCount++;
-		g_currentMem += size;
-	}
-	else if(0 == isadd)
-	{
-		g_freeCount++;
-		g_currentMem -= size;
-	}
-}
-extern int socketMallocTime;
-extern int cJsonMallocCount;
-void _printMem()
-{
-	printf("%s, cJsonMallocCount = %d, socketMallocTime = %d, g_currentMem = %d, g_mallocCount = %d, g_freeCount = %d\n",__func__, cJsonMallocCount, socketMallocTime, g_currentMem, g_mallocCount, g_freeCount);
-}
 
 
 extern int wilddog_sendAck(wilddog_t* wilddog, coap_pdu_t* resp);
@@ -62,7 +40,6 @@ void wilddog_delete_request(request_t* req) {
 		coap_delete_pdu(req->coap_msg);
 	}
 	free(req);
-	_setMem(0,sizeof(request_t));
 }
 
 #ifndef SYNC_TIME
@@ -405,7 +382,6 @@ void wilddog_handleResp(wilddog_t* wilddog, coap_pdu_t* resp) {
 					if (curr) {
 						coap_delete_pdu(curr->coap_msg);
 						free(curr);
-						_setMem(0,sizeof(request_t));
 						curr = NULL;
 					}
 				}
@@ -489,7 +465,6 @@ int wilddog_sendGet(wilddog_t* wilddog, int handle, void* callback) {
 		printf("%s malloc error!\n", __func__);
 		return -1;
 	}
-	_setMem(1,sizeof(request_t));
 	memset(request, 0, sizeof(request_t));
 	request->coap_msg = coap_p;
 	request->callback = callback;

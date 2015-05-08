@@ -38,7 +38,7 @@ int wilddog_gethostbyname(wilddog_address_t* addr,char* host){
 
 	return 0;
 }
-int socketMallocTime = 0;
+
 int wilddog_openSocket(int* socketId){
 	wiced_udp_socket_t* socket= NULL;
 
@@ -48,8 +48,6 @@ int wilddog_openSocket(int* socketId){
 		printf("%s malloc error!\n", __func__);
 		return -1;
 	}
-	_setMem(1, sizeof(wiced_udp_socket_t));
-	socketMallocTime++;
 	if(wiced_udp_create_socket( socket, WICED_ANY_PORT,WICED_STA_INTERFACE)!=WICED_SUCCESS){
 		return -1;
 	}
@@ -61,8 +59,6 @@ int wilddog_closeSocket(int socketId){
 	wiced_udp_delete_socket((wiced_udp_socket_t*)socketId);
 	if(socketId){
 		free(socketId);
-		_setMem(0, sizeof(wiced_udp_socket_t));
-		socketMallocTime--;
 		socketId = 0;
 	}
 	return 0;
