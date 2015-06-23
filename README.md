@@ -39,9 +39,7 @@
 
 ### 将SDK拷贝到目标位置
 
-首先，我们将SDK解压，并拷贝到`WICED-SDK-3.1.2\WICED-SDK\apps`中，即SDK位于`WICED-SDK-3.1.2\WICED-SDK\apps\wilddog.0.4.2\`。
-
-由于Wiced平台特殊要求，目录名不能带有 `'.'`或`'-'`，因此我们将`wilddog.0.4.2`改为`wilddog`。
+首先，我们将SDK解压，并拷贝到`WICED-SDK-3.1.2\WICED-SDK\apps`中，即SDK位于`WICED-SDK-3.1.2\WICED-SDK\apps\wilddog_client_coap\`。
 
 Wiced平台采用WICED IDE，打开WICED IDE，能够在工程下的`apps`目录下找到我们的SDK。
 
@@ -91,4 +89,5 @@ Wiced平台需要用户完成Makefile，格式有严格要求，Makefile文件�
 ### 其他参考
 
 SDK 文档: https://z.wilddog.com/device/quickstart
+
 Wiced 文档和sdk获取:http://www.broadcom.com/products/wiced/wifi/
