@@ -1,41 +1,94 @@
-## 开发向导
+#Wilddog SDK说明
 
-wilddog coap客户端是专为嵌入式设备设计的.嵌入式设备有各种平台.wilddog coap客户端在设计时充分考虑了在不同平台上运行的需求.为了解决适配问题,整个程序分为两部分
-* 不依赖于任何平台的代码(src)
-* 平台相关的适配代码(ports)
+##1. 目录结构
 
-代码移植只需要实现`#include "port.h"` 中定义的几个函数:
+*	client.config : 用户配置文件
+*	include : 头文件目录
+*	port : 平台相关文件目录
+*	app : 例子目录
+*	src : 平台无关代码目录
+
+####client.config
+该文件仅供linux平台使用，wiced平台类似配置文件在sample/wiced/wiced.mk中，提供用户配置项，分三个值：
+
+*	APP\_PROTO\_TYPE : 应用层协议类型，目前只支持coap
+
+*	APP\_SEC\_TYPE : 加密类型，目前支持无加密(nosec)和dtls1.2加密(dtls)
+
+*	PORT\_TYPE : 平台类型，linux平台下目前为支持posix标准的平台
+
+####include
+目录中各个文件内容如下：
+
+*	wilddog.h : 基本数据结构和宏定义
+*	wilddog_api.h : api函数声明
+*	wilddog_config.h : 用户配置宏定义
+*	wilddog_port.h : 平台相关接口函数
+
+####port
+
+该目录根据不同平台分为不同子目录，分别为posix和wiced。
+
+####src
+
+平台无关目录。
+
+##2. 移植说明
+
+目前SDK已经成功移植到Wiced平台上，我们以此为例，说明如何移植SDK。
+
+### 将SDK拷贝到目标位置
+
+首先，我们将SDK解压，并拷贝到`WICED-SDK-3.1.2\WICED-SDK\apps`中，即SDK位于`WICED-SDK-3.1.2\WICED-SDK\apps\wilddog.0.4.2\`。
+
+由于Wiced平台特殊要求，目录名不能带有 `'.'`或`'-'`，因此我们将`wilddog.0.4.2`改为`wilddog`。
+
+Wiced平台采用WICED IDE，打开WICED IDE，能够在工程下的`apps`目录下找到我们的SDK。
+
+----
+
+### 移植条件编译选项
+
+Wiced平台需要用户完成Makefile，格式有严格要求，Makefile文件名称的前缀必须与目录名相同.
 
 
-* `int wilddog_gethostbyname(wilddog_address_t* addr,char* host);`
+在`wiced.mk`中添加编译选项，并补完Makefile，详见`wiced.mk`文件。
 
-* `int wilddog_openSocket(int* socketId);`
+注意：如果你的平台不支持自定义Makefile，那么请根据条件编译选项，仅将你所需的文件拷贝到平台下，避免出现重定义。需要选择拷贝的路径有：
 
-* `int wilddog_closeSocket(int socketId);`
+*	`APP_PROTO_TYPE` : src/connecter/appProto目录下，根据编译选项拷贝文件夹；
 
-* `int wilddog_send(int socketId,wilddog_address_t*,void* tosend,size_t tosendLength);`
+*	`APP_SEC_TYPE` ： src/connecter/secure目录下，根据编译选项拷贝文件夹；
+*	`PORT_TYPE` ： port/目录下，根据编译选项拷贝文件夹，如果你的平台不属于`posix`或`wiced`，那么你需要自己实现平台相关的函数接口。
 
-* `int wilddog_receive(int socketId,wilddog_address_t*,void* toreceive,size_t toreceiveLength);`
+----
 
+### 实现平台相关代码
 
-每个函数的意义可以参见 `port.h` 定义.
-目前已经移植到 wiced 平台.
+需要实现的平台相关函数接口位于include/wilddog_port.h，如下：
 
-###移植和编译
+	int wilddog_gethostbyname(Wilddog_Address_T* addr,char* host);
+	int wilddog_openSocket(int* socketId);
+	int wilddog_closeSocket(int socketId);
+	int wilddog_send
+		(
+		int socketId,
+		Wilddog_Address_T*,
+		void* tosend,
+		s32 tosendLength
+		);
+	int wilddog_receive
+		(
+		int socketId,
+		Wilddog_Address_T*,
+		void* toreceive,
+		s32 toreceiveLength, 
+		s32 timeout
+		);
 
-#### LINUX 
-在sample/posix下运行 `make` 可以编译 `libwilddog.a` 运行 `make sample` 可编译一个简单的例子.
-这个例子可以实现 `set` `query` `push` `delete``observe` 操作
+----
 
-#### WICED
+### 其他参考
 
-wiced 是第一个被移植的平台.编译例子程序需要将代码拷贝到 **wiced-sdk** 下,通过 **wiced-sdk** 编译工具进行编译
-
-##### 编译方法 
-
-
-**步骤:**
-
-* 将代码拷贝到 **wiced-sdk** 下的 app 目录下
-* 在 **wiced-sdk** 执行编译命令 比如 `sudo ./make wilddog_client_coap.sample.wiced-BCM943362WCD4-ThreadX-NetX_Duo-SDIO download run` 
-* 其他参考(文档和sdk获取:http://www.broadcom.com/products/wiced/wifi/).
+SDK 文档: https://z.wilddog.com/device/quickstart
+Wiced 文档和sdk获取:http://www.broadcom.com/products/wiced/wifi/
