@@ -38,8 +38,8 @@ typedef struct RAMTEST_T{
 	u32 d_gethostbyname;
 
 	u32 d_sys_ramusage;
-	u32 d_mallocblks_init;		/* init时的空闲malloc*/
-	u32 d_stackblks_init;		/* init时的栈低*/
+	u32 d_mallocblks_init;		
+	u32 d_stackblks_init;	
 	u32 mallocblks;
 	u32 stackblks;
 	
