@@ -233,7 +233,7 @@ void performtest_tm_printf(void)
 	{
 		static u32 tm_temp=0;
 		APPEND_TM(tm_temp);
-		printf("performtest_tm =%u\n",tm_temp);
+		printf("performtest_tm =%lu\n",tm_temp);
 	}
 }
 void performtest_init( u32 delay_tm,u8 tree_num, u8 request_num)
@@ -258,7 +258,7 @@ void performtest_end_printf(void)
 void performtest_printf(Performtest_T *p)
 {
 	static char perform_indx=0;
-	char sectype='N';
+	//char sectype='N';
 	char tembuf[20];
 	memset(tembuf,0,20);
 	//if(WILDDOG_PORT == 5684)
@@ -269,19 +269,19 @@ void performtest_printf(Performtest_T *p)
 	printf("\t%d",p->d_send_fault);	
 	printf("\t\t%d",tree2len[p->tree_num]);
 	printf("\t\t%s",tembuf);
-	printf("\t%d",p->d_tm_dtels);
-	printf("\t%d",p->d_tm_trysync_delay);
-	printf("\t\t%d",p->d_tm_dtls_hsk);
-	printf("\t\t%d",p->d_tm_dtls_hsk_verify);	
-	printf("\t\t%d",p->d_tm_dtls_auth_send);
-	printf("\t\t%d",p->d_tm_dtls_auth_wait);
-	printf("\t\t%d",p->d_tm_dtls_auth_handle);
+	printf("\t%lu",p->d_tm_dtels);
+	printf("\t%lu",p->d_tm_trysync_delay);
+	printf("\t\t%lu",p->d_tm_dtls_hsk);
+	printf("\t\t%lu",p->d_tm_dtls_hsk_verify);	
+	printf("\t\t%lu",p->d_tm_dtls_auth_send);
+	printf("\t\t%lu",p->d_tm_dtls_auth_wait);
+	printf("\t\t%lu",p->d_tm_dtls_auth_handle);
 
-	printf("\t\t%d",p->d_tm_send);
-	printf("\t\t%d",p->d_tm_dtls_send);
-	printf("\t\t%d",p->d_tm_recv_wait);
-	printf("\t\t%d",p->d_tm_recv_dtls);
-	printf("\t\t%d",p->d_tm_recv);
+	printf("\t\t%lu",p->d_tm_send);
+	printf("\t\t%lu",p->d_tm_dtls_send);
+	printf("\t\t%lu",p->d_tm_recv_wait);
+	printf("\t\t%lu",p->d_tm_recv_dtls);
+	printf("\t\t%lu",p->d_tm_recv);
 	//printf("\n");
 	printf("\t\t|\n");
 

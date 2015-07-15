@@ -179,14 +179,14 @@ void ramtest_printf(Ramtest_T *p)
 	printf("|\t%d",++index_tem);
 	printf("\t%d",p->request_num);
 	printf("\t%d",p->d_sendfalt);
-	printf("\t\t%d",p->d_recverr);
+	printf("\t\t%lu",p->d_recverr);
 	printf("\t\t%c",sectype);
-	printf("\t%d",tree2len[p->tree_num]);
-	printf("\t\t%d",p->d_peak_ram);
-	printf("\t\t%d",p->d_average_ram);
-	printf("\t\t%d",p->d_requestQeue_ram);
-	printf("\t\t\t%d",p->d_x509_ram);
-	printf("\t\t%d",p->d_node_ram);
+	printf("\t%lu",tree2len[p->tree_num]);
+	printf("\t\t%lu",p->d_peak_ram);
+	printf("\t\t%lu",p->d_average_ram);
+	printf("\t\t%lu",p->d_requestQeue_ram);
+	printf("\t\t\t%lu",p->d_x509_ram);
+	printf("\t\t%lu",p->d_node_ram);
 	//printf("\n");
 	printf("\t\t|\n");
 
