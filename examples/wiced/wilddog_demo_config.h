@@ -14,10 +14,10 @@ extern "C" {
 #endif
 
 /* define url */
-#define TEST_URL "coaps://test1234.wilddogio.com/"
+#define TEST_URL "coaps://<appId>.wilddogio.com/"
 /* This is the default AP the device will connect to (as a client)*/
-#define CLIENT_AP_SSID       "wilddog-allstaff"
-#define CLIENT_AP_PASSPHRASE "starport"
+#define CLIENT_AP_SSID       "your ssid"
+#define CLIENT_AP_PASSPHRASE "your passport"
 
 #ifdef __cplusplus
 } /*extern "C" */
