@@ -13,7 +13,7 @@ extern "C" {
 \*****************************************************************************/
 
 /*
- * Function:    wilddog_timeIncrease
+ * Function:    wilddog_increaseTime
  * Description: Optional, user defined time increase. Because sdk need a 
  *              time to ageing request packets, if you have a requirement
  *              in accuracy,  you should call this func, in a timer or other 
@@ -22,27 +22,20 @@ extern "C" {
  * Output:      N/A
  * Return:      N/A
 */
-extern void wilddog_timeIncrease(u32 ms);
-/*
- * Function:    wilddog_init
- * Description: Init sdk.
- * Input:       N/A
- * Output:      N/A
- * Return:      N/A
-*/
-extern void wilddog_init(void);
+extern void wilddog_increaseTime(u32 ms);
+
 
 /*****************************************************************************\
 |*********************************APP API**************************************|
 \*****************************************************************************/
 /*
- * Function:    wilddog_new
+ * Function:    wilddog_initWithUrl
  * Description: Init a wilddog client. A client is the path in the HOST tree.
  * Input:       url: A url such as coaps://<appid>.wilddogio.com/<path>
  * Output:      N/A
  * Return:      Id of the client.
 */
-extern Wilddog_T wilddog_new(Wilddog_Str_T *url);
+extern Wilddog_T wilddog_initWithUrl(Wilddog_Str_T *url);
 /*
  * Function:    wilddog_destroy
  * Description: Destory a wilddog client.
@@ -52,121 +45,12 @@ extern Wilddog_T wilddog_new(Wilddog_Str_T *url);
 */
 extern Wilddog_Return_T wilddog_destroy(Wilddog_T *p_wilddog);
 /*
- * Function:    wilddog_setAuth
- * Description: Set the auth data to a host(such as aaa.wilddogio.com).
- * Input:       p_host: a pointer to host .
- *              p_auth: the auth data
- *              len: the auth data length
- *              onAuth: the callback function called when the server returns 
- *                      a response or send fail.
- *              args: the arg defined by user, if you do not need, can be NULL.
- * Output:      N/A
- * Return:      0 means succeed, negative number means failed.
-*/
-extern Wilddog_Return_T wilddog_setAuth(Wilddog_Str_T * p_host, 
-                                            u8 *p_auth, 
-                                            int len, 
-                                            onAuthFunc onAuth, 
-                                            void* args);
-/*
- * Function:    wilddog_query
- * Description: Get the data of the client from server.
- * Input:       wilddog: the id of wilddog client.
- *              callback: the callback function called when the server returns 
- *                      a response or send fail.
- *              args: the arg defined by user, if you do not need, can be NULL.
- * Output:      N/A
- * Return:      0 means succeed, negative number means failed.
-*/
-extern Wilddog_Return_T wilddog_query(Wilddog_T wilddog, 
-                                            onQueryFunc callback, 
-                                            void* arg);
-/*
- * Function:    wilddog_set
- * Description: Post the data of the client to server.
- * Input:       wilddog: Id of the client.
- *              p_node: a point to node(Wilddog_Node_T structure), you can
- *                      create a node tree by call node APIs.
- *              callback: the callback function called when the server returns 
- *                      a response or send fail.
- *              args: the arg defined by user, if you do not need, can be NULL.
- * Output:      N/A
- * Return:      0 means succeed, negative number means failed.
-*/
-extern Wilddog_Return_T wilddog_set(Wilddog_T wilddog, 
-                                        Wilddog_Node_T *p_node, 
-                                        onSetFunc callback, 
-                                        void* arg);
-/*
- * Function:    wilddog_push
- * Description: Push the data of the client to server.
- * Input:       wilddog: Id of the client.
- *              p_node: a point to node(Wilddog_Node_T structure), you can 
- *                      create a node tree by call node APIs.
- *              callback: the callback function called when the server returns 
- *                      a response or send fail.
- *              args: the arg defined by user, if you do not need, can be NULL.
- * Output:      N/A
- * Return:      0 means succeed, negative number means failed.
-*/
-extern Wilddog_Return_T wilddog_push(Wilddog_T wilddog, 
-                                            Wilddog_Node_T *p_node, 
-                                            onPushFunc callback, 
-                                            void* arg);
-/*
- * Function:    wilddog_remove
- * Description: Remove the data of the client from server.
- * Input:       wilddog: Id of the client.
- *              callback: the callback function called when the server returns 
- *                      a response or send fail.
- *              args: the arg defined by user, if you do not need, can be NULL.
- * Output:      N/A
- * Return:      0 means succeed, negative number means failed.
-*/
-extern Wilddog_Return_T wilddog_remove(Wilddog_T wilddog, 
-                                            onRemoveFunc callback, 
-                                            void* arg);
-/*
- * Function:    wilddog_on
- * Description: Subscibe the client's data change, if data changed, server 
- *              will notify the client.
- * Input:       wilddog: Id of the client.
- *              event: Event type, see the struct.
- *              onDataChange: The callback function called when the server 
- *                          sends a data change packet.
- *              dataChangeArg: The arg defined by user, if you do not need, 
- *                          can be NULL.
- * Output:      N/A
- * Return:      0 means succeed, negative number means failed.
-*/
-extern Wilddog_Return_T wilddog_on(Wilddog_T wilddog, 
-                                        Wilddog_EventType_T event, 
-                                        onEventFunc onDataChange, 
-                                        void* dataChangeArg);
-/*
- * Function:    wilddog_off
- * Description: Unsubscibe the client's data change.
- * Input:       wilddog: Id of the client.
- *              event: Event type, see the struct.
- * Output:      N/A
- * Return:      0 means succeed, negative number means failed.
-*/
-extern Wilddog_Return_T wilddog_off(Wilddog_T wilddog, 
-                                        Wilddog_EventType_T event);
-/*
- * Function:    wilddog_trySync
- * Description: When called, try to sync.
- * Input:       N/A
- * Output:      N/A
- * Return:      N/A
-*/
-extern void wilddog_trySync(void);
-/*
  * Function:    wilddog_getParent
  * Description: Get the client's parent.
  * Input:       p_wilddog: a pointer to the client
  * Output:      N/A
- * Return:      a pointer point to your client's parent.
+ * Return:      A pointer point to the client's parent, if the client is root ,
+ *              return NULL.
 */
 extern Wilddog_T wilddog_getParent(Wilddog_T wilddog);
 /*
@@ -186,8 +70,11 @@ extern Wilddog_T wilddog_getRoot(Wilddog_T wilddog);
  * Others:      The sdk do not check wether the child is really in the server 
  *              or not, only create it.
 */
-extern Wilddog_T wilddog_getChild(Wilddog_T wilddog, 
-                                            Wilddog_Str_T * childName);
+extern Wilddog_T wilddog_getChild
+    (
+    Wilddog_T wilddog,
+    Wilddog_Str_T * childName
+    );
 /*
  * Function:    wilddog_getKey
  * Description: Get the client's key(the node's name).
@@ -197,6 +84,158 @@ extern Wilddog_T wilddog_getChild(Wilddog_T wilddog,
  * Others:      N/A
 */
 extern Wilddog_Str_T *wilddog_getKey(Wilddog_T wilddog);
+
+/*
+ * Function:    wilddog_getValue
+ * Description: Get the data of the client from server.
+ * Input:       wilddog: the id of wilddog client.
+ *              callback: the callback function called when the server returns 
+ *                      a response or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means succeed, negative number means failed.
+*/
+extern Wilddog_Return_T wilddog_getValue
+    (
+    Wilddog_T wilddog,
+    onQueryFunc callback, 
+    void* arg
+    );
+/*
+ * Function:    wilddog_setValue
+ * Description: Post the data of the client to server.
+ * Input:       wilddog: Id of the client.
+ *              p_node: a point to node(Wilddog_Node_T structure), you can
+ *                      create a node tree by call node APIs.
+ *              callback: the callback function called when the server returns 
+ *                      a response or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means succeed, negative number means failed.
+*/
+extern Wilddog_Return_T wilddog_setValue
+    (
+    Wilddog_T wilddog,
+    Wilddog_Node_T *p_node,
+    onSetFunc callback,
+    void* arg
+    );
+/*
+ * Function:    wilddog_push
+ * Description: Push the data of the client to server.
+ * Input:       wilddog: Id of the client.
+ *              p_node: a point to node(Wilddog_Node_T structure), you can 
+ *                      create a node tree by call node APIs.
+ *              callback: the callback function called when the server returns 
+ *                      a response or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means succeed, negative number means failed.
+*/
+extern Wilddog_Return_T wilddog_push
+    (
+    Wilddog_T wilddog,
+    Wilddog_Node_T *p_node,
+    onPushFunc callback, 
+    void* arg
+    );
+/*
+ * Function:    wilddog_removeValue
+ * Description: Remove the data of the client from server.
+ * Input:       wilddog: Id of the client.
+ *              callback: the callback function called when the server returns 
+ *                      a response or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means succeed, negative number means failed.
+*/
+extern Wilddog_Return_T wilddog_removeValue
+    (
+    Wilddog_T wilddog,
+    onRemoveFunc callback,
+    void* arg
+    );
+/*
+ * Function:    wilddog_addObserver
+ * Description: Subscibe the client's data change, if data changed, server 
+ *              will notify the client.
+ * Input:       wilddog: Id of the client.
+ *              event: Event type, see the struct.
+ *              onDataChange: The callback function called when the server 
+ *                          sends a data change packet.
+ *              dataChangeArg: The arg defined by user, if you do not need, 
+ *                          can be NULL.
+ * Output:      N/A
+ * Return:      0 means succeed, negative number means failed.
+*/
+extern Wilddog_Return_T wilddog_addObserver
+    (
+    Wilddog_T wilddog,
+    Wilddog_EventType_T event,
+    onEventFunc onDataChange,
+    void* dataChangeArg
+    );
+/*
+ * Function:    wilddog_removeObserver
+ * Description: Unsubscibe the client's data change.
+ * Input:       wilddog: Id of the client.
+ *              event: Event type, see the struct.
+ * Output:      N/A
+ * Return:      0 means succeed, negative number means failed.
+*/
+extern Wilddog_Return_T wilddog_removeObserver
+    (
+    Wilddog_T wilddog,
+    Wilddog_EventType_T event
+    );
+/*
+ * Function:    wilddog_auth
+ * Description: Set the auth data to a host(such as aaa.wilddogio.com).
+ * Input:       p_host: a pointer to host .
+ *              p_auth: the auth data
+ *              len: the auth data length
+ *              onAuth: the callback function called when the server returns 
+ *                      a response or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means succeed, negative number means failed.
+*/
+extern Wilddog_Return_T wilddog_auth
+    (
+    Wilddog_Str_T * p_host,
+    u8 *p_auth, 
+    int len, 
+    onAuthFunc onAuth, 
+    void* args
+    );
+/*
+ * Function:    wilddog_unauth
+ * Description: Unauth to a host(such as aaa.wilddogio.com).
+ * Input:       p_host: a pointer to host .
+ *              onAuth: the callback function called when the server returns 
+ *                      a response or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means succeed, negative number means failed.
+*/
+extern Wilddog_Return_T wilddog_unauth
+    (
+    Wilddog_Str_T * p_host, 
+    onAuthFunc onAuth, 
+    void* args
+    );
+
+/*
+ * Function:    wilddog_trySync
+ * Description: When called, try to sync interal time and receive data from 
+ *              internet.
+ * Input:       N/A
+ * Output:      N/A
+ * Return:      N/A
+*/
+extern void wilddog_trySync(void);
+
+
 
 /*****************************************************************************\
 |*********************************Node  API*************************************|
@@ -298,80 +337,9 @@ extern Wilddog_Node_T * wilddog_node_createTrue(Wilddog_Str_T* key);
  * Others:      N/A
 */
 extern Wilddog_Node_T * wilddog_node_createFalse(Wilddog_Str_T* key);
-/*
- * Function:    wilddog_node_setKey
- * Description: Set a node's key.
- * Input:       node:   The pointer to the node.
- *              key:    The pointer to the node's key.
- * Output:      N/A
- * Return:      0 means succeed, negative number means failed.
- * Others:      N/A
-*/
-extern Wilddog_Return_T wilddog_node_setKey
-    (
-    Wilddog_Node_T *node, 
-    Wilddog_Str_T *key
-    );
-/*
- * Function:    wilddog_node_getKey
- * Description: Get a node's key.
- * Input:       node:   The pointer to the node.
- * Output:      N/A
- * Return:      if success, returns pointer points to the key, else return NULL.
- * Others:      N/A
-*/
-extern const Wilddog_Str_T *wilddog_node_getKey(Wilddog_Node_T *node);
-/*
- * Function:    wilddog_node_setType
- * Description: Set a node's type.
- * Input:       node:   The pointer to the node.
- *              type:   The new type of the node.
- * Output:      N/A
- * Return:      if success, returns 0, else return negative number.
- * Others:      N/A
-*/
-extern Wilddog_Return_T wilddog_node_setType(Wilddog_Node_T *node, u8 type);
-/*
- * Function:    wilddog_node_getType
- * Description: Get a node's type.
- * Input:       node:   The pointer to the node.
- * Output:      N/A
- * Return:      if success, returns type of the node, else return negative number.
- * Others:      N/A
-*/
-extern u8 wilddog_node_getType(Wilddog_Node_T *node);
-/*
- * Function:    wilddog_node_setValue
- * Description: Set a node's value.
- * Input:       node:   The pointer to the node.
- *              value:  The pointer to the new value.
- *              len:    The length of the new value.
- * Output:      N/A
- * Return:      0 means succeed, negative number means failed.
- * Others:      N/A
-*/
-extern Wilddog_Return_T wilddog_node_setValue
-    (
-    Wilddog_Node_T *node, 
-    u8 *value, 
-    int len
-    );
-/*
- * Function:    wilddog_node_getValue
- * Description: Set a node's value.
- * Input:       node:   The pointer to the node.
- * Output:      len:    The length of the value.
- * Return:      if success, returns point of the value, else return NULL.
- * Others:      N/A
-*/
-extern Wilddog_Str_T* wilddog_node_getValue
-    (
-    Wilddog_Node_T *node, 
-    int * len
-    );
 
 /*
- * Function:    wilddog_node_add
+ * Function:    wilddog_node_addChild
  * Description: add a node(and it's children) to a parent.
  * Input:       parent: the pointer to the parent which want to insert.
  *              child:  the pointer to the node.
@@ -379,7 +347,7 @@ extern Wilddog_Str_T* wilddog_node_getValue
  * Return:      0 means succeed, negative number means failed.
  * Others:      N/A
 */
-extern Wilddog_Return_T wilddog_node_add
+extern Wilddog_Return_T wilddog_node_addChild
     (
     Wilddog_Node_T *parent, 
     Wilddog_Node_T *child

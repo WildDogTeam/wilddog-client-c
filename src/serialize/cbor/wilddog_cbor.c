@@ -536,7 +536,7 @@ STATIC Wilddog_Node_T * _wilddog_c2n_parseMap(Wilddog_Payload_T* p_data)
             p_newNode->d_wn_len = len;
         }
         /*add to head*/
-        wilddog_node_add(p_head, p_newNode);
+        wilddog_node_addChild(p_head, p_newNode);
     }
     return p_head;
 }

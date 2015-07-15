@@ -238,9 +238,9 @@ void ramtest_handle( u8 tree_num, u8 request_num)
     ramtest_init(tree_num,request_num);
     u8 url[64]={0};
     sprintf(url, "coaps://mk.wilddogio.com/tree_%d", tree2len[tree_num]);
-	wilddog_init();
+	
 
-	wilddog = wilddog_new(url);
+	wilddog = wilddog_initWithUrl(url);
 		
 	if(0 == wilddog)
 	{
@@ -249,7 +249,7 @@ void ramtest_handle( u8 tree_num, u8 request_num)
 	count = 0;
 	for(m=0; m < request_num; m++)
 	{
-		int res = wilddog_query(wilddog, test_onQueryFunc, NULL);
+		int res = wilddog_getValue(wilddog, test_onQueryFunc, NULL);
 		if(0 == res)
 			count++;
 		else

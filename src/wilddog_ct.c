@@ -7,7 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
- 
+
+#include "wilddog.h"
 #include "wilddog_url_parser.h"
 #include "wilddog_ct.h"
 #include "wilddog_api.h"
@@ -17,7 +18,8 @@
 #include "utlist.h"
 #include "wilddog_conn.h"
 
-Wilddog_Repo_Con_T l_wilddog_containTable;
+STATIC Wilddog_Repo_Con_T l_wilddog_containTable;
+STATIC BOOL l_isStarted = FALSE;
 
 STATIC Wilddog_Repo_T** _wilddog_ct_getRepoHead(void);
 STATIC Wilddog_T _wilddog_ct_createRef(void *args, int flag);
@@ -106,6 +108,13 @@ STATIC Wilddog_T _wilddog_ct_createRef(void *args, int flag)
 
     Wilddog_Str_T *url = (Wilddog_Str_T*)args;
     wilddog_assert(url, 0);
+
+	if(FALSE == l_isStarted)
+	{
+		_wilddog_ct_init(NULL, 0);
+		l_isStarted = TRUE;
+	}
+	
     /*add valid check!*/
     if(!_wilddog_isUrlValid(url))
         return 0;
@@ -441,7 +450,7 @@ STATIC Wilddog_Return_T _wilddog_ct_store_setAuth
     wilddog_assert(arg->p_host, WILDDOG_ERR_NULL);
 
     /*add valid check!*/
-    if(!_wilddog_isAuthValid(arg->p_auth))
+    if(!_wilddog_isAuthValid(arg->p_auth, arg->d_len))
         return WILDDOG_ERR_INVALID;
 
     p_repo = _wilddog_ct_findRepo(arg->p_host);

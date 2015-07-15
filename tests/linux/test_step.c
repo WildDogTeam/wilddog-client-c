@@ -163,63 +163,63 @@ int test(char *uid)
 	L4c4 = wilddog_node_createFalse("L4c4");        //false
 	L4c5 = wilddog_node_createUString("L4c5","string");      //UString
 	
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(root,L1c1))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(root,L1c1))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(root,L1c2))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(root,L1c2))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(L1c1,L2c1))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(L1c1,L2c1))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(L1c1,L2c2))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(L1c1,L2c2))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(L1c2,L2c3))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(L1c2,L2c3))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(L2c1,L3c1))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(L2c1,L3c1))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(L2c1,L3c2))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(L2c1,L3c2))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(L2c2,L3c3))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(L2c2,L3c3))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(L2c2,L3c4))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(L2c2,L3c4))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(L2c2,L3c5))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(L2c2,L3c5))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(L3c2,L4c1))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(L3c2,L4c1))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(L3c3,L4c2))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(L3c3,L4c2))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(L3c3,L4c3))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(L3c3,L4c3))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(L3c5,L4c4))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(L3c5,L4c4))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
-	if(WILDDOG_ERR_NOERR != wilddog_node_add(L3c5,L4c5))
+	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(L3c5,L4c5))
 	{
 		wilddog_debug_level(WD_DEBUG_ERROR,"node add error");
 	}
@@ -277,8 +277,8 @@ int test(char *uid)
 	
 	/*************************************************************/
 	
-	wilddog_init();
-	wilddog = wilddog_new(url);
+	
+	wilddog = wilddog_initWithUrl(url);
 
 
 	printf("*******************************************\n");
@@ -298,7 +298,7 @@ int test(char *uid)
 	en_key = 0;
 #endif
 
-	wilddog_remove(wilddog, test_onDeleteFunc, (void*)&isFinished);
+	wilddog_removeValue(wilddog, test_onDeleteFunc, (void*)&isFinished);
 	while(1)
 	{
 		if(TRUE == isFinished)
@@ -335,7 +335,7 @@ int test(char *uid)
 	en_key = 0;
 #endif
 
-	wilddog_set(wilddog,root,test_onSetFunc,(void*)&isFinished);
+	wilddog_setValue(wilddog,root,test_onSetFunc,(void*)&isFinished);
 	wilddog_node_delete(root);
 	
 	while(1)
@@ -378,7 +378,7 @@ int test(char *uid)
 #endif
 
 	s_handle.p_node = NULL;	
-	wilddog_query(wilddog, test_onQueryFunc, (void*)(&s_handle));
+	wilddog_getValue(wilddog, test_onQueryFunc, (void*)(&s_handle));
 	
 	while(1)
 	{
@@ -410,7 +410,7 @@ int test(char *uid)
 /*****************************************************************/
 	p_head = wilddog_node_createObject("3");
 	p_node = wilddog_node_createNum("2",1234);
-	wilddog_node_add(p_head, p_node);
+	wilddog_node_addChild(p_head, p_node);
 	
 	printf("*******************************************\n");
 	printf("Sixth step: Build a node as \"{\"2\":1234}\"\n");
@@ -474,7 +474,7 @@ int test(char *uid)
 	en_key = 0;
 #endif
 
-	wilddog_query(wilddog, test_onQueryFunc, (void*)(&s_handle));
+	wilddog_getValue(wilddog, test_onQueryFunc, (void*)(&s_handle));
 	
 	while(1)
 	{
@@ -517,7 +517,7 @@ int test(char *uid)
 #endif
 
 
-	wilddog_on(wilddog, WD_ET_VALUECHANGE, test_onObserveFunc, (void*)&isFinished);
+	wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, test_onObserveFunc, (void*)&isFinished);
 	while(1)
 	{
 		if(TRUE == isFinished)
@@ -527,7 +527,7 @@ int test(char *uid)
 			if(count > 1)
 			{
 				wilddog_debug("off the data!");
-				wilddog_off(wilddog, WD_ET_VALUECHANGE);
+				wilddog_removeObserver(wilddog, WD_ET_VALUECHANGE);
 				break;
 			}
 		}

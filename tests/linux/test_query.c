@@ -18,7 +18,7 @@ STATIC void test_onQueryFunc(
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
 		
-		TEST_RESULT_PRINTF("wilddog_query",TESTFUNCNAME_TABLECASE,TEST_ERR,err);
+		TEST_RESULT_PRINTF("wilddog_getValue",TESTFUNCNAME_TABLECASE,TEST_ERR,err);
 		//wilddog_debug("query error!");
 		return;
 	}
@@ -36,14 +36,14 @@ int main(void)
 	Wilddog_T wilddog = 0;
 	Wilddog_Node_T * p_node = NULL;
 	
-	wilddog_init();
 	
-	wilddog = wilddog_new(TEST_URL);
+	
+	wilddog = wilddog_initWithUrl(TEST_URL);
 	if(0 == wilddog)
 	{
 		return 0;
 	}
-	wilddog_query(wilddog, test_onQueryFunc, (void*)(&p_node));
+	wilddog_getValue(wilddog, test_onQueryFunc, (void*)(&p_node));
 	while(1)
 	{
 		if(p_node)
@@ -55,7 +55,7 @@ int main(void)
 			printf("\n");
 #endif
 			wilddog_node_delete(p_node);
-			TEST_RESULT_PRINTF("wilddog_query",TESTFUNCNAME_TABLECASE,TEST_OK,0);
+			TEST_RESULT_PRINTF("wilddog_getValue",TESTFUNCNAME_TABLECASE,TEST_OK,0);
 			break;
 		}
 		wilddog_trySync();

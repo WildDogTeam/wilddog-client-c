@@ -70,7 +70,7 @@ int main(void)
 	Wilddog_T p_parent = 0, p_root = 0, p_child  = 0,p_find =0;
 
 	//testnode = wilddog_node_createUString("c", "2");
-	wilddog_init();	
+		
 
 	/*
 	 *  test the node api and cbor
@@ -101,12 +101,12 @@ int main(void)
 			return ABORT_ERR;
 		}
 	
-	if(	WILDDOG_ERR_NOERR != wilddog_node_add(root,L1c1) 	||
-		WILDDOG_ERR_NOERR != wilddog_node_add(root,L1c2) 	||
-		WILDDOG_ERR_NOERR != wilddog_node_add(L1c1,L2c1)	||
-		WILDDOG_ERR_NOERR != wilddog_node_add(L1c2,L2c2)	||
-		WILDDOG_ERR_NOERR != wilddog_node_add(L1c2,L2c3)	||
-		WILDDOG_ERR_NOERR != wilddog_node_add(L2c3,L3c1)	)
+	if(	WILDDOG_ERR_NOERR != wilddog_node_addChild(root,L1c1) 	||
+		WILDDOG_ERR_NOERR != wilddog_node_addChild(root,L1c2) 	||
+		WILDDOG_ERR_NOERR != wilddog_node_addChild(L1c1,L2c1)	||
+		WILDDOG_ERR_NOERR != wilddog_node_addChild(L1c2,L2c2)	||
+		WILDDOG_ERR_NOERR != wilddog_node_addChild(L1c2,L2c3)	||
+		WILDDOG_ERR_NOERR != wilddog_node_addChild(L2c3,L3c1)	)
 	{
 		
 		TEST_RESULT_PRINTF("test_all:node add error",TESTFUNCNAME_TABLECASE,TEST_ERR,ABORT_ERR);
@@ -142,7 +142,7 @@ int main(void)
 	 */
 	for( i = 0; i < sizeof(test_url)/sizeof(char *); i++)
 	{
-		p_ref[i] = wilddog_new(test_url[i]);	
+		p_ref[i] = wilddog_initWithUrl(test_url[i]);	
 		if(p_ref[i])
 		{
 			printf("p_ref--  [%d] \n\n", i);
@@ -156,7 +156,7 @@ int main(void)
 			printf("%s could not init\n\n", test_url[i]);
 			printf("------------------------\n");
 			
-			TEST_RESULT_PRINTF("test_all:wilddog_new error",TESTFUNCNAME_TABLECASE,TEST_ERR,ABORT_ERR);
+			TEST_RESULT_PRINTF("test_all:wilddog_initWithUrl error",TESTFUNCNAME_TABLECASE,TEST_ERR,ABORT_ERR);
 			return ABORT_ERR;
 		}
 	}
@@ -175,12 +175,12 @@ int main(void)
 	 *  test the multi repo and multi ref
 	 *  test getparent getchild getroot
 	 */
-	p_repo1_ref1 = wilddog_new("coaps://appid1.wilddogio.com/a1");
-	p_repo1_ref2 = wilddog_new("coaps://appid1.wilddogio.com/a1/b2");
+	p_repo1_ref1 = wilddog_initWithUrl("coaps://appid1.wilddogio.com/a1");
+	p_repo1_ref2 = wilddog_initWithUrl("coaps://appid1.wilddogio.com/a1/b2");
 
-	p_repo2_ref1 = wilddog_new("coaps://appid2.wilddogio.com/c3");
-	p_repo2_ref1_cpy = wilddog_new("coaps://appid2.wilddogio.com/c3");
-	p_repo2_ref2 = wilddog_new("coaps://appid2.wilddogio.com/c3/d4/e5");
+	p_repo2_ref1 = wilddog_initWithUrl("coaps://appid2.wilddogio.com/c3");
+	p_repo2_ref1_cpy = wilddog_initWithUrl("coaps://appid2.wilddogio.com/c3");
+	p_repo2_ref2 = wilddog_initWithUrl("coaps://appid2.wilddogio.com/c3/d4/e5");
 	
 	if(p_repo1_ref1)
 	{

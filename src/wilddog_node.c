@@ -204,7 +204,7 @@ STATIC Wilddog_Node_T * _wilddog_node_newWithStr
             }
             p_tmp->p_wn_key = (Wilddog_Str_T*)wmalloc(pos + 1);
             strcpy((char*)p_tmp->p_wn_key, (char*)(p_tmpStr + i));
-            wilddog_node_add(p_parent, p_tmp);
+            wilddog_node_addChild(p_parent, p_tmp);
             i += pos;
         }
     }
@@ -777,7 +777,7 @@ Wilddog_Node_T *wilddog_node_find
  * if you want to add newnode as node's brother, use the parent node
  *
  */
-Wilddog_Return_T wilddog_node_add
+Wilddog_Return_T wilddog_node_addChild
     (
     Wilddog_Node_T *node, 
     Wilddog_Node_T *newnode

@@ -14,7 +14,7 @@ extern int _wilddog_atoi(char* str);
 extern void *wrealloc(void *ptr, size_t size);
 
 extern u8 _wilddog_isUrlValid(Wilddog_Str_T * url);
-extern u8 _wilddog_isAuthValid(Wilddog_Str_T * auth);
+extern u8 _wilddog_isAuthValid(Wilddog_Str_T * auth, int len);
 extern void _wilddog_setTimeIncrease(u32 ms);
 extern void _wilddog_syncTime(void);
 extern u32 _wilddog_getTime(void);

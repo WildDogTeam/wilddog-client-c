@@ -196,7 +196,7 @@ int main(int argc, char **argv)
 
 
 	/*Init wilddog SDK*/
-	wilddog_init();
+	
 	
 	/*Create an node which type is an object*/
 	p_head = wilddog_node_createObject(NULL);
@@ -205,19 +205,19 @@ int main(int argc, char **argv)
 	p_node = wilddog_node_createUString((Wilddog_Str_T *)keys,(Wilddog_Str_T *)value);
 	
 	/*Add p_node to p_head, then p_node is the p_head's child node*/
-	wilddog_node_add(p_head, p_node);
+	wilddog_node_addChild(p_head, p_node);
 
 	/*Init a wilddog client*/
-	wilddog = wilddog_new((Wilddog_Str_T *)url);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)url);
 	switch(type)
 	{
 		case TEST_CMD_GET:
 			/*Send the query method*/
-			res = wilddog_query(wilddog, (onQueryFunc)test_onQueryFunc, (void*)&isFinish);
+			res = wilddog_getValue(wilddog, (onQueryFunc)test_onQueryFunc, (void*)&isFinish);
 			break;
 		case TEST_CMD_SET:	
 			/*Send the set method*/
-			res = wilddog_set(wilddog,p_head,test_onSetFunc,(void*)&isFinish);
+			res = wilddog_setValue(wilddog,p_head,test_onSetFunc,(void*)&isFinish);
 			break;
 		case TEST_CMD_PUSH:
 			/*Send the push method*/
@@ -225,11 +225,11 @@ int main(int argc, char **argv)
 			break;
 		case TEST_CMD_DELE:
 			/*Send the remove method*/
-			res = wilddog_remove(wilddog, test_onDeleteFunc, (void*)&isFinish);
+			res = wilddog_removeValue(wilddog, test_onDeleteFunc, (void*)&isFinish);
 			break;
 		case TEST_CMD_ON:
 			/*Observe on*/
-			res = wilddog_on(wilddog, WD_ET_VALUECHANGE, test_onObserveFunc, (void*)&isFinish);
+			res = wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, test_onObserveFunc, (void*)&isFinish);
 			break;
 	}
 	/*Delete the node*/
@@ -247,7 +247,7 @@ int main(int argc, char **argv)
 				{
 					wilddog_debug("off the data!");
 					/*Observe off*/
-					wilddog_off(wilddog, WD_ET_VALUECHANGE);
+					wilddog_removeObserver(wilddog, WD_ET_VALUECHANGE);
 				}
 				break;
 			}

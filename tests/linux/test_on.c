@@ -15,7 +15,7 @@ STATIC void test_onObserveFunc(
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
 		//wilddog_debug("observe failed!");
-		TEST_RESULT_PRINTF("wilddog_on",TESTFUNCNAME_TABLECASE,TEST_ERR,err);
+		TEST_RESULT_PRINTF("wilddog_addObserver",TESTFUNCNAME_TABLECASE,TEST_ERR,err);
 		return;
 	}
 	else
@@ -31,15 +31,15 @@ int main(void)
 	BOOL isFinished = FALSE;
 	Wilddog_T wilddog;
 	STATIC int count = 0;	
-	wilddog_init();
+	
 
-	wilddog = wilddog_new(TEST_URL);
+	wilddog = wilddog_initWithUrl(TEST_URL);
 	if(0 == wilddog)
 	{
 		wilddog_debug("new wilddog failed!");
 		return 0;
 	}
-	wilddog_on(wilddog, WD_ET_VALUECHANGE, test_onObserveFunc, (void*)&isFinished);
+	wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, test_onObserveFunc, (void*)&isFinished);
 	while(1)
 	{
 		if(TRUE == isFinished)
@@ -49,7 +49,7 @@ int main(void)
 			if(count > 0)
 			{
 				//wilddog_debug("off the data!");
-				wilddog_off(wilddog, WD_ET_VALUECHANGE);
+				wilddog_removeObserver(wilddog, WD_ET_VALUECHANGE);
 				break;
 			}
 		}

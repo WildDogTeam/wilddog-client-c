@@ -171,12 +171,12 @@ int _wilddog_test_node_controlTest(void)
 		return ABORT_ERR;
 	}
 	/* no brother test */
-	if( wilddog_node_add(p_root,p_node_str)< 0 ||wilddog_node_add(p_node_str,p_node_bstr) ||
-		wilddog_node_add(p_node_int,p_node_float)<0 || wilddog_node_add(p_node_float,p_node_false)<0  ||
-		wilddog_node_add(p_node_false,p_node_ture)<0 )
+	if( wilddog_node_addChild(p_root,p_node_str)< 0 ||wilddog_node_addChild(p_node_str,p_node_bstr) ||
+		wilddog_node_addChild(p_node_int,p_node_float)<0 || wilddog_node_addChild(p_node_float,p_node_false)<0  ||
+		wilddog_node_addChild(p_node_false,p_node_ture)<0 )
 		{
 			wilddog_debug_level(WD_DEBUG_ERROR,"%s : in add list \n",TST_ERR);
-			TEST_RESULT_PRINTF("wilddog_node_add error ",TESTFUNCNAME_TABLECASE,TEST_ERR,ABORT_ERR);
+			TEST_RESULT_PRINTF("wilddog_node_addChild error ",TESTFUNCNAME_TABLECASE,TEST_ERR,ABORT_ERR);
 			return ABORT_ERR;
 		}
 	
@@ -189,7 +189,7 @@ int _wilddog_test_node_controlTest(void)
 	}
 	else
 		TEST_RESULT_PRINTF("wilddog_node_find  ",TESTFUNCNAME_TABLECASE,TEST_OK,0);
-	wilddog_node_add(p_node_bstr,p_node_int);
+	wilddog_node_addChild(p_node_bstr,p_node_int);
 	/*p_clone_root =  /s/bs/int/float/false/ture */
 	p_clone_root = wilddog_node_clone(p_root);
 	//wilddog_debug_printnode(p_root);
@@ -217,7 +217,7 @@ int _wilddog_test_node_controlTest(void)
 	
 	printf("\n-- p clone int:\n");
 	#endif
-	wilddog_node_add(p_clone_int,p_root);
+	wilddog_node_addChild(p_clone_int,p_root);
 	p_clone_int = wilddog_node_find(p_clone_root,"/STR/BSSTR/INT");
 	
 	//wilddog_debug_printnode(p_clone_int);

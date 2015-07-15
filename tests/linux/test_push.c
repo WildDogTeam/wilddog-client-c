@@ -28,13 +28,13 @@ int main(void)
 	BOOL isFinish = FALSE;
 	Wilddog_T wilddog;
 	Wilddog_Node_T * p_node = NULL, *p_head = NULL;
-	wilddog_init();
+	
 
 	p_head = wilddog_node_createObject(NULL);
 	p_node = wilddog_node_createNum("2",1234);
-	wilddog_node_add(p_head, p_node);
+	wilddog_node_addChild(p_head, p_node);
 	
-	wilddog = wilddog_new(TEST_URL);
+	wilddog = wilddog_initWithUrl(TEST_URL);
 	wilddog_push(wilddog, p_head, test_onPushFunc, (void *)&isFinish);	
 	wilddog_node_delete(p_head);
 	
