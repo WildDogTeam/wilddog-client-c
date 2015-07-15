@@ -23,6 +23,7 @@ ifndef DATA_TYPE
 export DATA_TYPE=cbor
 endif
 
+
 WD_OBJS := common platform
 
 WD_OBJS_BUILD := $(patsubst %,%_build,$(WD_OBJS))
@@ -59,7 +60,7 @@ example:
 	then \
 		make wdlib; \
 	fi
-	make -C $(TOPDIR)/examples all||exit 1;
+	make -C $(TOPDIR)/examples/linux demoall||exit 1;
 	@echo "make example end!"
 
 .PHONY: clean

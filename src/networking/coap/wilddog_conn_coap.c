@@ -779,10 +779,10 @@ Wilddog_Return_T _wilddog_conn_pkt_recv
 
     /*@  coap verify  malloc */
     p_pdu = _wilddog_conn_coap_recVerify(p_buf,recv_size);
-#if SELFTEST_TYPE == 1                         
+#ifdef WILDDOG_SELFTEST                        
   	ramtest_caculate_peakRam();
 #endif
-#if SELFTEST_TYPE == 2               
+#ifdef WILDDOG_SELFTEST               
 		performtest_tm_getRecvDtls();
 #endif
 

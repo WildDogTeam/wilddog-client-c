@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <malloc.h>
  
+#include "wilddog_payload.h"
 #include "wilddog_url_parser.h"
 #include "wilddog_debug.h"
 #include "wilddog.h"
@@ -52,12 +53,10 @@ void printUrl(Wilddog_Url_T* url)
 int main(void)
 {
 	int i;
-	void *arg;
 	Wilddog_Node_T *root = NULL;
 	Wilddog_Node_T *L1c1 = NULL,*L1c2 = NULL;
 	Wilddog_Node_T *L2c1 = NULL,*L2c2 = NULL,*L2c3 = NULL;
 	Wilddog_Node_T *L3c1 = NULL;
-	u8 value[3] = {1,0,0};
 	wFloat f = 2.3;
 	Wilddog_Payload_T *payload = NULL;
 	Wilddog_Payload_T *p_data = NULL;
@@ -67,7 +66,8 @@ int main(void)
 	Wilddog_T p_repo1_ref1 = 0, p_repo1_ref2 =0;
 	Wilddog_T p_repo2_ref1 = 0, p_repo2_ref2 = 0,p_repo2_ref1_cpy = 0;
 	Wilddog_T p_ref[6];
-	Wilddog_T p_parent = 0, p_root = 0, p_child  = 0,p_find =0;
+	Wilddog_T p_parent = 0, p_root = 0, p_child  = 0;
+	Wilddog_Node_T *p_find =NULL;
 
 	//testnode = wilddog_node_createUString("c", "2");
 	wilddog_init();	
@@ -85,14 +85,13 @@ int main(void)
 	 printf("\nnode2\n");
 
 
-	root = wilddog_node_createNum("root",9999);
-	L1c1 = wilddog_node_createFalse("L1c1");
-	L1c2 = wilddog_node_createTrue("L1c2");
-	L2c1 = wilddog_node_createNum("L2c1",-10000);
-	L2c2 = wilddog_node_createFloat("L2c2",f);
-	L2c3 = wilddog_node_createUString("L2c3","UStr");
-	//L3c1 = wilddog_node_createBString("L3c1",value,3);
-	L3c1 = wilddog_node_createTrue("L3c1");
+	root = wilddog_node_createNum((Wilddog_Str_T *)"root",9999);
+	L1c1 = wilddog_node_createFalse((Wilddog_Str_T *)"L1c1");
+	L1c2 = wilddog_node_createTrue((Wilddog_Str_T *)"L1c2");
+	L2c1 = wilddog_node_createNum((Wilddog_Str_T *)"L2c1",-10000);
+	L2c2 = wilddog_node_createFloat((Wilddog_Str_T *)"L2c2",f);
+	L2c3 = wilddog_node_createUString((Wilddog_Str_T *)"L2c3",(Wilddog_Str_T *)"UStr");
+	L3c1 = wilddog_node_createTrue((Wilddog_Str_T *)"L3c1");
 	
 	if(	root == NULL || L1c1 == NULL || L1c2 == NULL ||
 		L2c1 == NULL || L2c2 == NULL || L2c3 == NULL )
@@ -113,7 +112,7 @@ int main(void)
 		return ABORT_ERR;
 	}
 	wilddog_debug_printnode(root);	
-	p_find =wilddog_node_find(root,"/L1c1/L2c1");
+	p_find = wilddog_node_find(root,"/L1c1/L2c1");
 	if(p_find != L2c1 )
 	{
 		TEST_RESULT_PRINTF("test_all:find node error",TESTFUNCNAME_TABLECASE,TEST_ERR,ABORT_ERR);
@@ -142,7 +141,7 @@ int main(void)
 	 */
 	for( i = 0; i < sizeof(test_url)/sizeof(char *); i++)
 	{
-		p_ref[i] = wilddog_new(test_url[i]);	
+		p_ref[i] = wilddog_new((Wilddog_Str_T *)test_url[i]);	
 		if(p_ref[i])
 		{
 			printf("p_ref--  [%d] \n\n", i);
@@ -164,7 +163,7 @@ int main(void)
 	printf("\n\ndestroy the test url before\n\n");
 	for( i = 0; i < sizeof(test_url)/sizeof(char *); i++)
 	{
-		printf("destroy %d test url %lu\n", i, p_ref[i]);
+		printf("destroy %d test url %lu\n", i, (long unsigned int)p_ref[i]);
 		if(p_ref[i])
 			wilddog_destroy(&(p_ref[i]));
 		wilddog_debug();
@@ -175,12 +174,12 @@ int main(void)
 	 *  test the multi repo and multi ref
 	 *  test getparent getchild getroot
 	 */
-	p_repo1_ref1 = wilddog_new("coaps://appid1.wilddogio.com/a1");
-	p_repo1_ref2 = wilddog_new("coaps://appid1.wilddogio.com/a1/b2");
+	p_repo1_ref1 = wilddog_new((Wilddog_Str_T *)"coaps://appid1.wilddogio.com/a1");
+	p_repo1_ref2 = wilddog_new((Wilddog_Str_T *)"coaps://appid1.wilddogio.com/a1/b2");
 
-	p_repo2_ref1 = wilddog_new("coaps://appid2.wilddogio.com/c3");
-	p_repo2_ref1_cpy = wilddog_new("coaps://appid2.wilddogio.com/c3");
-	p_repo2_ref2 = wilddog_new("coaps://appid2.wilddogio.com/c3/d4/e5");
+	p_repo2_ref1 = wilddog_new((Wilddog_Str_T *)"coaps://appid2.wilddogio.com/c3");
+	p_repo2_ref1_cpy = wilddog_new((Wilddog_Str_T *)"coaps://appid2.wilddogio.com/c3");
+	p_repo2_ref2 = wilddog_new((Wilddog_Str_T *)"coaps://appid2.wilddogio.com/c3/d4/e5");
 	
 	if(p_repo1_ref1)
 	{
@@ -261,10 +260,10 @@ int main(void)
 		TEST_RESULT_PRINTF("test_all:get root error",TESTFUNCNAME_TABLECASE,TEST_ERR,ABORT_ERR);
 		return ABORT_ERR;
 	}
-	wilddog_debug("p_repo1_ref1 = %lu", p_repo1_ref1);
+	wilddog_debug("p_repo1_ref1 = %u",( unsigned int)p_repo1_ref1);
 	printUrl(((Wilddog_Ref_T *)p_repo1_ref1)->p_ref_url);
-	p_child = wilddog_getChild(p_repo2_ref2, "/c3/d4");
-	wilddog_debug("p_child = %lu", p_child);
+	p_child = wilddog_getChild(p_repo2_ref2, (Wilddog_Str_T *)"/c3/d4");
+	wilddog_debug("p_child = %u", ( unsigned int)p_child);
 	if(p_child)
 	{
 		wilddog_debug();

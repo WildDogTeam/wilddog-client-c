@@ -498,7 +498,7 @@ STATIC int _wilddog_conn_send
     {
         res = _wilddog_conn_getHost( &p_conn->d_remoteAddr,
                              p_arg->p_url->p_url_host,WILDDOG_PORT);
-#if SELFTEST_TYPE == 1                             
+#ifdef WILDDOG_SELFTEST                            
 		ramtest_skipLastmalloc();
 #endif
      }
@@ -603,11 +603,11 @@ STATIC void _wilddog_conn_cb_get
         tmpData.d_dt_len = d_respsize;
         tmpData.d_dt_pos = 0;
         tmpData.p_dt_data = p_respbuf;
-#if SELFTEST_TYPE == 1  
+#ifdef WILDDOG_SELFTEST
 		ramtest_skipLastmalloc();
 #endif
         p_snapshot = _wilddog_payload2Node((Wilddog_Payload_T*)&tmpData);
-#if SELFTEST_TYPE == 1          
+#ifdef WILDDOG_SELFTEST        
         ramtest_caculate_nodeRam();
 #endif
 
@@ -652,7 +652,7 @@ STATIC int _wilddog_conn_cb
     switch(p_cn_node->d_cmd)
     {
         case WILDDOG_CONN_CMD_AUTH:
-#if SELFTEST_TYPE == 2     
+#ifdef WILDDOG_SELFTEST
         	performtest_tm_getAuthHandle();
 #endif
             if(d_cn_recvData.d_RecvErr == WILDDOG_HTTP_OK )
@@ -856,28 +856,28 @@ Wilddog_Conn_T * _wilddog_conn_init(Wilddog_Repo_T* p_repo)
     p_repo_conn->f_conn_send = _wilddog_conn_send;
     p_repo_conn->f_conn_trysyc = _wilddog_conn_trySync;
     p_repo->p_rp_conn = p_repo_conn;
- #if SELFTEST_TYPE == 1                             
+ #ifdef WILDDOG_SELFTEST                       
 	ramtest_skipLastmalloc();
 #endif   
     wilddog_openSocket((int*)&p_repo_conn->d_socketid);
     _wilddog_conn_getHost( &p_repo->p_rp_conn->d_remoteAddr,
                              p_repo->p_rp_url->p_url_host,WILDDOG_PORT);
-#if SELFTEST_TYPE == 1                             
+#ifdef WILDDOG_SELFTEST                        
 	ramtest_gethostbyname();
 #endif
-#if SELFTEST_TYPE == 2     
+#ifdef WILDDOG_SELFTEST     
 	performtest_star_tm();
 #endif
     _wilddog_conn_pkt_init(p_repo_conn->d_socketid,&p_repo_conn->d_remoteAddr);
-#if SELFTEST_TYPE == 2     
+#ifdef WILDDOG_SELFTEST    
 	performtest_tm_getDtlsHsk();	
  	performtest_star_tm();
 #endif    
     _wilddog_conn_auth_send(p_repo);
-#if SELFTEST_TYPE == 1                             
+#ifdef WILDDOG_SELFTEST                            
 		ramtest_skipLastmalloc();
 #endif 
-#if SELFTEST_TYPE == 2 
+#ifdef WILDDOG_SELFTEST
  	performtest_tm_getAuthSend();
  	performtest_star_tm();
 #endif 

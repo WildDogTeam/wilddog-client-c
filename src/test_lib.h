@@ -21,7 +21,7 @@ extern "C"
 {
 #endif
 
-#if SELFTEST_TYPE != 0
+#ifdef WILDDOG_SELFTEST
 
 #define NODE_INDEX_RAMTST	1
 #define REQUESTCNT_RAMTST		1
@@ -60,7 +60,7 @@ extern void performtest_all(void);
 extern void performtest_handle( u32 delay_tm,u8 tree_num, u8 request_num);
 
 
-#endif /* SELFTEST_TYPE != 0*/
+#endif /* WILDDOG_SELFTEST != 0*/
 #ifdef __cplusplus
 }
 #endif

@@ -22,7 +22,7 @@
 #include "wilddog_api.h"
 #include "wilddog_ct.h"
 #include "test_lib.h"
-#if SELFTEST_TYPE == 2
+#ifdef WILDDOG_SELFTEST
 
 #define CUCL_UNIT_MS	1000000		/* unit of time in report table */
 

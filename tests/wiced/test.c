@@ -40,7 +40,6 @@ void cpucycleCnt_get(const u8 *p)
 }
 
 #endif
-extern int test_demo(char *url);
 /**
  *  Application start
  */

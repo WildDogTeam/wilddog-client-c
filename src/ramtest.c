@@ -25,7 +25,7 @@
 #include "test_lib.h"
 
 #define MAXINDXS	12
-#if SELFTEST_TYPE!=0
+#ifdef WILDDOG_SELFTEST
 
 typedef struct RAMTEST_T{
 	u32 tree_num;

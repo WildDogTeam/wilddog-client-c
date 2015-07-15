@@ -4,7 +4,7 @@
 
 #include "wilddog_debug.h"
 #include "wilddog.h"
-#include "test.h"
+#include "demo.h"
 
 STATIC void test_onDeleteFunc(void* arg, Wilddog_Return_T err)
 {
@@ -27,7 +27,7 @@ int main(void)
 	Wilddog_T wilddog;
 
 	wilddog_init();
-	wilddog = wilddog_new(TEST_URL);
+	wilddog = wilddog_new((Wilddog_Str_T *)TEST_URL);
 
 	wilddog_remove(wilddog, test_onDeleteFunc, (void*)&isFinished);
 	while(1)
@@ -41,5 +41,6 @@ int main(void)
 	}
 	wilddog_destroy(&wilddog);
 	
+	return 0;
 }
 

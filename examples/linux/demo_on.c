@@ -3,7 +3,7 @@
  
 #include "wilddog_debug.h"
 #include "wilddog.h"
-#include "test.h"
+#include "demo.h"
 
 STATIC void test_onObserveFunc(
 	const Wilddog_Node_T* p_snapshot, 
@@ -33,7 +33,7 @@ int main(void)
 	STATIC int count = 0;	
 	wilddog_init();
 
-	wilddog = wilddog_new(TEST_URL);
+	wilddog = wilddog_new((Wilddog_Str_T *)TEST_URL);
 	if(0 == wilddog)
 	{
 		wilddog_debug("new wilddog failed!");
@@ -57,5 +57,6 @@ int main(void)
 	}
 	wilddog_destroy(&wilddog);
 	
+	return 0;
 }
 

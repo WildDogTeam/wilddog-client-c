@@ -4,7 +4,7 @@
 
 #include "wilddog_debug.h"
 #include "wilddog.h"
-#include "test.h"
+#include "demo.h"
 
 STATIC void test_onPushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
 {
@@ -31,10 +31,10 @@ int main(void)
 	wilddog_init();
 
 	p_head = wilddog_node_createObject(NULL);
-	p_node = wilddog_node_createNum("2",1234);
+	p_node = wilddog_node_createNum((Wilddog_Str_T *)"2",1234);
 	wilddog_node_add(p_head, p_node);
 	
-	wilddog = wilddog_new(TEST_URL);
+	wilddog = wilddog_new((Wilddog_Str_T *)TEST_URL);
 	wilddog_push(wilddog, p_head, test_onPushFunc, (void *)&isFinish);	
 	wilddog_node_delete(p_head);
 	
@@ -48,5 +48,7 @@ int main(void)
 		wilddog_trySync();
 	}
 	wilddog_destroy(&wilddog);
+
+	return 0;
 }
 
