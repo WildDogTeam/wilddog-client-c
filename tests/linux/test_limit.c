@@ -46,14 +46,16 @@ int test_new()
 	/*check invalid url*/
 	for(i = 1; i < sizeof(test_new_url) / sizeof(char*); i++)
 	{
-		wilddog = wilddog_initWithUrl(test_new_url[i]);
+		wilddog = wilddog_initWithUrl((Wilddog_Str_T *)test_new_url[i]);
+
 		if(wilddog)
 			return i;
 	}
 
 	/*check duplicated url*/
-	wilddog = wilddog_initWithUrl(UNUSED_URL);
-	wilddog2 = wilddog_initWithUrl(UNUSED_URL);
+
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
+	wilddog2 = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
 
 	if(!wilddog || (wilddog != wilddog2))
 	{
@@ -72,7 +74,6 @@ int test_new()
 int test_destroy()
 {
 	Wilddog_T wilddog = 0;
-	u32 tmp = 0;
 
 	/*destroy before init*/
 	wilddog_destroy((void*)0);
@@ -82,7 +83,7 @@ int test_destroy()
 	/*destroy empty ref*/
 	wilddog_destroy((void*)0);
 
-	wilddog = wilddog_initWithUrl(UNUSED_URL);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
 
 	/*destory 0*/
 	wilddog_destroy((void*)0);
@@ -107,23 +108,21 @@ int test_auth()
 	Wilddog_T wilddog = 0;
 
 	/* host null */
-	if (WILDDOG_ERR_NOERR == wilddog_auth(NULL, authData, \
+	if (WILDDOG_ERR_NOERR == wilddog_auth(NULL, (u8*)authData, \
 	         strlen((const char*)authData), NULL, NULL)
 	   )
 	   return -1;
 
 	/*host not inited*/
-	if (WILDDOG_ERR_NOERR == wilddog_auth("coap.wilddogio.com", authData, \
+	if (WILDDOG_ERR_NOERR == wilddog_auth((Wilddog_Str_T *)"coap.wilddogio.com", (u8 *)authData, \
 	         strlen((const char*)authData), NULL, NULL)
 	   )
 	   return -1;
-
 	
-	
-	wilddog = wilddog_initWithUrl(UNUSED_URL);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
 
 	/*auth data null*/
-	if (WILDDOG_ERR_NOERR == wilddog_auth("coap.wilddogio.com", NULL, \
+	if (WILDDOG_ERR_NOERR == wilddog_auth((Wilddog_Str_T *)"coap.wilddogio.com", NULL, \
 		 strlen((const char*)authData), NULL, NULL)
    	    )
 	{
@@ -132,7 +131,7 @@ int test_auth()
 	}
 
 	/*valid*/
-	if (WILDDOG_ERR_NOERR != wilddog_auth("coap.wilddogio.com", authData, \
+	if (WILDDOG_ERR_NOERR != wilddog_auth((Wilddog_Str_T *)"coap.wilddogio.com", (u8*)authData, \
 		 strlen((const char*)authData), NULL, NULL)
    	    )
 	{
@@ -155,7 +154,8 @@ int test_getParent()
 
 	
 
-	wilddog = wilddog_initWithUrl("coap://coap.wilddogio.com/a/b/c");
+
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)"coap://coap.wilddogio.com/a/b/c");
 
 	/* should /a/b */
 	parent = wilddog_getParent(wilddog);
@@ -217,7 +217,7 @@ int test_getRoot()
 	if(root)
 		return -1;
 
-	wilddog = wilddog_initWithUrl("coap://coap.wilddogio.com/a/b");
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)"coap://coap.wilddogio.com/a/b");
 
 	/* should be / */
 	root = wilddog_getRoot(wilddog);
@@ -257,11 +257,11 @@ int test_getChild()
 		return -1;
 	
 	/* not inited, should be 0 */
-	child = wilddog_getChild(wilddog, "a");
+	child = wilddog_getChild(wilddog, (Wilddog_Str_T *)"a");
 	if(child)
 		return -1;
 
-	wilddog = wilddog_initWithUrl(UNUSED_URL);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
 
 	/* Invalid, should be 0 */
 	child = wilddog_getChild(wilddog, NULL);
@@ -269,37 +269,37 @@ int test_getChild()
 		goto GET_CHILD_END;
 
 	/* Invalid, should be 0 */
-	child = wilddog_getChild(wilddog, "/");
+	child = wilddog_getChild(wilddog, (Wilddog_Str_T *)"/");
 	if(child)
 		goto GET_CHILD_END;
 
 	/* Invalid, should be 0 */
-	child = wilddog_getChild(wilddog, "/a");
+	child = wilddog_getChild(wilddog, (Wilddog_Str_T *)"/a");
 	if(child)
 		goto GET_CHILD_END;
 
 	/* valid */
-	child = wilddog_getChild(wilddog, "a");
+	child = wilddog_getChild(wilddog, (Wilddog_Str_T *)"a");
 	if(!child)
 		goto GET_CHILD_END;
 	wilddog_destroy(&child);
 
 	/* Invalid, should be 0 */
-	child = wilddog_getChild(wilddog, "a/b/");
+	child = wilddog_getChild(wilddog, (Wilddog_Str_T *)"a/b/");
 	if(child)
 	{
 		goto GET_CHILD_END;
 	}
 
 	/* valid */
-	child = wilddog_getChild(wilddog, "a/b");
+	child = wilddog_getChild(wilddog, (Wilddog_Str_T *)"a/b");
 	if(!child)
 	{
 		goto GET_CHILD_END;
 	}
 
 	/* Invalid, should be 0 */
-	child = wilddog_getChild(wilddog, "a//b");
+	child = wilddog_getChild(wilddog, (Wilddog_Str_T *)"a//b");
 	if(child)
 	{
 		goto GET_CHILD_END;
@@ -329,7 +329,7 @@ int test_getKey()
 		return -1;
 	}
 
-	wilddog = wilddog_initWithUrl(UNUSED_URL);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
 
 	/* valid */
 	key = wilddog_getKey(wilddog);
@@ -367,7 +367,7 @@ int test_query()
 	if(WILDDOG_ERR_NOERR == wilddog_getValue(0, NULL, NULL))
 		return -1;
 
-	wilddog = wilddog_initWithUrl(UNUSED_URL);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
 
 	/*Invalid*/
 	if(WILDDOG_ERR_NOERR == wilddog_getValue(0, NULL, NULL))
@@ -402,7 +402,8 @@ int test_set()
 	{
 		return -1;
 	}
-	wilddog = wilddog_initWithUrl(UNUSED_URL);
+
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
 
 	/* valid */
 	if(WILDDOG_ERR_NOERR != wilddog_setValue(wilddog, NULL, NULL, NULL))
@@ -446,7 +447,8 @@ int test_push()
 	{
 		return -1;
 	}
-	wilddog = wilddog_initWithUrl(UNUSED_URL);
+
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
 
 	/* valid */
 	if(WILDDOG_ERR_NOERR != wilddog_push(wilddog, NULL, NULL, NULL))
@@ -489,7 +491,7 @@ int test_remove()
 	if(WILDDOG_ERR_NOERR == wilddog_removeValue(0, NULL, NULL))
 		return -1;
 
-	wilddog = wilddog_initWithUrl(UNUSED_URL);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
 
 	/*Invalid*/
 	if(WILDDOG_ERR_NOERR == wilddog_removeValue(0, NULL, NULL))
@@ -523,7 +525,8 @@ int test_on()
 	{
 		return -1;
 	}
-	wilddog = wilddog_initWithUrl(UNUSED_URL);
+
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
 
 	/* valid */
 	if(WILDDOG_ERR_NOERR != wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, NULL, NULL))
@@ -561,7 +564,7 @@ int test_off()
 	if(WILDDOG_ERR_NOERR == wilddog_removeObserver(0, 0))
 		return -1;
 
-	wilddog = wilddog_initWithUrl(UNUSED_URL);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
 
 	/*Invalid*/
 	if(WILDDOG_ERR_NOERR == wilddog_removeObserver(0, WD_ET_VALUECHANGE))

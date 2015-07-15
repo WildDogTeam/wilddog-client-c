@@ -2,9 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "wilddog_debug.h"
 #include "wilddog.h"
-#include "test.h"
+#include "demo.h"
 
 STATIC void test_onDeleteFunc(void* arg, Wilddog_Return_T err)
 {
@@ -25,9 +24,8 @@ int main(void)
 {
 	BOOL isFinished = FALSE;
 	Wilddog_T wilddog;
-
 	
-	wilddog = wilddog_initWithUrl(TEST_URL);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
 
 	wilddog_removeValue(wilddog, test_onDeleteFunc, (void*)&isFinished);
 	while(1)
@@ -41,5 +39,6 @@ int main(void)
 	}
 	wilddog_destroy(&wilddog);
 	
+	return 0;
 }
 

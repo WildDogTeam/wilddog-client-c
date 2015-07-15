@@ -6,7 +6,7 @@ CC=gcc
 MAKE=make
 
 UNAR=ar x
-RM = -rm -rf
+RM = rm -rf
 MV = mv
 
 CFLAGS+=-Wall -O2
@@ -15,25 +15,10 @@ ifeq ($(COVER), 1)
 CFLAGS+= -fprofile-arcs -ftest-coverage
 endif
 
-ifeq ($(SELFTEST_TYPE), no)
-CFLAGS += -DSELFTEST_TYPE=0
-else
-ifeq ($(SELFTEST_TYPE), ram)
-CFLAGS += -DSELFTEST_TYPE=1
-else
-ifeq ($(SELFTEST_TYPE), time)
-CFLAGS += -DSELFTEST_TYPE=2
-else
-ifeq ($(SELFTEST_TYPE), stab)
-CFLAGS += -DSELFTEST_TYPE=3
-else
-ifeq ($(SELFTEST_TYPE), power)
-CFLAGS += -DSELFTEST_TYPE=4
+ifeq ($(WILDDOG_SELFTEST), yes)
+CFLAGS+= -DWILDDOG_SELFTEST
 endif
-endif
-endif
-endif
-endif
+
 
 ifeq ($(include_dirs), )
 dirs:=$(shell find . -maxdepth 1 -type d)

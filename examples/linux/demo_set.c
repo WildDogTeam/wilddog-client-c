@@ -2,9 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "wilddog_debug.h"
 #include "wilddog.h"
-#include "test.h"
+#include "demo.h"
 
 
 STATIC void test_onSetFunc(void* arg, Wilddog_Return_T err)
@@ -34,11 +33,12 @@ int main(void)
 	p_head = wilddog_node_createObject(NULL);
 
 	/* create a new child to "wilddog" , key is "1", value is "123456" */
-	p_node = wilddog_node_createUString("1","123456");
+	p_node = wilddog_node_createUString((Wilddog_Str_T *)"1",(Wilddog_Str_T *)"123456");
 
 	wilddog_node_addChild(p_head, p_node);
 	
-	wilddog = wilddog_initWithUrl(TEST_URL);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
+
 	if(0 == wilddog)
 	{
 		wilddog_debug("new wilddog error");
@@ -58,5 +58,6 @@ int main(void)
 	}
 	wilddog_destroy(&wilddog);
 	
+	return 0;
 }
 

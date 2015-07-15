@@ -17,12 +17,7 @@ int main(void)
 	u8 m=0, n=0;
 	u8 tree_num[3] = {1,2,3};
 	u8 request_num[4] = {1,16,32,64};
-#if SELFTEST_TYPE == 2
-
-//	performtest_handle(TRYSNCDELAY,TREE_NUM,REQUEST_NUM);
-	performtest_all();
-#endif
-#if SELFTEST_TYPE == 1
+#ifdef WILDDOG_SELFTEST
 	ramtest_titile_printf();
 	//ramtest_handle(TREE_NUM,REQUEST_NUM);
 
@@ -35,4 +30,5 @@ int main(void)
 	}
 	ramtest_end_printf();
 #endif
+	return 0;
 }

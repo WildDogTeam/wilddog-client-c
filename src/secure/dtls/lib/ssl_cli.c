@@ -2988,11 +2988,11 @@ int ssl_handshake_client_step( ssl_context *ssl )
            break;
 
        case SSL_SERVER_CERTIFICATE:
-#if SELFTEST_TYPE == 2     
+#ifdef WILDDOG_SELFTEST
 			performtest_tm_getDtlsHskVerify();
 #endif
            ret = ssl_parse_certificate( ssl );
-#if SELFTEST_TYPE == 2     
+#ifdef WILDDOG_SELFTEST     
 			performtest_tm_getDtlsHskVerify();
 #endif   
 

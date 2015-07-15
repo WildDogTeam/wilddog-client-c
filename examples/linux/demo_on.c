@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
  
-#include "wilddog_debug.h"
 #include "wilddog.h"
-#include "test.h"
+#include "wilddog_debug.h"
+#include "demo.h"
 
 STATIC void test_onObserveFunc(
 	const Wilddog_Node_T* p_snapshot, 
@@ -32,8 +32,8 @@ int main(void)
 	Wilddog_T wilddog;
 	STATIC int count = 0;	
 	
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
 
-	wilddog = wilddog_initWithUrl(TEST_URL);
 	if(0 == wilddog)
 	{
 		wilddog_debug("new wilddog failed!");
@@ -57,5 +57,6 @@ int main(void)
 	}
 	wilddog_destroy(&wilddog);
 	
+	return 0;
 }
 

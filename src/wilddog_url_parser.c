@@ -448,7 +448,7 @@ Wilddog_Url_T * _wilddog_url_parseUrl(Wilddog_Str_T * url)
     {
         len += strlen((const char*)p_paresd_url->path);
 
-		if(WILDDOG_ERR_NOERR != _wilddogurl_checkPath(p_paresd_url->path))
+		if(WILDDOG_ERR_NOERR != _wilddogurl_checkPath((Wilddog_Str_T*)p_paresd_url->path))
 		{
 			_wilddog_url_freeParsedUrl(p_wd_url);
 			parsed_url_free(p_paresd_url);
@@ -665,10 +665,11 @@ STATIC Wilddog_Str_T *_wilddog_url_getChildStr
     Wilddog_Str_T* childName
     )
 {
-    int i;
     Wilddog_Str_T *p_path = NULL;
     int len = 0;
     int srcLen = 0, childLen = 0;
+	int dstPathLen = 0;
+	
     if(!childName || !p_srcPath)
         return NULL;
     srcLen = strlen((const char*)p_srcPath);
@@ -691,34 +692,18 @@ STATIC Wilddog_Str_T *_wilddog_url_getChildStr
     {
         return NULL;
     }
-/*
-    if(childName[0] == '/')
+
+    if(srcLen == 1 && p_srcPath[0] == '/')
     {
-        if(srcLen == 1 && p_srcPath[0] == '/')
-        {
-            snprintf((char*)p_path, len , "%s", (char*)childName);
-        }
-        else
-        {
-            snprintf((char*)p_path, len , "%s%s", (char*)p_srcPath, \
-                (char*)childName);
-        }
+        snprintf((char*)p_path, len , "/%s", (char*)childName);
     }
-    else*/
+    else
     {
-		int dstPathLen = 0;
-        if(srcLen == 1 && p_srcPath[0] == '/')
-        {
-            snprintf((char*)p_path, len , "/%s", (char*)childName);
-        }
-        else
-        {
-            snprintf((char*)p_path, len , "%s/%s", (char*)p_srcPath, \
-                (char*)childName);
-        }
-		dstPathLen= strlen((const char *)p_path);
-		p_path[dstPathLen]= 0;
+        snprintf((char*)p_path, len , "%s/%s", (char*)p_srcPath, \
+            (char*)childName);
     }
+	dstPathLen= strlen((const char *)p_path);
+	p_path[dstPathLen]= 0;
 
     return p_path;
 }

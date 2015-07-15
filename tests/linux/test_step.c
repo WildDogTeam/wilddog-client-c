@@ -112,9 +112,9 @@ int test(char *uid)
 	BOOL isFinished = FALSE;
 	Wilddog_T wilddog;
 	Wilddog_Handle_T s_handle;
-	Wilddog_Node_T *p_head = NULL, *p_node = NULL, *p_snapshot = NULL;
+	Wilddog_Node_T *p_head = NULL, *p_node = NULL/*, *p_snapshot = NULL*/;
 	u8 value1[5] = {246,12,0,0,6};
-	u8 value2[4] = {23,67,98,1};
+	/*u8 value2[4] = {23,67,98,1};*/
 	wFloat f = 2.3;
 
 	Wilddog_Node_T *root;
@@ -146,22 +146,22 @@ int test(char *uid)
 	en_key = 0;
 #endif
 
-	root = wilddog_node_createNum("root",9999);
-	L1c1 = wilddog_node_createFalse("L1c1");
-	L1c2 = wilddog_node_createTrue("L1c2");
-	L2c1 = wilddog_node_createNum("L2c1",-10000);
-	L2c2 = wilddog_node_createFloat("L2c2",f);
-	L2c3 = wilddog_node_createTrue("L2c3");          //true
-	L3c1 = wilddog_node_createBString("L3c1",value1,sizeof(value1)/sizeof(u8));    //BString
-	L3c2 = wilddog_node_createTrue("L3c2");
-	L3c3 = wilddog_node_createTrue("L3c3");
-	L3c4 = wilddog_node_createNull("L3c4");   //NULL
-	L3c5 = wilddog_node_createTrue("L3c5");
-	L4c1 = wilddog_node_createNum("L4c1",875);//    +Num
-	L4c2 = wilddog_node_createNum("L4c2",-5693);    //   -Num
-	L4c3 = wilddog_node_createFloat("L4c3",f);     //float
-	L4c4 = wilddog_node_createFalse("L4c4");        //false
-	L4c5 = wilddog_node_createUString("L4c5","string");      //UString
+	root = wilddog_node_createNum((Wilddog_Str_T *)"root",9999);
+	L1c1 = wilddog_node_createFalse((Wilddog_Str_T *)"L1c1");
+	L1c2 = wilddog_node_createTrue((Wilddog_Str_T *)"L1c2");
+	L2c1 = wilddog_node_createNum((Wilddog_Str_T *)"L2c1",-10000);
+	L2c2 = wilddog_node_createFloat((Wilddog_Str_T *)"L2c2",f);
+	L2c3 = wilddog_node_createTrue((Wilddog_Str_T *)"L2c3");          //true
+	L3c1 = wilddog_node_createBString((Wilddog_Str_T *)"L3c1",value1,sizeof(value1)/sizeof(u8));    //BString
+	L3c2 = wilddog_node_createTrue((Wilddog_Str_T *)"L3c2");
+	L3c3 = wilddog_node_createTrue((Wilddog_Str_T *)"L3c3");
+	L3c4 = wilddog_node_createNull((Wilddog_Str_T *)"L3c4");   //NULL
+	L3c5 = wilddog_node_createTrue((Wilddog_Str_T *)"L3c5");
+	L4c1 = wilddog_node_createNum((Wilddog_Str_T *)"L4c1",875);//    +Num
+	L4c2 = wilddog_node_createNum((Wilddog_Str_T *)"L4c2",-5693);    //   -Num
+	L4c3 = wilddog_node_createFloat((Wilddog_Str_T *)"L4c3",f);     //float
+	L4c4 = wilddog_node_createFalse((Wilddog_Str_T *)"L4c4");        //false
+	L4c5 = wilddog_node_createUString((Wilddog_Str_T *)"L4c5",(Wilddog_Str_T *)"string");      //UString
 	
 	if(WILDDOG_ERR_NOERR != wilddog_node_addChild(root,L1c1))
 	{
@@ -233,11 +233,11 @@ int test(char *uid)
 	printf("\n\n");
 
 
-
+/*
 	printf("*******************************************\n");
 	printf("Second Step: Use the Node API to change the data tree\n");
 	printf("Change the L1c1 node's key from \"L1c1\" to \"L1c1New\" \n");
-	wilddog_node_setKey(L1c1,"L1c1New");
+	wilddog_node_setKey(L1c1,(Wilddog_Str_T *)"L1c1New");
 	printf("Change the L3c1 node's value from Bytestring \"{0xf6,0x0c,0x00,0x00,0x06}\" to Bytestring \"{0x17,0x43,0x62,0x01}\"\n ");
 	wilddog_node_setValue(L3c1,value2,sizeof(value2)/sizeof(u8));
 	printf("Please press enter key to continue!\n");
@@ -261,7 +261,7 @@ int test(char *uid)
 	printf("\n");
 	printf("*******************************************\n");
 	printf("\n\n");
-
+*/
 /*
 	printf("*******************************************\n");
 	printf("Clone the data tree from L2c2 node\n");
@@ -277,9 +277,7 @@ int test(char *uid)
 	
 	/*************************************************************/
 	
-	
-	wilddog = wilddog_initWithUrl(url);
-
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)url);
 
 	printf("*******************************************\n");
 	printf("Third step: Remove the %s's data\n",uid);
@@ -408,8 +406,8 @@ int test(char *uid)
 
 
 /*****************************************************************/
-	p_head = wilddog_node_createObject("3");
-	p_node = wilddog_node_createNum("2",1234);
+	p_head = wilddog_node_createObject((Wilddog_Str_T *)"3");
+	p_node = wilddog_node_createNum((Wilddog_Str_T *)"2",1234);
 	wilddog_node_addChild(p_head, p_node);
 	
 	printf("*******************************************\n");
@@ -549,7 +547,7 @@ int test(char *uid)
 	printf("*******************************************\n");
 	printf("\n\n");
 
-
+	return 0;
 }
 
 

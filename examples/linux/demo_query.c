@@ -5,9 +5,9 @@
 #include <stdio.h>
 #include <stdlib.h>
  
-#include "wilddog_debug.h"
 #include "wilddog.h"
-#include "test.h"
+#include "wilddog_debug.h"
+#include "demo.h"
 
 STATIC void test_onQueryFunc(
 	const Wilddog_Node_T* p_snapshot, 
@@ -36,9 +36,8 @@ int main(void)
 	Wilddog_T wilddog = 0;
 	Wilddog_Node_T * p_node = NULL;
 	
-	
-	
-	wilddog = wilddog_initWithUrl(TEST_URL);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
+
 	if(0 == wilddog)
 	{
 		return 0;
@@ -63,5 +62,6 @@ int main(void)
 
 	wilddog_destroy(&wilddog);
 	
+	return 0;
 }
 

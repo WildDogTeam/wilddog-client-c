@@ -337,6 +337,36 @@ extern Wilddog_Node_T * wilddog_node_createTrue(Wilddog_Str_T* key);
  * Others:      N/A
 */
 extern Wilddog_Node_T * wilddog_node_createFalse(Wilddog_Str_T* key);
+/*
+ * Function:    wilddog_node_getValue
+ * Description: Set a node's value.
+ * Input:       node:   The pointer to the node.
+ * Output:      len:    The length of the value.
+ * Return:      if success, returns point of the value, else return NULL.
+ * Others:      N/A
+*/
+Wilddog_Str_T* wilddog_node_getValue
+    (
+    Wilddog_Node_T *node, 
+    int * len
+    );
+
+/*
+ * Function:    wilddog_node_setValue
+ * Description: Set a node's value.
+ * Input:       node:   The pointer to the node.
+ *              value:  The pointer to the new value.
+ *              len:    The length of the new value.
+ * Output:      N/A
+ * Return:      0 means succeed, negative number means failed.
+ * Others:      N/A
+*/
+Wilddog_Return_T wilddog_node_setValue
+    (
+    Wilddog_Node_T *node, 
+    u8 *value, 
+    int len
+    );
 
 /*
  * Function:    wilddog_node_addChild

@@ -22,7 +22,7 @@
 #include "wilddog_api.h"
 #include "wilddog_ct.h"
 #include "test_lib.h"
-#if SELFTEST_TYPE == 2
+#ifdef WILDDOG_SELFTEST
 
 #define CUCL_UNIT_MS	1000000		/* unit of time in report table */
 
@@ -33,7 +33,6 @@
 #define SYS_ISIN(s)		(g_performtest.d_sysState == (s))
 
 #define TM_DIFF(a,b)	((a>b)?(a-b):(b-a))
-#define PEROFORMTEST_PORT 1	/* 1 Linux  2 winced*/
 
 typedef enum{
 	SYS_INIT,
@@ -45,8 +44,9 @@ typedef enum{
 	SYS_APPLICATIONRECVDONE,
 }Sys_State;
 
-#if PEROFORMTEST_PORT == 1
-#include <sys/timeb.h>
+#ifndef WILDDOG_PORT_TYPE_WICED
+
+#include <sys/time.h>
 #endif
 typedef struct PERFORMTERST_T
 {
@@ -83,7 +83,7 @@ static Performtest_T g_performtest;
 static int tree2len[]={64,127,576,1280};
 static int perform_count = 0;
 
-#if PEROFORMTEST_PORT == 1
+#ifndef WILDDOG_PORT_TYPE_WICED
 u32 performtest_sys_ustm(void)
 {
 
@@ -94,7 +94,7 @@ u32 performtest_sys_ustm(void)
 }
 #endif
 
-#if PEROFORMTEST_PORT == 2
+#ifdef WILDDOG_PORT_TYPE_WICED
 
 #define CPU_CCT	120000000					/* cpu frequency */
 int statnd_cyclecount = 0;
@@ -129,7 +129,7 @@ u32 performtest_getSys_tm(u32 d_systm)
 void performtest_star_tm(void)
 {
 
-#if PEROFORMTEST_PORT == 2
+#ifdef WILDDOG_PORT_TYPE_WICED
 	cpucycle_rst();
 	g_performtest.d_tm_star = 0;
 /*	printf("d_tm_star=%u\n",g_performtest.d_tm_star);*/
@@ -145,7 +145,7 @@ u32 performtest_cacl_tm(void)
 	u32 diff_tm = performtest_sys_ustm();
 	
 /*	printf("performtest_cacl_tm :d_tm_star=%u;diff_tm=%u\n",g_performtest.d_tm_star,diff_tm);*/
-#if PEROFORMTEST_PORT == 1
+#ifndef WILDDOG_PORT_TYPE_WICED
 	diff_tm = TM_DIFF(diff_tm,g_performtest.d_tm_star);
 #endif
 	return diff_tm;
@@ -233,7 +233,7 @@ void performtest_tm_printf(void)
 	{
 		static u32 tm_temp=0;
 		APPEND_TM(tm_temp);
-		printf("performtest_tm =%u\n",tm_temp);
+		printf("performtest_tm =%ld\n",tm_temp);
 	}
 }
 void performtest_init( u32 delay_tm,u8 tree_num, u8 request_num)
@@ -258,30 +258,29 @@ void performtest_end_printf(void)
 void performtest_printf(Performtest_T *p)
 {
 	static char perform_indx=0;
-	char sectype='N';
+
 	char tembuf[20];
 	memset(tembuf,0,20);
-	//if(WILDDOG_PORT == 5684)
-	//	sectype = 'Y';
+
 	sprintf(tembuf,"%d/%d",p->d_recv_err,(p->request_num - p->d_send_fault)/*,p->d_recv*/);
 	printf("%d",++perform_indx);
 	printf("\t%d",p->request_num);
 	printf("\t%d",p->d_send_fault);	
 	printf("\t\t%d",tree2len[p->tree_num]);
 	printf("\t\t%s",tembuf);
-	printf("\t%d",p->d_tm_dtels);
-	printf("\t%d",p->d_tm_trysync_delay);
-	printf("\t\t%d",p->d_tm_dtls_hsk);
-	printf("\t\t%d",p->d_tm_dtls_hsk_verify);	
-	printf("\t\t%d",p->d_tm_dtls_auth_send);
-	printf("\t\t%d",p->d_tm_dtls_auth_wait);
-	printf("\t\t%d",p->d_tm_dtls_auth_handle);
+	printf("\t%ld",p->d_tm_dtels);
+	printf("\t%ld",p->d_tm_trysync_delay);
+	printf("\t\t%ld",p->d_tm_dtls_hsk);
+	printf("\t\t%ld",p->d_tm_dtls_hsk_verify);	
+	printf("\t\t%ld",p->d_tm_dtls_auth_send);
+	printf("\t\t%ld",p->d_tm_dtls_auth_wait);
+	printf("\t\t%ld",p->d_tm_dtls_auth_handle);
 
-	printf("\t\t%d",p->d_tm_send);
-	printf("\t\t%d",p->d_tm_dtls_send);
-	printf("\t\t%d",p->d_tm_recv_wait);
-	printf("\t\t%d",p->d_tm_recv_dtls);
-	printf("\t\t%d",p->d_tm_recv);
+	printf("\t\t%ld",p->d_tm_send);
+	printf("\t\t%ld",p->d_tm_dtls_send);
+	printf("\t\t%ld",p->d_tm_recv_wait);
+	printf("\t\t%ld",p->d_tm_recv_dtls);
+	printf("\t\t%ld",p->d_tm_recv);
 	//printf("\n");
 	printf("\t\t|\n");
 
@@ -314,10 +313,9 @@ void performtest_handle( u32 delay_tm,u8 tree_num, u8 request_num)
 {
 	u8 m = 0;
 	Wilddog_T wilddog = 0;
-	Wilddog_Node_T * p_node = NULL;		
-    ramtest_init(tree_num,request_num);
     u8 url[64]={0};
-    sprintf(url, "coaps://mk.wilddogio.com/tree_%d", tree2len[tree_num]);
+	
+    sprintf((char*)url, "coaps://mk.wilddogio.com/tree_%d", tree2len[tree_num]);
 	
 	performtest_init(delay_tm,tree_num,request_num);
 	performtest_setSysState(SYS_HSK);
@@ -326,7 +324,7 @@ void performtest_handle( u32 delay_tm,u8 tree_num, u8 request_num)
 		  
 	if(0 == wilddog)
 	{
-		return 0;
+		return;
 	}
 	perform_count = 0;
 	performtest_setSysState(SYS_AUTHRECV);
@@ -361,7 +359,7 @@ void performtest_handle( u32 delay_tm,u8 tree_num, u8 request_num)
 			performtest_printf(&g_performtest);
 			break;
 		}
-#if PEROFORMTEST_PORT == 2
+#ifdef WILDDOG_PORT_TYPE_WICED
 		wiced_rtos_delay_milliseconds(g_performtest.d_tm_trysync_delay);
 #else 
 		usleep(g_performtest.d_tm_trysync_delay);
@@ -370,6 +368,7 @@ void performtest_handle( u32 delay_tm,u8 tree_num, u8 request_num)
 		wilddog_trySync();
 	}
 	wilddog_destroy(&wilddog);
+	return;
 }
 void performtest_all(void)
 {
@@ -385,7 +384,7 @@ void performtest_all(void)
 			for(m=0; m<3; m++)
 			{
 				performtest_handle(delay_tm[d],tree_num[m],request_num[n]);
-#if PEROFORMTEST_PORT == 2
+#ifdef WILDDOG_PORT_TYPE_WICED
 				wiced_rtos_delay_milliseconds(2000);
 #endif
 			}
