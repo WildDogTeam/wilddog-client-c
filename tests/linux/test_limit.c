@@ -297,7 +297,7 @@ int test_getChild()
 	{
 		goto GET_CHILD_END;
 	}
-
+	wilddog_destroy(&child);
 	/* Invalid, should be 0 */
 	child = wilddog_getChild(wilddog, (Wilddog_Str_T *)"a//b");
 	if(child)
