@@ -144,7 +144,6 @@ STATIC void _wilddog_c2n_numHandler
     Wilddog_Str_T *p_num
     )
 {
-
     switch(dataLen)
     {
         case 1:
@@ -152,12 +151,12 @@ STATIC void _wilddog_c2n_numHandler
                 num = 0 - num - 1;
             break;
         case 2:
-            num = ntohs(num);
+            
             if (WILDDOG_CBOR_NEGINT == type)
                 num = 0 - num - 1;
             break;
         case 4:
-            num = ntohl(num);
+           
             if (WILDDOG_CBOR_NEGINT == type)
                 num = 0 - num - 1;
             break;
