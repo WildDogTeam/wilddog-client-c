@@ -154,6 +154,7 @@ void ramtest_printf(Ramtest_T *p)
 	static u8 index_tem = 0;
 
 	printf("|\t%d",++index_tem);
+
 	printf("\t%ld",p->request_num);
 	printf("\t%ld",p->d_sendfalt);
 	printf("\t\t%ld",p->d_recverr);

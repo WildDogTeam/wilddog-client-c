@@ -268,6 +268,7 @@ void performtest_printf(Performtest_T *p)
 	printf("\t%d",p->d_send_fault);	
 	printf("\t\t%d",tree2len[p->tree_num]);
 	printf("\t\t%s",tembuf);
+
 	printf("\t%ld",p->d_tm_dtels);
 	printf("\t%ld",p->d_tm_trysync_delay);
 	printf("\t\t%ld",p->d_tm_dtls_hsk);
@@ -281,7 +282,7 @@ void performtest_printf(Performtest_T *p)
 	printf("\t\t%ld",p->d_tm_recv_wait);
 	printf("\t\t%ld",p->d_tm_recv_dtls);
 	printf("\t\t%ld",p->d_tm_recv);
-	//printf("\n");
+
 	printf("\t\t|\n");
 
 }
