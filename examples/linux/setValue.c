@@ -5,22 +5,19 @@
 #include "wilddog.h"
 #include "demo.h"
 
-
-STATIC void test_onSetFunc(void* arg, Wilddog_Return_T err)
+STATIC void test_setValueFunc(void* arg, Wilddog_Return_T err)
 {
 						
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		
-		TEST_RESULT_PRINTF("wilddog_setValue",TESTFUNCNAME_TABLECASE,TEST_ERR,err);
-		//wilddog_debug("set error!");
+		wilddog_debug("setValue error!");
 		return;
 	}
-	else 
-		TEST_RESULT_PRINTF("wilddog_setValue",TESTFUNCNAME_TABLECASE,TEST_OK,err);
+	wilddog_debug("setValue success!");
 	*(BOOL*)arg = TRUE;
 	return;
 }
+
 
 int main(void)
 {
@@ -45,7 +42,7 @@ int main(void)
 		return 0;
 	}
 	/* expect test1234.wilddogio.com/ has a new node "1" */
-	wilddog_setValue(wilddog,p_head,test_onSetFunc,(void*)&isFinish);
+	wilddog_setValue(wilddog,p_head,test_setValueFunc,(void*)&isFinish);
 	wilddog_node_delete(p_head);
 	while(1)
 	{

@@ -5,7 +5,7 @@
 #include "wilddog_debug.h"
 #include "demo.h"
 
-STATIC void test_onObserveFunc(
+STATIC void test_addObserverFunc(
 	const Wilddog_Node_T* p_snapshot, 
 	void* arg,
 	Wilddog_Return_T err)
@@ -14,14 +14,12 @@ STATIC void test_onObserveFunc(
 	*(BOOL*)arg = TRUE;
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		//wilddog_debug("observe failed!");
-		TEST_RESULT_PRINTF("wilddog_addObserver",TESTFUNCNAME_TABLECASE,TEST_ERR,err);
+		wilddog_debug("addObserver failed!");
 		return;
 	}
-	else
-		TEST_RESULT_PRINTF("wilddog_push",TESTFUNCNAME_TABLECASE,TEST_OK,err);
+
 	wilddog_debug_printnode(p_snapshot);
-	//wilddog_debug("observe data!");
+	wilddog_debug("addObserver data!");
 	
 	return;
 }
@@ -39,7 +37,7 @@ int main(void)
 		wilddog_debug("new wilddog failed!");
 		return 0;
 	}
-	wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, test_onObserveFunc, (void*)&isFinished);
+	wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, test_addObserverFunc, (void*)&isFinished);
 	while(1)
 	{
 		if(TRUE == isFinished)

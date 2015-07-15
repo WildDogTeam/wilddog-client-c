@@ -5,22 +5,20 @@
 #include "wilddog.h"
 #include "demo.h"
 
-STATIC void test_onPushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
+STATIC void test_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
 {
 						
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		//wilddog_debug("push failed");
-		
-		TEST_RESULT_PRINTF("wilddog_push",TESTFUNCNAME_TABLECASE,TEST_ERR,err);
+		wilddog_debug("push failed");
 		return;
-	}	
-	else
-		TEST_RESULT_PRINTF("wilddog_push",TESTFUNCNAME_TABLECASE,TEST_OK,0);
-	//wilddog_debug("new path is %s", p_path);
+	}		
+	wilddog_debug("new path is %s", p_path);
 	*(BOOL*)arg = TRUE;
 	return;
 }
+
+
 
 int main(void)
 {
@@ -36,7 +34,7 @@ int main(void)
 	
 	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
 
-	wilddog_push(wilddog, p_head, test_onPushFunc, (void *)&isFinish);	
+	wilddog_push(wilddog, p_head, test_pushFunc, (void *)&isFinish);	
 	wilddog_node_delete(p_head);
 	
 	while(1)
