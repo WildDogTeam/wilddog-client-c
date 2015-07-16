@@ -8,13 +8,6 @@
 #include "demo.h"
 
 
-#define TEST_URL_HEAD		"coap://"
-#define TEST_URL_END	".wilddogio.com"		
-
-
-
-
-
 
 
 STATIC void test_addObserverFunc(
@@ -39,15 +32,12 @@ STATIC void test_addObserverFunc(
 int main(int argc, char **argv)
 {
     int opt;
-    char uid[256];
     char url[1024];
     BOOL isFinished = FALSE;
     Wilddog_T wilddog;
     STATIC int count = 0;   
     
-    memset( uid, 0, sizeof(uid));
     memset( url, 0, sizeof(url));
-
 
 
     while ((opt = getopt(argc, argv, "hl:")) != -1) 
@@ -55,15 +45,14 @@ int main(int argc, char **argv)
         switch (opt) 
         {
 		case 'h':
-			fprintf(stderr, "Usage: %s  -l appid\n",
+			fprintf(stderr, "Usage: %s  -l url\n",
 		           argv[0]);
 			return 0;
 		case 'l':
-			strcpy(uid, (const char*)optarg);
-			//printf("uid:%s\n",optarg);
+			strcpy(url, (const char*)optarg);
 			break;			
 		default: /* '?' */
-			fprintf(stderr, "Usage: %s  -l appid\n",
+			fprintf(stderr, "Usage: %s  -l url\n",
 		           argv[0]);
 			return 0;
         }
@@ -71,15 +60,9 @@ int main(int argc, char **argv)
 
     if( argc <3 )
     {
-        printf("Usage: %s  -l appid\n", argv[0]);
+        printf("Usage: %s  -l url\n", argv[0]);
         return 0;
     }
-
-
-
-    sprintf(url,"%s%s%s",TEST_URL_HEAD,uid,TEST_URL_END);
-
-
 
 
     wilddog = wilddog_initWithUrl((Wilddog_Str_T *)url);
