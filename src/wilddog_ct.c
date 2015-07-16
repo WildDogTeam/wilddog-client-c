@@ -396,6 +396,10 @@ STATIC Wilddog_Return_T _wilddog_ct_destoryRepo(Wilddog_Repo_T *p_repo)
 
     wfree(p_repo);
     p_repo = NULL;
+    if(!(*p_repoHead))
+    {
+		l_isStarted = FALSE;
+    }
     return WILDDOG_ERR_NOERR;
 }
 Wilddog_Repo_T *_wilddog_ct_findRepo(Wilddog_Str_T * p_host)

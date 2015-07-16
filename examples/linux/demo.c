@@ -22,48 +22,48 @@ typedef enum _TEST_CMD_TYPE
 	
 }TEST_CMD_TYPE;
 
-static void test_onQueryFunc(const Wilddog_Node_T* p_snapshot, 
+static void test_getValueFunc(const Wilddog_Node_T* p_snapshot, 
 						void* arg, Wilddog_Return_T err)
 {
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		wilddog_debug("query fail!");
+		wilddog_debug("getValue fail!");
 		return;
 	}
 	*(BOOL*)arg = TRUE;
 
 	if(p_snapshot)
 		wilddog_debug_printnode(p_snapshot);
-	printf("\nquery success!\n");
+	printf("\ngetValue success!\n");
 
 	return;
 }
 
-STATIC void test_onDeleteFunc(void* arg, Wilddog_Return_T err)
+STATIC void test_removeValueFunc(void* arg, Wilddog_Return_T err)
 {
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		wilddog_debug("delete failed!");
+		wilddog_debug("removeValue failed!");
 		return ;
 	}
-	wilddog_debug("delete success!");
+	wilddog_debug("removeValue success!");
 	*(BOOL*)arg = TRUE;
 	return;
 }
-STATIC void test_onSetFunc(void* arg, Wilddog_Return_T err)
+STATIC void test_setValueFunc(void* arg, Wilddog_Return_T err)
 {
 						
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		wilddog_debug("set error!");
+		wilddog_debug("setValue error!");
 		return;
 	}
-	wilddog_debug("set success!");
+	wilddog_debug("setValue success!");
 	*(BOOL*)arg = TRUE;
 	return;
 }
 
-STATIC void test_onPushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
+STATIC void test_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
 {
 						
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
@@ -76,7 +76,7 @@ STATIC void test_onPushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
 	return;
 }
 
-STATIC void test_onObserveFunc(
+STATIC void test_addObserverFunc(
 	const Wilddog_Node_T* p_snapshot, 
 	void* arg,
 	Wilddog_Return_T err)
@@ -85,11 +85,11 @@ STATIC void test_onObserveFunc(
 	*(BOOL*)arg = TRUE;
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		wilddog_debug("observe failed!");
+		wilddog_debug("addObserver failed!");
 		return;
 	}
 	wilddog_debug_printnode(p_snapshot);
-		wilddog_debug("observe data!");
+		wilddog_debug("addObserver data!");
 	
 	return;
 }
@@ -139,7 +139,7 @@ int main(int argc, char **argv)
 			break;
 
         case 'h':
-            fprintf(stderr, "Usage: %s query|set|push|delete|on -l coap://yourappid.wilddogio.com/ --key a --value 124\n",
+            fprintf(stderr, "Usage: %s getValue|setValue|push|removeValue|addObserver -l coap://yourappid.wilddogio.com/ --key a --value 124\n",
                    argv[0]);
             return 0;
         case 'l':
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
             //printf("url : %s\n", url);
             break;          
         default: /* '?' */
-            fprintf(stderr, "Usage: %s query|set|push|delete|on -l coap://yourappid.wilddogio.com/ --key a --value 124\n",
+            fprintf(stderr, "Usage: %s getValue|setValue|push|removeValue|addObserver -l coap://yourappid.wilddogio.com/ --key a --value 124\n",
                    argv[0]);
             return 0;
 		}
@@ -157,13 +157,13 @@ int main(int argc, char **argv)
 	{
 		if(i==0)
 		{
-			if(strcmp(argv[optind],"query")==0)
+			if(strcmp(argv[optind],"getValue")==0)
 			{
 				p_inputtype = argv[optind];
 				type= TEST_CMD_GET;
 				cntmax =0;
 			}
-			else if(strcmp(argv[optind],"set")==0)
+			else if(strcmp(argv[optind],"setValue")==0)
 			{
 				p_inputtype = argv[optind];
 				type= TEST_CMD_SET;
@@ -175,13 +175,13 @@ int main(int argc, char **argv)
 				type=TEST_CMD_PUSH;
 				cntmax =0;
 			}
-			else if(strcmp(argv[optind],"delete")==0)
+			else if(strcmp(argv[optind],"removeValue")==0)
 			{
 				p_inputtype = argv[optind];
 				type=TEST_CMD_DELE;
 				cnt =0;
 			}
-			else if(strcmp(argv[optind],"on")==0)
+			else if(strcmp(argv[optind],"addObserver")==0)
 			{
 				p_inputtype = argv[optind];
 				type= TEST_CMD_ON;
@@ -190,7 +190,7 @@ int main(int argc, char **argv)
 	}
 	if( !type)
 	{
-		printf("Usage: %s query|set|push|delete|on -l coap://yourappid.wilddogio.com/ --key a --value 124\n", argv[0]);
+		printf("Usage: %s getValue|setValue|push|removeValue|addObserver -l coap://yourappid.wilddogio.com/ --key a --value 124\n", argv[0]);
 		return 0;
 	}
 
@@ -213,23 +213,23 @@ int main(int argc, char **argv)
 	{
 		case TEST_CMD_GET:
 			/*Send the query method*/
-			res = wilddog_getValue(wilddog, (onQueryFunc)test_onQueryFunc, (void*)&isFinish);
+			res = wilddog_getValue(wilddog, (onQueryFunc)test_getValueFunc, (void*)&isFinish);
 			break;
 		case TEST_CMD_SET:	
 			/*Send the set method*/
-			res = wilddog_setValue(wilddog,p_head,test_onSetFunc,(void*)&isFinish);
+			res = wilddog_setValue(wilddog,p_head,test_setValueFunc,(void*)&isFinish);
 			break;
 		case TEST_CMD_PUSH:
 			/*Send the push method*/
-			res = wilddog_push(wilddog, p_head, test_onPushFunc, (void *)&isFinish);	
+			res = wilddog_push(wilddog, p_head, test_pushFunc, (void *)&isFinish);	
 			break;
 		case TEST_CMD_DELE:
 			/*Send the remove method*/
-			res = wilddog_removeValue(wilddog, test_onDeleteFunc, (void*)&isFinish);
+			res = wilddog_removeValue(wilddog, test_removeValueFunc, (void*)&isFinish);
 			break;
 		case TEST_CMD_ON:
 			/*Observe on*/
-			res = wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, test_onObserveFunc, (void*)&isFinish);
+			res = wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, test_addObserverFunc, (void*)&isFinish);
 			break;
 	}
 	/*Delete the node*/
