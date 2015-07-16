@@ -59,24 +59,6 @@ STATIC Wilddog_Return_T _wilddog_ct_store_remove
     );
 STATIC Wilddog_Return_T _wilddog_ct_store_on(void* p_args, int flag);
 STATIC Wilddog_Return_T _wilddog_ct_store_off(void* p_args, int flag);
-STATIC Wilddog_Return_T _wilddog_ct_def_ev_on
-    (
-    Wilddog_Repo_T *p_repo, 
-    Wilddog_EventType_T event, 
-    Wilddog_ConnCmd_Arg_T *p_connCmd
-    );
-STATIC Wilddog_Return_T _wilddog_ct_def_ev_off
-    (
-    Wilddog_Repo_T *p_repo, 
-    Wilddog_EventType_T event, 
-    Wilddog_ConnCmd_Arg_T *p_connCmd
-    );
-STATIC Wilddog_Return_T _wilddog_ct_def_conn
-    (
-    Wilddog_Repo_T *p_repo, 
-    Wilddog_Conn_Cmd_T cmd, 
-    Wilddog_ConnCmd_Arg_T * p_connCmd
-    );
 
 STATIC Wilddog_Return_T _wilddog_ct_init(void* args, int flag)
 {
@@ -486,8 +468,7 @@ STATIC Wilddog_Return_T _wilddog_ct_store_query(void *p_args, int flag)
         return (p_rp_store->p_se_callback)(p_rp_store, \
                                         WILDDOG_STORE_CMD_SENDGET, &connCmd, 0);
     else
-        return _wilddog_ct_def_conn(p_ref->p_ref_repo, \
-                                            WILDDOG_CONN_CMD_GET, &connCmd);
+        return WILDDOG_ERR_INVALID;
 }
 
 STATIC Wilddog_Return_T _wilddog_ct_store_set(void *p_args, int flag)
@@ -507,8 +488,7 @@ STATIC Wilddog_Return_T _wilddog_ct_store_set(void *p_args, int flag)
         return (p_rp_store->p_se_callback)(p_rp_store, \
                                     WILDDOG_STORE_CMD_SENDSET, &connCmd, 0);
     else
-        return _wilddog_ct_def_conn(p_ref->p_ref_repo, \
-                                    WILDDOG_CONN_CMD_SET, &connCmd);
+        return WILDDOG_ERR_INVALID;
 }
 
 STATIC Wilddog_Return_T _wilddog_ct_store_push(void* p_args, int flag)
@@ -527,8 +507,7 @@ STATIC Wilddog_Return_T _wilddog_ct_store_push(void* p_args, int flag)
         return (p_rp_store->p_se_callback)(p_rp_store, \
                                     WILDDOG_STORE_CMD_SENDPUSH, &connCmd, 0);
     else
-        return _wilddog_ct_def_conn(p_ref->p_ref_repo, \
-                                    WILDDOG_CONN_CMD_PUSH, &connCmd);
+        return WILDDOG_ERR_INVALID;
 }
 
 STATIC Wilddog_Return_T _wilddog_ct_store_remove(void* p_args, int flag)
@@ -546,8 +525,7 @@ STATIC Wilddog_Return_T _wilddog_ct_store_remove(void* p_args, int flag)
         return (p_rp_store->p_se_callback)(p_rp_store, \
                                     WILDDOG_STORE_CMD_SENDREMOVE, &connCmd, 0);
     else
-        return _wilddog_ct_def_conn(p_ref->p_ref_repo, \
-                                    WILDDOG_CONN_CMD_REMOVE, &connCmd);
+        return WILDDOG_ERR_INVALID;
 }
 
 STATIC Wilddog_Return_T _wilddog_ct_store_on(void* p_args, int flag)
@@ -569,7 +547,7 @@ STATIC Wilddog_Return_T _wilddog_ct_store_on(void* p_args, int flag)
         return (p_rp_store->p_se_callback)(p_rp_store, \
                                     WILDDOG_STORE_CMD_SENDON, &eventArg, 0);
     else
-        return _wilddog_ct_def_ev_on(p_ref->p_ref_repo, arg->d_event, &connCmd);
+        return WILDDOG_ERR_INVALID;
 }
 STATIC Wilddog_Return_T _wilddog_ct_store_off(void* p_args, int flag)
 {
@@ -587,34 +565,7 @@ STATIC Wilddog_Return_T _wilddog_ct_store_off(void* p_args, int flag)
         return (p_rp_store->p_se_callback)(p_rp_store, \
                                     WILDDOG_STORE_CMD_SENDOFF, &eventArg, 0);
     else
-        return _wilddog_ct_def_ev_off(p_ref->p_ref_repo, arg->d_event, &connCmd);
-}
-
-STATIC Wilddog_Return_T _wilddog_ct_def_ev_on
-    (
-    Wilddog_Repo_T *p_repo, 
-    Wilddog_EventType_T event, 
-    Wilddog_ConnCmd_Arg_T *p_connCmd
-    )
-{
-    Wilddog_Conn_T *p_conn = p_repo->p_rp_conn;
-    if(p_conn && p_conn->f_conn_send)
-        return p_conn->f_conn_send(WILDDOG_CONN_CMD_ON,p_repo,p_connCmd);
-    return WILDDOG_ERR_INVALID;
-}
-
-STATIC Wilddog_Return_T _wilddog_ct_def_ev_off
-    (
-    Wilddog_Repo_T *p_repo, 
-    Wilddog_EventType_T event, 
-    Wilddog_ConnCmd_Arg_T *p_connCmd
-    )
-{
-    Wilddog_Conn_T *p_conn = p_repo->p_rp_conn;
-    if(p_conn && p_conn->f_conn_send)
-        return p_conn->f_conn_send(WILDDOG_CONN_CMD_OFF,p_repo,p_connCmd);
-    return WILDDOG_ERR_INVALID;
-
+        return WILDDOG_ERR_INVALID;
 }
 
 STATIC Wilddog_Str_T* _wilddog_ct_url_getKey(void* p_args, int flag)
@@ -624,21 +575,6 @@ STATIC Wilddog_Str_T* _wilddog_ct_url_getKey(void* p_args, int flag)
     wilddog_assert(p_ref, NULL);
 
     return _wilddog_url_getKey(p_ref->p_ref_url->p_url_path);
-}
-
-STATIC Wilddog_Return_T _wilddog_ct_def_conn
-    (
-    Wilddog_Repo_T *p_repo, 
-    Wilddog_Conn_Cmd_T cmd, 
-    Wilddog_ConnCmd_Arg_T * p_connCmd
-    )
-{
-    Wilddog_Conn_T *p_conn = p_repo->p_rp_conn;
-
-    if(p_conn && p_conn->f_conn_send)
-        return p_conn->f_conn_send(cmd,p_repo,p_connCmd);
-    return WILDDOG_ERR_INVALID;
-
 }
 
 STATIC Wilddog_Return_T _wilddog_ct_conn_sync(void *arg, int flag)
