@@ -197,7 +197,7 @@ extern void wfree(void* ptr);
 extern void *wrealloc(void *ptr, size_t size);
 
 #include "wilddog_api.h"
-
+#include "wilddog_debug.h"
 #ifdef __cplusplus
 }
 #endif
