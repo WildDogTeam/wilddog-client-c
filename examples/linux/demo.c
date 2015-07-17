@@ -33,7 +33,7 @@ typedef enum _TEST_CMD_TYPE
 STATIC void test_getValueFunc
     (
     const Wilddog_Node_T* p_snapshot, 
-    * arg, 
+    void* arg, 
     Wilddog_Return_T err
     )
 {
