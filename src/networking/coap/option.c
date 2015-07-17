@@ -355,7 +355,7 @@ coap_opt_setheader(coap_opt_t *opt, size_t maxlen,
     opt[0] |= length & 0x0f;
   } else if (length < 270) {
     if (maxlen < skip + 1) {
-      wilddog_debug_level(WD_DEBUG_ERROR, "insufficient space to encode option length %lu", length);
+      wilddog_debug_level(WD_DEBUG_ERROR, "insufficient space to encode option length %ld", (long)length);
       return 0;
     }
     

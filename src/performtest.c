@@ -22,6 +22,11 @@
 #include "wilddog_api.h"
 #include "wilddog_ct.h"
 #include "test_lib.h"
+
+#ifdef WILDDOG_PORT_TYPE_WICED
+#include "wiced.h"
+#endif
+
 #ifdef WILDDOG_SELFTEST
 
 #define CUCL_UNIT_MS	1000000		/* unit of time in report table */
@@ -98,15 +103,16 @@ u32 performtest_sys_ustm(void)
 
 #define CPU_CCT	120000000					/* cpu frequency */
 int statnd_cyclecount = 0;
-volatile unsigned int *DWT_CYCCNT = (int *)0xE0001004; /* address of the register */
-volatile unsigned int *DWT_CONTROL = (int *)0xE0001000; /* address of the register */
-volatile unsigned int *SCB_DEMCR = (int *)0xE000EDFC; /* address of the registert */
+volatile unsigned int *DWT_CYCCNT = (unsigned int *)0xE0001004; /* address of the register */
+volatile unsigned int *DWT_CONTROL = (unsigned int *)0xE0001000; /* address of the register */
+volatile unsigned int *SCB_DEMCR = (unsigned int *)0xE000EDFC; /* address of the registert */
 /* rest clock */
 int cpucycle_rst(void)
 {
 	*SCB_DEMCR = *SCB_DEMCR | 0x01000000;
 	*DWT_CYCCNT = 0;  
 	*DWT_CONTROL = *DWT_CONTROL | 1 ;  
+	return 0;
 }
 
 void cpucycleCnt_get(const u8 *p)

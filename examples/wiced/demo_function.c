@@ -35,7 +35,7 @@ STATIC void test_onSetFunc(void* arg, Wilddog_Return_T err)
     return;
 }
 
-int test_demo(char* url)
+int demo(char* url)
 {
     BOOL isFinish = FALSE;
     Wilddog_T wilddog = 0;
@@ -45,12 +45,12 @@ int test_demo(char* url)
 
     p_head = wilddog_node_createObject(NULL);
     /* create a new child to "wilddog" , key is "1", value is "1" */
-    p_node = wilddog_node_createUString("led1","1");
+    p_node = wilddog_node_createUString((Wilddog_Str_T*)"led1",(Wilddog_Str_T*)"1");
     /*p_node was p_head's child  */
     wilddog_node_addChild(p_head, p_node);
     
     /*creat new a client*/
-    wilddog = wilddog_initWithUrl(url);
+    wilddog = wilddog_initWithUrl((Wilddog_Str_T*)url);
     
     if(0 == wilddog)
     {
@@ -97,5 +97,5 @@ int test_demo(char* url)
     /* free wilddog*/
     wilddog_destroy(&wilddog);
 
-
+    return 0;
 }

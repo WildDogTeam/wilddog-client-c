@@ -853,8 +853,8 @@ Wilddog_Conn_T * _wilddog_conn_init(Wilddog_Repo_T* p_repo)
         return NULL;
 
     p_repo_conn->p_conn_repo = p_repo;
-    p_repo_conn->f_conn_send = _wilddog_conn_send;
-    p_repo_conn->f_conn_trysyc = _wilddog_conn_trySync;
+    p_repo_conn->f_conn_send = (Wilddog_Func_T)_wilddog_conn_send;
+    p_repo_conn->f_conn_trysyc = (Wilddog_Func_T)_wilddog_conn_trySync;
     p_repo->p_rp_conn = p_repo_conn;
  #ifdef WILDDOG_SELFTEST                       
 	ramtest_skipLastmalloc();

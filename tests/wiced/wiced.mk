@@ -9,13 +9,14 @@ APP_SEC_TYPE=nosec
 
 PORT_TYPE=wiced
 
-GLOBAL_DEFINES += WILDDOG_PORT_TYPE_WICED WILDDOG_SELFTEST
+GLOBAL_DEFINES += WILDDOG_PORT_TYPE_WICED
+GLOBAL_DEFINES += WILDDOG_SELFTEST
 GLOBAL_INCLUDES += $(WILDDOG_TOP_DIR)/tests/wiced/
 
 $(NAME)_INCLUDES += $(WILDDOG_TOP_DIR)/include
 ########tests
 #EXAMPLE_C:=$(wildcard $(WILDDOG_TOP_DIR)/tests/wiced/*.c)
-$(NAME)_SOURCES += $(WILDDOG_TOP_DIR)/tests/wiced/demo.c \
+$(NAME)_SOURCES += $(WILDDOG_TOP_DIR)/tests/wiced/test.c \
 $(WILDDOG_TOP_DIR)/tests/wiced/test_demo.c
 
 ##########platform

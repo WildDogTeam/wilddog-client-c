@@ -66,7 +66,6 @@ extern int ramtest_printfmallocState(void);
 
 
 extern void ramtest_handle( u8 tree_num, u8 request_num);
-extern void ramtest(u32 indx);
 /* tm*/
 extern void performtest_tm_printf(void);
 

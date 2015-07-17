@@ -119,7 +119,7 @@ struct parsed_url *parse_url(const char *url)
     purl->scheme[len] = '\0';
     /* Make the character to lower if it is upper case. */
     for ( i = 0; i < len; i++ ) {
-        purl->scheme[i] = tolower(purl->scheme[i]);
+        purl->scheme[i] = (char)tolower((int)(purl->scheme[i]));
     }
     /* Skip ':' */
     tmpstr++;

@@ -57,7 +57,7 @@ Wilddog_Store_T *_wilddog_store_init(Wilddog_Repo_T* p_repo)
     p_store->p_se_repo = p_repo;
     p_store->p_se_head = NULL;
     p_store->p_se_event = _wilddog_event_init(p_store);
-    p_store->p_se_callback = _wilddog_store_ioctl;
+    p_store->p_se_callback = (Wilddog_Func_T)_wilddog_store_ioctl;
     return p_store;
 }
 

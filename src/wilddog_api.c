@@ -1,14 +1,22 @@
 /*
- * wilddog_api.c
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
  *
- *  Created on: 2015-05-15
- *      Author: jimmy.pan
+ * FileName: wilddog_api.c
+ *
+ * Description: Wilddog API functions.
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.0        Jimmy.Pan       2015-05-15  Create file.
+ *
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "wilddog.h"
 #include "wilddog_ct.h"
-#include "wilddog_api.h"
 #include "wilddog_common.h"
 
 void wilddog_increaseTime(u32 ms)
@@ -94,6 +102,7 @@ Wilddog_Return_T wilddog_getValue
     args.p_ref = wilddog;
     args.p_callback = (Wilddog_Func_T)callback;
     args.arg = arg;
+	
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_QUERY, &args,0);
 }
 

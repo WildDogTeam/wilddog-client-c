@@ -16,7 +16,7 @@ $(NAME)_INCLUDES += $(WILDDOG_TOP_DIR)/include
 ########example
 #EXAMPLE_C:=$(wildcard $(WILDDOG_TOP_DIR)/examples/wiced/*.c)
 $(NAME)_SOURCES += $(WILDDOG_TOP_DIR)/examples/wiced/demo.c \
-$(WILDDOG_TOP_DIR)/examples/wiced/test_demo.c
+$(WILDDOG_TOP_DIR)/examples/wiced/demo_function.c
 
 ##########platform
 #PLATFORM_C:=$(wildcard $(WILDDOG_TOP_DIR)/platform/$(PORT_TYPE)/*.c)
