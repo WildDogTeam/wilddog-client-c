@@ -25,6 +25,7 @@ SDK文档。
 *	wilddog_config.h : 用户配置宏定义
 *	wilddog_port.h : 平台相关接口函数
 *	widdog_debug.h : debug相关函数声明
+
 ####platform
 
 该目录根据不同平台分为不同子目录，分别为linux和wiced。
