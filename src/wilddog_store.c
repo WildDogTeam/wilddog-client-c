@@ -57,7 +57,7 @@ Wilddog_Store_T *_wilddog_store_init(Wilddog_Repo_T* p_repo)
     p_store->p_se_repo = p_repo;
     p_store->p_se_head = NULL;
     p_store->p_se_event = _wilddog_event_init(p_store);
-    p_store->p_se_callback = _wilddog_store_ioctl;
+    p_store->p_se_callback = (Wilddog_Func_T)_wilddog_store_ioctl;
     return p_store;
 }
 
@@ -85,8 +85,16 @@ STATIC Wilddog_Return_T _wilddog_store_setAuth
         return WILDDOG_ERR_INVALID;
 
 	memset(p_store->p_se_auth->p_auth, 0, WILDDOG_AUTH_LEN);
-    memcpy(p_store->p_se_auth->p_auth,p_authArg->p_data, p_authArg->d_len);
-    p_store->p_se_auth->d_len = p_authArg->d_len;
+
+	if(!p_authArg->p_data)
+	{
+		if(p_authArg->d_len != 0)
+			return WILDDOG_ERR_NULL;
+		
+	    memcpy(p_store->p_se_auth->p_auth,p_authArg->p_data, p_authArg->d_len);
+	}
+
+	p_store->p_se_auth->d_len = p_authArg->d_len;
     
     connCmd.p_url = p_authArg->p_url;
     connCmd.p_complete = (Wilddog_Func_T)p_authArg->p_onAuth;

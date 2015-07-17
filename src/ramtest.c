@@ -25,32 +25,10 @@
 #include "test_lib.h"
 
 #define MAXINDXS	12
-#if SELFTEST_TYPE!=0
-
-typedef struct RAMTEST_T{
-	u32 tree_num;
-	u32 request_num;
-	u32 d_sendfalt;
-	u32 d_recverr;
-	u32 d_node_ram;
-	u32 d_x509_ram;
-	u32 d_requestQeue_ram;
-	u32 d_average_ram;
-	u32 d_peak_ram;
-	u32 d_packet_size;
-	u32 d_protocol_size;
-	u32 d_gethostbyname;
-
-	u32 d_sys_ramusage;
-	u32 d_mallocblks_init;		/* init时的空闲malloc*/
-	u32 d_stackblks_init;		/* init时的栈低*/
-	u32 mallocblks;
-	u32 stackblks;
-	
-}Ramtest_T;
+#ifdef WILDDOG_SELFTEST
 
 static Ramtest_T d_ramtest;
-static int ramtest_indx;
+
 static int tree2len[]={64,127,576,1280};
 
 int ramtest_getLastMallocSize(Ramtest_T *p);
@@ -84,7 +62,7 @@ int ramtest_printfmallocState(void)
 	info = mallinfo();
 	printf("arena=%d;uordblks=%d,ordblks =%d;fordblks=%d\n",
 			info.arena,info.uordblks,info.ordblks,info.fordblks);
-
+	return 0;
 }
 int ramtest_getLastMallocSize(Ramtest_T *p)
 {
@@ -151,7 +129,7 @@ void ramtest_caculate_packetsize(unsigned short packetSize)
 void ramtest_caculate_averageRam(void)
 {
 /*	todo */
-//	ramtest_getLastRamusage(&d_ramtest,&d_ramtest.d_average_ram);
+/*	ramtest_getLastRamusage(&d_ramtest,&d_ramtest.d_average_ram);*/
 }
 void ramtest_caculate_peakRam(void)
 {
@@ -174,20 +152,20 @@ void ramtest_printf(Ramtest_T *p)
 {
 	char sectype='N';
 	static u8 index_tem = 0;
-	//if(WILDDOG_PORT == 5684)
-	//	sectype = 'Y';
+
 	printf("|\t%d",++index_tem);
-	printf("\t%d",p->request_num);
-	printf("\t%d",p->d_sendfalt);
-	printf("\t\t%d",p->d_recverr);
+
+	printf("\t%ld",p->request_num);
+	printf("\t%ld",p->d_sendfalt);
+	printf("\t\t%ld",p->d_recverr);
 	printf("\t\t%c",sectype);
 	printf("\t%d",tree2len[p->tree_num]);
-	printf("\t\t%d",p->d_peak_ram);
-	printf("\t\t%d",p->d_average_ram);
-	printf("\t\t%d",p->d_requestQeue_ram);
-	printf("\t\t\t%d",p->d_x509_ram);
-	printf("\t\t%d",p->d_node_ram);
-	//printf("\n");
+	printf("\t\t%ld",p->d_peak_ram);
+	printf("\t\t%ld",p->d_average_ram);
+	printf("\t\t%ld",p->d_requestQeue_ram);
+	printf("\t\t\t%ld",p->d_x509_ram);
+	printf("\t\t%ld",p->d_node_ram);
+
 	printf("\t\t|\n");
 
 }
@@ -204,13 +182,11 @@ STATIC void test_onQueryFunc(
 	static u8 firstin = 0;
 	if(firstin == 0 )
 	{
-		//ramtest_caculate_peakRam();
 		firstin = 1;
 	}	
 	count = (count <= 0)?0:count - 1;
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		//wilddog_debug("query error = %d!",err);
 		d_ramtest.d_recverr++;
 		return;
 	}
@@ -221,7 +197,7 @@ STATIC void test_onQueryFunc(
 	
 	printf("\n");
 #endif		
-//	wilddog_debug("query success =%d!",count);
+
 	return;
 }
 
@@ -234,35 +210,34 @@ void ramtest_handle( u8 tree_num, u8 request_num)
 {
 	u8 m = 0;
 	Wilddog_T wilddog = 0;
-	Wilddog_Node_T * p_node = NULL;		
-    ramtest_init(tree_num,request_num);
-    u8 url[64]={0};
-    sprintf(url, "coaps://mk.wilddogio.com/tree_%d", tree2len[tree_num]);
-	wilddog_init();
+	
+	u8 url[64]={0};
 
-	wilddog = wilddog_new(url);
+	ramtest_init(tree_num,request_num);
+    sprintf((char*)url, "coaps://mk.wilddogio.com/tree_%d", tree2len[tree_num]);
+	
+
+	wilddog = wilddog_initWithUrl(url);
 		
 	if(0 == wilddog)
 	{
-		return 0;
+		return;
 	}
 	count = 0;
 	for(m=0; m < request_num; m++)
 	{
-		int res = wilddog_query(wilddog, test_onQueryFunc, NULL);
+		int res = wilddog_getValue(wilddog, test_onQueryFunc, NULL);
 		if(0 == res)
 			count++;
 		else
 			d_ramtest.d_sendfalt++;
-		//printf("send =%d;res =%d \n",count,res);
-		//usleep(100);
 	}
 	ramtest_caculate_requestQueueRam();
 	while(1)
 	{
 		if(count == 0)
 		{
-			//printf("break\n");
+			
 			ramtest_printf(&d_ramtest);
 			break;
 		}
@@ -270,42 +245,8 @@ void ramtest_handle( u8 tree_num, u8 request_num)
 		wilddog_trySync();
 	}
 	wilddog_destroy(&wilddog);
+	return;
 }
-#if 0
-void ramtest(u32 d_indx)
-{
-	u8 m=0,n=0;
-	m = (d_indx-1)/4;
-	n = (d_indx - 1)%4;
-	
-	if(d_indx > MAXINDXS)
-		return ;
-	u8 tree_num[3] = {1,2,3};
-	u8 request_num[4] = {1,16,32,64};
-	ramtest_handle(tree_num[m],request_num[n]);
-	
-}
-#endif
-/* sample*/
-#if 0
-int main(void)
-{
-	u8 m=0, n=0;
-	u8 tree_num[3] = {1,2,3};
-	u8 request_num[4] = {1,16,32,64};
-	ramtest_titile_printf();
-//	ramtest_handle(tree_num[0],1);
-#if 1
-	for( m=0; m < 3; m++)
-	{
-		for( n=0; n < 4; n++)
-		{
-			ramtest_handle(tree_num[m],request_num[n]);
-		}
-	}
-	ramtest_end_printf();
-#endif	
-}
-#endif
+
 #endif
 

@@ -1,8 +1,9 @@
-﻿0.4.3 2015-07-14
+﻿0.4.3 2015.07.17
 改进： 
 修改断言宏，增加系统稳定性。
 更改wilddog_new中对path的处理，按过滤规则过滤。
 更改文件夹结构，更加方便查看。
+更改API接口，与iOS接近
 修复：
 修复host无法获取时，未初始化networking layer，导致auth失败的bug；
 修复getParent、getRoot和java端表现不一致的bug。

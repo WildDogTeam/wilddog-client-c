@@ -23,6 +23,8 @@
 
 #define WILDDOG_KEY_MAX_LEN 768
 
+Wilddog_Return_T wilddog_node_deleteChildren(Wilddog_Node_T *p_node);
+
 /*
  * Function:    _wilddog_node_new
  * Description: Create a new node.
@@ -204,7 +206,7 @@ STATIC Wilddog_Node_T * _wilddog_node_newWithStr
             }
             p_tmp->p_wn_key = (Wilddog_Str_T*)wmalloc(pos + 1);
             strcpy((char*)p_tmp->p_wn_key, (char*)(p_tmpStr + i));
-            wilddog_node_add(p_parent, p_tmp);
+            wilddog_node_addChild(p_parent, p_tmp);
             i += pos;
         }
     }
@@ -441,7 +443,7 @@ Wilddog_Node_T * wilddog_node_createObject
  * Return:      0 means succeed, negative number means failed.
  * Others:      N/A
 */
-Wilddog_Return_T wilddog_node_setKey
+STATIC Wilddog_Return_T wilddog_node_setKey
     (
     Wilddog_Node_T *node, 
     Wilddog_Str_T *key
@@ -496,7 +498,7 @@ Wilddog_Return_T wilddog_node_setKey
     }
     return WILDDOG_ERR_NOERR;
 }
-
+#if 0
 /*
  * Function:    wilddog_node_getKey
  * Description: Get a node's key.
@@ -505,7 +507,7 @@ Wilddog_Return_T wilddog_node_setKey
  * Return:      if success, returns pointer points to the key, else return NULL.
  * Others:      N/A
 */
-const Wilddog_Str_T *wilddog_node_getKey(Wilddog_Node_T *node)
+STATIC const Wilddog_Str_T *wilddog_node_getKey(Wilddog_Node_T *node)
 {
     if(NULL == node)
         return NULL;
@@ -519,7 +521,7 @@ const Wilddog_Str_T *wilddog_node_getKey(Wilddog_Node_T *node)
         return node->p_wn_key;
     }
 }
-
+#endif
 /*
  * Function:    wilddog_node_setType
  * Description: Set a node's type.
@@ -529,7 +531,7 @@ const Wilddog_Str_T *wilddog_node_getKey(Wilddog_Node_T *node)
  * Return:      if success, returns 0, else return negative number.
  * Others:      N/A
 */
-Wilddog_Return_T wilddog_node_setType(Wilddog_Node_T *node, u8 type)
+STATIC Wilddog_Return_T wilddog_node_setType(Wilddog_Node_T *node, u8 type)
 {
     if(NULL == node)
         return WILDDOG_ERR_NULL;
@@ -546,7 +548,7 @@ Wilddog_Return_T wilddog_node_setType(Wilddog_Node_T *node, u8 type)
     node->d_wn_type = type;
     return WILDDOG_ERR_NOERR;
 }
-
+#if 0
 /*
  * Function:    wilddog_node_getType
  * Description: Get a node's type.
@@ -555,14 +557,14 @@ Wilddog_Return_T wilddog_node_setType(Wilddog_Node_T *node, u8 type)
  * Return:      if success, returns type of the node, else return negative number.
  * Others:      N/A
 */
-u8 wilddog_node_getType(Wilddog_Node_T *node)
+STATIC u8 wilddog_node_getType(Wilddog_Node_T *node)
 {
     if(NULL == node)
         return WILDDOG_ERR_NULL;
         
     return node->d_wn_type;
 }
-
+#endif
 /*
  * Function:    wilddog_node_setValue
  * Description: Set a node's value.
@@ -777,7 +779,7 @@ Wilddog_Node_T *wilddog_node_find
  * if you want to add newnode as node's brother, use the parent node
  *
  */
-Wilddog_Return_T wilddog_node_add
+Wilddog_Return_T wilddog_node_addChild
     (
     Wilddog_Node_T *node, 
     Wilddog_Node_T *newnode
@@ -873,6 +875,8 @@ Wilddog_Return_T wilddog_node_deleteChildren(Wilddog_Node_T *p_node)
 		wilddog_node_delete(p_child);
 	}
 	p_node->p_wn_child = NULL;
+
+	return WILDDOG_ERR_NOERR;
 }
 
 Wilddog_Return_T wilddog_node_delete( Wilddog_Node_T *p_node)

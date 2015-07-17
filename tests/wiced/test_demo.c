@@ -41,16 +41,16 @@ int test_demo(char* url)
     Wilddog_T wilddog = 0;
     Wilddog_Node_T * p_node = NULL, *p_head = NULL, *p_node_query = NULL;
 
-    wilddog_init();
+    
 
     p_head = wilddog_node_createObject(NULL);
     /* create a new child to "wilddog" , key is "1", value is "1" */
-    p_node = wilddog_node_createUString("led1","1");
+    p_node = wilddog_node_createUString((Wilddog_Str_T*)"led1",(Wilddog_Str_T*)"1");
     /*p_node was p_head's child  */
-    wilddog_node_add(p_head, p_node);
+    wilddog_node_addChild(p_head, p_node);
     
     /*creat new a client*/
-    wilddog = wilddog_new(url);
+    wilddog = wilddog_initWithUrl((Wilddog_Str_T*)url);
     
     if(0 == wilddog)
     {
@@ -61,7 +61,7 @@ int test_demo(char* url)
     /* expect <appId>.wilddogio.com/ has a new node "1"
      * test_onSetFunc : handle recv data while response
      * */
-    wilddog_set(wilddog,p_head,test_onSetFunc,(void*)&isFinish);
+    wilddog_setValue(wilddog,p_head,test_onSetFunc,(void*)&isFinish);
     /* dele node */
     wilddog_node_delete(p_head);
     while(1)
@@ -78,7 +78,7 @@ int test_demo(char* url)
     
     printf("\n\t send query to %s \n",url);
     /* send query */
-    wilddog_query(wilddog, test_onQueryFunc, (void*)(&p_node_query));
+    wilddog_getValue(wilddog, test_onQueryFunc, (void*)(&p_node_query));
     while(1)
     {
         if(p_node_query)
@@ -97,5 +97,5 @@ int test_demo(char* url)
     /* free wilddog*/
     wilddog_destroy(&wilddog);
 
-
+    return 0;
 }

@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
  
 #include "wilddog_debug.h"
 #include "wilddog_api.h"
@@ -13,10 +14,6 @@
 #define TEST_URL_END	".wilddogio.com"		
 #define TEST_GET_URL "coap://test1234.wilddogio.com/"
 #define QUERY_CNT  100
-static int query_err_cnt = 0;
-static int query_ok_cnt = 0;
-static int query_send_cnt= 0;
-static int query_sendErr_cnt= 0;
 
 typedef enum _TEST_CMD_TYPE
 {
@@ -27,7 +24,8 @@ typedef enum _TEST_CMD_TYPE
 	TEST_CMD_DELE,
 	TEST_CMD_ON,
 	
-};
+}TEST_CMD_TYPE;
+/*
 STATIC void test_onAuth(void* arg, Wilddog_Return_T err)
 {
 	if(err < 0 || err > 400)
@@ -36,10 +34,11 @@ STATIC void test_onAuth(void* arg, Wilddog_Return_T err)
 		return;
 	}
 	printf("auth success!\n");
-    *(u32*)arg = 1;	 
+ 	*(u32*)arg = 1;	 
 	return;    
 }
-static int test_onQueryFunc(const Wilddog_Node_T* p_snapshot, 
+*/
+static void test_onQueryFunc(const Wilddog_Node_T* p_snapshot, 
 						void* arg, Wilddog_Return_T err)
 {
 	if(err < 0 || err >= 400)
@@ -53,7 +52,7 @@ static int test_onQueryFunc(const Wilddog_Node_T* p_snapshot,
 		wilddog_debug_printnode(p_snapshot);
 	printf("\nquery success!\n");
 
-	return 0;
+	return;
 }
 
 STATIC void test_onDeleteFunc(void* arg, Wilddog_Return_T err)
@@ -132,13 +131,14 @@ int main(int argc, char **argv) {
 	memset(value,0,sizeof(value));
 	memset(keys,0,sizeof(keys));
 	int type = 0;
-	int opt,i,res=0,cnt=0,cntmax=0;
+	int opt,i,cnt=0,cntmax=0;
+	Wilddog_Return_T ret;
 	int argsDone=0;
-	int loopcnt=0;
 	
+	ret = 0;
 	BOOL isFinish = FALSE;
 	Wilddog_T wilddog = 0;
-	Wilddog_Node_T * p_node = NULL,*p_head = NULL,*p_dataget = NULL;
+	Wilddog_Node_T * p_node = NULL,*p_head = NULL;
 	while ((opt = getopt(argc, argv, "i:v:k:p:n")) != -1) {
 		switch (opt) {
 			case 'v':
@@ -211,29 +211,32 @@ int main(int argc, char **argv) {
 	printf("type=%d;\t url=%s;\t data=%s\n",type,url,value);
 
 	
-	wilddog_init();
+	
 	p_head = wilddog_node_createObject(NULL);
-	p_node = wilddog_node_createUString(keys,value);
-	wilddog_node_add(p_head, p_node);
-	wilddog = wilddog_new(url);
+
+	p_node = wilddog_node_createUString((Wilddog_Str_T *)keys,(Wilddog_Str_T *)value);
+	wilddog_node_addChild(p_head, p_node);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)url);
+
 	switch(type)
 	{
 		case TEST_CMD_GET:
 			wilddog_debug();
-			res = wilddog_query(wilddog, test_onQueryFunc, (void*)&isFinish);
+			ret = wilddog_getValue(wilddog, test_onQueryFunc, (void*)&isFinish);
 			break;
 		case TEST_CMD_SET:
 			
-			res = wilddog_set(wilddog,p_head,test_onSetFunc,(void*)&isFinish);
+			ret = wilddog_setValue(wilddog,p_head,test_onSetFunc,(void*)&isFinish);
+			
 			break;
 		case TEST_CMD_PUSH:
-			res = wilddog_push(wilddog, p_head, test_onPushFunc, (void *)&isFinish);	
+			ret = wilddog_push(wilddog, p_head, test_onPushFunc, (void *)&isFinish);	
 			break;
 		case TEST_CMD_DELE:
-			res = wilddog_remove(wilddog, test_onDeleteFunc, (void*)&isFinish);
+			ret = wilddog_removeValue(wilddog, test_onDeleteFunc, (void*)&isFinish);
 			break;
 		case TEST_CMD_ON:
-			res = wilddog_on(wilddog, WD_ET_VALUECHANGE, test_onObserveFunc, (void*)&isFinish);
+			ret = wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, test_onObserveFunc, (void*)&isFinish);
 			break;
 	}
 	wilddog_node_delete(p_head);
@@ -249,7 +252,7 @@ int main(int argc, char **argv) {
 					if(type ==  TEST_CMD_ON)
 					{
 						wilddog_debug("off the data!");
-						wilddog_off(wilddog, WD_ET_VALUECHANGE);
+						wilddog_removeObserver(wilddog, WD_ET_VALUECHANGE);
 					}
 					break;
 				}
@@ -258,5 +261,5 @@ int main(int argc, char **argv) {
 		}
 	wilddog_destroy(&wilddog);
 
-	return 0;
+	return ret;
 }

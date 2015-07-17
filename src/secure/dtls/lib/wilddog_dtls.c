@@ -242,13 +242,13 @@ Wilddog_Return_T _wilddog_sec_init(int fd, Wilddog_Address_T * addr_in)
     fflush( stdout );
 
 #if defined(POLARSSL_CERTS_C)
- #if SELFTEST_TYPE == 1                             
+ #ifdef WILDDOG_SELFTEST                            
 		ramtest_skipLastmalloc();
 #endif 
 
     ret = x509_crt_parse( &cacert, (const unsigned char *) test_ca_list,
                           strlen( test_ca_list ) );
- #if SELFTEST_TYPE == 1                             
+ #ifdef WILDDOG_SELFTEST                            
 	ramtest_caculate_x509Ram();
 #endif 
 

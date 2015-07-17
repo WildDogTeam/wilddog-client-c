@@ -1,17 +1,25 @@
 /*
- * wilddog_api.c
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
  *
- *  Created on: 2015-05-15
- *      Author: jimmy.pan
+ * FileName: wilddog_api.c
+ *
+ * Description: Wilddog API functions.
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.0        Jimmy.Pan       2015-05-15  Create file.
+ *
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "wilddog.h"
 #include "wilddog_ct.h"
-#include "wilddog_api.h"
 #include "wilddog_common.h"
 
-void wilddog_timeIncrease(u32 ms)
+void wilddog_increaseTime(u32 ms)
 {
     _wilddog_setTimeIncrease(ms);
     return;
@@ -20,12 +28,8 @@ void wilddog_trySync(void)
 {
     _wilddog_ct_ioctl(WILDDOG_APICMD_SYNC, NULL, 0);
 }
-void wilddog_init(void)
-{
-    _wilddog_ct_ioctl(WILDDOG_APICMD_INIT, NULL, 0);
-}
 
-Wilddog_T wilddog_new(Wilddog_Str_T *url)
+Wilddog_T wilddog_initWithUrl(Wilddog_Str_T *url)
 {
     wilddog_assert(url, 0);
     
@@ -39,8 +43,8 @@ Wilddog_Return_T wilddog_destroy(Wilddog_T *p_wilddog)
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_DESTROYREF, p_wilddog,0);
 }
 
-/*input url such as coap://appid.wilddogio.com/*/
-Wilddog_Return_T wilddog_setAuth
+/* input url such as appId.wilddogio.com */
+Wilddog_Return_T wilddog_auth
     (
     Wilddog_Str_T * p_host, 
     u8 *p_auth, 
@@ -63,7 +67,28 @@ Wilddog_Return_T wilddog_setAuth
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_SETAUTH, &arg,0);
 }
 
-Wilddog_Return_T wilddog_query
+/* input url such as appId.wilddogio.com */
+Wilddog_Return_T wilddog_unauth
+    (
+    Wilddog_Str_T * p_host, 
+    onAuthFunc onAuth, 
+    void* args
+    )
+{
+    Wilddog_Arg_SetAuth_T arg;
+
+    wilddog_assert(p_host, WILDDOG_ERR_NULL);
+    
+    arg.p_host = p_host;
+    arg.p_auth = NULL;
+    arg.d_len = 0;
+    arg.onAuth = onAuth;
+    arg.arg = args;
+
+    return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_SETAUTH, &arg,0);
+}
+
+Wilddog_Return_T wilddog_getValue
     (
     Wilddog_T wilddog, 
     onQueryFunc callback, 
@@ -77,10 +102,11 @@ Wilddog_Return_T wilddog_query
     args.p_ref = wilddog;
     args.p_callback = (Wilddog_Func_T)callback;
     args.arg = arg;
+	
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_QUERY, &args,0);
 }
 
-Wilddog_Return_T wilddog_set
+Wilddog_Return_T wilddog_setValue
     (
     Wilddog_T wilddog, 
     Wilddog_Node_T *p_node, 
@@ -120,7 +146,7 @@ Wilddog_Return_T wilddog_push
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_PUSH, &args,0);
 }
 
-Wilddog_Return_T wilddog_remove
+Wilddog_Return_T wilddog_removeValue
     (
     Wilddog_T wilddog,
     onRemoveFunc callback, 
@@ -138,7 +164,7 @@ Wilddog_Return_T wilddog_remove
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_REMOVE, &args,0);
 }
 
-Wilddog_Return_T wilddog_on
+Wilddog_Return_T wilddog_addObserver
     (
     Wilddog_T wilddog,
     Wilddog_EventType_T event, 
@@ -158,7 +184,7 @@ Wilddog_Return_T wilddog_on
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_ON, &args,0);
 }
 
-Wilddog_Return_T wilddog_off(Wilddog_T wilddog, Wilddog_EventType_T event)
+Wilddog_Return_T wilddog_removeObserver(Wilddog_T wilddog, Wilddog_EventType_T event)
 {
     Wilddog_Arg_Off_T args;
 	

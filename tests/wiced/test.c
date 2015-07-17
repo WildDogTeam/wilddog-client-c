@@ -1,5 +1,5 @@
 /*
- * main.c
+ * test.c
  *
  *  Created on: 2015-06-13 lixiongsheng
  */
@@ -40,13 +40,11 @@ void cpucycleCnt_get(const u8 *p)
 }
 
 #endif
-extern int test_demo(char *url);
 /**
  *  Application start
  */
 void application_start( void )
 {
-    unsigned char* url=TEST_URL;
     /* Initialise the device */
     wiced_init();
     /* Run the main application function */
@@ -61,7 +59,7 @@ void application_start( void )
 	{
 		for( n=0; n < 4; n++)
 		{
-			ramtest(tree_num[m],request_num[n]);
+		    ramtest_handle(tree_num[m],request_num[n]);
 		}
 	}
 	ramtest_end_printf();

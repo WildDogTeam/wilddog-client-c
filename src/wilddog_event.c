@@ -490,8 +490,8 @@ Wilddog_Event_T* _wilddog_event_init(Wilddog_Store_T *p_store)
 
     p_event->p_ev_store= p_store;
     p_event->p_head = _wilddog_event_nodeInit(); 
-    p_event->p_ev_cb_on = _wilddog_event_nodeAdd;
-    p_event->p_ev_cb_off = _wilddog_event_nodeDelete;
+    p_event->p_ev_cb_on = (Wilddog_Func_T)_wilddog_event_nodeAdd;
+    p_event->p_ev_cb_off = (Wilddog_Func_T)_wilddog_event_nodeDelete;
 
     return p_event;
 }

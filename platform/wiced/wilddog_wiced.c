@@ -85,7 +85,7 @@ int wilddog_closeSocket( int socketId )
     wiced_udp_delete_socket( (wiced_udp_socket_t*) socketId );
     if ( socketId )
     {
-        wfree( socketId );
+        wfree( (void*)socketId );
         socketId = 0;
     }
     return 0;
@@ -118,7 +118,7 @@ int wilddog_send
         /* Delete packet, since the send failed */
         wiced_packet_delete( packet ); 
         wilddog_debug_level(WD_DEBUG_ERROR, \
-            "too large length to translate! should be %d, want send %d\n", \
+            "too large length to translate! should be %d, want send %ld\n", \
             aval, tosendLength);
         return -1;
     }

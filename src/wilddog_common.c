@@ -98,7 +98,7 @@ u8 _wilddog_isUrlValid(Wilddog_Str_T * url)
  * Output:      N/A
  * Return:      N/A
 */
-u8 _wilddog_isAuthValid(Wilddog_Str_T * auth, int len)
+u8 _wilddog_isAuthValid(u8 * auth, int len)
 {
     return TRUE;
 }
