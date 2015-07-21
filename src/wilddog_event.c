@@ -93,9 +93,10 @@ STATIC void _wilddog_event_nodeDeinit(Wilddog_EventNode_T *head)
  * Input:       spath: The pointer to source path.
  *              dpath: The pointer to destination path.
  * Output:      N/A
- * Return:      if spath contains dpath, return 1, 
- *              if dpath contains spath, return 0,
+ * Return:      if dpath contains spath, return 0, 
+ *              if spath contains dpath, return 1,
  *              if spath equal dpath, return 2
+ *              else return 3.
 */
 STATIC u8 _wilddog_event_pathContain( char *spath, char *dpath)
 {
@@ -120,6 +121,7 @@ STATIC u8 _wilddog_event_pathContain( char *spath, char *dpath)
         return 0;
     }
     
+    return 3;
 }
 
 /*
@@ -353,11 +355,10 @@ Wilddog_Return_T _wilddog_event_nodeAdd
                 _wilddog_event_pathContain(head->path, \
                     (char*)arg->p_url->p_url_path)==2
             )
-
-	{
-		/*don't send oberve on*/
-		return WILDDOG_ERR_NOERR;
-	}
+        {
+                /*don't send oberve on*/
+                return WILDDOG_ERR_NOERR;
+        }
 
         head = head->next;
     }
