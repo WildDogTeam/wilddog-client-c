@@ -354,10 +354,10 @@ Wilddog_Return_T _wilddog_event_nodeAdd
                     (char*)arg->p_url->p_url_path)==2
             )
 
-		{
-			/*don't send oberve on*/
-			return WILDDOG_ERR_NOERR;
-		}
+	{
+		/*don't send oberve on*/
+		return WILDDOG_ERR_NOERR;
+	}
 
         head = head->next;
     }
