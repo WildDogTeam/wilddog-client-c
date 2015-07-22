@@ -95,7 +95,7 @@ STATIC void _wilddog_event_nodeDeinit(Wilddog_EventNode_T *head)
  * Output:      N/A
  * Return:      if spath contains dpath, return 1, 
  *              if dpath contains spath, return 0,
- *              else return 2.
+ *              if spath equal dpath, return 2
 */
 STATIC u8 _wilddog_event_pathContain( char *spath, char *dpath)
 {
@@ -109,7 +109,7 @@ STATIC u8 _wilddog_event_pathContain( char *spath, char *dpath)
     n= (slen < dlen ? slen : dlen);
     if(slen == dlen && 0 == strncmp(spath,dpath,n))
     {
-        return  1;
+        return  2;
     }
     if((0 == strncmp(spath,dpath,n)) && (n == dlen))
     {
@@ -119,7 +119,7 @@ STATIC u8 _wilddog_event_pathContain( char *spath, char *dpath)
     {
         return 0;
     }
-    return 2;
+    
 }
 
 /*
@@ -349,6 +349,15 @@ Wilddog_Return_T _wilddog_event_nodeAdd
             }
             return WILDDOG_ERR_NOERR;
         }
+        else if(
+                _wilddog_event_pathContain(head->path, \
+                    (char*)arg->p_url->p_url_path)==2
+            )
+
+		{
+			/*don't send oberve on*/
+			return WILDDOG_ERR_NOERR;
+		}
 
         head = head->next;
     }
