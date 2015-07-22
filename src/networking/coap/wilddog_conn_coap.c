@@ -339,7 +339,7 @@ Wilddog_Conn_Coap_PacketNode_T *_wilddog_conn_coap_node_creat
         coap_delete_pdu(p_coap);
         return  NULL;
         }
-    if( p_observe)
+    if( p_observe !=0 && *p_observe == 0)
         p_node->d_observer_flag = WILDDOG_CONN_COAPPKT_IS_OBSERVER;
     p_node->p_CoapPkt = p_coap; 
     
@@ -612,7 +612,7 @@ STATIC int _wilddog_conn_coap_recv_respCheck
     if(  p_resp->hdr->type != COAP_MESSAGE_RST && \
             p_node->p_CoapPkt->hdr->token_length  )
     {
-        if(recvtkl ==0 || \
+        if(recvtkl == 0 || \
             (memcmp(p_node->p_CoapPkt->hdr->token,p_rcvtoken,recvtkl) != 0)
             )
             return WILDDOG_ERR_RECVNOMATCH;
@@ -709,13 +709,13 @@ STATIC int _wilddog_conn_coap_recvDispatch
     LL_FOREACH_SAFE((p_pcb->P_hd),curr,tmp)
     {
         /* mesage id and token check*/
-        
         res = _wilddog_conn_coap_recv_respCheck(curr,p_resp);
         if(res < 0)
             continue ; 
             
         /*@ get observer indx */
         res = _wilddog_conn_coap_recv_observCheck(curr,p_resp);
+        
         if(res == WILDDOG_CONN_COAP_RESPON_IGNORE)
             return WILDDOG_ERR_NOERR;
         else if(res == WILDDOG_ERR_OBSERVEERR)

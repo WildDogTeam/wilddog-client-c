@@ -48,7 +48,13 @@ extern "C" {
 #define CLIENT_AP_SECURITY   WICED_SECURITY_WPA2_MIXED_PSK
 #define CLIENT_AP_CHANNEL    1
 #define CLIENT_AP_BAND       WICED_802_11_BAND_2_4GHZ
+/* test type */
+#define TEST_RAM    1
+#define TEST_TIME   2
+#define TEST_STAB   3
 
+
+#define TEST_TYPE   TEST_STAB
 /* Override default country code */
 #define WICED_COUNTRY_CODE    WICED_COUNTRY_UNITED_STATES
 

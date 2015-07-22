@@ -588,6 +588,16 @@ int test_off()
 	if(WILDDOG_ERR_NOERR != wilddog_removeObserver(wilddog, WD_ET_VALUECHANGE))
 		return -1;
 
+	if( WILDDOG_ERR_NOERR != wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, NULL, NULL)||
+		WILDDOG_ERR_NOERR != wilddog_removeObserver(wilddog, WD_ET_VALUECHANGE)			||
+		WILDDOG_ERR_NOERR != wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, NULL, NULL))
+	{
+		wilddog_destroy(&wilddog);
+		return -1;
+	}
+
+	if(WILDDOG_ERR_NOERR != wilddog_removeObserver(wilddog, WD_ET_VALUECHANGE))
+		return -1;
 	wilddog_destroy(&wilddog);
 	
 	return 0;

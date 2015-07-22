@@ -131,6 +131,11 @@ void ramtest_caculate_averageRam(void)
 /*	todo */
 /*	ramtest_getLastRamusage(&d_ramtest,&d_ramtest.d_average_ram);*/
 }
+int ramtest_get_averageRam(void)
+{
+	return d_ramtest.d_average_ram;
+
+}
 void ramtest_caculate_peakRam(void)
 {
 	u32 d_ramtem=0;
@@ -201,9 +206,6 @@ STATIC void test_onQueryFunc(
 	return;
 }
 
-#define TEST_SET_URL_127	"coaps://mk.wilddogio.com/tree_127"
-#define TEST_SET_URL_576	"coaps://mk.wilddogio.com/tree_576"
-#define TEST_SET_URL_1280	"coaps://mk.wilddogio.com/tree_1280"
 
 
 void ramtest_handle( u8 tree_num, u8 request_num)
@@ -214,7 +216,7 @@ void ramtest_handle( u8 tree_num, u8 request_num)
 	u8 url[64]={0};
 
 	ramtest_init(tree_num,request_num);
-    sprintf((char*)url, "coaps://mk.wilddogio.com/tree_%d", tree2len[tree_num]);
+    sprintf((char*)url, "coaps://c_test.wilddogio.com/ramtest/tree_%d", tree2len[tree_num]);
 	
 
 	wilddog = wilddog_initWithUrl(url);
