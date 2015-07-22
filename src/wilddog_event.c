@@ -260,6 +260,12 @@ Wilddog_Return_T _wilddog_event_nodeAdd
     Wilddog_Conn_T *p_conn = event->p_ev_store->p_se_repo->p_rp_conn;
 
     head = event->p_head;
+
+    if(head == NULL)
+    {
+        head = _wilddog_event_nodeInit(); 
+    }
+
     if(head->path == NULL)
     {
         head->path = (char *)wmalloc( \
@@ -318,7 +324,6 @@ Wilddog_Return_T _wilddog_event_nodeAdd
     arg->p_completeArg= arg->p_url;
 
     head= event->p_head;
-    head = head->next;
     while(head)
     {
         if(
