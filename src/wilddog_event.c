@@ -434,17 +434,16 @@ Wilddog_Return_T _wilddog_event_nodeDelete
 
     node = _wilddog_event_nodeFind( head, (char*)arg->p_url->p_url_path);
 	
+    if(node == NULL)
+    {
+	wilddog_debug_level(WD_DEBUG_ERROR, "node is NULL!");
+        return WILDDOG_ERR_INVALID;
+    }
     if(p_conn && p_conn->f_conn_send)
         err =  p_conn->f_conn_send(WILDDOG_CONN_CMD_OFF, \
                             event->p_ev_store->p_se_repo,arg);
     if(err == WILDDOG_ERR_NOERR)
     {
-        if(node == NULL)
-		{
-			wilddog_debug_level(WD_DEBUG_ERROR, "node is NULL!");
-            return WILDDOG_ERR_INVALID;
-        }
-        else
         {
             if(node->prev == NULL)
             {
@@ -479,7 +478,7 @@ Wilddog_Return_T _wilddog_event_nodeDelete
     }
     else 
     {
-		wilddog_debug_level(WD_DEBUG_ERROR, "send off to server failed!");
+	wilddog_debug_level(WD_DEBUG_ERROR, "send off to server failed!");
         return WILDDOG_ERR_INVALID;
     }
     return WILDDOG_ERR_NOERR;
@@ -504,7 +503,7 @@ Wilddog_Event_T* _wilddog_event_init(Wilddog_Store_T *p_store)
     }
 
     p_event->p_ev_store= p_store;
-    p_event->p_head = _wilddog_event_nodeInit(); 
+    p_event->p_head = NULL;
     p_event->p_ev_cb_on = (Wilddog_Func_T)_wilddog_event_nodeAdd;
     p_event->p_ev_cb_off = (Wilddog_Func_T)_wilddog_event_nodeDelete;
 
