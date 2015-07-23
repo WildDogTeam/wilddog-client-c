@@ -254,7 +254,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
     Wilddog_ConnCmd_Arg_T *arg
     )
 {
-    Wilddog_EventNode_T *node, *tmp_node, *prev_tmp_node;
+    Wilddog_EventNode_T *node, *tmp_node = NULL, *prev_tmp_node = NULL;
     Wilddog_EventNode_T *head;
     Wilddog_Str_T *tmp;
     Wilddog_Conn_T *p_conn = event->p_ev_store->p_se_repo->p_rp_conn;
@@ -297,7 +297,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 
             return WILDDOG_ERR_NULL;
         }
-   
+ 
         node->path = (char *)wmalloc(strlen( \
             (const char *)arg->p_url->p_url_path)+1);
         if(node->path == NULL)
@@ -307,7 +307,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 
             return WILDDOG_ERR_NULL;
         }
-     
+ 
         memcpy( node->path, arg->p_url->p_url_path, \
             strlen((const char *)arg->p_url->p_url_path));
 
@@ -315,15 +315,16 @@ Wilddog_Return_T _wilddog_event_nodeAdd
         node->p_dataArg = arg->p_completeArg;
 
 		tmp_node = head;
+		prev_tmp_node = head;
 		while(tmp_node)
 		{
+		
 			int slen = 0, dlen = 0, len = 0;
 			slen = strlen((const char *)tmp_node->path);
 			dlen = strlen((const char *)node->path);
 			len = (slen < dlen ? slen : dlen);
 			if((strncmp(tmp_node->path, node->path, len) < 0 ) || ((strncmp(tmp_node->path, node->path, len) == 0) && (slen < len)))
 			{
-				wilddog_debug();
 			    prev_tmp_node = tmp_node;
 				tmp_node = tmp_node->next;	
 			}
@@ -332,15 +333,21 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 				break;
 			}
 		}
+		if(prev_tmp_node == tmp_node)
+		{
+		    node->next = tmp_node;
+		}
+		else
+		{
+		    prev_tmp_node->next = node;
+		    node->next = tmp_node;
+		}
 		
-		prev_tmp_node->next = node;
-		node->next = tmp_node;
-
 
     }
     arg->p_complete= (Wilddog_Func_T)_wilddog_event_trigger;
     arg->p_completeArg= arg->p_url;
-
+		
     head= event->p_head;
     while(head)
     {
