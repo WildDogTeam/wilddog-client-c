@@ -58,6 +58,7 @@ extern void ramtest_caculate_nodeRam(void);
 extern void ramtest_caculate_x509Ram(void);
 extern void ramtest_caculate_requestQueueRam(void);
 extern void ramtest_caculate_averageRam(void);
+extern int ramtest_get_averageRam(void);
 extern void ramtest_caculate_peakRam(void);
 extern void ramtest_skipLastmalloc(void);
 extern void ramtest_gethostbyname(void);

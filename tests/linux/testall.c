@@ -263,7 +263,7 @@ int main(void)
 	}
 	wilddog_debug("p_repo1_ref1 = %u",( unsigned int)p_repo1_ref1);
 	printUrl(((Wilddog_Ref_T *)p_repo1_ref1)->p_ref_url);
-	p_child = wilddog_getChild(p_repo2_ref2, (Wilddog_Str_T *)"/c3/d4");
+	p_child = wilddog_getChild(p_repo2_ref2, (Wilddog_Str_T *)"c3/d4");
 	wilddog_debug("p_child = %u", ( unsigned int)p_child);
 	if(p_child)
 	{

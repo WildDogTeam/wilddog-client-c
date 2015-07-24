@@ -35,7 +35,7 @@ STATIC void test_onSetFunc(void* arg, Wilddog_Return_T err)
     return;
 }
 
-int demo(char* url)
+int demo(char* url, int* isUnConnected)
 {
     BOOL isFinish = FALSE;
     Wilddog_T wilddog = 0;
@@ -66,6 +66,11 @@ int demo(char* url)
     wilddog_node_delete(p_head);
     while(1)
     {
+		if(*isUnConnected)
+		{
+			wilddog_debug("wlan off!");
+			break;
+		}
         if(TRUE == isFinish)
         {
             wilddog_debug("\tset led1=1 success!");

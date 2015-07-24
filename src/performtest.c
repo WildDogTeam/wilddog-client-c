@@ -322,7 +322,7 @@ void performtest_handle( u32 delay_tm,u8 tree_num, u8 request_num)
 	Wilddog_T wilddog = 0;
     u8 url[64]={0};
 	
-    sprintf((char*)url, "coaps://mk.wilddogio.com/tree_%d", tree2len[tree_num]);
+    sprintf((char*)url, "coaps://c_test.wilddogio.com/performtest/tree_%d", tree2len[tree_num]);
 	
 	performtest_init(delay_tm,tree_num,request_num);
 	performtest_setSysState(SYS_HSK);
