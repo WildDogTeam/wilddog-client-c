@@ -1,9 +1,9 @@
 /*
  * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
  *
- * FileName: wilddog_ur_parser.c
+ * FileName: wilddog_event.c
  *
- * Description: url functions.
+ * Description: event functions.
  *
  * History:
  * Version      Author          Date        Description
@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "utlist.h"
 #include "wilddog_api.h"
 #include "wilddog_event.h"
 #include "wilddog_conn.h"
@@ -43,7 +44,6 @@ STATIC Wilddog_EventNode_T * _wilddog_event_nodeInit()
 
     head->path = NULL;
     head->next = NULL;
-    head->prev = NULL;
     head->p_onData = NULL;
     head->p_dataArg = NULL;
 
@@ -93,9 +93,10 @@ STATIC void _wilddog_event_nodeDeinit(Wilddog_EventNode_T *head)
  * Input:       spath: The pointer to source path.
  *              dpath: The pointer to destination path.
  * Output:      N/A
- * Return:      if spath contains dpath, return 1, 
- *              if dpath contains spath, return 0,
- *              else return 2.
+ * Return:      if dpath contains spath, return 0, 
+ *              if spath contains dpath, return 1,
+ *              if spath equal dpath, return 2
+ *              else return 3.
 */
 STATIC u8 _wilddog_event_pathContain( char *spath, char *dpath)
 {
@@ -115,11 +116,12 @@ STATIC u8 _wilddog_event_pathContain( char *spath, char *dpath)
     {
         return 1;
     }
-    if((0 == strncmp(spath,dpath,n)) && (n == dlen))
+    if((0 == strncmp(spath,dpath,n)) && (n == slen))
     {
         return 0;
     }
-    return 2;
+    
+    return 3;
 }
 
 /*
@@ -252,14 +254,19 @@ Wilddog_Return_T _wilddog_event_nodeAdd
     Wilddog_ConnCmd_Arg_T *arg
     )
 {
-    Wilddog_EventNode_T *node;
+    Wilddog_EventNode_T *node, *tmp_node = NULL, *prev_tmp_node = NULL;
     Wilddog_EventNode_T *head;
     Wilddog_Str_T *tmp;
     Wilddog_Conn_T *p_conn = event->p_ev_store->p_se_repo->p_rp_conn;
 
     head = event->p_head;
 
-    if(head == NULL )
+    if(head == NULL)
+    {
+        head = _wilddog_event_nodeInit(); 
+    }
+
+    if(head->path == NULL)
     {
     	
 		if(head == NULL)	
@@ -269,6 +276,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
         head->path = (char *)wmalloc( \
                                 strlen((const char *)arg->p_url->p_url_path)+1
                                 );
+
         if(head->path == NULL)
         {
             wilddog_debug_level( WD_DEBUG_ERROR, \
@@ -278,7 +286,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
         }
         memcpy( head->path, arg->p_url->p_url_path,\
             strlen((const char *)arg->p_url->p_url_path));
-        
+
         
         head->p_onData = arg->p_complete;
         head->p_dataArg = arg->p_completeArg;
@@ -294,7 +302,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 
             return WILDDOG_ERR_NULL;
         }
-        
+ 
         node->path = (char *)wmalloc(strlen( \
             (const char *)arg->p_url->p_url_path)+1);
         if(node->path == NULL)
@@ -304,24 +312,49 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 
             return WILDDOG_ERR_NULL;
         }
-        
+ 
         memcpy( node->path, arg->p_url->p_url_path, \
             strlen((const char *)arg->p_url->p_url_path));
 
         node->p_onData = arg->p_complete;
         node->p_dataArg = arg->p_completeArg;
-        node->next = head;
-        node->prev = NULL;
-        head->prev = node;
 
-        event->p_head = node;
+		tmp_node = head;
+		prev_tmp_node = head;
+		while(tmp_node)
+		{
+		
+			int slen = 0, dlen = 0, len = 0;
+			slen = strlen((const char *)tmp_node->path);
+			dlen = strlen((const char *)node->path);
+			len = (slen < dlen ? slen : dlen);
+			if((strncmp(tmp_node->path, node->path, len) < 0 ) || \
+			   ((strncmp(tmp_node->path, node->path, len) == 0) && (slen < len)))
+			{
+			    prev_tmp_node = tmp_node;
+				tmp_node = tmp_node->next;	
+			}
+			else
+			{
+				break;
+			}
+		}
+		if(prev_tmp_node == tmp_node)
+		{
+		    node->next = tmp_node;
+		}
+		else
+		{
+		    prev_tmp_node->next = node;
+		    node->next = tmp_node;
+		}
+		
 
     }
     arg->p_complete= (Wilddog_Func_T)_wilddog_event_trigger;
     arg->p_completeArg= arg->p_url;
-
+		
     head= event->p_head;
-    head = head->next;
     while(head)
     {
         if(
@@ -354,6 +387,14 @@ Wilddog_Return_T _wilddog_event_nodeAdd
             }
             return WILDDOG_ERR_NOERR;
         }
+        else if(
+                _wilddog_event_pathContain(head->path, \
+                    (char*)arg->p_url->p_url_path)==2
+            )
+        {
+            /*don't send oberve on*/
+            return WILDDOG_ERR_NOERR;
+        }
 
         head = head->next;
     }
@@ -379,23 +420,21 @@ STATIC Wilddog_EventNode_T * _wilddog_event_nodeFind
     char *path
     )
 {
-    Wilddog_EventNode_T *node;
+    Wilddog_EventNode_T *node, *tmp;
     
     wilddog_assert(path, NULL);
-    
-    node = head;
-	
-    while(node)
+
+    LL_FOREACH_SAFE(head,node,tmp) 
     {
-		if(node->path)
-		{
-	        if(!memcmp(node->path, path, strlen((const char *)path)))
-	        {
-	            return node;
-	        }
-		}
-        node = node->next;
+        if(node->path)
+        {
+            if(!memcmp(node->path, path, strlen((const char *)path)))
+            {
+                return node;
+            }
+        }
     }
+    
     return NULL;
 }
 
@@ -424,52 +463,26 @@ Wilddog_Return_T _wilddog_event_nodeDelete
 
     node = _wilddog_event_nodeFind( head, (char*)arg->p_url->p_url_path);
 	
+    if(node == NULL)
+    {
+        wilddog_debug_level(WD_DEBUG_ERROR, "node is NULL!");
+        return WILDDOG_ERR_INVALID;
+    }
     if(p_conn && p_conn->f_conn_send)
         err =  p_conn->f_conn_send(WILDDOG_CONN_CMD_OFF, \
                             event->p_ev_store->p_se_repo,arg);
     if(err == WILDDOG_ERR_NOERR)
     {
-        if(node == NULL)
-		{
-			wilddog_debug_level(WD_DEBUG_ERROR, "node is NULL!");
-            return WILDDOG_ERR_INVALID;
-        }
+        LL_DELETE(head, node);
+        if(event->p_head != head)
+        	_wilddog_event_nodeFree(event->p_head);
         else
-        {
-            if(node->prev == NULL)
-            {
-                if(node->next != NULL)
-                {
-                    node = node->next;
-                    node->prev = NULL;
-                    event->p_head = node;
-                    _wilddog_event_nodeFree(head);
-                }
-                else
-                {   
-                    head->next = NULL;
-                    head->prev = NULL;
-                    head->p_onData = NULL;
-                    _wilddog_event_nodeFree(head);
-                    event->p_head = NULL;
-                }
-            }
-            else if(node->next == NULL)
-            {
-                node->prev->next = NULL;
-                _wilddog_event_nodeFree(node);
-            }
-            else
-            {
-                node->prev->next = node->next;
-                node->next->prev = node->prev;
-                _wilddog_event_nodeFree(node);
-            }       
-        }
+            _wilddog_event_nodeFree(node);
+        event->p_head = head;
     }
     else 
     {
-		wilddog_debug_level(WD_DEBUG_ERROR, "send off to server failed!");
+        wilddog_debug_level(WD_DEBUG_ERROR, "send off to server failed!");
         return WILDDOG_ERR_INVALID;
     }
     return WILDDOG_ERR_NOERR;
@@ -494,7 +507,7 @@ Wilddog_Event_T* _wilddog_event_init(Wilddog_Store_T *p_store)
     }
 
     p_event->p_ev_store= p_store;
-    p_event->p_head = _wilddog_event_nodeInit(); 
+    p_event->p_head = NULL;
     p_event->p_ev_cb_on = (Wilddog_Func_T)_wilddog_event_nodeAdd;
     p_event->p_ev_cb_off = (Wilddog_Func_T)_wilddog_event_nodeDelete;
 

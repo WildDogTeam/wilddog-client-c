@@ -66,7 +66,7 @@ int demo(char* url, int* isUnConnected)
     wilddog_node_delete(p_head);
     while(1)
     {
-		if(isUnConnected)
+		if(*isUnConnected)
 		{
 			wilddog_debug("wlan off!");
 			break;

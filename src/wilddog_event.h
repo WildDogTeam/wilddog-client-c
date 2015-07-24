@@ -18,7 +18,7 @@ typedef struct WILDDOG_EVENT_T
 typedef struct WILDDOG_EVENTNODE_T
 {
     char *path;
-    struct WILDDOG_EVENTNODE_T *next,*prev;
+    struct WILDDOG_EVENTNODE_T *next;
     Wilddog_Func_T p_onData;
     void* p_dataArg;
 
