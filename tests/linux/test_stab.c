@@ -76,7 +76,7 @@ STATIC void stab_get_requestRes(Wilddog_Return_T res)
 {
 	if(res < 0 )
 	{
-		printf("in %d; send %d requestErr= %d",stab_runtime,stab_cmd,res);
+		printf("in %lu; send %lu requestErr= %d",stab_runtime,stab_cmd,res);
 		stab_rquestFault++;
 	}
 	else
@@ -91,7 +91,7 @@ STATIC void stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
 {
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		printf("in %d; methtype = %d recvErr= %d",stab_runtime,methtype,err);
+		printf("in %lu; methtype = %lu recvErr= %d",stab_runtime,methtype,err);
 		if(err == WILDDOG_ERR_RECVTIMEOUT)
 			stab_recvFault++;
 	}
@@ -194,6 +194,9 @@ int stabtest_reques(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
 		case STABTEST_CMD_OFF:
 			res = wilddog_removeObserver(client, WD_ET_VALUECHANGE);
 			break;
+		case STABTEST_CMD_NON:
+		default:
+			break;
     }
     /*Delete the node*/
     wilddog_node_delete(p_head);
@@ -266,13 +269,13 @@ void stab_resultPrint(void)
 	memset(lossRatio,0,20);
 	memset(successRatio,0,20);
 
-	sprintf(unlaunchRatio,"%d/%d",stab_rquestFault,stab_rquests);
-	sprintf(lossRatio,"%d/%d",stab_recvFault,stab_rquests);	
-	sprintf(successRatio,"%d/%d",stab_recvSucc,stab_rquests);
+	sprintf(unlaunchRatio,"%lu/%lu",stab_rquestFault,stab_rquests);
+	sprintf(lossRatio,"%lu/%lu",stab_recvFault,stab_rquests);	
+	sprintf(successRatio,"%lu/%lu",stab_recvSucc,stab_rquests);
 	
-	printf("\t%d",++run_cnt);		
-	printf("\t%d",stab_runtime);
-	printf("\t%d",(u32)ramtest_get_averageRam());
+	printf("\t%lu",++run_cnt);		
+	printf("\t%lu",stab_runtime);
+	printf("\t%lu",(u32)ramtest_get_averageRam());
 	printf("\t%s",unlaunchRatio);
 	printf("\t\t%s",lossRatio);
 	printf("\t\t%s",successRatio);
@@ -290,10 +293,11 @@ void stab_test(void)
 	stab_endPrint();
 }
 
-void main(void)
+int main(void)
 {
 	ramtest_init(1,1);
 	stab_test();
+	return 0;
 }
 #endif /* WILDDOG_SELFTEST*/
 

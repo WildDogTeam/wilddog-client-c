@@ -10,7 +10,6 @@ struct test_reult_t
 };
 struct test_reult_t test_results[32];
 
-STATIC const char* UNUSED_URL="coap://coap.wilddogio.com/unused";
 STATIC const char* UNUSED_URL1="coap://coap.wilddogio.com/unused/a";
 STATIC const char* UNUSED_URL2="coap://coap.wilddogio.com/unused/a/b";
 STATIC const char* UNUSED_URL3="coap://coap.wilddogio.com/unused/a/b/c";
@@ -18,9 +17,7 @@ STATIC const char* UNUSED_URL4="coap://coap.wilddogio.com/unused/a/c";
 
 /*wilddog_addObserver*/
 int test_on()
-{
-	Wilddog_T wilddog = 0;
-	
+{	
     Wilddog_T wilddog1 = 0, wilddog2 = 0, wilddog3 = 0, wilddog4 = 0;
 
 	printf("\n\n--------1234-----------------------------------------------\n\n");
@@ -199,5 +196,6 @@ int test_on()
 int main(void)
 {
 	test_on();
+	return 0;
 }
 
