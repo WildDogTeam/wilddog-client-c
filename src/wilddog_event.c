@@ -66,18 +66,7 @@ STATIC Wilddog_EventNode_T * _wilddog_event_nodeInit()
 */
 STATIC void _wilddog_event_nodeFree(Wilddog_EventNode_T *node)
 {
-    if(node->p_url != NULL)
-    {
-    	if(node->p_url->p_url_host != NULL)
-        	wfree(node->p_url->p_url_host);
-
-        if(node->p_url->p_url_path != NULL)
-        	wfree(node->p_url->p_url_path);
-
-        if(node->p_url->p_url_query != NULL)
-        	wfree(node->p_url->p_url_query);
-    }
-    wfree(node->p_url);
+    _wilddog_url_freeParsedUrl(node->p_url);
     wfree(node);
 }
 
@@ -166,38 +155,6 @@ char * _wilddog_event_pathRelative( char *spath, char *dpath)
         return "/";
     else
         return (dpath + slength );
-}
-
-/*
- * Function:    _wilddog_event_pathChild
- * Description: Check whether the dpath is the spath's child.
- * Input:       spath: The pointer to source path.
- *              dpath: The pointer to destination path.
- * Output:      N/A
- * Return:      if dpath is spath's child, return 1, 
- *              if dpath is not spath's child, return 0,
-*/
-STATIC u8 _wilddog_event_pathChild( char *spath, char *dpath)
-{
-	int i;
-	int slen = 0, dlen = 0;
-
-	wilddog_assert(spath, 2);
-    wilddog_assert(dpath, 2);
-    slen = strlen((const char *)spath);
-    dlen = strlen((const char *)dpath);
-
-	if(_wilddog_event_pathContain(spath, dpath) == 0)
-	{
-		for(i = slen+1; i < dlen; i++)
-		{
-			if(dpath[i] == '/')
-				return 0;
-		}
-		return 1;
-	}
-
-	return 0;
 }
 
 
@@ -316,76 +273,75 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 
     head = event->p_head;
 
+
+    node = _wilddog_event_nodeInit(); 
+    if(node == NULL)
+        return WILDDOG_ERR_NULL;
+
+    node->p_url->p_url_path= (char *)wmalloc(strlen( \
+        (const char *)arg->p_url->p_url_path)+1);
+    if(node->p_url->p_url_path == NULL)
     {
-        node = _wilddog_event_nodeInit(); 
-        if(node == NULL)
-            return WILDDOG_ERR_NULL;
- 
-        node->p_url->p_url_path= (char *)wmalloc(strlen( \
-            (const char *)arg->p_url->p_url_path)+1);
-        if(node->p_url->p_url_path == NULL)
-        {
-            wilddog_debug_level( WD_DEBUG_ERROR, \
-                "cannot wmalloc event node path!");
+        wilddog_debug_level( WD_DEBUG_ERROR, \
+            "cannot wmalloc event node path!");
 
-            return WILDDOG_ERR_NULL;
-        }
- 
-        memcpy( node->p_url->p_url_path, arg->p_url->p_url_path, \
-            strlen((const char *)arg->p_url->p_url_path));
+        return WILDDOG_ERR_NULL;
+    }
 
-        node->p_url->p_url_host= (char *)wmalloc(strlen( \
-            (const char *)arg->p_url->p_url_host)+1);
-        if(node->p_url->p_url_host == NULL)
-        {
-            wilddog_debug_level( WD_DEBUG_ERROR, \
-                "cannot wmalloc event node host!");
+    memcpy( node->p_url->p_url_path, arg->p_url->p_url_path, \
+        strlen((const char *)arg->p_url->p_url_path));
 
-            return WILDDOG_ERR_NULL;
-        }
- 
-        memcpy( node->p_url->p_url_host, arg->p_url->p_url_host, \
-            strlen((const char *)arg->p_url->p_url_host));
-    
+    node->p_url->p_url_host= (char *)wmalloc(strlen( \
+        (const char *)arg->p_url->p_url_host)+1);
+    if(node->p_url->p_url_host == NULL)
+    {
+        wilddog_debug_level( WD_DEBUG_ERROR, \
+            "cannot wmalloc event node host!");
 
-        wilddog_debug_level(WD_DEBUG_LOG, "event node path:%s\n", node->p_url->p_url_path);
+        return WILDDOG_ERR_NULL;
+    }
 
-        node->p_onData = arg->p_complete;
-        node->p_dataArg = arg->p_completeArg;
-        node->flag = OFF_FLAG;
+    memcpy( node->p_url->p_url_host, arg->p_url->p_url_host, \
+        strlen((const char *)arg->p_url->p_url_host));
 
-		tmp_node = head;
-		prev_tmp_node = head;
-		while(tmp_node)
+
+    wilddog_debug_level(WD_DEBUG_LOG, "event node path:%s\n", node->p_url->p_url_path);
+
+    node->p_onData = arg->p_complete;
+    node->p_dataArg = arg->p_completeArg;
+    node->flag = OFF_FLAG;
+
+	tmp_node = head;
+	prev_tmp_node = head;
+	while(tmp_node)
+	{
+		int slen = 0, dlen = 0, len = 0;
+		slen = strlen((const char *)tmp_node->p_url->p_url_path);
+		dlen = strlen((const char *)node->p_url->p_url_path);
+
+		len = (slen < dlen ? slen : dlen);
+		if((strncmp(tmp_node->p_url->p_url_path, node->p_url->p_url_path, len) < 0 ) 
+		|| ((strncmp(tmp_node->p_url->p_url_path, node->p_url->p_url_path, len) == 0) && (slen < dlen)))
 		{
-			int slen = 0, dlen = 0, len = 0;
-			slen = strlen((const char *)tmp_node->p_url->p_url_path);
-			dlen = strlen((const char *)node->p_url->p_url_path);
-
-			len = (slen < dlen ? slen : dlen);
-			if((strncmp(tmp_node->p_url->p_url_path, node->p_url->p_url_path, len) < 0 ) || ((strncmp(tmp_node->p_url->p_url_path, node->p_url->p_url_path, len) == 0) && (slen < dlen)))
-			{
-			    prev_tmp_node = tmp_node;
-				tmp_node = tmp_node->next;	
-			}
-			else
-			{
-				break;
-			}
-		}
-		if(prev_tmp_node == tmp_node)
-		{
-		    node->next = tmp_node;
-		    event->p_head = node;
+		    prev_tmp_node = tmp_node;
+			tmp_node = tmp_node->next;	
 		}
 		else
 		{
-		    prev_tmp_node->next = node;
-		    node->next = tmp_node;
+			break;
 		}
-		
+	}
+	if(prev_tmp_node == tmp_node)
+	{
+	    node->next = tmp_node;
+	    event->p_head = node;
+	}
+	else
+	{
+	    prev_tmp_node->next = node;
+	    node->next = tmp_node;
+	}
 
-    }
     arg->p_complete= (Wilddog_Func_T)_wilddog_event_trigger;
     arg->p_completeArg= arg->p_url;
 		
@@ -403,8 +359,9 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 	            {
 	                tmp = arg->p_url->p_url_path;
 	                arg->p_url->p_url_path = (Wilddog_Str_T*)head->p_url->p_url_path;
-	                p_conn->f_conn_send(WILDDOG_CONN_CMD_OFF, \
-	                            event->p_ev_store->p_se_repo,arg);
+	                if(p_conn && p_conn->f_conn_send)
+		                p_conn->f_conn_send(WILDDOG_CONN_CMD_OFF, \
+		                            event->p_ev_store->p_se_repo,arg);
 	                wilddog_debug_level(WD_DEBUG_LOG, "off path:%s", arg->p_url->p_url_path);
 	                head->flag == OFF_FLAG;
 	                arg->p_url->p_url_path = tmp;
@@ -434,14 +391,14 @@ Wilddog_Return_T _wilddog_event_nodeAdd
         	{
         		wilddog_debug_level(WD_DEBUG_LOG, "send the on path:%s", arg->p_url->p_url_path);
         		head->flag = ON_FLAG;
-                p_conn->f_conn_send(WILDDOG_CONN_CMD_ON, \
-                            event->p_ev_store->p_se_repo,arg);
+        		if(p_conn && p_conn->f_conn_send)
+	                p_conn->f_conn_send(WILDDOG_CONN_CMD_ON, \
+	                            event->p_ev_store->p_se_repo,arg);
         	}
             head = head->next;
         }
         else
         {
-
         	head = head->next;
         }
     }
@@ -534,7 +491,17 @@ Wilddog_Return_T _wilddog_event_nodeDelete
 				if(node->flag == OFF_FLAG)
 				{
 					tmp_arg = (Wilddog_ConnCmd_Arg_T *)wmalloc(sizeof(Wilddog_ConnCmd_Arg_T));
+					if(tmp_arg == NULL)
+					{
+            			wilddog_debug_level( WD_DEBUG_ERROR, \
+                			"cannot wmalloc tmp arg!");
+					}
 					tmp_arg->p_url = (Wilddog_Url_T *)wmalloc(sizeof(Wilddog_Url_T));
+					if(tmp_arg->p_url == NULL)
+					{
+            			wilddog_debug_level( WD_DEBUG_ERROR, \
+                			"cannot wmalloc tmp arg url!");
+					}
 
 
 			        tmp_arg->p_url->p_url_host= (char *)wmalloc(strlen( \
@@ -573,9 +540,7 @@ Wilddog_Return_T _wilddog_event_nodeDelete
 				                            event->p_ev_store->p_se_repo,tmp_arg);
 				    node->flag = ON_FLAG;                        
 				    wilddog_debug_level(WD_DEBUG_LOG, "nodedelete on node path:%s\n", tmp_arg->p_url->p_url_path);
-					wfree(tmp_arg->p_url->p_url_host);
-					wfree(tmp_arg->p_url->p_url_path);
-					wfree(tmp_arg->p_url);
+					_wilddog_url_freeParsedUrl(tmp_arg->p_url);
 					wfree(tmp_arg);
 				}
 			}
