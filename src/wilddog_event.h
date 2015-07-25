@@ -15,8 +15,16 @@ typedef struct WILDDOG_EVENT_T
     struct WILDDOG_EVENTNODE_T *p_head;
 }Wilddog_Event_T;
 
+typedef enum ON_OFF_FLAG
+{
+    OFF_FLAG = 0,
+    ON_FLAG
+}ON_OFF_FLAG_T;
+
+
 typedef struct WILDDOG_EVENTNODE_T
 {
+	ON_OFF_FLAG_T flag;
     char *path;
     struct WILDDOG_EVENTNODE_T *next;
     Wilddog_Func_T p_onData;
