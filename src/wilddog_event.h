@@ -25,7 +25,7 @@ typedef enum ON_OFF_FLAG
 typedef struct WILDDOG_EVENTNODE_T
 {
 	ON_OFF_FLAG_T flag;
-    char *path;
+    Wilddog_Url_T * p_url;
     struct WILDDOG_EVENTNODE_T *next;
     Wilddog_Func_T p_onData;
     void* p_dataArg;
