@@ -77,6 +77,7 @@ STATIC void _wilddog_event_nodeFree(Wilddog_EventNode_T *node)
         if(node->p_url->p_url_query != NULL)
         	wfree(node->p_url->p_url_query);
     }
+    wfree(node->p_url);
     wfree(node);
 }
 
@@ -243,7 +244,9 @@ void _wilddog_event_trigger
         p_str = NULL;
         if(
             (_wilddog_event_pathContain( enode->p_url->p_url_path, \
-                            (char *)((Wilddog_Url_T *)arg)->p_url_path) >= 1)
+                            (char *)((Wilddog_Url_T *)arg)->p_url_path) == 1)
+            || (_wilddog_event_pathContain( enode->p_url->p_url_path, \
+                            (char *)((Wilddog_Url_T *)arg)->p_url_path) == 2)
             )
         {
             /*  if could not find the node, new a null node.*/
@@ -496,7 +499,7 @@ Wilddog_Return_T _wilddog_event_nodeDelete
     ) 
 {
     Wilddog_Return_T err = WILDDOG_ERR_NOERR;
-    Wilddog_EventNode_T *node, *tmp_node;
+    Wilddog_EventNode_T *node, *prev_node, *tmp_node;
     Wilddog_EventNode_T *head;
     Wilddog_ConnCmd_Arg_T *tmp_arg;
     Wilddog_Conn_T *p_conn = event->p_ev_store->p_se_repo->p_rp_conn;
@@ -520,10 +523,13 @@ Wilddog_Return_T _wilddog_event_nodeDelete
 	                            
         wilddog_debug_level(WD_DEBUG_LOG, "nodedelete off node path:%s\n", arg->p_url->p_url_path);
 
+		prev_node = node;
 		node = node->next;
 	    while(node)
 	    {
-			if(_wilddog_event_pathChild( (char*)arg->p_url->p_url_path, node->p_url->p_url_path))
+			if(((_wilddog_event_pathContain((char*)arg->p_url->p_url_path, node->p_url->p_url_path) == 0) 
+			&& (_wilddog_event_pathContain((char*)prev_node->p_url->p_url_path, node->p_url->p_url_path) == 3))
+			|| ((prev_node == tmp_node) && (_wilddog_event_pathContain((char*)arg->p_url->p_url_path, node->p_url->p_url_path) == 0)))
 			{
 				if(node->flag == OFF_FLAG)
 				{
@@ -567,9 +573,13 @@ Wilddog_Return_T _wilddog_event_nodeDelete
 				                            event->p_ev_store->p_se_repo,tmp_arg);
 				    node->flag = ON_FLAG;                        
 				    wilddog_debug_level(WD_DEBUG_LOG, "nodedelete on node path:%s\n", tmp_arg->p_url->p_url_path);
-
+					wfree(tmp_arg->p_url->p_url_host);
+					wfree(tmp_arg->p_url->p_url_path);
+					wfree(tmp_arg->p_url);
+					wfree(tmp_arg);
 				}
 			}
+			prev_node = node;
 			node = node->next;
 	    }
     }
