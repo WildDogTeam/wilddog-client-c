@@ -31,6 +31,14 @@
 #include "tinydtls.h"
 #include "global.h"
 
+#ifdef WILDDOG_PORT_TYPE_WICED
+#include "wilddog.h"
+typedef struct {
+  size_t size;       /**< size of addr */
+  Wilddog_Address_T addr;
+  uint8_t ifindex;
+} session_t;
+#else
 #ifdef WITH_CONTIKI
 #include "ip/uip.h"
 typedef struct {
@@ -57,7 +65,7 @@ typedef struct {
   uint8_t ifindex;
 } session_t;
 #endif /* WITH_CONTIKI */
-
+#endif/*WILDDOG_PORT_TYPE_WICED*/
 /** 
  * Resets the given session_t object @p sess to its default
  * values.  In particular, the member rlen must be initialized to the

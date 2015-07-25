@@ -75,10 +75,10 @@ const char *dtls_package_version();
 
 #ifndef NDEBUG
 /** Returns the current log level. */
-log_t dtls_get_log_level();
+extern log_t tiny_dtls_get_log_level();
 
 /** Sets the log level to the specified value. */
-void dtls_set_log_level(log_t level);
+extern void tiny_dtls_set_log_level(log_t level);
 
 /** 
  * Writes the given text to \c stdout. The text is output only when \p

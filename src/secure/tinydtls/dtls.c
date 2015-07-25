@@ -33,11 +33,12 @@
 #ifdef HAVE_ASSERT_H
 #include <assert.h>
 #endif
-#ifndef WITH_CONTIKI
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+
 #include <stdlib.h>
 #include "uthash.h"
 #endif /* WITH_CONTIKI */
-
+#include "wilddog.h"
 #include "debug.h"
 #include "numeric.h"
 #include "netq.h"
@@ -61,7 +62,7 @@
 #define dtls_get_sequence_number(H) dtls_uint48_to_ulong((H)->sequence_number)
 #define dtls_get_fragment_length(H) dtls_uint24_to_int((H)->fragment_length)
 
-#ifndef WITH_CONTIKI
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
 #define HASH_FIND_PEER(head,sess,out)		\
   HASH_FIND(hh,head,sess,sizeof(session_t),out)
 #define HASH_ADD_PEER(head,sess,add)		\
@@ -212,10 +213,10 @@ dtls_peer_t *
 dtls_get_peer(const dtls_context_t *ctx, const session_t *session) {
   dtls_peer_t *p = NULL;
 
-#ifndef WITH_CONTIKI
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
   HASH_FIND_PEER(ctx->peers, session, p);
 #else /* WITH_CONTIKI */
-  for (p = list_head(ctx->peers); p; p = list_item_next(p))
+  for (p = list_head(&ctx->peers); p; p = list_item_next(p))
     if (dtls_session_equals(&p->session, session))
       return p;
 #endif /* WITH_CONTIKI */
@@ -225,10 +226,10 @@ dtls_get_peer(const dtls_context_t *ctx, const session_t *session) {
 
 static void
 dtls_add_peer(dtls_context_t *ctx, dtls_peer_t *peer) {
-#ifndef WITH_CONTIKI
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
   HASH_ADD_PEER(ctx->peers, session, peer);
 #else /* WITH_CONTIKI */
-  list_add(ctx->peers, peer);
+  list_add(&ctx->peers, peer);
 #endif /* WITH_CONTIKI */
 }
 
@@ -493,7 +494,6 @@ static inline int is_psk_supported(dtls_context_t *ctx)
 static inline int is_ecdsa_supported(dtls_context_t *ctx, int is_client)
 {
 #ifdef DTLS_ECC
-  printf("%s;LINE=%d\n",__func__,__LINE__);
   return ctx && ctx->h && ((!is_client && ctx->h->get_ecdsa_key) || 
 			   (is_client && ctx->h->verify_ecdsa_key));
 #else
@@ -1513,10 +1513,10 @@ static void dtls_destroy_peer(dtls_context_t *ctx, dtls_peer_t *peer, int unlink
   if (peer->state != DTLS_STATE_CLOSED && peer->state != DTLS_STATE_CLOSING)
     dtls_close(ctx, &peer->session);
   if (unlink) {
-#ifndef WITH_CONTIKI
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
     HASH_DEL_PEER(ctx->peers, peer);
 #else /* WITH_CONTIKI */
-    list_remove(ctx->peers, peer);
+    list_remove(&ctx->peers, peer);
 #endif /* WITH_CONTIKI */
 
     dtls_dsrv_log_addr(DTLS_LOG_DEBUG, "removed peer", &peer->session);
@@ -2937,9 +2937,7 @@ decrypt_verify(dtls_peer_t *peer, uint8 *packet, size_t length,
     if (clen < 0)
       dtls_warn("decryption failed\n");
     else {
-#ifndef NDEBUG
-      printf("decrypt_verify(): found %i bytes cleartext\n", clen);
-#endif
+
       dtls_security_params_free_other(peer);
       dtls_debug_dump("cleartext", *cleartext, clen);
     }
@@ -3519,10 +3517,10 @@ handle_alert(dtls_context_t *ctx, dtls_peer_t *peer,
   if (data[0] == DTLS_ALERT_LEVEL_FATAL || data[1] == DTLS_ALERT_CLOSE_NOTIFY) {
     dtls_alert("%d invalidate peer\n", data[1]);
     
-#ifndef WITH_CONTIKI
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
     HASH_DEL_PEER(ctx->peers, peer);
 #else /* WITH_CONTIKI */
-    list_remove(ctx->peers, peer);
+    list_remove(&ctx->peers, peer);
 
 #ifndef NDEBUG
     PRINTF("removed peer [");
@@ -3743,13 +3741,13 @@ dtls_context_t *
 dtls_new_context(void *app_data) {
   dtls_context_t *c;
   dtls_tick_t now;
-#ifndef WITH_CONTIKI
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
   FILE *urandom = fopen("/dev/urandom", "r");
   unsigned char buf[sizeof(unsigned long)];
 #endif /* WITH_CONTIKI */
 
   dtls_ticks(&now);
-#ifdef WITH_CONTIKI
+#if defined(WITH_CONTIKI) || defined(WILDDOG_PORT_TYPE_WICED)
   /* FIXME: need something better to init PRNG here */
   dtls_prng_init(now);
 #else /* WITH_CONTIKI */
@@ -3791,7 +3789,7 @@ dtls_new_context(void *app_data) {
     c->cookie_secret_age = now;
   else 
     goto error;
-  
+
   return c;
 
  error:
@@ -3809,7 +3807,9 @@ dtls_free_context(dtls_context_t *ctx) {
     return;
   }
 
-#ifndef WITH_CONTIKI
+
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+
   dtls_peer_t *tmp;
 
   if (ctx->peers) {
@@ -3818,7 +3818,7 @@ dtls_free_context(dtls_context_t *ctx) {
     }
   }
 #else /* WITH_CONTIKI */
-  for (p = list_head(ctx->peers); p; p = list_item_next(p))
+  for (p = list_head(&ctx->peers); p; p = list_item_next(p))
     dtls_destroy_peer(ctx, p, 1);
 #endif /* WITH_CONTIKI */
 

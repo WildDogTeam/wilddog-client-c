@@ -27,7 +27,10 @@
  * @file dtls_time.c
  * @brief Clock Handling
  */
-
+#ifdef WILDDOG_PORT_TYPE_WICED
+#include "wiced.h"
+#include "wilddog.h"
+#endif
 #include "tinydtls.h"
 #include "dtls_config.h"
 #include "dtls_time.h"
@@ -63,11 +66,26 @@ dtls_clock_init(void) {
   dtls_clock_offset = 0;
 #endif
 }
+#ifdef WILDDOG_PORT_TYPE_WICED
 
+static int wd_gettimeofday(struct timeval*tv, struct timezone *tz)
+{
+    wiced_time_t time;
+    wiced_time_get_time(&time);
+    tv->tv_sec = time / 1000;
+    tv->tv_usec = (time%1000) * 1000;
+
+    return 0;
+}
+#endif
 void dtls_ticks(dtls_tick_t *t) {
 #ifdef HAVE_SYS_TIME_H
   struct timeval tv;
+#ifdef WILDDOG_PORT_TYPE_WICED
+  wd_gettimeofday(&tv, NULL);
+#else
   gettimeofday(&tv, NULL);
+#endif
   *t = (tv.tv_sec - dtls_clock_offset) * DTLS_TICKS_PER_SECOND 
     + (tv.tv_usec * DTLS_TICKS_PER_SECOND / 1000000);
 #else

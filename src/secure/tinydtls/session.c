@@ -35,6 +35,17 @@
 #endif
 #endif
 
+#if defined(WILDDOG_PORT_TYPE_WICED)
+static inline int
+_dtls_address_equals_impl(const session_t *a,
+              const session_t *b)
+{
+    return (a->size == b->size) && \
+           (a->addr.len == b->addr.len) && \
+           !memcmp(a->addr.ip, b->addr.ip, a->addr.len) && \
+           (a->addr.port == b->addr.port) ;
+}
+#else
 #ifdef WITH_CONTIKI
 #define _dtls_address_equals_impl(A,B)				\
   ((A)->size == (B)->size					\
@@ -68,7 +79,7 @@ _dtls_address_equals_impl(const session_t *a,
  return 0;
 }
 #endif /* WITH_CONTIKI */
-
+#endif/*WILDDOG_PORT_TYPE_WICED*/
 void
 dtls_session_init(session_t *sess) {
   assert(sess);

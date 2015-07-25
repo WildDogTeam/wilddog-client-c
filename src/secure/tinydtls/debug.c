@@ -33,10 +33,13 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#ifdef HAVE_ARPA_INET_H
+#if HAVE_ARPA_INET_H
 #include <arpa/inet.h>
 #endif
-
+#ifdef WILDDOG_PORT_TYPE_WICED
+#include "wiced.h"
+#include "wilddog.h"
+#endif
 #ifdef HAVE_TIME_H
 #include <time.h>
 #endif
@@ -55,12 +58,12 @@ const char *dtls_package_version() {
 }
 
 log_t 
-dtls_get_log_level() {
+tiny_dtls_get_log_level() {
   return maxlog;
 }
 
 void
-dtls_set_log_level(log_t level) {
+tiny_dtls_set_log_level(log_t level) {
   maxlog = level;
 }
 
@@ -79,7 +82,13 @@ print_timestamp(char *s, size_t len, time_t t) {
 }
 
 #else /* alternative implementation: just print the timestamp */
-
+#if defined(WILDDOG_PORT_TYPE_WICED)
+static inline size_t
+print_timestamp(char *s, size_t len, time_t t)
+{
+    return 0;
+}
+#else
 static inline size_t
 print_timestamp(char *s, size_t len, clock_time_t t) {
 #ifdef HAVE_SNPRINTF
@@ -91,7 +100,7 @@ print_timestamp(char *s, size_t len, clock_time_t t) {
   return 0;
 #endif /* HAVE_SNPRINTF */
 }
-
+#endif /*WILDDOG_PORT_TYPE_WICED*/
 #endif /* HAVE_TIME_H */
 
 /** 
@@ -116,7 +125,7 @@ dtls_strnlen(const char *s, size_t maxlen) {
 
 static size_t
 dsrv_print_addr(const session_t *addr, char *buf, size_t len) {
-#ifdef HAVE_ARPA_INET_H
+#if HAVE_ARPA_INET_H
   const void *addrptr = NULL;
   in_port_t port;
   char *p = buf;
@@ -203,7 +212,7 @@ dsrv_print_addr(const session_t *addr, char *buf, size_t len) {
 #endif
 }
 
-#ifndef WITH_CONTIKI
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
 void 
 dsrv_log(log_t level, char *format, ...) {
   static char timebuf[32];
@@ -226,7 +235,7 @@ dsrv_log(log_t level, char *format, ...) {
   va_end(ap);
   fflush(log_fd);
 }
-#elif defined (HAVE_VPRINTF) /* WITH_CONTIKI */
+#elif 1 == HAVE_VPRINTF /* WITH_CONTIKI */
 void 
 dsrv_log(log_t level, char *format, ...) {
   static char timebuf[32];

@@ -33,16 +33,6 @@
 #ifndef _DTLS_TINYDTLS_H_
 #define _DTLS_TINYDTLS_H_
 
-/* Define to 1 if building with X509 support. */
-#define DTLS_X509 1 
-
-/** Defined to 1 if tinydtls is built with support for ECC */
-#define DTLS_ECC 0
-
-/** Defined to 1 if tinydtls is built with support for PSK */
-#define DTLS_PSK 1
-
-/** Defined to 1 if tinydtls is built for Contiki OS */
-/* #undef WITH_CONTIKI */
+#include "dtls_config.h"
 
 #endif /* _DTLS_TINYDTLS_H_ */

@@ -44,7 +44,7 @@
 #endif
 #endif
 #include "sha2.h"
-
+#include "wilddog.h"
 /*
  * ASSERT NOTE:
  * Some sanity checking code is included using assert().  On my FreeBSD
@@ -246,7 +246,7 @@ typedef u_int64_t sha2_word64;	/* Exactly 8 bytes */
  * only.
  */
 void SHA512_Last(SHA512_CTX*);
-void SHA256_Transform(SHA256_CTX*, const sha2_word32*);
+void SHA256_Transform(TINY_SHA256_CTX*, const sha2_word32*);
 void SHA512_Transform(SHA512_CTX*, const sha2_word64*);
 
 #ifdef WITH_SHA256
@@ -367,10 +367,12 @@ static const char *sha2_hex_digits = "0123456789abcdef";
 
 /*** SHA-256: *********************************************************/
 #ifdef WITH_SHA256
-void SHA256_Init(SHA256_CTX* context) {
-	if (context == (SHA256_CTX*)0) {
+void SHA256_Init(TINY_SHA256_CTX* context) {
+
+	if (context == (TINY_SHA256_CTX*)0) {
 		return;
 	}
+
 	MEMCPY_BCOPY(context->state, sha256_initial_hash_value, SHA256_DIGEST_LENGTH);
 	MEMSET_BZERO(context->buffer, SHA256_BLOCK_LENGTH);
 	context->bitcount = 0;
@@ -413,7 +415,7 @@ void SHA256_Init(SHA256_CTX* context) {
 	(h) = T1 + Sigma0_256(a) + Maj((a), (b), (c)); \
 	j++
 
-void SHA256_Transform(SHA256_CTX* context, const sha2_word32* data) {
+void SHA256_Transform(TINY_SHA256_CTX* context, const sha2_word32* data) {
 	sha2_word32	a, b, c, d, e, f, g, h, s0, s1;
 	sha2_word32	T1, *W256;
 	int		j;
@@ -471,7 +473,7 @@ void SHA256_Transform(SHA256_CTX* context, const sha2_word32* data) {
 
 #else /* SHA2_UNROLL_TRANSFORM */
 
-void SHA256_Transform(SHA256_CTX* context, const sha2_word32* data) {
+void SHA256_Transform(TINY_SHA256_CTX* context, const sha2_word32* data) {
 	sha2_word32	a, b, c, d, e, f, g, h, s0, s1;
 	sha2_word32	T1, T2, *W256;
 	int		j;
@@ -551,7 +553,7 @@ void SHA256_Transform(SHA256_CTX* context, const sha2_word32* data) {
 
 #endif /* SHA2_UNROLL_TRANSFORM */
 
-void SHA256_Update(SHA256_CTX* context, const sha2_byte *data, size_t len) {
+void SHA256_Update(TINY_SHA256_CTX* context, const sha2_byte *data, size_t len) {
 	unsigned int	freespace, usedspace;
 
 	if (len == 0) {
@@ -560,7 +562,7 @@ void SHA256_Update(SHA256_CTX* context, const sha2_byte *data, size_t len) {
 	}
 
 	/* Sanity check: */
-	assert(context != (SHA256_CTX*)0 && data != (sha2_byte*)0);
+	assert(context != (TINY_SHA256_CTX*)0 && data != (sha2_byte*)0);
 
 	usedspace = (context->bitcount >> 3) % SHA256_BLOCK_LENGTH;
 	if (usedspace > 0) {
@@ -599,12 +601,12 @@ void SHA256_Update(SHA256_CTX* context, const sha2_byte *data, size_t len) {
 	usedspace = freespace = 0;
 }
 
-void SHA256_Final(sha2_byte digest[], SHA256_CTX* context) {
+void SHA256_Final(sha2_byte digest[], TINY_SHA256_CTX* context) {
 	sha2_word32	*d = (sha2_word32*)digest;
 	unsigned int	usedspace;
 
 	/* Sanity check: */
-	assert(context != (SHA256_CTX*)0);
+	assert(context != (TINY_SHA256_CTX*)0);
 
 	/* If no digest buffer is passed, we don't bother doing this: */
 	if (digest != (sha2_byte*)0) {
@@ -662,12 +664,12 @@ void SHA256_Final(sha2_byte digest[], SHA256_CTX* context) {
 	usedspace = 0;
 }
 
-char *SHA256_End(SHA256_CTX* context, char buffer[]) {
+char *SHA256_End(TINY_SHA256_CTX* context, char buffer[]) {
 	sha2_byte	digest[SHA256_DIGEST_LENGTH], *d = digest;
 	int		i;
 
 	/* Sanity check: */
-	assert(context != (SHA256_CTX*)0);
+	assert(context != (TINY_SHA256_CTX*)0);
 
 	if (buffer != (char*)0) {
 		SHA256_Final(digest, context);
@@ -686,7 +688,7 @@ char *SHA256_End(SHA256_CTX* context, char buffer[]) {
 }
 
 char* SHA256_Data(const sha2_byte* data, size_t len, char digest[SHA256_DIGEST_STRING_LENGTH]) {
-	SHA256_CTX	context;
+	TINY_SHA256_CTX	context;
 
 	SHA256_Init(&context);
 	SHA256_Update(&context, data, len);

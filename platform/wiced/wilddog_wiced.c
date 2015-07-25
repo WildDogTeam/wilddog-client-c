@@ -258,8 +258,8 @@ int wilddog_receive
     {
         wilddog_debug_level(WD_DEBUG_LOG, "result = %d",result);
     }
-    if(receive)
-        wiced_packet_delete( receive );
+    /*if(receive)
+        wiced_packet_delete( receive );*/
     return 0;
 }
 

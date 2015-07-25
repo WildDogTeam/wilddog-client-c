@@ -34,9 +34,11 @@
 #include "tinydtls.h"
 
 #ifndef WITH_CONTIKI
+#ifndef WILDDOG_PORT_TYPE_WICED
 #include "uthash.h"
+#endif
 #include "utlist.h"
-
+#include "wilddog.h"
 /* We define list structures and utility functions to be compatible
  * with Contiki list structures. The Contiki list API is part of the
  * Contiki operating system, and therefore the following licensing
@@ -99,7 +101,10 @@ list_head(list_t list) {
 
 static inline void 
 list_remove(list_t list, void *item) {
-  LL_DELETE(*(struct list **)list, (struct list *)item);
+  if(*(struct list **)list)
+  {
+      LL_DELETE(*(struct list **)list, (struct list *)item);
+  }
 }
 
 static inline void 

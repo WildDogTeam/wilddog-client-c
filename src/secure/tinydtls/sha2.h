@@ -46,7 +46,14 @@ extern "C" {
  * file.
  */
 #include <sys/types.h>
+#if defined(WILDDOG_PORT_TYPE_WICED)
+#include "wilddog.h"
 
+typedef u8 u_int8_t;     /* 1-byte  (8-bits)  */
+typedef u32 u_int32_t;     /* 4-bytes (32-bits) */
+typedef unsigned long long u_int64_t;   /* 8-bytes (64-bits) */
+
+#endif
 #ifdef SHA2_USE_INTTYPES_H
 
 #include <inttypes.h>
@@ -71,11 +78,7 @@ extern "C" {
  * uintXX_t (from inttypes.h), you may need to define things by hand
  * for your system:
  */
-#if 0
-typedef unsigned char u_int8_t;		/* 1-byte  (8-bits)  */
-typedef unsigned int u_int32_t;		/* 4-bytes (32-bits) */
-typedef unsigned long long u_int64_t;	/* 8-bytes (64-bits) */
-#endif
+
 /*
  * Most BSD systems already define u_intXX_t types, as does Linux.
  * Some systems, however, like Compaq's Tru64 Unix instead can use
@@ -94,11 +97,11 @@ typedef unsigned long long u_int64_t;	/* 8-bytes (64-bits) */
  */
 #ifdef SHA2_USE_INTTYPES_H
 
-typedef struct _SHA256_CTX {
+typedef struct _TINY_SHA256_CTX {
 	uint32_t	state[8];
 	uint64_t	bitcount;
 	uint8_t	buffer[SHA256_BLOCK_LENGTH];
-} SHA256_CTX;
+} TINY_SHA256_CTX;
 typedef struct _SHA512_CTX {
 	uint64_t	state[8];
 	uint64_t	bitcount[2];
@@ -107,11 +110,11 @@ typedef struct _SHA512_CTX {
 
 #else /* SHA2_USE_INTTYPES_H */
 
-typedef struct _SHA256_CTX {
+typedef struct _TINY_SHA256_CTX {
 	u_int32_t	state[8];
 	u_int64_t	bitcount;
 	u_int8_t	buffer[SHA256_BLOCK_LENGTH];
-} SHA256_CTX;
+} TINY_SHA256_CTX;
 typedef struct _SHA512_CTX {
 	u_int64_t	state[8];
 	u_int64_t	bitcount[2];
@@ -128,10 +131,10 @@ typedef SHA512_CTX SHA384_CTX;
 #ifdef SHA2_USE_INTTYPES_H
 
 #ifdef WITH_SHA256
-void SHA256_Init(SHA256_CTX *);
-void SHA256_Update(SHA256_CTX*, const uint8_t*, size_t);
-void SHA256_Final(uint8_t[SHA256_DIGEST_LENGTH], SHA256_CTX*);
-char* SHA256_End(SHA256_CTX*, char[SHA256_DIGEST_STRING_LENGTH]);
+void SHA256_Init(TINY_SHA256_CTX *);
+void SHA256_Update(TINY_SHA256_CTX*, const uint8_t*, size_t);
+void SHA256_Final(uint8_t[SHA256_DIGEST_LENGTH], TINY_SHA256_CTX*);
+char* SHA256_End(TINY_SHA256_CTX*, char[SHA256_DIGEST_STRING_LENGTH]);
 char* SHA256_Data(const uint8_t*, size_t, char[SHA256_DIGEST_STRING_LENGTH]);
 #endif
 
@@ -154,10 +157,10 @@ char* SHA512_Data(const uint8_t*, size_t, char[SHA512_DIGEST_STRING_LENGTH]);
 #else /* SHA2_USE_INTTYPES_H */
 
 #ifdef WITH_SHA256
-void SHA256_Init(SHA256_CTX *);
-void SHA256_Update(SHA256_CTX*, const u_int8_t*, size_t);
-void SHA256_Final(u_int8_t[SHA256_DIGEST_LENGTH], SHA256_CTX*);
-char* SHA256_End(SHA256_CTX*, char[SHA256_DIGEST_STRING_LENGTH]);
+void SHA256_Init(TINY_SHA256_CTX *);
+void SHA256_Update(TINY_SHA256_CTX*, const u_int8_t*, size_t);
+void SHA256_Final(u_int8_t[SHA256_DIGEST_LENGTH], TINY_SHA256_CTX*);
+char* SHA256_End(TINY_SHA256_CTX*, char[SHA256_DIGEST_STRING_LENGTH]);
 char* SHA256_Data(const u_int8_t*, size_t, char[SHA256_DIGEST_STRING_LENGTH]);
 #endif
 

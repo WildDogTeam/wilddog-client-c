@@ -5,18 +5,24 @@
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
 /* Define to 1 if building with X509 support. */
+#undef DTLS_X509
 #define DTLS_X509 1 
 
 
 /* Define to 1 if building with ECC support. */
+#undef DTLS_ECC
 #define DTLS_ECC 1 
 
 /* Define to 1 if building with PSK support */
+#undef DTLS_PSK
 #define DTLS_PSK 1
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
+#ifdef WILDDOG_PORT_TYPE_WICED
+#define HAVE_ARPA_INET_H 0
+#else
 #define HAVE_ARPA_INET_H 1
-
+#endif
 /* Define to 1 if you have the <assert.h> header file. */
 #define HAVE_ASSERT_H 1
 
@@ -94,14 +100,20 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <time.h> header file. */
+#ifdef WILDDOG_PORT_TYPE_WICED
+#undef HAVE_TIME_H
+#else
 #define HAVE_TIME_H 1
-
+#endif
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
 
 /* Define to 1 if you have the `vprintf' function. */
+#ifdef WILDDOG_PORT_TYPE_WICED
+#define HAVE_VPRINTF 0
+#else
 #define HAVE_VPRINTF 1
-
+#endif
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT ""
 

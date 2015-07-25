@@ -9,7 +9,7 @@
 #include "wilddog.h"
 #include "wiced_tcpip.h"
 #include "wifi_config_dct.h"
-
+#include "wilddog_demo_config.h"
 int g_wifi_down = 1;
 
 extern int demo(char *url, int* isUnConnected);
