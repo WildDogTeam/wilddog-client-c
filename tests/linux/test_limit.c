@@ -98,8 +98,6 @@ int test_destroy()
 	/*destroy before init*/
 	wilddog_destroy((void*)0);
 
-	
-	
 	/*destroy empty ref*/
 	wilddog_destroy((void*)0);
 
@@ -629,10 +627,11 @@ void test_initialize()
 	for(i = 0; i < sizeof(test_results)/ sizeof(struct test_reult_t); i++)
 	{
 		memset(&(test_results[i]), 0, sizeof(struct test_reult_t));
+		test_results[i].result = FALSE;
 	}
 }
 
-void test_printResult()
+int test_printResult()
 {
 	int i;
 	printf("\n\nTest results:\n\n");
@@ -642,10 +641,14 @@ void test_printResult()
 		{
 			printf("%-32s\t%s\n", test_results[i].name, \
 					test_results[i].result == 0? ("PASS"):("FAIL"));
+			
+			if(test_results[i].result != 0)
+				return -1;
 		}
 	}
 	printf("\nTest results print end!\n\n");
 	fflush(stdout);
+	return 0;
 }
 
 int main(void)
@@ -679,7 +682,6 @@ int main(void)
 	test_results[12].name = "wilddog_removeObserver";
 	test_results[12].result = test_off();
 
-	test_printResult();
-	return 0;
+	return test_printResult();
 }
 

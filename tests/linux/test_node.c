@@ -277,7 +277,10 @@ int _wilddog_test_node_controlTest(void)
 
 int main(void)
 {
-	_wilddog_test_api();
-	_wilddog_test_node_controlTest();
-	return 0;
+	int res = 0;
+	res = _wilddog_test_api();
+	if(res != 0)
+		return res;
+	res = _wilddog_test_node_controlTest();
+	return res;
 }
