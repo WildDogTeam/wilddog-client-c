@@ -176,7 +176,7 @@ void ramtest_printf(Ramtest_T *p)
 }
 /**  node
 */
-#define TEST_GET_URL "coap://sky.wilddogio.com/"
+
 static int count = 0;
 
 STATIC void test_onQueryFunc(
@@ -218,7 +218,6 @@ void ramtest_handle( u8 tree_num, u8 request_num)
 	ramtest_init(tree_num,request_num);
     sprintf((char*)url, "coaps://c_test.wilddogio.com/ramtest/tree_%d", tree2len[tree_num]);
 	
-
 	wilddog = wilddog_initWithUrl(url);
 		
 	if(0 == wilddog)

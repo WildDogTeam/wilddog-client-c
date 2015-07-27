@@ -12,9 +12,8 @@
 #define TEST_ERR	'N'
 #define TEST_OK		'Y'
 #define TESTFUNCNAME_TABLECASE	2	
-#define TEST_RESULT_PRINTF(p,inv,res ,err)	do{ int i;\
-											printf("\t%s",(p)); \
-											for(i=0;i < (inv);i++) printf("\t");\
+#define TEST_RESULT_PRINTF(p,inv,res ,err)	do{ \
+											printf("%-32s",(p)); \
 											if(err) printf("%c\t%d\n",(res),(err));\
 											else printf("%c\n",(res));}while(0)
 

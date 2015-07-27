@@ -761,10 +761,10 @@ STATIC int _wilddog_conn_pingSend
     res = _wilddog_conn_pkt_creat(&d_conn_send,&p_pkt);
     if(res < 0)
         return WILDDOG_ERR_NULL;
-    /*  send */
-    wilddog_debug("send ping");
+    /*  send */    
     res = _wilddog_conn_pkt_send(fd,Addrin,NULL,p_pkt);
     _wilddog_conn_pkt_free(&p_pkt);
+	wilddog_debug("send ping %s!", res >= 0?("Success"):("Failed"));
     return res;
     
 }
