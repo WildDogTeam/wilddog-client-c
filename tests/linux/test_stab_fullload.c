@@ -30,9 +30,14 @@
 
 
 #ifdef WILDDOG_SELFTEST
+
 #define STABTEST_ONEHOUR    (3600000)
 #define STAB_DEBUG	0
-#define STABTEST_URL	"coaps://c_test.wilddogio.com/"
+#if defined(WILDDOG_PORT_TYPE_WICED)
+
+#define STABTEST_URL	TEST_URL/*"coap://c_test.wilddogio.com/"*/
+#else
+#define STABTEST_URL	"coap://c_test.wilddogio.com/"
 #endif
 #define STABTEST_PATH	"stabtest/"
 #define STAB_KEY		"K"
@@ -123,106 +128,6 @@ STATIC void stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
 		stab_recvSucc++;
 }
 
-STATIC void stab_getValueFunc
-    (
-    const Wilddog_Node_T* p_snapshot, 
-    void* arg, 
-    Wilddog_Return_T err
-    )
-{
-	stab_get_recvErr(err,STABTEST_CMD_GET);
-    *(BOOL*)arg = TRUE;
-
-    return;
-}
-
-STATIC void stab_removeValueFunc(void* arg, Wilddog_Return_T err)
-{
-	stab_get_recvErr(err,STABTEST_CMD_DELE);
-    *(BOOL*)arg = TRUE;
-
-    return;
-}
-STATIC void stab_setValueFunc(void* arg, Wilddog_Return_T err)
-{
-                        
-	stab_get_recvErr(err,STABTEST_CMD_SET);
-	*(BOOL*)arg = TRUE;
-
-    return;
-}
-
-STATIC void stab_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
-{
-                        
-	stab_get_recvErr(err,STABTEST_CMD_PUSH);
-	*(BOOL*)arg = TRUE;
-
-    return;
-}
-
-STATIC void stab_addObserverFunc
-    (
-    const Wilddog_Node_T* p_snapshot, 
-    void* arg,
-    Wilddog_Return_T err
-    )
-{
-    
-	stab_get_recvErr(err,STABTEST_CMD_ON);
-    *(BOOL*)arg = TRUE;
-
-    return;
-}
-int stabtest_reques(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
-{
-
-	Wilddog_Node_T *p_head = NULL,*p_node = NULL;
-	int res = 0;
-    /*Create an node which type is an object*/
-    p_head = wilddog_node_createObject(NULL);
-    
-    /*Create an node which type is UTF-8 Sring*/
-    p_node = wilddog_node_createUString((Wilddog_Str_T *)STABTEST_KEY,(Wilddog_Str_T *)STABTEST_VALUE);
-    
-    /*Add p_node to p_head, then p_node is the p_head's child node*/
-    wilddog_node_addChild(p_head, p_node);
-	
-    
-	stab_cmd = type;
-    switch(type)
-    {
-        case STABTEST_CMD_GET:
-            /*Send the query method*/
-            res = wilddog_getValue(client, (onQueryFunc)stab_getValueFunc, (void*)p_finishFlag);
-            break;
-        case STABTEST_CMD_SET:  
-            /*Send the set method*/
-            res = wilddog_setValue(client,p_head,stab_setValueFunc,(void*)p_finishFlag);
-            break;
-        case STABTEST_CMD_PUSH:
-            /*Send the push method*/
-            res = wilddog_push(client, p_head, stab_pushFunc, (void *)p_finishFlag);  
-            break;
-        case STABTEST_CMD_DELE:
-            /*Send the remove method*/
-            res = wilddog_removeValue(client, stab_removeValueFunc, (void*)p_finishFlag);
-            break;
-        case STABTEST_CMD_ON:
-            /*Observe on*/
-            res = wilddog_addObserver(client, WD_ET_VALUECHANGE, stab_addObserverFunc, (void*)p_finishFlag);
-            break;
-		case STABTEST_CMD_OFF:
-			res = wilddog_removeObserver(client, WD_ET_VALUECHANGE);
-			break;
-		case STABTEST_CMD_NON:
-		default:
-			break;
-    }
-    /*Delete the node*/
-    wilddog_node_delete(p_head);
-    return res;
-}
 STATIC void stab_trysync(void)
 {
 	stab_set_runtime();
@@ -233,49 +138,10 @@ STATIC void stab_trysync(void)
 
 }
 
-int stab_oneCrcuRequest(void) 
-{
-	int res = 0;
-	BOOL otherFinish = FALSE,onFinish = FALSE;
-	BOOL *p_finish = &onFinish;
-    Wilddog_T client = 0;
-    STABTEST_CMD_TYPE cmd = STABTEST_CMD_ON;
-
-	/* mark star time*/
-	stab_set_runtime();
-    /*Init a wilddog client*/
-    client = wilddog_initWithUrl((Wilddog_Str_T *)STABTEST_URL);
-	stab_get_requestRes(stabtest_reques(cmd,client,p_finish));
-
-    while(1)
-    {
-        if(TRUE == *p_finish)
-        {
-        	if(STABTEST_ONREQUEST(cmd))
-        		p_finish = &otherFinish;
-
-        	onFinish = FALSE;
-        	otherFinish = FALSE;
-			STABTEST_NEXTREQUEST(cmd);
-			stab_get_requestRes(stabtest_reques(cmd,client,p_finish));
-			
-			if(STABTEST_OFFREQUEST(cmd))
-			{
-				break;
-			}	
-        }
-        stab_trysync();
-    }
-    /*Destroy the wilddog clent and release the memory*/
-    res = wilddog_destroy(&client);
-
-    return res;
-}
-
 void stab_titlePrint(void)
 {
 	printf("\t>----------------------------------------------------<\n");
-	printf("\tcount\truntime\tram\tUnlaunchRatio\tLostRatio\tSuccessRatio\tSuccessSetS \n");
+	printf("\tcount\truntime\tram\tUnlaunchRatio\tLostRatio\tSuccessRatio\tSuccessSet\n");
 }
 void stab_endPrint(void)
 {
@@ -313,19 +179,7 @@ void stab_resultPrint(void)
 	printf("\n");
 	return;
 }
-void stab_test_cycle(void)
-{
-	
-	ramtest_init(1,1);
-	stab_titlePrint();
-	printf("%s\n",STABTEST_URL);
-	while(1)
-	{
-		stab_oneCrcuRequest();
-		stab_resultPrint();
-		}
-	stab_endPrint();
-}
+
 STATIC	void stab_settest_dataInit(u8 idx)
 {
 	int i;
@@ -499,10 +353,23 @@ void stab_test_fullLoad(void)
 			stab_settest_dataInit(i);
  			stab_settest_serialSet_send();
  			stab_settest_serialGet_send(); 
+#ifndef WILDDOG_PORT_TYPE_WICED
+ 			sleep(3);
+#endif
 			stab_resultPrint();
 			stab_settest_dataDeInit();
  		}
+
 	}
 }
+#if defined(WILDDOG_PORT_TYPE_WICED)
+#else
+int main(void)
+{
+	stab_test_fullLoad();
+	return 0;
+}
 
+#endif
+#endif /* WILDDOG_SELFTEST*/
 

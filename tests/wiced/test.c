@@ -13,8 +13,8 @@
 
 #include "test_lib.h"
 
-extern void stab_test(void);
-extern void stab_settest(void);
+extern void stab_test_cycle(void);
+extern void stab_test_fullLoad(void);
 /**
  *  Application start
  */
@@ -45,10 +45,10 @@ void application_start( void )
 #if TEST_TYPE == TEST_TIME
     performtest_all();
 #endif
-#if TEST_TYPE == TEST_STAB
-    stab_test();
+#if TEST_TYPE == TEST_STAB_CYCLE
+    stab_test_cycle();
 #endif
-#if TEST_TYPE == TEST_STABSET
-    stab_settest();
+#if TEST_TYPE == TEST_STAB_FULLLOAD
+    stab_test_fullLoad();
 #endif
 }

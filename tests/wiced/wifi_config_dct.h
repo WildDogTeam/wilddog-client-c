@@ -49,12 +49,18 @@ extern "C" {
 #define CLIENT_AP_CHANNEL    1
 #define CLIENT_AP_BAND       WICED_802_11_BAND_2_4GHZ
 /* test type */
-#define TEST_RAM    1
-#define TEST_TIME   2
-#define TEST_STAB   3
+/*
+ * TEST_RAM : ram test
+ * TEST_TIME : time cost test
+ * TEST_STAB : get/set/push/delete api cycle stability test
+ * TEST_STAB_FULLLOAD : full load stablitiy test
+*/
+#define TEST_RAM           1
+#define TEST_TIME          2
+#define TEST_STAB_CYCLE    3
+#define TEST_STAB_FULLLOAD 4
 
-/* you can choose TEST_RAM/TEST_TIME/TEST_STAB/TEST_TYPE */
-#define TEST_TYPE   TEST_STABSET 
+#define TEST_TYPE   TEST_TIME
 /* Override default country code */
 #define WICED_COUNTRY_CODE    WICED_COUNTRY_UNITED_STATES
 
