@@ -42,8 +42,8 @@ extern "C" {
 /* define url */
 #define TEST_URL "coaps://c_test.wilddogio.com/stabtest"
 /* This is the default AP the device will connect to (as a client)*/
-#define CLIENT_AP_SSID       "wilddog-allstaff"
-#define CLIENT_AP_PASSPHRASE "starport"
+#define CLIENT_AP_SSID       "your ssid"
+#define CLIENT_AP_PASSPHRASE "your password"
 #define CLIENT_AP_BSS_TYPE   WICED_BSS_TYPE_INFRASTRUCTURE
 #define CLIENT_AP_SECURITY   WICED_SECURITY_WPA2_MIXED_PSK
 #define CLIENT_AP_CHANNEL    1
