@@ -326,6 +326,10 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 		    prev_tmp_node = tmp_node;
 			tmp_node = tmp_node->next;	
 		}
+		else if( ((strncmp(tmp_node->p_url->p_url_path, node->p_url->p_url_path, len) == 0) && (slen == dlen)) )
+		{
+			return WILDDOG_ERR_NOERR;
+		}
 		else
 		{
 			break;
