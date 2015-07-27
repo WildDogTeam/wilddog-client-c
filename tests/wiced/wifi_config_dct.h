@@ -53,8 +53,8 @@ extern "C" {
 #define TEST_TIME   2
 #define TEST_STAB   3
 
-
-#define TEST_TYPE   TEST_STABSET /*TEST_STAB*/
+/* you can choose TEST_RAM/TEST_TIME/TEST_STAB/TEST_TYPE */
+#define TEST_TYPE   TEST_STABSET 
 /* Override default country code */
 #define WICED_COUNTRY_CODE    WICED_COUNTRY_UNITED_STATES
 
