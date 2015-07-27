@@ -5,6 +5,7 @@
 
 extern void wilddog_debug_printnode(const Wilddog_Node_T* node);
 
+
 STATIC void test_onQueryFunc(
     const Wilddog_Node_T* p_snapshot, 
     void* arg, 
@@ -71,7 +72,7 @@ int test_demo(char* url)
             wilddog_debug("\tset led1=1 success!");
             break;
         }
-        /*retransmit¡¢ received and handle response
+        /*retransmitï¿½ï¿½ received and handle response
          * */
         wilddog_trySync();
     }

@@ -11,6 +11,13 @@ struct test_reult_t
 struct test_reult_t test_results[32];
 
 STATIC const char* UNUSED_URL="coap://coap.wilddogio.com/unused";
+
+const char *test_diffHost_url[]=
+{
+	"coap://c_test.wilddogio.com/",
+	"coap://sky.wilddogio.com/unused"
+};
+
 STATIC const char *authData = "aaabbb";
 const char* test_new_url[]=
 {
@@ -63,8 +70,21 @@ int test_new()
 		wilddog_destroy(&wilddog2);
 		return -1;
 	}
+	wilddog_destroy(&wilddog);
+
+	/* diff host */
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)test_diffHost_url[0]);
+	wilddog2 = wilddog_initWithUrl((Wilddog_Str_T *)test_diffHost_url[1]);
+
+	if(!wilddog ||!wilddog2  || (wilddog == wilddog2))
+	{
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&wilddog2);
+		return -1;
+	}
 	
 	wilddog_destroy(&wilddog);
+	wilddog_destroy(&wilddog2);
 	
 	return 0;
 }

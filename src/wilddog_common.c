@@ -65,7 +65,7 @@ void wfree(void* ptr)
 void *wrealloc(void *ptr, size_t size)
 {
     if(!ptr)
-        return NULL;
+        return wmalloc(size);
     return realloc( ptr, size);
 }
 /*
