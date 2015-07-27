@@ -14,6 +14,7 @@
 #include "test_lib.h"
 
 extern void stab_test(void);
+extern void stab_settest(void);
 /**
  *  Application start
  */
@@ -47,5 +48,7 @@ void application_start( void )
 #if TEST_TYPE == TEST_STAB
     stab_test();
 #endif
-
+#if TEST_TYPE == TEST_STABSET
+    stab_settest();
+#endif
 }

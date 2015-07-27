@@ -7,6 +7,19 @@
 #ifdef __cplusplus
 extern "C"{
 #endif
+
+/* 
+* if dpath contains spath,  0, 
+* if spath contains dpath,  1,
+* if spath equal dpath,  2
+* else 3.
+*/
+#define WD_EVENT_PATHCONTAIN_DCS   0
+#define WD_EVENT_PATHCONTAIN_SCD   1
+#define WD_EVENT_PATHCONTAIN_SED   2
+#define WD_EVENT_PATHCONTAIN_OTHER 3
+
+
 typedef struct WILDDOG_EVENT_T
 {
     struct WILDDOG_STORE_T *p_ev_store;
