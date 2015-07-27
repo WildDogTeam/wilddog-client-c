@@ -19,6 +19,8 @@
 #if defined(WILDDOG_PORT_TYPE_WICED)
 #include "wiced.h"
 #include "wifi_config_dct.h"
+#else
+#include <unistd.h>
 #endif
 #include "wilddog.h"
 #include "wilddog_url_parser.h"
@@ -81,13 +83,13 @@ STATIC u32 stab_cmd;
 STATIC Stab_Setdata_T stab_setdata[10];
 STATIC u8 serialgetsend_cnt;
 
+
+
 STATIC void stab_set_runtime(void)
 {
+#if defined(WILDDOG_PORT_TYPE_WICED)
 	static u32 stab_startime =0;
 	u32 currentTm_ms =0;
-
-#if defined(WILDDOG_PORT_TYPE_WICED)
-	
  	wiced_time_t t1;	
  	wiced_time_get_time(&t1);
 	currentTm_ms = (u32)t1;
@@ -103,7 +105,7 @@ STATIC void stab_get_requestRes(Wilddog_Return_T res)
 {
 	if(res < 0 )
 	{
-		printf("\tin %d; send %d requestErr= %d\n",stab_runtime,stab_cmd,res);
+		printf("\tin %lu; send %lu requestErr= %d\n",stab_runtime,stab_cmd,res);
 		stab_rquestFault++;
 	}
 	else
@@ -118,7 +120,7 @@ STATIC void stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
 {
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		printf("\nin %d; methtype = %d recvErr= %d \n",stab_runtime,methtype,err);
+		printf("in %lu; methtype = %lu recvErr= %d",stab_runtime,methtype,err);
 		if(err == WILDDOG_ERR_RECVTIMEOUT)
 			stab_recvFault++;
 	}
@@ -218,6 +220,9 @@ int stabtest_reques(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
 		case STABTEST_CMD_OFF:
 			res = wilddog_removeObserver(client, WD_ET_VALUECHANGE);
 			break;
+		case STABTEST_CMD_NON:
+		default:
+			break;
     }
     /*Delete the node*/
     wilddog_node_delete(p_head);
@@ -271,10 +276,11 @@ int stab_oneCrcuRequest(void)
 
     return res;
 }
+
 void stab_titlePrint(void)
 {
 	printf("\t>----------------------------------------------------<\n");
-	printf("\tcount\truntime\tram\tUnlaunchRatio\tLostRatio\tSuccessRatio\tsettestSuccess\n");
+	printf("\tcount\truntime\tram\tUnlaunchRatio\tLostRatio\tSuccessRatio \n");
 }
 void stab_endPrint(void)
 {
@@ -297,19 +303,18 @@ void stab_resultPrint(void)
 	memset(successRatio,0,20);
 	memset(settest_succRatio,0,20);
 
-	sprintf(unlaunchRatio,"%d/%d",stab_rquestFault,stab_rquests);
-	sprintf(lossRatio,"%d/%d",stab_recvFault,stab_rquests);	
-	sprintf(successRatio,"%d/%d",stab_recvSucc,stab_rquests);
-	sprintf(settest_succRatio,"(%d)%d/%d",stab_settest_fault,stab_settest_getsuccess,stab_settest_request);
+	sprintf(unlaunchRatio,"%lu/%lu",stab_rquestFault,stab_rquests);
+	sprintf(lossRatio,"%lu/%lu",stab_recvFault,stab_rquests);	
+	sprintf(successRatio,"%lu/%lu",stab_recvSucc,stab_rquests);
+	sprintf(settest_succRatio,"(%lu)%lu/%lu",stab_settest_fault,stab_settest_getsuccess,stab_settest_request);
 	
-	printf("\t%d",++run_cnt);		
-	printf("\t%d",stab_runtime);
-	printf("\t%d",(u32)ramtest_get_averageRam());
+	printf("\t%lu",++run_cnt);		
+	printf("\t%lu",stab_runtime);
+	printf("\t%lu",(u32)ramtest_get_averageRam());
 	printf("\t%s",unlaunchRatio);
 	printf("\t\t%s",lossRatio);
 	printf("\t\t%s",successRatio);
 	printf("\t\t%s",settest_succRatio);
-	
 	printf("\n");
 	return;
 }
@@ -328,13 +333,11 @@ void stab_test(void)
 }
 STATIC	void stab_settest_dataInit(u8 idx)
 {
-	int i,j=idx;
+	int i;
 	char temp_url[50];
 	memset(temp_url,0,30);
 	for(i=0;i<10;i++)
 	{
-		
-		//j = ( j >= 10 )?0:(j+1);
 		stab_setdata[i].key[0] = 'K';
 		stab_setdata[i].data[0] = 'D';
 		
@@ -344,7 +347,7 @@ STATIC	void stab_settest_dataInit(u8 idx)
 		stab_setdata[i].data[2] = 0x30+i;
 		sprintf(temp_url,"%s%s%s",STABTEST_URL,STABTEST_PATH,stab_setdata[i].key);
  		if(stab_setdata[i].client)
-			wilddog_destroy(stab_setdata[i].client);
+			wilddog_destroy(&(stab_setdata[i].client));
 		stab_setdata[i].client = wilddog_initWithUrl((Wilddog_Str_T*)temp_url);
 		if(stab_setdata[i].p_node)
 		{
@@ -431,14 +434,16 @@ STATIC void stab_settest_judge(Wilddog_Node_T* p_snapshot,void* arg)
 	{
 		
 		Stab_Setdata_T *p_set = (Stab_Setdata_T*)arg;
- 		if( 0 == strcmp(wilddog_node_getValue(p_snapshot,&len), p_set->data))
+ 		if( 0 == strcmp( (const char*)wilddog_node_getValue(p_snapshot,&len), \
+			             (const char*)p_set->data))
 		{
 			stab_settest_getsuccess++;
 			return ;
 		}
 		else
-			wilddog_debug("truevalue:%s,getvalue:%s\n",p_set1->data,wilddog_node_getValue(p_snapshot,&len));
-				
+			wilddog_debug("truevalue:%s,getvalue:%s\n", \
+			              p_set1->data,wilddog_node_getValue(p_snapshot,&len));
+
 	}
 
 	stab_settest_fault++;		
@@ -451,11 +456,8 @@ STATIC void stab_settest_serialGetValueFunc
     Wilddog_Return_T err
     )
 {
-	
-	Stab_Setdata_T *p= (Stab_Setdata_T*)arg;
-	
 	stab_get_recvErr(err,STABTEST_CMD_GET);
-	stab_settest_judge(p_snapshot,arg);
+	stab_settest_judge((Wilddog_Node_T*)p_snapshot,arg);
 	serialgetsend_cnt--;
     return;
 }
@@ -488,10 +490,8 @@ STATIC void stab_settest_serialGet_send(void)
 }
 void stab_settest(void)
 {
-
-	Wilddog_Node_T *p_head = NULL,*p_node = NULL;
-	int res = 0,i;
-	Wilddog_T client =0;
+	int i;
+	
 	stab_titlePrint();
 	ramtest_init(1,1);
 	/* mark star time*/
@@ -515,9 +515,10 @@ void stab_settest(void)
 }
 #if defined(WILDDOG_PORT_TYPE_WICED)
 #else
-void main(void)
+int main(void)
 {
 	stab_settest();
+	return 0;
 }
 
 #endif
