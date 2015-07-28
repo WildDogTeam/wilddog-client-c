@@ -52,6 +52,7 @@ typedef struct RAMTEST_T{
 extern void ramtest_init(u32 tree_num,u32 request_num);
 extern void ramtest_titile_printf(void);
 extern void ramtest_end_printf(void);
+extern void ramtest_getAveragesize(void);
 extern int ramtest_getLastStackSize(Ramtest_T *p);
 extern int ramtest_getSysRamusage(Ramtest_T *p,u32 *p_uage);
 extern void ramtest_caculate_nodeRam(void);

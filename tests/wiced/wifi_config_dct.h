@@ -40,7 +40,7 @@ extern "C" {
 #define SOFT_AP_CHANNEL      1
 
 /* define url */
-#define TEST_URL "coaps://<appId>.wilddogio.com/"
+#define TEST_URL "coaps://c_test.wilddogio.com/stabtest"
 /* This is the default AP the device will connect to (as a client)*/
 #define CLIENT_AP_SSID       "your ssid"
 #define CLIENT_AP_PASSPHRASE "your password"
@@ -49,12 +49,19 @@ extern "C" {
 #define CLIENT_AP_CHANNEL    1
 #define CLIENT_AP_BAND       WICED_802_11_BAND_2_4GHZ
 /* test type */
-#define TEST_RAM    1
-#define TEST_TIME   2
-#define TEST_STAB   3
+/*
+ * TEST_RAM : ram test
+ * TEST_TIME : time cost test
+ * TEST_STAB : get/set/push/delete api cycle stability test
+ * TEST_STAB_FULLLOAD : full load stablitiy test
+*/
+#define TEST_RAM           1
+#define TEST_TIME          2
+#define TEST_STAB_CYCLE    3
+#define TEST_STAB_FULLLOAD 4
 
+#define TEST_TYPE   TEST_TIME
 
-#define TEST_TYPE   TEST_STAB
 /* Override default country code */
 #define WICED_COUNTRY_CODE    WICED_COUNTRY_UNITED_STATES
 

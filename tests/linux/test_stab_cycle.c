@@ -15,27 +15,36 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <malloc.h>
-#include <sys/time.h>
-
-
+#if defined(WILDDOG_PORT_TYPE_WICED)
+#include "wiced.h"
+#include "wifi_config_dct.h"
+#else
+#include <unistd.h>
+#endif
 #include "wilddog.h"
 #include "wilddog_url_parser.h"
 #include "wilddog_api.h"
 #include "wilddog_ct.h"
 #include "test_lib.h"
 
+
 #ifdef WILDDOG_SELFTEST
 
-#define STABTEST_URL	"coap://c_test.wilddogio.com/stabtest"
+#define STABTEST_ONEHOUR    (3600000)
+#define STAB_DEBUG	0
+
+#define STABTEST_URL	"coap://c_test.wilddogio.com/stab_test"
+#define STABTEST_PATH	"stabtest/"
+#define STAB_KEY		"K"
+#define STAB_DATA		"D"
 #define STABTEST_KEY	"stability_key"
 #define STABTEST_VALUE	"stability_value:"
 
 #define STABTEST_ONREQUEST(cmd)		((cmd) == STABTEST_CMD_ON)
 #define STABTEST_OFFREQUEST(cmd)	((cmd) == STABTEST_CMD_OFF)
-#define STABTEST_NEXTREQUEST(cmd)	((cmd) = ((cmd) == STABTEST_CMD_OFF)? STABTEST_CMD_ON:((cmd)+1))
-
+#define STABTEST_NEXTREQUEST(cmd)	((cmd) = ((cmd) == STABTEST_CMD_OFF)? \
+												STABTEST_CMD_ON:((cmd)+1))
 
 typedef enum _STABTEST_CMD_TYPE
 {
@@ -48,7 +57,14 @@ typedef enum _STABTEST_CMD_TYPE
 	STABTEST_CMD_OFF,
 	    
 }STABTEST_CMD_TYPE;
-
+typedef struct STAB_SETDATA_T
+{
+	u8 key[10];
+	u8 data[10];
+	u8 setfault;
+	Wilddog_Node_T *p_node;
+	Wilddog_T client;
+}Stab_Setdata_T;
 STATIC u32 stab_runtime;
 STATIC u32 stab_rquests;
 STATIC u32 stab_rquestFault;
@@ -58,25 +74,25 @@ STATIC u32 stab_cmd;
 
 STATIC void stab_set_runtime(void)
 {
+#if defined(WILDDOG_PORT_TYPE_WICED)
 	static u32 stab_startime =0;
 	u32 currentTm_ms =0;
-	struct timeval temtm; 
-	
-	gettimeofday(&temtm,NULL); 
-	
-	currentTm_ms = (u32)((temtm.tv_sec*1000 + temtm.tv_usec)/1000);
+ 	wiced_time_t t1;	
+ 	wiced_time_get_time(&t1);
+	currentTm_ms = (u32)t1;
 
 	if(stab_startime == 0 )
 		stab_startime = currentTm_ms;
 
 	stab_runtime = currentTm_ms - stab_startime;
+#endif
 }
 
 STATIC void stab_get_requestRes(Wilddog_Return_T res)
 {
 	if(res < 0 )
 	{
-		printf("in %d; send %d requestErr= %d",stab_runtime,stab_cmd,res);
+		printf("\tin %lu; send %lu requestErr= %d\n",stab_runtime,stab_cmd,res);
 		stab_rquestFault++;
 	}
 	else
@@ -91,7 +107,7 @@ STATIC void stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
 {
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		printf("in %d; methtype = %d recvErr= %d",stab_runtime,methtype,err);
+		printf("in %lu; methtype = %lu recvErr= %d",stab_runtime,methtype,err);
 		if(err == WILDDOG_ERR_RECVTIMEOUT)
 			stab_recvFault++;
 	}
@@ -108,9 +124,6 @@ STATIC void stab_getValueFunc
 {
 	stab_get_recvErr(err,STABTEST_CMD_GET);
     *(BOOL*)arg = TRUE;
-    
-	if(p_snapshot)
-	wilddog_debug_printnode(p_snapshot);
 
     return;
 }
@@ -194,10 +207,21 @@ int stabtest_reques(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
 		case STABTEST_CMD_OFF:
 			res = wilddog_removeObserver(client, WD_ET_VALUECHANGE);
 			break;
+		case STABTEST_CMD_NON:
+		default:
+			break;
     }
     /*Delete the node*/
     wilddog_node_delete(p_head);
     return res;
+}
+STATIC void stab_trysync(void)
+{
+	stab_set_runtime();
+	
+	ramtest_getAveragesize();
+	/*Handle the event and callback function, it must be called in a special frequency*/
+	wilddog_trySync();
 
 }
 
@@ -232,12 +256,7 @@ int stab_oneCrcuRequest(void)
 				break;
 			}	
         }
-        
-		stab_set_runtime();
-		
-		ramtest_getAveragesize();
-        /*Handle the event and callback function, it must be called in a special frequency*/
-        wilddog_trySync();
+        stab_trysync();
     }
     /*Destroy the wilddog clent and release the memory*/
     res = wilddog_destroy(&client);
@@ -260,27 +279,35 @@ void stab_resultPrint(void)
 	char unlaunchRatio[20];
 	char lossRatio[20];	
 	char successRatio[20];
+	char settest_succRatio[20];
 	static u32 run_cnt =0;
-
+#if defined(WILDDOG_PORT_TYPE_WICED)
+	if(stab_runtime/STABTEST_ONEHOUR <= run_cnt)
+	       return ;
+#endif	       
 	memset(unlaunchRatio,0,20);
 	memset(lossRatio,0,20);
 	memset(successRatio,0,20);
+	memset(settest_succRatio,0,20);
 
-	sprintf(unlaunchRatio,"%d/%d",stab_rquestFault,stab_rquests);
-	sprintf(lossRatio,"%d/%d",stab_recvFault,stab_rquests);	
-	sprintf(successRatio,"%d/%d",stab_recvSucc,stab_rquests);
+	sprintf(unlaunchRatio,"%lu/%lu",stab_rquestFault,stab_rquests);
+	sprintf(lossRatio,"%lu/%lu",stab_recvFault,stab_rquests);	
+	sprintf(successRatio,"%lu/%lu",stab_recvSucc,stab_rquests);
 	
-	printf("\t%d",++run_cnt);		
-	printf("\t%d",stab_runtime);
-	printf("\t%d",(u32)ramtest_get_averageRam());
+	printf("\t%lu",++run_cnt);		
+	printf("\t%lu",stab_runtime);
+	printf("\t%lu",(u32)ramtest_get_averageRam());
 	printf("\t%s",unlaunchRatio);
 	printf("\t\t%s",lossRatio);
 	printf("\t\t%s",successRatio);
 	printf("\n");
 	return;
 }
-void stab_test(void)
+void stab_test_cycle(void)
 {
+	
+	ramtest_init(1,1);
+	printf("%s\n",STABTEST_URL);
 	stab_titlePrint();
 	while(1)
 	{
@@ -290,10 +317,12 @@ void stab_test(void)
 	stab_endPrint();
 }
 
-void main(void)
+int main(void)
 {
-	ramtest_init(1,1);
-	stab_test();
+	
+	stab_test_cycle();
+	return 0;
 }
+
 #endif /* WILDDOG_SELFTEST*/
 

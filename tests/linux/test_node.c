@@ -87,6 +87,7 @@ int _wilddog_test_api(void)
 	else 
 		TEST_RESULT_PRINTF("wilddog_node_createObject",TESTFUNCNAME_TABLECASE-1,'Y',0);
 	wilddog_node_delete(p_success_nodeStr);
+	wilddog_node_delete(p_fault_null);
 
 	p_fault_null = wilddog_node_createNull(NULL);
 	p_success_nodeStr =  wilddog_node_createNull(data_type[TST_DATATYPE_STR]);
@@ -106,6 +107,7 @@ int _wilddog_test_api(void)
 	else 
 		TEST_RESULT_PRINTF("wilddog_node_createNull",TESTFUNCNAME_TABLECASE,'Y',0);
 	wilddog_node_delete(p_success_nodeStr);
+	wilddog_node_delete(p_fault_null);
 	
 	
 	p_fault_null = wilddog_node_createTrue(NULL);
@@ -125,6 +127,7 @@ int _wilddog_test_api(void)
 	else
 		TEST_RESULT_PRINTF("wilddog_node_createTrue",TESTFUNCNAME_TABLECASE,'Y',0);
 	wilddog_node_delete(p_success_nodeStr);
+	wilddog_node_delete(p_fault_null);
 	
 	p_fault_null = wilddog_node_createFalse(NULL);
 	p_success_nodeStr =  wilddog_node_createFalse(data_type[TST_DATATYPE_STR]);
@@ -145,6 +148,7 @@ int _wilddog_test_api(void)
 		
 	//wilddog_debug_printnode(p_success_nodeStr);
 	wilddog_node_delete(p_success_nodeStr);
+	wilddog_node_delete(p_fault_null);
 
 	return 0;
 }
@@ -158,6 +162,8 @@ int _wilddog_test_node_controlTest(void)
 	Wilddog_Node_T *p_root = NULL,*p_clone_root = NULL;
 	/*Wilddog_Return_T p_succ = 0,p_succ_rsb =0,p_succ_ifft =0;*/
 	Wilddog_Node_T *p_clone_int = NULL,*p_succ_find = NULL;
+	char  str[] = "123";
+	int len = 0;
 
  	p_root = wilddog_node_createObject((Wilddog_Str_T *)"Root");
 	p_node_str = wilddog_node_createUString(key_str[TST_DATATYPE_STR],data_type[TST_DATATYPE_STR]);
@@ -167,6 +173,23 @@ int _wilddog_test_node_controlTest(void)
 	p_node_false =  wilddog_node_createFalse(key_str[TST_DATATYPE_BOOL]);
 	p_node_ture =  wilddog_node_createTrue(key_str[TST_DATATYPE_BOOL]);
 	
+	if( WILDDOG_ERR_NOERR == wilddog_node_setValue(p_node_str, (u8 *)str, strlen((const char *)str)) )
+	{
+		TEST_RESULT_PRINTF("wilddog_node_setValue ",TESTFUNCNAME_TABLECASE,TEST_OK,0);
+	}
+	else
+	{
+		TEST_RESULT_PRINTF("wilddog_node_setValue ",TESTFUNCNAME_TABLECASE,TEST_ERR,0);
+	}
+
+	if( (strncmp((const char *)wilddog_node_getValue(p_node_str, &len), (const char *)str, strlen((const char *)str)) == 0) && (len == strlen((const char *)str)))
+	{
+		TEST_RESULT_PRINTF("wilddog_node_getValue ",TESTFUNCNAME_TABLECASE,TEST_OK,0);
+	}
+	else
+	{
+		TEST_RESULT_PRINTF("wilddog_node_getValue ",TESTFUNCNAME_TABLECASE,TEST_ERR,0);
+	}
 
 	if(!p_root|| !p_node_str || !p_node_bstr || !p_node_int || !p_node_float || !p_node_false || !p_node_ture)
 	{
@@ -254,7 +277,10 @@ int _wilddog_test_node_controlTest(void)
 
 int main(void)
 {
-	_wilddog_test_api();
-	_wilddog_test_node_controlTest();
-	return 0;
+	int res = 0;
+	res = _wilddog_test_api();
+	if(res != 0)
+		return res;
+	res = _wilddog_test_node_controlTest();
+	return res;
 }

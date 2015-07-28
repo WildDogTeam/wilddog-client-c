@@ -15,7 +15,7 @@
 #include "wilddog_config.h"
 #include "wilddog_endian.h"
 #include "wilddog_common.h"
-
+#include "test_lib.h"
 wiced_result_t _packet_get_next_fragment
     (
     wiced_packet_t* packet, 
@@ -258,8 +258,8 @@ int wilddog_receive
     {
         wilddog_debug_level(WD_DEBUG_LOG, "result = %d",result);
     }
-    if(receive)
-        wiced_packet_delete( receive );
+    /*if(receive)
+        wiced_packet_delete( receive );*/
     return 0;
 }
 
