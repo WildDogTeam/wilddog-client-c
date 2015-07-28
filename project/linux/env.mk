@@ -3,12 +3,17 @@
 # in which variable like TOPDIR, TARGET or LIB may be needed
 
 CC=gcc
-MAKE=make
+MAKE=make --no-print-directory
 
 UNAR=ar x
 RM = rm -rf
 MV = mv
 
+ifeq ($(VERBOSE),1)
+QUIET = 
+else
+QUIET = @
+endif
 CFLAGS+=-Wall -O2
 
 ifeq ($(COVER), 1)
@@ -36,45 +41,45 @@ DEPENDS=$(SRCS:%.c=%.d)
 all: prepare $(TARGET) libs subdirs 
 
 prepare:
-	test -d $(TOPDIR)/lib || mkdir -p $(TOPDIR)/lib
+	$(QUIET)test -d $(TOPDIR)/lib || mkdir -p $(TOPDIR)/lib; \
 	test -d $(TOPDIR)/bin || mkdir -p $(TOPDIR)/bin
 
 libs:$(OBJS)
 ifneq ($(LIB), )
-	$(UNAR) $(LIB)
+	$(QUIET)$(UNAR) $(LIB); \
 	$(MV) *.o $(LIB_PATH)
 endif
 
 subdirs:$(SUBDIRS)
-	for dir in $(SUBDIRS);\
-		do $(MAKE) -C $$dir all||exit 1;\
+	$(QUIET)for dir in $(SUBDIRS); do \
+		echo "Building" $$dir; \
+		$(MAKE) -C $$dir all||exit 1;\
 	done
 
 $(TARGET):$(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(TOPDIR)/lib/*.o $(LDFLAGS)
-	$(RM) *.d.* *.d
-	$(RM) $(TOPDIR)/lib/*.o
-	$(MV) $@ $(TOPDIR)/bin
-
+	$(QUIET)$(CC) $(CFLAGS) -o $@ $(TOPDIR)/lib/*.o $(LDFLAGS); 
+	$(RM) *.d.* *.d ; \
+	$(RM) $(TOPDIR)/lib/*.o; \
+	$(MV) $@ $(TOPDIR)/bin; \
 
 $(OBJS):%.o:%.c
-	$(CC) -c $< -o $@ $(CFLAGS)
-	$(RM) *.d.* *.d
+	$(QUIET)$(CC) -c $< -o $@ $(CFLAGS); \
+	$(RM) *.d.* *.d; \
 	$(MV) $@ $(LIB_PATH)
 
 -include $(DEPENDS)
 
 $(DEPENDS):%.d:%.c
-	set -e; rm -f $@; \
+	$(QUIET)set -e; rm -f $@; \
 	$(CC) -MM $(CFLAGS) $< > $@.$$$$; \
 	sed 's,\($*\)\.o[:]*,\1.o $@:,g' < $@.$$$$ > $@; \
-	$(RM) $@.$$$$
+	$(RM) $@.$$$$ ; \
 	$(RM) $(DEPENDS)
 	
 clean:
-	for dir in $(SUBDIRS);\
+	$(QUIET)for dir in $(SUBDIRS);\
 		do $(MAKE) -C $$dir clean||exit 1;\
 	done
-	$(RM) $(TARGET) $(LIB)  $(OBJS) $(DEPENDS) *.o
-	$(RM) $(TOPDIR)/lib $(TOPDIR)/bin
+	$(QUIET)$(RM) $(TARGET) $(LIB)  $(OBJS) $(DEPENDS) *.o; \
+	$(RM) $(TOPDIR)/lib $(TOPDIR)/bin; \
 	$(RM) *.d.*

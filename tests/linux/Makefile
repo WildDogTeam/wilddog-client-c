@@ -15,7 +15,7 @@ TEST_SRCS=$(wildcard *.c)
 TEST_OBJS=$(patsubst %.c, %, $(TEST_SRCS))
 
 testall:
-	for test_obj in $(TEST_OBJS);\
+	@for test_obj in $(TEST_OBJS);\
 		do\
 			$(CC) $(CFLAGS) -o $$test_obj $$test_obj.c $(LDFLAGS);\
 			mv $$test_obj $(TOPDIR)/bin;\

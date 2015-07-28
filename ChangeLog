@@ -1,11 +1,15 @@
-﻿0.4.4 2015.07.21
-修复;
-修复node删除在添加时不判断head是否为空，引起段错误的bug
-修复off不处理ack回应的bug
+﻿0.4.5 2015.07.28
+新增：
+增加tinydtls支持，采用Raw Public Key方式，APP_SEC_TYPE可配置为tinydtls；
 改进：
-test_limit 添加发送on-->off-->on连续请求
-wiced leddemo 定时query，发现notify漏掉则再度on
-增加tinydtls支持，采用Raw Public Key方式，APP_SEC_TYPE可配置为tinydtls
+改进Makefile，增加提示，并默认去除不需要的编译信息；
+0.4.4 2015.07.21
+修复：
+修复node删除在添加时不判断head是否为空，引起段错误的bug；
+修复off不处理ack回应的bug；
+改进：
+test_limit 添加发送on-->off-->on连续请求；
+wiced leddemo 定时query，发现notify漏掉则再度on；
 0.4.3 2015.07.17
 改进： 
 修改断言宏，增加系统稳定性。
