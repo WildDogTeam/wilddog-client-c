@@ -25,6 +25,10 @@ typedef struct WILDDOG_CONN_COAP_PACKET_NODE_T{
     u8 d_separate_flag; 
     u8 d_dismsgid_fig;
     u8 d_blockIdx;
+
+	u32 d_maxAge;	
+    u32 d_nx_sendObserver;
+
     coap_pdu_t* p_CoapPkt;  
 
 }Wilddog_Conn_Coap_PacketNode_T;
@@ -32,7 +36,11 @@ typedef struct WILDDOG_CONN_COAP_PACKET_NODE_T{
 typedef struct WILDDOG_CONN_COAP_PCB{
     
     struct WILDDOG_CONN_COAP_PACKET_NODE_T *P_hd;
+
+    
+    u32 d_nx_reObserverTm;
     u16 d_pkt_idx;
+    u8 *p_auth;
     u32 d_pkt_cnt;
 }Wilddog_Conn_Coap_PCB_T;
 

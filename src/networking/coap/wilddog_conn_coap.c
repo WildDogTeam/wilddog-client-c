@@ -8,7 +8,7 @@
  * History:
  * Version      Author          Date        Description
  *
- * 0.4.0        lsx       2015-05-15  Create file.
+ * 0.4.0        lxs       2015-05-15  Create file.
  *
  */
  
@@ -32,7 +32,12 @@
 
 #define COAP_TOKENLEN   4
 #define DIFF(a,b)   ((a>b)?(a-b):(b-a))
+#define GETMAX(a,b)	(((a)>(b))?(a):(b))
 #define WILDDOG_CONN_COAP_RESPON_IGNORE 10	/* Recv repeated respond*/
+
+#define MS	1000
+
+STATIC VOLATILE u32 l_coap_systm = 0;	/*sys time since power up . unit : second */
 
 typedef enum{
     WILDDOG_CONN_COAP_RESP_MATCH,
@@ -52,12 +57,44 @@ typedef enum{
 
 STATIC Wilddog_Conn_Coap_PCB_T *p_coap_pcb = NULL;
 
+extern u32 _wilddog_getTime(void);
+
 STATIC INLINE int _sys_rand_get()
 {
     srand(_wilddog_getTime()); 
     return rand();
 }
-
+STATIC void _sys_coap_updata_tm(u32 ms)
+{
+	static u32 coap_ms = 0;
+	if(l_coap_systm)
+	{
+		l_coap_systm += DIFF( ms,coap_ms ) / MS ;
+		coap_ms = ms ; 
+	}
+	else
+	{
+		l_coap_systm = ms/ MS;
+		coap_ms = ms;
+	}
+}
+STATIC INLINE u32 _sys_coap_return_tm(void)
+{
+	return l_coap_systm;
+}
+STATIC INLINE _sys_coap_setAuth(u8 *p_setauth)
+{
+	if( p_coap_pcb )
+		p_coap_pcb->p_auth = p_setauth;
+	
+}
+STATIC INLINE u8 *_sys_coap_getAuth(void)
+{
+	if(p_coap_pcb)
+		return p_coap_pcb->p_auth;
+	else
+		return 0;
+}
 STATIC INLINE unsigned int _wilddog_conn_coap_code2int(unsigned int code) 
 {
     unsigned int readable = (code >> 5) * 100 + (code & 0x1F);
@@ -153,6 +190,70 @@ STATIC INLINE int _wilddog_conn_coap_noObserve(Wilddog_Conn_Coap_PacketNode_T *p
 STATIC INLINE int _wilddog_conn_coap_isNotify(Wilddog_Conn_Coap_PacketNode_T *p_node)
 {
     return (p_node->d_observer_flag ==  WILDDOG_CONN_COAPPKT_IS_NOTIFY);
+}
+STATIC INLINE void _wilddog_conn_coap_getNextReObserverTm(u32 curr_tm)
+{	
+	u32 lately_tm = 0;
+	if( p_coap_pcb->d_nx_reObserverTm == 0 )
+		p_coap_pcb->d_nx_reObserverTm = curr_tm;
+	else
+		p_coap_pcb->d_nx_reObserverTm = GETMAX(curr_tm,p_coap_pcb->d_nx_reObserverTm);
+}
+/* Get lately reObserver node .
+** need to be call while some node max-age change */
+STATIC void _wilddog_conn_coap_updateReObserverTm(void)
+{
+    Wilddog_Conn_Coap_PacketNode_T *tmp = NULL;
+    Wilddog_Conn_Coap_PacketNode_T *curr = NULL;
+
+	
+	_sys_coap_updata_tm((u32) _wilddog_getTime());
+    LL_FOREACH_SAFE((p_coap_pcb->P_hd),curr,tmp)
+    {
+ 		if( _wilddog_conn_coap_noObserve(curr) || \
+ 			curr->d_maxAge == 0)
+ 			continue;
+
+ 		/* updata reObserver time */	
+ 		if( (u32)_sys_coap_return_tm() > curr->d_nx_sendObserver)
+			curr->d_nx_sendObserver = _sys_coap_return_tm() + curr->d_maxAge;
+			
+		_wilddog_conn_coap_getNextReObserverTm((u32)_sys_coap_return_tm());		
+    }
+}
+STATIC int _wilddog_conn_coap_sendReObserver(
+    u32 d_socketid,
+    Wilddog_Address_T *p_remoteAdd,
+    u8 *p_auth    )
+{
+	int res = 0,updateReObserverTm_flag =0;
+	
+    Wilddog_Conn_Coap_PacketNode_T *tmp = NULL;
+    Wilddog_Conn_Coap_PacketNode_T *curr = NULL;
+
+	
+	wilddog_debug();	
+	_sys_coap_updata_tm((u32) _wilddog_getTime());
+	if( p_coap_pcb->d_nx_reObserverTm == 0 || 
+		p_coap_pcb->d_nx_reObserverTm > _sys_coap_return_tm )
+		return res;
+	wilddog_debug("reobserver\n");	
+    LL_FOREACH_SAFE((p_coap_pcb->P_hd),curr,tmp)
+    {
+		if( _wilddog_conn_coap_noObserve(curr) || \
+			(u32)_sys_coap_return_tm() != curr->d_nx_sendObserver  )
+ 				continue;
+		
+		updateReObserverTm_flag = 1;
+		/* update time*/
+		curr->d_nx_sendObserver = _sys_coap_return_tm() + curr->d_maxAge;
+		
+		/*send observer !!it will updata auth */
+		res = _wilddog_conn_coap_send(d_socketid,p_remoteAdd,p_auth,curr->p_CoapPkt);
+		
+    }
+    if(updateReObserverTm_flag)
+    	_wilddog_conn_coap_updateReObserverTm();
 }
 /* message equ */
 STATIC INLINE int _wilddog_conn_coap_midEqu(coap_pdu_t* p_node,coap_pdu_t* p_resp)
@@ -416,6 +517,7 @@ STATIC int _wilddog_conn_coap_auth_updata(u8 *p_auth,coap_pdu_t *p_pdu)
     coap_opt_t *p_op = NULL;
     u8 *p_opvalue = NULL;
 
+	    
     /* seek option*/
     p_op = coap_check_option(p_pdu,COAP_OPTION_URI_QUERY,&d_oi);
     if(p_op == NULL)
@@ -427,7 +529,8 @@ STATIC int _wilddog_conn_coap_auth_updata(u8 *p_auth,coap_pdu_t *p_pdu)
     if(memcmp(p_opvalue,AUTHR_QURES,strlen(AUTHR_QURES)) != 0)
         return WILDDOG_ERR_NOERR;
 
-    _byte2bytestr(&p_opvalue[strlen(AUTHR_QURES)],p_auth,AUTHR_LEN);
+	if(p_auth)
+   		_byte2bytestr(&p_opvalue[strlen(AUTHR_QURES)],p_auth,AUTHR_LEN);
 
     return WILDDOG_ERR_NOERR;
         
@@ -490,7 +593,10 @@ Wilddog_Return_T _wilddog_conn_pkt_send
 	coap_show_pdu(p_node->p_CoapPkt);
 #endif
 #endif
-
+	
+	/*save auth pointer */
+	_sys_coap_setAuth(p_auth);
+	
     if(_wilddog_conn_coap_noSeparate(p_node))
         res = _wilddog_conn_coap_send(fd,addr_in,p_auth,p_node->p_CoapPkt);
     
@@ -642,6 +748,36 @@ STATIC int _wilddog_conn_coap_recv_separationRespCheck
 
     return WILDDOG_ERR_NOERR;
 }
+/* only in notify */
+STATIC int _wilddog_conn_coap_recv_updateMaxAge
+    (
+    Wilddog_Conn_Coap_PacketNode_T *p_node,
+    coap_pdu_t *p_resp
+    )
+{
+    coap_opt_t *p_op =NULL;
+    u8 *p_optionvalue = NULL;
+    u8 d_optionlen = 0;
+    coap_opt_iterator_t d_oi;
+
+    p_op = coap_check_option(p_resp,COAP_OPTION_MAXAGE,&d_oi);
+    if(p_op)
+    {
+        d_optionlen = coap_opt_length(p_op);
+        if( d_optionlen && d_optionlen <= sizeof(p_node->d_maxAge) )
+        {
+        	/* clearn it */
+            p_node->d_maxAge= 0;
+            p_optionvalue = coap_opt_value(p_op);
+            
+            memcpy((u8*)&p_node->d_maxAge,p_optionvalue,d_optionlen);
+            wilddog_debug("Max-Age = %d \n",(u32)p_node->d_maxAge);
+            /*  updata reObserver time */ 
+            _wilddog_conn_coap_updateReObserverTm();
+        }
+    }
+
+}
 
 STATIC int _wilddog_conn_coap_recv_observCheck
     (
@@ -675,6 +811,8 @@ STATIC int _wilddog_conn_coap_recv_observCheck
             {
                 p_node->d_observer_flag = WILDDOG_CONN_COAPPKT_IS_NOTIFY;
                 p_node->d_observer_cnt = d_obs_cnt;
+                /* update Max-age*/
+                _wilddog_conn_coap_recv_updateMaxAge(p_node,p_resp);
                 /* remove  notify call back */
                 return WILDDOG_ERR_NOERR;
             }
@@ -686,7 +824,6 @@ STATIC int _wilddog_conn_coap_recv_observCheck
         return WILDDOG_ERR_OBSERVEERR;
     return WILDDOG_ERR_NOERR;
 }
-
 
 /* check coap packer   if match call user callback function  */
 STATIC int _wilddog_conn_coap_recvDispatch
@@ -773,9 +910,12 @@ Wilddog_Return_T _wilddog_conn_pkt_recv
     recv_size = _wilddog_sec_recv(fd, addr_in,p_buf, WILDDOG_PROTO_MAXSIZE);
     
     /*@ NO enougth space */
-
     if( recv_size <= 0 || recv_size  > p_cpk_recv->d_recvlen ) 
+    {
+    	/* send reObserver request */
+    	_wilddog_conn_coap_sendReObserver(fd,addr_in,_sys_coap_getAuth());
         return WILDDOG_ERR_NOERR; 
+    }
 
     /*@  coap verify  malloc */
     p_pdu = _wilddog_conn_coap_recVerify(p_buf,recv_size);

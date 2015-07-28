@@ -49,6 +49,8 @@ int main(void)
 	Wilddog_T p_ref[6];
 	Wilddog_T p_parent = 0, p_root = 0, p_child  = 0;
 
+	Wilddog_Str_T *repo1_ref2_key = NULL, *repo2_ref2_key = NULL;
+
 	for(j = 0; j < FUNC_NUM; j++)
 	{
 		memset(&test_results[j], 0, sizeof(struct test_reult_t));
@@ -57,6 +59,8 @@ int main(void)
 	test_results[1].name = "wilddog_getRoot";
 	test_results[2].name = "wilddog_getChild";
 
+	test_results[3].name = "wilddog_getKey";
+	
 	/*
 	 *  test the url format
 	 */
@@ -183,6 +187,22 @@ int main(void)
 		TEST_RESULT_PRINTF("test_all:get chile error",TESTFUNCNAME_TABLECASE,TEST_ERR,ABORT_ERR);
 		return ABORT_ERR;
 	}
+
+
+	repo1_ref2_key = wilddog_getKey(p_repo1_ref2);
+	repo2_ref2_key = wilddog_getKey(p_repo2_ref2);
+
+	if((strncmp((const char *)repo1_ref2_key , "b2", strlen("b2")) == 0) && (strncmp((const char *)repo2_ref2_key , "e5", strlen("e5")) == 0))
+	{
+		test_results[3].result = TRUE;
+	}
+	else
+	{
+		test_results[3].result = FALSE;
+	}
+	wfree(repo1_ref2_key);
+	wfree(repo2_ref2_key);
+
 	p_parent = wilddog_getParent(p_repo2_ref2);
 	if(p_parent)
 	{

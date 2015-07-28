@@ -64,6 +64,7 @@ int demo(char* url, int* isUnConnected)
     wilddog_setValue(wilddog,p_head,test_onSetFunc,(void*)&isFinish);
     /* dele node */
     wilddog_node_delete(p_head);
+
     while(1)
     {
 		if(*isUnConnected)
