@@ -35,7 +35,7 @@
 #define GETMAX(a,b)	(((a)>(b))?(a):(b))
 #define WILDDOG_CONN_COAP_RESPON_IGNORE 10	/* Recv repeated respond*/
 
-#define MS	10//1000
+#define MS	1000
 
 STATIC VOLATILE u32 l_coap_systm = 0;	/*sys time since power up . unit : second */
 
@@ -145,6 +145,13 @@ STATIC int _wilddog_conn_coap_cmd2Typecode(Wilddog_Conn_Cmd_T cmd,
             *p_code = COAP_REQUEST_POST;
             *pp_observe = NULL;
             break;
+            
+       case WILDDOG_CONN_CMD_PONG:
+            *p_type = COAP_MESSAGE_CON;
+            *p_code = COAP_REQUEST_POST;
+            *pp_observe = NULL;
+            break;
+            
         case WILDDOG_CONN_CMD_GET:
             *p_type = COAP_MESSAGE_CON;
             *p_code = COAP_REQUEST_GET;
@@ -796,6 +803,9 @@ STATIC int _wilddog_conn_coap_recv_updateMaxAge
 #else
             memcpy((u8*)&p_node->d_maxAge,p_optionvalue,d_optionlen); 
 #endif
+			/*updata next reobserver time*/
+			p_node->d_nxTm_sendObserver = _sys_coap_return_tm() + p_node->d_maxAge;
+			
             wilddog_debug_level(WD_DEBUG_LOG,"Max-Age = %d \n",(u32)p_node->d_maxAge);
             /*  updata reObserver time */ 
             _wilddog_conn_coap_updateReObserverTm();
