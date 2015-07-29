@@ -1,0 +1,8 @@
+
+INCLUDE_PATH=-I$(TOPDIR)/include -I$(TOPDIR)/src -DDTLS_CHECK_CONTENTTYPE -DDTLSv12 -DWITH_SHA256
+LIB_PATH = $(TOPDIR)/lib
+
+CFLAGS = $(INCLUDE_PATH)
+LDFLAGS = 
+
+include $(TOPDIR)/project/linux/env.mk

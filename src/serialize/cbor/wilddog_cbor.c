@@ -550,10 +550,17 @@ STATIC Wilddog_Node_T * _wilddog_c2n_parseMap(Wilddog_Payload_T* p_data)
 */
 STATIC void _wilddog_swap32(u8* src, u8* dst)
 {
+#if WILDDOG_LITTLE_ENDIAN == 1
     dst[0] = src[3];
     dst[1] = src[2];
     dst[2] = src[1];
     dst[3] = src[0];
+#else
+	dst[0] = src[0];
+	dst[1] = src[1];
+	dst[2] = src[2];
+	dst[3] = src[3];
+#endif
 }
 
 /*
@@ -565,6 +572,7 @@ STATIC void _wilddog_swap32(u8* src, u8* dst)
 */
 STATIC void _wilddog_swap64(u8* src, u8* dst)
 {
+#if WILDDOG_LITTLE_ENDIAN == 1
     dst[0] = src[7];
     dst[1] = src[6];
     dst[2] = src[5];
@@ -573,6 +581,16 @@ STATIC void _wilddog_swap64(u8* src, u8* dst)
     dst[5] = src[2];
     dst[6] = src[1];
     dst[7] = src[0];
+#else
+	dst[0] = src[0];
+	dst[1] = src[1];
+	dst[2] = src[2];
+	dst[3] = src[3];
+	dst[4] = src[4];
+	dst[5] = src[5];
+	dst[6] = src[6];
+	dst[7] = src[7];
+#endif
 }
 
 /*

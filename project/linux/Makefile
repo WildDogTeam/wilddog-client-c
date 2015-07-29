@@ -8,7 +8,7 @@ AR=ar cr
 include client.config
 
 ifndef PORT_TYPE
-export PORT_TYPE=posix
+export PORT_TYPE=linux
 endif
 
 ifndef APP_PROTO_TYPE
@@ -30,39 +30,42 @@ WD_OBJS_BUILD := $(patsubst %,%_build,$(WD_OBJS))
 WD_OBJS_CLEAN := $(patsubst %,%_clean,$(WD_OBJS))
 
 wdlib:$(WD_OBJS_BUILD)
-	$(AR) libwilddog.a $(TOPDIR)/lib/*.o
-	rm -rf $(TOPDIR)/lib/*.o
-	mv libwilddog.a $(TOPDIR)/lib
-	@echo "make wilddog lib end!"
+	@$(AR) libwilddog.a $(TOPDIR)/lib/*.o; \
+	rm -rf $(TOPDIR)/lib/*.o; \
+	mv libwilddog.a $(TOPDIR)/lib;
 
 common_build:
-	make -C $(TOPDIR)/src all||exit 1;
+	@echo "Building common files"
+	@make -C $(TOPDIR)/src all||exit 1;
 	
 common_clean:
-	make -C $(TOPDIR)/src clean||exit 1;
+	@echo "Cleaning common files"
+	@make -C $(TOPDIR)/src clean||exit 1;
 
 platform_build:
-	make -C $(TOPDIR)/platform all||exit 1;
+	@echo "Building platform files"
+	@make -C $(TOPDIR)/platform all||exit 1;
 
 platform_clean:
-	make -C $(TOPDIR)/platform clean||exit 1;
+	@echo "Cleaning platform files"
+	@make -C $(TOPDIR)/platform clean||exit 1;
 
 test:
-	make clean;make WILDDOG_SELFTEST=yes wdlib; \
+	@make clean;make WILDDOG_SELFTEST=yes wdlib; \
 	make WILDDOG_SELFTEST=yes -C $(TOPDIR)/tests/linux testall||exit 1;
-	rm -rf $(TOPDIR)/lib/libwilddog.a
-	@echo "make test end!"
+	@rm -rf $(TOPDIR)/lib/libwilddog.a
+	
 
 example:
-	if test ! -e $(TOPDIR)/lib/libwilddog.a ;\
+	@if test ! -e $(TOPDIR)/lib/libwilddog.a ;\
 	then \
 		make wdlib; \
 	fi
-	make -C $(TOPDIR)/examples/linux demoall||exit 1;
-	@echo "make example end!"
+	@make -C $(TOPDIR)/examples/linux demoall||exit 1;
+	
 
 .PHONY: clean
 
 clean:$(WD_OBJS_CLEAN)
-	@echo "make clean end!"
+	
 	
