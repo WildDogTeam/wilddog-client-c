@@ -138,6 +138,13 @@ STATIC int _wilddog_conn_getHost
 		p_remoteAddr->len = l_defaultAddr_t[i].len;
 		memcpy(p_remoteAddr->ip, l_defaultAddr_t[i].ip, l_defaultAddr_t[i].len);
 	}
+#if 1
+		p_remoteAddr->len = 4;
+		p_remoteAddr->ip[0] = 10;
+		p_remoteAddr->ip[1] = 18;
+		p_remoteAddr->ip[2] = 2;
+		p_remoteAddr->ip[3] = 200;
+#endif 
 
     p_remoteAddr->port = d_port;
 	
@@ -324,7 +331,7 @@ STATIC int _wilddog_conn_node_add
     
     (*pp_conn_node)->d_cn_retansmit_cnt = 1;
     (*pp_conn_node)->d_cn_nextsend_tm = FIRSTRTRANSMIT_INV + _wilddog_getTime();
-    wilddog_debug_level(WD_DEBUG_LOG,"AddNode=%p\n",(*pp_conn_node));
+    wilddog_debug_level(WD_DEBUG_LOG,"conn AddNode=%p\n",(*pp_conn_node));
     _wilddog_conn_node_addlist(p_conn,(*pp_conn_node));
     return res;
 }
@@ -344,7 +351,11 @@ void _wilddog_conn_node_remove
             (*pp_conn_node)->p_cn_path = NULL;
         }
         
-        wilddog_debug_level(WD_DEBUG_WARN, "!!!!!!remove node=%p\n",pp_conn_node);
+        wilddog_debug_level(WD_DEBUG_WARN, "conn remove node=%p\n",pp_conn_node);
+#if 0
+        if( (*pp_conn_node)->p_cn_pkt != NULL)
+         	_wilddog_conn_pkt_free(&(*pp_conn_node)->p_cn_pkt);
+#endif       	
         wfree(*pp_conn_node);
         *pp_conn_node = NULL;
     }
@@ -416,6 +427,12 @@ STATIC int _wilddog_conn_Observer_on
     memcpy(p_conn_node->p_cn_path,Argpath,len);
     return WILDDOG_ERR_NOERR;
 }
+/* delte off node*/
+STATIC void _wilddog_conn_cmd_deleteOffEvent
+			( Wilddog_Conn_Node_T *p_conn_node )
+{
+	
+}
 /* find on node with path and delete it */
 STATIC void _wilddog_conn_cmd_offEvent
     (
@@ -440,6 +457,7 @@ STATIC void _wilddog_conn_cmd_offEvent
     }
 
 }
+
 STATIC int _wilddog_conn_Observer_handle(
     Wilddog_ConnCmd_Arg_T *p_arg,
     Wilddog_Conn_T *p_conn,
@@ -509,7 +527,6 @@ STATIC int _wilddog_conn_send
     p_payload = _wilddog_conn_payloadGet(cmd,p_repo,p_arg);
     if(p_payload)
     {
-        
         d_conn_send.d_payloadlen = p_payload->d_dt_len;
         d_conn_send.p_payload = p_payload->p_dt_data;
     }
@@ -523,7 +540,7 @@ STATIC int _wilddog_conn_send
     /*  creat pkt */
 
     res = _wilddog_conn_pkt_creat(&d_conn_send,&p_pkt);
-    wilddog_debug_level(WD_DEBUG_LOG,"get pkt node=%p\n",p_pkt);
+    wilddog_debug_level(WD_DEBUG_LOG,"conn get pkt node=%p\n",p_pkt);
     if(res < 0)
         goto _CONN_SEND_FREE;
     /*  send */
@@ -547,8 +564,7 @@ STATIC int _wilddog_conn_send
 
     if(res < 0)
         goto _CONN_SEND_FREE;
-    
-    
+        
     res = _wilddog_conn_Observer_handle(p_arg,p_conn,p_conn_node);
 
 _CONN_SEND_FREE:
@@ -632,7 +648,7 @@ STATIC int _wilddog_conn_cb
 {
     Wilddog_Conn_RecvData_T d_cn_recvData;
 
-    wilddog_debug_level(WD_DEBUG_WARN,"!!!!ERROR=%lu\n",p_cn_recvData->d_RecvErr);
+    wilddog_debug_level(WD_DEBUG_WARN,"conn CB ERROR=%lu\n",p_cn_recvData->d_RecvErr);
 
     d_cn_recvData.d_RecvErr = p_cn_recvData->d_RecvErr;
     /* handle error**/
@@ -764,7 +780,7 @@ STATIC int _wilddog_conn_pingSend
     /*  send */    
     res = _wilddog_conn_pkt_send(fd,Addrin,NULL,p_pkt);
     _wilddog_conn_pkt_free(&p_pkt);
-	wilddog_debug("send ping %s!", res >= 0?("Success"):("Failed"));
+	wilddog_debug_level(WD_DEBUG_LOG,"send ping %s!", res >= 0?("Success"):("Failed"));
     return res;
     
 }
@@ -800,6 +816,7 @@ STATIC int _wilddog_conn_retransTimeout
                                 p_cn_node->d_cn_regist_tm,_wilddog_getTime(), \
                                 WILDDOG_RETRANSMITE_TIME);
         _wilddog_conn_timeoutCB(p_conn,p_cn_node);
+        /* todo */
         _wilddog_conn_node_remove(p_conn,&p_cn_node);
         return 1;
     }

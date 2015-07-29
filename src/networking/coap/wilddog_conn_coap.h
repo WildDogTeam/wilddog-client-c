@@ -27,7 +27,7 @@ typedef struct WILDDOG_CONN_COAP_PACKET_NODE_T{
     u8 d_blockIdx;
 
 	u32 d_maxAge;	
-    u32 d_nx_sendObserver;
+    u32 d_nxTm_sendObserver;
 
     coap_pdu_t* p_CoapPkt;  
 

@@ -439,7 +439,6 @@ STATIC Wilddog_Node_T * _wilddog_c2n_parseMap(Wilddog_Payload_T* p_data)
                 break;
             }
         }
-
         /*1. key, only can be simple item*/
 
         p_key = _wilddog_c2n_parseSimpleItem(p_data, &len);
@@ -449,7 +448,6 @@ STATIC Wilddog_Node_T * _wilddog_c2n_parseMap(Wilddog_Payload_T* p_data)
             wilddog_node_delete(p_head);
             return NULL;
         }
-        
         len = 0;
         /*2. value*/
         
@@ -480,7 +478,7 @@ STATIC Wilddog_Node_T * _wilddog_c2n_parseMap(Wilddog_Payload_T* p_data)
             if(WILDDOG_CBOR_SPECIAL == type)
             {
                 wFloat num;
-
+			
                 type = _wilddog_c2n_parseSpecial(p_data, &num);
                 if(0 > type)
                 {
@@ -510,8 +508,8 @@ STATIC Wilddog_Node_T * _wilddog_c2n_parseMap(Wilddog_Payload_T* p_data)
             }
             else
             {
+            
                 p_value = _wilddog_c2n_parseSimpleItem(p_data, &len);
-                
                 type = _wilddog_c2n_typeTranslate(type);
                 if(type < 0)
                 {

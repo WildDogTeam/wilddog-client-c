@@ -262,7 +262,8 @@ STATIC void stab_settest_serialSet_send(void)
 		if(res>=0)
 		{
 			stab_setdata[i].setfault = 0;
-			stab_settest_setsuccess++;	
+			stab_settest_setsuccess++;
+			stab_settest_request++; 
 		}
 		else
 			stab_setdata[i].setfault=1;
@@ -326,7 +327,6 @@ STATIC void stab_settest_serialGet_send(void)
 		stab_get_requestRes(res);
 		if(res>=0)
 		{
-			stab_settest_request++; 
 			serialgetsend_cnt++;
 		}		
 	}
