@@ -72,22 +72,22 @@
  *
  * Please make sure that your system defines BYTE_ORDER.  If your
  * architecture is little-endian, make sure it also defines
- * LITTLE_ENDIAN and that the two (BYTE_ORDER and LITTLE_ENDIAN) are
+ * SHA2_LITTLE_ENDIAN and that the two (BYTE_ORDER and SHA2_LITTLE_ENDIAN) are
  * equivilent.
  *
  * If your system does not define the above, then you can do so by
  * hand like this:
  *
- *   #define LITTLE_ENDIAN 1234
- *   #define BIG_ENDIAN    4321
+ *   #define SHA2_LITTLE_ENDIAN 1234
+ *   #define SHA2_BIG_ENDIAN    4321
  *
  * And for little-endian machines, add:
  *
- *   #define BYTE_ORDER LITTLE_ENDIAN 
+ *   #define BYTE_ORDER SHA2_LITTLE_ENDIAN 
  *
  * Or for big-endian machines:
  *
- *   #define BYTE_ORDER BIG_ENDIAN
+ *   #define BYTE_ORDER SHA2_BIG_ENDIAN
  *
  * The FreeBSD machine this was written on defines BYTE_ORDER
  * appropriately by including <sys/types.h> (which in turn includes
@@ -95,24 +95,31 @@
  * made).
  */
 
-/* bergmann: define LITTLE_ENDIAN and BIG_ENDIAN to ease autoconf: */
-#ifndef LITTLE_ENDIAN
-#define LITTLE_ENDIAN 1234
-#endif
-#ifndef BIG_ENDIAN
-#define BIG_ENDIAN 4321
+/* bergmann: define SHA2_LITTLE_ENDIAN and SHA2_BIG_ENDIAN to ease autoconf: */
+#if WILDDOG_LITTLE_ENDIAN == 1
+#define SHA2_LITTLE_ENDIAN 1234
+#else
+#define SHA2_BIG_ENDIAN 4321
 #endif
 
+/*
+#ifndef SHA2_LITTLE_ENDIAN
+#define SHA2_LITTLE_ENDIAN 1234
+#endif
+#ifndef SHA2_BIG_ENDIAN
+#define SHA2_BIG_ENDIAN 4321
+#endif
+*/
 #ifndef BYTE_ORDER
 #  if defined(WORDS_BIGENDIAN) || (defined(AC_APPLE_UNIVERSAL_BUILD) && defined(__BIG_ENDIAN__))
-#    define BYTE_ORDER BIG_ENDIAN
+#    define BYTE_ORDER SHA2_BIG_ENDIAN
 #  else /* WORDS_BIGENDIAN */
-#    define BYTE_ORDER LITTLE_ENDIAN
+#    define BYTE_ORDER SHA2_LITTLE_ENDIAN
 #  endif
 #endif
 
-#if !defined(BYTE_ORDER) || (BYTE_ORDER != LITTLE_ENDIAN && BYTE_ORDER != BIG_ENDIAN)
-#error Define BYTE_ORDER to be equal to either LITTLE_ENDIAN or BIG_ENDIAN
+#if !defined(BYTE_ORDER) || (BYTE_ORDER != SHA2_LITTLE_ENDIAN && BYTE_ORDER != SHA2_BIG_ENDIAN)
+#error Define BYTE_ORDER to be equal to either SHA2_LITTLE_ENDIAN or SHA2_BIG_ENDIAN
 #endif
 
 /*
@@ -152,7 +159,7 @@ typedef u_int64_t sha2_word64;	/* Exactly 8 bytes */
 
 
 /*** ENDIAN REVERSAL MACROS *******************************************/
-#if BYTE_ORDER == LITTLE_ENDIAN
+#if BYTE_ORDER == SHA2_LITTLE_ENDIAN
 #define REVERSE32(w,x)	{ \
 	sha2_word32 tmp = (w); \
 	tmp = (tmp >> 16) | (tmp << 16); \
@@ -166,7 +173,7 @@ typedef u_int64_t sha2_word64;	/* Exactly 8 bytes */
 	(x) = ((tmp & 0xffff0000ffff0000ULL) >> 16) | \
 	      ((tmp & 0x0000ffff0000ffffULL) << 16); \
 }
-#endif /* BYTE_ORDER == LITTLE_ENDIAN */
+#endif /* BYTE_ORDER == SHA2_LITTLE_ENDIAN */
 
 /*
  * Macro for incrementally adding the unsigned 64-bit integer n to the
@@ -382,7 +389,7 @@ void SHA256_Init(TINY_SHA256_CTX* context) {
 
 /* Unrolled SHA-256 round macros: */
 
-#if BYTE_ORDER == LITTLE_ENDIAN
+#if BYTE_ORDER == SHA2_LITTLE_ENDIAN
 
 #define ROUND256_0_TO_15(a,b,c,d,e,f,g,h)	\
 	REVERSE32(*data++, W256[j]); \
@@ -393,7 +400,7 @@ void SHA256_Init(TINY_SHA256_CTX* context) {
 	j++
 
 
-#else /* BYTE_ORDER == LITTLE_ENDIAN */
+#else /* BYTE_ORDER == SHA2_LITTLE_ENDIAN */
 
 #define ROUND256_0_TO_15(a,b,c,d,e,f,g,h)	\
 	T1 = (h) + Sigma1_256(e) + Ch((e), (f), (g)) + \
@@ -402,7 +409,7 @@ void SHA256_Init(TINY_SHA256_CTX* context) {
 	(h) = T1 + Sigma0_256(a) + Maj((a), (b), (c)); \
 	j++
 
-#endif /* BYTE_ORDER == LITTLE_ENDIAN */
+#endif /* BYTE_ORDER == SHA2_LITTLE_ENDIAN */
 
 #define ROUND256(a,b,c,d,e,f,g,h)	\
 	s0 = W256[(j+1)&0x0f]; \
@@ -492,15 +499,15 @@ void SHA256_Transform(TINY_SHA256_CTX* context, const sha2_word32* data) {
 
 	j = 0;
 	do {
-#if BYTE_ORDER == LITTLE_ENDIAN
+#if BYTE_ORDER == SHA2_LITTLE_ENDIAN
 		/* Copy data while converting to host byte order */
 		REVERSE32(*data++,W256[j]);
 		/* Apply the SHA-256 compression function to update a..h */
 		T1 = h + Sigma1_256(e) + Ch(e, f, g) + K256[j] + W256[j];
-#else /* BYTE_ORDER == LITTLE_ENDIAN */
+#else /* BYTE_ORDER == SHA2_LITTLE_ENDIAN */
 		/* Apply the SHA-256 compression function to update a..h with copy */
 		T1 = h + Sigma1_256(e) + Ch(e, f, g) + K256[j] + (W256[j] = *data++);
-#endif /* BYTE_ORDER == LITTLE_ENDIAN */
+#endif /* BYTE_ORDER == SHA2_LITTLE_ENDIAN */
 		T2 = Sigma0_256(a) + Maj(a, b, c);
 		h = g;
 		g = f;
@@ -611,7 +618,7 @@ void SHA256_Final(sha2_byte digest[], TINY_SHA256_CTX* context) {
 	/* If no digest buffer is passed, we don't bother doing this: */
 	if (digest != (sha2_byte*)0) {
 		usedspace = (context->bitcount >> 3) % SHA256_BLOCK_LENGTH;
-#if BYTE_ORDER == LITTLE_ENDIAN
+#if BYTE_ORDER == SHA2_LITTLE_ENDIAN
 		/* Convert FROM host byte order */
 		REVERSE64(context->bitcount,context->bitcount);
 #endif
@@ -645,7 +652,7 @@ void SHA256_Final(sha2_byte digest[], TINY_SHA256_CTX* context) {
 		/* Final transform: */
 		SHA256_Transform(context, (sha2_word32*)context->buffer);
 
-#if BYTE_ORDER == LITTLE_ENDIAN
+#if BYTE_ORDER == SHA2_LITTLE_ENDIAN
 		{
 			/* Convert TO host byte order */
 			int	j;
@@ -710,7 +717,7 @@ void SHA512_Init(SHA512_CTX* context) {
 #ifdef SHA2_UNROLL_TRANSFORM
 
 /* Unrolled SHA-512 round macros: */
-#if BYTE_ORDER == LITTLE_ENDIAN
+#if BYTE_ORDER == SHA2_LITTLE_ENDIAN
 
 #define ROUND512_0_TO_15(a,b,c,d,e,f,g,h)	\
 	REVERSE64(*data++, W512[j]); \
@@ -721,7 +728,7 @@ void SHA512_Init(SHA512_CTX* context) {
 	j++
 
 
-#else /* BYTE_ORDER == LITTLE_ENDIAN */
+#else /* BYTE_ORDER == SHA2_LITTLE_ENDIAN */
 
 #define ROUND512_0_TO_15(a,b,c,d,e,f,g,h)	\
 	T1 = (h) + Sigma1_512(e) + Ch((e), (f), (g)) + \
@@ -730,7 +737,7 @@ void SHA512_Init(SHA512_CTX* context) {
 	(h) = T1 + Sigma0_512(a) + Maj((a), (b), (c)); \
 	j++
 
-#endif /* BYTE_ORDER == LITTLE_ENDIAN */
+#endif /* BYTE_ORDER == SHA2_LITTLE_ENDIAN */
 
 #define ROUND512(a,b,c,d,e,f,g,h)	\
 	s0 = W512[(j+1)&0x0f]; \
@@ -815,15 +822,15 @@ void SHA512_Transform(SHA512_CTX* context, const sha2_word64* data) {
 
 	j = 0;
 	do {
-#if BYTE_ORDER == LITTLE_ENDIAN
+#if BYTE_ORDER == SHA2_LITTLE_ENDIAN
 		/* Convert TO host byte order */
 		REVERSE64(*data++, W512[j]);
 		/* Apply the SHA-512 compression function to update a..h */
 		T1 = h + Sigma1_512(e) + Ch(e, f, g) + K512[j] + W512[j];
-#else /* BYTE_ORDER == LITTLE_ENDIAN */
+#else /* BYTE_ORDER == SHA2_LITTLE_ENDIAN */
 		/* Apply the SHA-512 compression function to update a..h with copy */
 		T1 = h + Sigma1_512(e) + Ch(e, f, g) + K512[j] + (W512[j] = *data++);
-#endif /* BYTE_ORDER == LITTLE_ENDIAN */
+#endif /* BYTE_ORDER == SHA2_LITTLE_ENDIAN */
 		T2 = Sigma0_512(a) + Maj(a, b, c);
 		h = g;
 		g = f;
@@ -928,7 +935,7 @@ void SHA512_Last(SHA512_CTX* context) {
 	unsigned int	usedspace;
 
 	usedspace = (context->bitcount[0] >> 3) % SHA512_BLOCK_LENGTH;
-#if BYTE_ORDER == LITTLE_ENDIAN
+#if BYTE_ORDER == SHA2_LITTLE_ENDIAN
 	/* Convert FROM host byte order */
 	REVERSE64(context->bitcount[0],context->bitcount[0]);
 	REVERSE64(context->bitcount[1],context->bitcount[1]);
@@ -976,7 +983,7 @@ void SHA512_Final(sha2_byte digest[], SHA512_CTX* context) {
 		SHA512_Last(context);
 
 		/* Save the hash data for output: */
-#if BYTE_ORDER == LITTLE_ENDIAN
+#if BYTE_ORDER == SHA2_LITTLE_ENDIAN
 		{
 			/* Convert TO host byte order */
 			int	j;
@@ -1052,7 +1059,7 @@ void SHA384_Final(sha2_byte digest[], SHA384_CTX* context) {
 		SHA512_Last((SHA512_CTX*)context);
 
 		/* Save the hash data for output: */
-#if BYTE_ORDER == LITTLE_ENDIAN
+#if BYTE_ORDER == SHA2_LITTLE_ENDIAN
 		{
 			/* Convert TO host byte order */
 			int	j;
