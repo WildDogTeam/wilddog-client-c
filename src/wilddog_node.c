@@ -84,7 +84,7 @@ STATIC BOOL _isKeyValid(Wilddog_Str_T * key, BOOL isSpritValid)
             data == '#' || \
             data == '[' || \
             data == ']' || \
-            data ==  127
+            data == 127
             )
             return FALSE;
 		if(FALSE == isSpritValid)

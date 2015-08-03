@@ -1,4 +1,10 @@
-﻿0.4.4 2015.07.27
+﻿0.4.5 2015.08.01
+新增：
+增加tinydtls支持，采用Raw Public Key方式，APP_SEC_TYPE可配置为tinydtls；
+改进：
+改进Makefile，增加提示，并默认去除不需要的编译信息；
+增加cover测试的自动化脚本
+0.4.4 2015.07.27
 修复：
 修复node删除在添加时不判断head是否为空，引起段错误的bug；
 修复off不处理ack回应的bug。

@@ -9,7 +9,7 @@ linux平台的编译选项在project/linux/client.config中，wiced平台的编�
 编译选项目前有以下几种：
 
 	APP_PROTO_TYPE : 通信协议类型，目前只支持coap；
-	APP_SEC_TYPE ： 加密类型，目前支持DTLS加密类型dtls，以及无加密类型nosec；
+	APP_SEC_TYPE ： 加密类型，目前支持DTLS加密类型dtls和tinydtls，以及无加密类型nosec；
 	PORT_TYPE ： 平台类型，根据不同平台选择；
 
 ###2. 用户参数

@@ -1,33 +1,25 @@
 #!/bin/sh
+export TOPDIR=$(pwd)/../../
 
-make clean
-make 
-make cover
-./bin/test_limit
-./bin/test_node
-./bin/test_wdProperty
+cd ${TOPDIR} ; make cover
+${TOPDIR}./bin/test_limit
+${TOPDIR}./bin/test_node
+${TOPDIR}./bin/test_wdProperty
 
-cd example/linux
-lcov -d ./ -c -o outputfile.info
+cd ${TOPDIR}/example/linux; lcov -d ./ -c -o outputfile.info
 
-cd ../../platform/linux
-lcov -d ./ -c -o outputfile.info
+cd ${TOPDIR}/platform/linux; lcov -d ./ -c -o outputfile.info
 
-cd ../../src
-lcov -d ./ -c -o outputfile.info
+cd ${TOPDIR}/src; lcov -d ./ -c -o outputfile.info
 
-cd ./networking/coap
-lcov -d ./ -c -o outputfile.info
+cd ${TOPDIR}/src/networking/coap; lcov -d ./ -c -o outputfile.info
 
-cd ../../secure/nosec
-lcov -d ./ -c -o outputfile.info
+cd ${TOPDIR}/src/secure/nosec; lcov -d ./ -c -o outputfile.info
 
-cd ../../serialize/cbor
-lcov -d ./ -c -o outputfile.info
+cd ${TOPDIR}/src/serialize/cbor; lcov -d ./ -c -o outputfile.info
 
-cd ../../../
-mkdir -p cov
-cd ./cov
-touch total.info
-lcov -add-tracefile ../platform/linux/outputfile.info -a ../src/outputfile.info -a ../src/networking/coap/outputfile.info -a ../src/secure/nosec/outputfile.info -a ../src/serialize/cbor/outputfile.info -o total.info
+cd ${TOPDIR}; mkdir -p cov
+cd ${TOPDIR}/cov; \
+touch total.info; \
+lcov -add-tracefile ../platform/linux/outputfile.info -a ../src/outputfile.info -a ../src/networking/coap/outputfile.info -a ../src/secure/nosec/outputfile.info -a ../src/serialize/cbor/outputfile.info -o total.info; \
 genhtml total.info
