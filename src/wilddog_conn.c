@@ -58,7 +58,15 @@ STATIC Wilddog_Address_T l_defaultAddr_t[2] =
 	{4, {211,151,208,196}, 5683},
 	{4, {211,151,208,197}, 5683}
 };
-STATIC u8 l_recvData[WILDDOG_PROTO_MAXSIZE];
+
+typedef struct _WILDDOG_RECV_STRUCT
+{
+	u8 data[WILDDOG_PROTO_MAXSIZE];
+	u8 isused;
+}_wilddog_Recv_T;
+
+STATIC _wilddog_Recv_T l_recvData;
+STATIC int l_initCount = 0;
 
 STATIC void _wilddog_conn_urlFree(Wilddog_Url_T **pp_url);
 STATIC int _wilddog_conn_urlMalloc
@@ -69,10 +77,60 @@ STATIC int _wilddog_conn_urlMalloc
     Wilddog_Url_T **pp_urlsend
     );
 
-STATIC int _wilddog_conn_send(Wilddog_Conn_Cmd_T cmd,
-                                Wilddog_Repo_T *p_repo,
-                                Wilddog_ConnCmd_Arg_T *p_arg);
-                                
+STATIC int _wilddog_conn_send
+	(
+	Wilddog_Conn_Cmd_T cmd,
+	Wilddog_Repo_T *p_repo,
+	Wilddog_ConnCmd_Arg_T *p_arg
+	);
+/*LOCK and UNLOCK used for multi thread*/
+STATIC INLINE int _wilddog_conn_recvBufLock(int timeout)
+{
+	return 0;
+}
+
+STATIC INLINE void _wilddog_conn_recvBufUnlock(void)
+{
+	return;
+}
+
+STATIC void _wilddog_conn_initRecvBuffer(void)
+{
+	_wilddog_conn_recvBufLock(0);
+	memset(&l_recvData, 0, sizeof(l_recvData));
+	_wilddog_conn_recvBufUnlock();
+	return;
+}
+
+STATIC u8* _wilddog_conn_mallocRecvBuffer(void)
+{
+	u8* buffer = NULL;
+	_wilddog_conn_recvBufLock(0);
+	/*TODO: use round-robin queue*/
+	if(l_recvData.isused == FALSE)
+	{
+		buffer = l_recvData.data;
+		l_recvData.isused = TRUE;
+		memset(buffer, 0, WILDDOG_PROTO_MAXSIZE);
+	}
+	_wilddog_conn_recvBufUnlock();
+	return buffer;
+}
+
+STATIC void _wilddog_conn_freeRecvBuffer(u8* ptr)
+{
+	if(!ptr)
+		return;
+	
+	_wilddog_conn_recvBufLock(0);
+	/*TODO: if use round-robin queue, find index by ptr*/
+	if(l_recvData.data == ptr && TRUE == l_recvData.isused)
+	{
+		l_recvData.isused = FALSE;
+	}
+	_wilddog_conn_recvBufUnlock();
+}
+
 STATIC INLINE u8 _byte2char(u8 byte)
 {
 
@@ -138,7 +196,6 @@ STATIC int _wilddog_conn_getHost
 		p_remoteAddr->len = l_defaultAddr_t[i].len;
 		memcpy(p_remoteAddr->ip, l_defaultAddr_t[i].ip, l_defaultAddr_t[i].len);
 	}
-
     p_remoteAddr->port = d_port;
 	
 #undef WILDDOG_COAP_LOCAL_HOST
@@ -718,8 +775,8 @@ STATIC int _wilddog_conn_recv(Wilddog_Conn_T *p_conn)
     d_cn_recvpkt.d_recvlen= WILDDOG_PROTO_MAXSIZE;
     d_cn_recvpkt.d_RecvErr = 0;
 	/*remember it is not thread safty!!!*/
-    d_cn_recvpkt.p_Recvdata = l_recvData;
-    memset(l_recvData, 0, WILDDOG_PROTO_MAXSIZE);
+    d_cn_recvpkt.p_Recvdata = _wilddog_conn_mallocRecvBuffer();
+	
     if(d_cn_recvpkt.p_Recvdata  == NULL)
     {
         wilddog_debug_level(WD_DEBUG_ERROR, "malloc failed!");
@@ -742,7 +799,9 @@ STATIC int _wilddog_conn_recv(Wilddog_Conn_T *p_conn)
     }
 _RECV_END_:
 
-    d_cn_recvpkt.p_Recvdata = NULL;
+    //d_cn_recvpkt.p_Recvdata = NULL;
+	_wilddog_conn_freeRecvBuffer(d_cn_recvpkt.p_Recvdata);
+	
     return res;
 }
 STATIC int _wilddog_conn_pingSend
@@ -868,14 +927,19 @@ Wilddog_Conn_T * _wilddog_conn_init(Wilddog_Repo_T* p_repo)
 #ifdef WILDDOG_SELFTEST     
 	performtest_star_tm();
 #endif
-    _wilddog_conn_pkt_init(p_repo_conn->d_socketid,&p_repo_conn->d_remoteAddr);
+	if(0 == l_initCount)
+	{
+        _wilddog_conn_initRecvBuffer();
+        _wilddog_conn_pkt_init(p_repo_conn->d_socketid,&p_repo_conn->d_remoteAddr);
+	}
+	l_initCount++;
 #ifdef WILDDOG_SELFTEST    
 	performtest_tm_getDtlsHsk();	
  	performtest_star_tm();
 #endif    
     _wilddog_conn_auth_send(p_repo);
 #ifdef WILDDOG_SELFTEST                            
-		ramtest_skipLastmalloc();
+	ramtest_skipLastmalloc();
 #endif 
 #ifdef WILDDOG_SELFTEST
  	performtest_tm_getAuthSend();
@@ -901,9 +965,15 @@ Wilddog_Conn_T* _wilddog_conn_deinit(Wilddog_Repo_T*p_repo)
             _wilddog_conn_node_remove(p_repo->p_rp_conn,&cur);
         }
     }
-    _wilddog_conn_pkt_deinit(p_repo->p_rp_conn->d_socketid, \
-                                &p_repo->p_rp_conn->d_remoteAddr);
-    p_repo->p_rp_conn->p_conn_node_hd = NULL;
+		
+	if(l_initCount > 0)
+	{
+		l_initCount--;
+		if(0 == l_initCount)
+    		_wilddog_conn_pkt_deinit(p_repo->p_rp_conn->d_socketid, \
+                                	&p_repo->p_rp_conn->d_remoteAddr);
+	}
+	p_repo->p_rp_conn->p_conn_node_hd = NULL;
     p_repo->p_rp_conn->d_socketid = 0;
     wfree( p_repo->p_rp_conn);
     p_repo->p_rp_conn = NULL;
