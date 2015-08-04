@@ -70,6 +70,10 @@ STATIC u32 stab_rquests;
 STATIC u32 stab_rquestFault;
 STATIC u32 stab_recvFault;
 STATIC u32 stab_recvSucc;
+STATIC u32 stab_pushSuccess;
+STATIC u32 stab_changetime;
+
+
 STATIC u32 stab_cmd;
 
 STATIC void stab_set_runtime(void)
@@ -99,20 +103,26 @@ STATIC void stab_get_requestRes(Wilddog_Return_T res)
 	{
 			/* off with no recv callback*/
 		if(stab_cmd == STABTEST_CMD_OFF)
+		{
 			stab_recvSucc++;
-		}
+			}
+	}
 	stab_rquests++;	
 }
 STATIC void stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
 {
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		printf("in %lu; methtype = %lu recvErr= %d",stab_runtime,methtype,err);
+		printf("in %lu; methtype = %lu recvErr= %d \n",stab_runtime,methtype,err);
 		if(err == WILDDOG_ERR_RECVTIMEOUT)
 			stab_recvFault++;
 	}
 	else
+	{
+		if(methtype != STABTEST_CMD_GET )
+			stab_changetime++;
 		stab_recvSucc++;
+	}
 }
 
 STATIC void stab_getValueFunc
@@ -162,6 +172,12 @@ STATIC void stab_addObserverFunc
 {
     
 	stab_get_recvErr(err,STABTEST_CMD_ON);
+	
+    if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+		;
+    else
+    	stab_pushSuccess++;
+    	
     *(BOOL*)arg = TRUE;
 
     return;
@@ -180,7 +196,6 @@ int stabtest_reques(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
     /*Add p_node to p_head, then p_node is the p_head's child node*/
     wilddog_node_addChild(p_head, p_node);
 	
-    
 	stab_cmd = type;
     switch(type)
     {
@@ -267,7 +282,7 @@ int stab_oneCrcuRequest(void)
 void stab_titlePrint(void)
 {
 	printf("\t>----------------------------------------------------<\n");
-	printf("\tcount\truntime\tram\tUnlaunchRatio\tLostRatio\tSuccessRatio \n");
+	printf("\tcount\truntime\tram\tUnlaunchRatio\tLostRatio \n");
 }
 void stab_endPrint(void)
 {
@@ -292,14 +307,14 @@ void stab_resultPrint(void)
 
 	sprintf(unlaunchRatio,"%lu/%lu",stab_rquestFault,stab_rquests);
 	sprintf(lossRatio,"%lu/%lu",stab_recvFault,stab_rquests);	
-	sprintf(successRatio,"%lu/%lu",stab_recvSucc,stab_rquests);
+	//sprintf(successRatio,"%lu/%lu",stab_pushSuccess,stab_changetime);
 	
 	printf("\t%lu",++run_cnt);		
 	printf("\t%lu",stab_runtime);
 	printf("\t%lu",(u32)ramtest_get_averageRam());
 	printf("\t%s",unlaunchRatio);
 	printf("\t\t%s",lossRatio);
-	printf("\t\t%s",successRatio);
+	//printf("\t\t%s",successRatio);
 	printf("\n");
 	return;
 }

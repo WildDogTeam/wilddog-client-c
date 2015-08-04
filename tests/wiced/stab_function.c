@@ -115,7 +115,7 @@ STATIC void stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
 {
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		printf("in %lu; methtype = %lu recvErr= %d",stab_runtime,methtype,err);
+		printf("in %lu; methtype = %lu recvErr= %d \n",stab_runtime,methtype,err);
 		if(err == WILDDOG_ERR_RECVTIMEOUT)
 			stab_recvFault++;
 	}
@@ -437,12 +437,14 @@ STATIC void stab_settest_judge(Wilddog_Node_T* p_snapshot,void* arg)
 			return ;
 		}
 		else
+		{
 			wilddog_debug("truevalue:%s,getvalue:%s\n", \
-			              p_set1->data,wilddog_node_getValue(p_snapshot,&len));
+			              p_set1->data,wilddog_node_getValue(p_snapshot,&len));			
+			stab_settest_fault++;		
+		}
 
 	}
 
-	stab_settest_fault++;		
 	return ;
 }
 STATIC void stab_settest_serialGetValueFunc
@@ -453,7 +455,10 @@ STATIC void stab_settest_serialGetValueFunc
     )
 {
 	stab_get_recvErr(err,STABTEST_CMD_GET);
-	stab_settest_judge((Wilddog_Node_T*)p_snapshot,arg);
+	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+		stab_settest_request = (stab_settest_request ==0 )?0:(stab_settest_request-1 );
+	else
+		stab_settest_judge((Wilddog_Node_T*)p_snapshot,arg);
 	serialgetsend_cnt--;
     return;
 }
@@ -474,13 +479,14 @@ STATIC void stab_settest_serialGet_send(void)
 		if(res>=0)
 		{
 			serialgetsend_cnt++;
-		}		
-	}
-	while(1)
-	{
-		if(serialgetsend_cnt == 0)
-			break;
-		stab_trysync();
+			while(1)
+			{
+				if(serialgetsend_cnt == 0)
+					break;
+				stab_trysync();
+			}
+		}
+
 	}
 }
 void stab_test_fullLoad(void)

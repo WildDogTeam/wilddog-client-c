@@ -4,6 +4,8 @@
 #include "wilddog.h"
 #include "wilddog_debug.h"
 #include "wilddog_config.h"
+#include "wilddog_sec_host.h"
+
 #include "wilddog_port.h"
 #include "polarssl/net.h"
 #include "polarssl/debug.h"
@@ -14,9 +16,12 @@
 #include "polarssl/certs.h"
 #include "polarssl/x509_crt.h"
 
-
 #include "test_lib.h"
 #define SERVER_NAME "Li"
+
+STATIC Wilddog_Address_T l_addr_in;
+STATIC int l_fd;
+
 extern int debug_get_threshold(void);
 typedef struct _ctx
 {
@@ -137,8 +142,7 @@ int _net_recv_timeout
 /*
  * Function:    _wilddog_sec_send
  * Description: Dtls security send function
- * Input:       fd: socket id    
- *				addr_in: The address which contains ip and port
+ * Input:         
  *				p_data: The buffer which store the sending data
  *				len: The length of the wanting send data
  * Output:      N/A
@@ -146,8 +150,6 @@ int _net_recv_timeout
 */
 Wilddog_Return_T _wilddog_sec_send
 	(
-	int fd, 
-	Wilddog_Address_T * addr_in, 
 	void* p_data, 
 	s32 len
 	)
@@ -164,16 +166,13 @@ Wilddog_Return_T _wilddog_sec_send
 /*
  * Function:    _wilddog_sec_recv
  * Description: Dtls security recv function
- * Input:       fd: socket id    
- *				addr_in: The address which contains ip and port
- *				len: The length of the wanting receive data
- * Output:      p_data: The buffer which store the receiving data
- * Return:      The length of the actual receiving data
+ * Input:       
+ *			len: The length of the wanting receive data
+ * Output:     p_data: The buffer which store the receiving data
+ * Return:     The length of the actual receiving data
 */
 int _wilddog_sec_recv
 	(
-	int fd, 
-	Wilddog_Address_T * addr_in, 
 	void* p_data, 
 	s32 len
 	)
@@ -184,7 +183,6 @@ int _wilddog_sec_recv
     do ret = ssl_read( wilddog_getssl(), (unsigned char *)p_data, len );
     while( ret == POLARSSL_ERR_NET_WANT_READ ||
            ret == POLARSSL_ERR_NET_WANT_WRITE );
-
 
 	return wilddog_getssl()->in_left ;
 }
@@ -197,16 +195,21 @@ int _wilddog_sec_recv
  * Output:      N/A
  * Return:      Success: 0    Faied: <0
 */
-Wilddog_Return_T _wilddog_sec_init(int fd, Wilddog_Address_T * addr_in)
+Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
 {
 	int ret;
     const char *pers = "dtls_client";
 
 
-
-    ctx.fd = fd;
-    ctx.addr_in = addr_in;
-
+	/* open socket
+	** get host by name
+	*/
+	wilddog_openSocket(&l_fd);
+	if( (ret = _wilddog_sec_getHost(&l_addr_in,p_host,d_port)) <0 )
+		return ret;
+		
+    ctx.fd = l_fd;
+    ctx.addr_in = &l_addr_in;
 
     debug_set_threshold( 0 );
     wilddog_debug_level(WD_DEBUG_LOG, "debug_threshold: %d\n", \
@@ -362,12 +365,11 @@ Wilddog_Return_T _wilddog_sec_init(int fd, Wilddog_Address_T * addr_in)
 /*
  * Function:    _wilddog_sec_deinit
  * Description: Destroy dtls security session
- * Input:       fd: socket id    
- *				addr_in: The address which contains ip and port
+ * Input:      
  * Output:      N/A
  * Return:      Success: 0
 */
-Wilddog_Return_T _wilddog_sec_deinit(int fd, Wilddog_Address_T *addr_in)
+Wilddog_Return_T _wilddog_sec_deinit(void)
 {
 	int ret;
     /*
@@ -383,8 +385,8 @@ Wilddog_Return_T _wilddog_sec_deinit(int fd, Wilddog_Address_T *addr_in)
 
     wilddog_debug_level(WD_DEBUG_LOG, " done\n" );
 
-    if( fd != -1 )
-        wilddog_closeSocket( fd );
+    if( l_fd != -1 )
+        wilddog_closeSocket( l_fd );
 
     x509_crt_free( &cacert );
     ssl_free( wilddog_getssl());

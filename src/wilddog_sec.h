@@ -7,27 +7,21 @@ extern "C" {
 #endif
 
 extern Wilddog_Return_T _wilddog_sec_send
-    (int fd, 
-    Wilddog_Address_T * addr_in, 
+    (
     void* p_data, 
     s32 len
     );
 extern int _wilddog_sec_recv
     (
-    int fd, 
-    Wilddog_Address_T * addr_in, 
     void* p_data, 
     s32 len
     );
 extern Wilddog_Return_T _wilddog_sec_init
-    (int fd, 
-    Wilddog_Address_T * addr_in
-    );
-extern Wilddog_Return_T _wilddog_sec_deinit
     (
-    int fd, 
-    Wilddog_Address_T * addr_in
+    Wilddog_Str_T *p_host,
+    u16 d_port
     );
+extern Wilddog_Return_T _wilddog_sec_deinit(void);
 
 #ifdef __cplusplus
 }

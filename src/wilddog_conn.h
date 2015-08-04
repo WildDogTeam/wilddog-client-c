@@ -27,6 +27,9 @@ extern "C"
 
 #define AUTHR_PATH  "/.cs"
 #define AUTHR_QURES ".cs="
+
+#define PONG_PATH	"/.pong"
+#define PONG_QURES	".sequence="
 #define AUTHR_LEN   (4)
 
 typedef enum WILDDOG_CONN_CMD_TYPE
@@ -63,14 +66,16 @@ typedef struct WILDDOG_CONN_T
     Wilddog_Repo_T *p_conn_repo;
     
     u8 d_auth_st;
-    u32 d_socketid;
+	u8 	d_pong_state;
+	
     u32 d_wauth;
     u32 d_ralyRecv;
     u32 d_ralySend;
+    
+    u32 d_pong_nextSendTm;
 
     Wilddog_Func_T f_conn_trysyc;
     Wilddog_Func_T f_conn_send;
-    Wilddog_Address_T d_remoteAddr;
     
     struct WILDDOG_CONN_NODE_T *p_conn_node_hd;
 
@@ -81,7 +86,7 @@ typedef struct WILDDOG_CONN_PKTSEND_T{
     
     Wilddog_Conn_Cmd_T cmd;
     Wilddog_Url_T *p_url;
-    
+
     u32 d_payloadlen;
     u8 *p_payload;  
 }Wilddog_Conn_PktSend_T;
@@ -113,25 +118,18 @@ int _wilddog_conn_pkt_creat
     );
 Wilddog_Return_T _wilddog_conn_pkt_init
     (
-    int fd,
-    Wilddog_Address_T * addr_in
+    Wilddog_Str_T *p_host,
+    u16 d_port
     );
 void _wilddog_conn_pkt_free(void **pp_pkt);
-Wilddog_Return_T _wilddog_conn_pkt_deinit
-    (
-    int fd, 
-    Wilddog_Address_T * addr_in
-    );
+Wilddog_Return_T _wilddog_conn_pkt_deinit(void);
 Wilddog_Return_T _wilddog_conn_pkt_send
     (
-    int fd,
-    Wilddog_Address_T * addr_in,
     u8 *p_auth,
     void *p_cn_pkt
     );
 Wilddog_Return_T _wilddog_conn_pkt_recv
-    (u32 fd,
-    Wilddog_Address_T * addr_in,
+    (
     void **pp_cn_pkt,
     Wilddog_Conn_RecvData_T *p__cpk_recv
     );

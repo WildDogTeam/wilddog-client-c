@@ -2,6 +2,10 @@
 #include "wilddog.h"
 #include "wilddog_config.h"
 #include "wilddog_port.h"
+#include "wilddog_sec_host.h"
+
+STATIC Wilddog_Address_T l_addr_in;
+STATIC int l_fd;
 
 /*
  * Function:    _wilddog_sec_send
@@ -15,13 +19,19 @@
 */
 Wilddog_Return_T _wilddog_sec_send
     (
-    int fd, 
-    Wilddog_Address_T * addr_in, 
     void* p_data, 
     s32 len
     )
 {
-    return wilddog_send(fd, addr_in, p_data, len);
+	int res;
+	res = wilddog_send(l_fd,&l_addr_in, p_data, len);
+	if(res < 0)
+	{
+		if(l_fd)
+	        wilddog_closeSocket(l_fd);
+		wilddog_openSocket(&l_fd);		     
+	}
+    return res;
 }
 
 /*
@@ -35,13 +45,11 @@ Wilddog_Return_T _wilddog_sec_send
 */
 int _wilddog_sec_recv
     (
-    int fd, 
-    Wilddog_Address_T * addr_in, 
     void* p_data, 
     s32 len
     )
 {
-    return wilddog_receive(fd, addr_in, p_data, len, WILDDOG_RECEIVE_TIMEOUT);
+    return wilddog_receive(l_fd, &l_addr_in, p_data, len, WILDDOG_RECEIVE_TIMEOUT);
 }
 
 /*
@@ -53,30 +61,29 @@ int _wilddog_sec_recv
  * Return:      Success: 0
 */
 Wilddog_Return_T _wilddog_sec_init
-    (
-    int fd, 
-    Wilddog_Address_T * addr_in
+   (
+    Wilddog_Str_T *p_host,
+    u16 d_port
     )
-{
-    return WILDDOG_ERR_NOERR;
+{   
+	int res;
+	wilddog_openSocket(&l_fd);
+    res = _wilddog_sec_getHost(&l_addr_in,p_host,d_port);
+    
+    return res;
 }
 
 /*
  * Function:    _wilddog_sec_deinit
  * Description: Destroy no security session
- * Input:       fd: socket id    
- 		addr_in: The address which contains ip and port
+ * Input:           
  * Output:      N/A
  * Return:      Success: 0
 */
-Wilddog_Return_T _wilddog_sec_deinit
-    (
-    int fd, 
-    Wilddog_Address_T * addr_in
-    )
+Wilddog_Return_T _wilddog_sec_deinit(void)
 {
-    if(fd)
-        wilddog_closeSocket(fd);
+    if(l_fd)
+        wilddog_closeSocket(l_fd);
     return WILDDOG_ERR_NOERR;
 }
 

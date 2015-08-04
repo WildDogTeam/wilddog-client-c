@@ -39,6 +39,8 @@ typedef struct WILDDOG_CONN_COAP_PCB{
 
     
     u32 d_nx_reObserverTm;
+
+    u16 d_coap_session_cnt;
     u16 d_pkt_idx;
     u8 *p_auth;
     u32 d_pkt_cnt;

@@ -41,17 +41,26 @@
 
 #define FIRSTRTRANSMIT_INV  (2000)		 /* retransmit cover (FIRSTRTRANSMIT_INV**n) */
 #define WILDDOG_PING_INTERVAL 60000 
-
+#define WILDDOG_PONG_INTERVAL (10*60*1000)
 typedef enum _CONN_OBSERVE_FLAG_T{
     WILDDOG_Conn_Observe_Req,
     WILDDOG_Conn_Observe_Notif,
 }_Conn_Observe_Flag_T;
 
 typedef enum _CONN_AUTH_STATE{
+	
     WILDDOG_CONN_AUTH_NOAUTH,
-    WILDDOG_CONN_AUTH_QURES,
+    WILDDOG_CONN_AUTH_DOAUTH,
+    WILDDOG_CONN_AUTH_AUTHING,
     WILDDOG_CONN_AUTH_AUTHED,
+    
 }Wilddog_Conn_AuthState_T;
+
+typedef enum _CONN_STATE_T{
+    WILDDOG_CONN_OUTLINE,
+    WILDDOG_CONN_ONLINE
+}Wilddog_Conn_State_T;
+
 
 STATIC Wilddog_Address_T l_defaultAddr_t[2] = 
 {
@@ -92,67 +101,6 @@ int _byte2bytestr(u8 *p_dst,u8 *p_dscr,u8 len)
     }
     return 0;
 }
-
-STATIC int _wilddog_conn_hashIndex(Wilddog_Str_T *p_host, int totalNum)
-{
-	int len, i, total = 0;
-
-	if(!p_host || totalNum <= 1)
-		return 0;
-	len = strlen((const char*)p_host);
-	for(i = 0; i < len; i++)
-	{
-		total += p_host[i];
-	}
-	return total & ((1 << (totalNum - 1)) - 1);
-}
-
-STATIC int _wilddog_conn_getDefaultIpIndex(Wilddog_Str_T *p_host)
-{
-	int index;
-	STATIC int count = 0;
-	int totalNum = sizeof(l_defaultAddr_t)/sizeof(Wilddog_Address_T);
-	index = _wilddog_conn_hashIndex(p_host, totalNum);
-
-	index = (index + count) % totalNum;
-	count++;
-
-	return index;
-}
-
-STATIC int _wilddog_conn_getHost
-    (
-    Wilddog_Address_T *p_remoteAddr,
-    Wilddog_Str_T *p_host,
-    u16 d_port
-    )
-{   
-    int res = -1;  
-	int i;
-#define WILDDOG_COAP_LOCAL_HOST "s-dal5-coap-1.wilddogio.com"
-
-    res = wilddog_gethostbyname(p_remoteAddr,WILDDOG_COAP_LOCAL_HOST);
-	if(-1 == res)
-	{
-		i = _wilddog_conn_getDefaultIpIndex(p_host);
-		p_remoteAddr->len = l_defaultAddr_t[i].len;
-		memcpy(p_remoteAddr->ip, l_defaultAddr_t[i].ip, l_defaultAddr_t[i].len);
-	}
-#if 1
-		p_remoteAddr->len = 4;
-		p_remoteAddr->ip[0] = 10;
-		p_remoteAddr->ip[1] = 18;
-		p_remoteAddr->ip[2] = 2;
-		p_remoteAddr->ip[3] = 200;
-#endif 
-
-    p_remoteAddr->port = d_port;
-	
-#undef WILDDOG_COAP_LOCAL_HOST
-    return res;
-}
-
-
 /*@ check auth status*/
 STATIC INLINE void _wilddog_conn_auth_set
     (
@@ -186,14 +134,26 @@ STATIC int _wilddog_conn_auth_send(Wilddog_Repo_T *p_repo)
     return _wilddog_conn_send(WILDDOG_CONN_CMD_AUTH,p_repo,&d_arg);
 
 }
-STATIC int _wilddog_conn_auth_delete(Wilddog_Repo_T *p_repo)
+STATIC int _wilddog_conn_auth_detect(Wilddog_Repo_T *p_repo)
 {
-    if(p_repo->p_rp_conn->d_auth_st == WILDDOG_CONN_AUTH_NOAUTH )
+    if(p_repo->p_rp_conn->d_auth_st == WILDDOG_CONN_AUTH_DOAUTH )
         {
             
             return _wilddog_conn_auth_send(p_repo);
         }
     return 0;
+}
+STATIC int _wilddog_conn_pong_cb()
+{
+
+}
+STATIC int _wilddog_conn_pong_send()
+{
+
+}
+STATIC int _wilddog_conn_pong_click()
+{
+
 }
 /* since observer flag have been set,this request node will not delete
 ** while receive respond or notify.To delete it , an off request must 
@@ -230,7 +190,7 @@ STATIC int _wilddog_conn_urlMalloc
 {
     if(cmd == WILDDOG_CONN_CMD_AUTH)
     {
-        _wilddog_conn_auth_set(p_conn,WILDDOG_CONN_AUTH_QURES,NULL);
+        _wilddog_conn_auth_set(p_conn,WILDDOG_CONN_AUTH_AUTHING,NULL);
         *pp_urlsend = wmalloc(sizeof(Wilddog_Url_T));
         if(!(*pp_urlsend))
             return WILDDOG_ERR_NULL;
@@ -489,8 +449,7 @@ STATIC  int _wilddog_conn_sendWithAuth
         _wilddog_conn_auth_get(p_conn) != WILDDOG_CONN_AUTH_AUTHED)
             return 0;
     else 
-        return _wilddog_conn_pkt_send(p_conn->d_socketid, \
-                        &p_conn->d_remoteAddr,(u8 *)&p_conn->d_wauth,p_pkt);
+        return _wilddog_conn_pkt_send((u8 *)&p_conn->d_wauth,p_pkt);
 }
 /* add cmd request to sending list */
 STATIC int _wilddog_conn_send
@@ -511,15 +470,7 @@ STATIC int _wilddog_conn_send
     if( !p_arg || !p_repo || !p_repo->p_rp_conn)
         return WILDDOG_ERR_INVALID;
     p_conn = p_repo->p_rp_conn;
-    /* get host  */
-    if( p_conn->d_remoteAddr.len == 0 )
-    {
-        res = _wilddog_conn_getHost( &p_conn->d_remoteAddr,
-                             p_arg->p_url->p_url_host,WILDDOG_PORT);
-#ifdef WILDDOG_SELFTEST                            
-		ramtest_skipLastmalloc();
-#endif
-     }
+
     /* cmd analyze */
     memset(&d_conn_send,0,sizeof(Wilddog_Conn_PktSend_T));
     d_conn_send.cmd = cmd;
@@ -547,16 +498,6 @@ STATIC int _wilddog_conn_send
     res = _wilddog_conn_sendWithAuth(cmd,p_pkt,p_conn);
     if(res < 0)
     {
-        if( res  == WILDDOG_ERR_SOCKETERR)
-        {
-            
-            res = wilddog_openSocket((int*)&(p_conn->d_socketid));
-            
-            res = _wilddog_conn_sendWithAuth(cmd,p_conn,p_pkt);
-            if(res == WILDDOG_ERR_SOCKETERR)
-                goto _CONN_SEND_FREE;
-        }
-        else 
             goto _CONN_SEND_FREE;
     }
     /* malloc conn node  add list */
@@ -656,7 +597,12 @@ STATIC int _wilddog_conn_cb
     {
     	/* recv unauth err */
         if(p_cn_recvData->d_RecvErr == WILDDOG_HTTP_UNAUTHORIZED)
-            _wilddog_conn_auth_set(p_conn,WILDDOG_CONN_AUTH_NOAUTH,NULL);
+        {
+        	if(_wilddog_conn_auth_get(p_conn) == WILDDOG_CONN_AUTH_AUTHING)
+            	_wilddog_conn_auth_set(p_conn,WILDDOG_CONN_AUTH_NOAUTH,NULL);
+           	else
+            	_wilddog_conn_auth_set(p_conn,WILDDOG_CONN_AUTH_DOAUTH,NULL);
+		}
         d_cn_recvData.d_recvlen = 0;
         d_cn_recvData.p_Recvdata = NULL;
     }else
@@ -719,7 +665,11 @@ STATIC int _wilddog_conn_timeoutCB
     )
 {
     Wilddog_Conn_RecvData_T d_cn_recvData;
-    d_cn_recvData.d_RecvErr = WILDDOG_ERR_RECVTIMEOUT;
+    if(_wilddog_conn_auth_get(p_cn_node) == WILDDOG_CONN_AUTH_AUTHED)
+    	d_cn_recvData.d_RecvErr = WILDDOG_ERR_RECVTIMEOUT;
+    else
+    	d_cn_recvData.d_RecvErr = WILDDOG_ERR_NOTAUTH;
+    	
     d_cn_recvData.d_recvlen = 0;
     d_cn_recvData.p_Recvdata = NULL;
     
@@ -741,8 +691,7 @@ STATIC int _wilddog_conn_recv(Wilddog_Conn_T *p_conn)
         wilddog_debug_level(WD_DEBUG_ERROR, "malloc failed!");
         return WILDDOG_ERR_NULL;
     }
-    res = _wilddog_conn_pkt_recv(p_conn->d_socketid,&p_conn->d_remoteAddr,
-                                 &p_cn_pkt,&d_cn_recvpkt);
+    res = _wilddog_conn_pkt_recv(&p_cn_pkt,&d_cn_recvpkt);
     if( res <0 || p_cn_pkt == NULL || d_cn_recvpkt.p_Recvdata == NULL )
         goto _RECV_END_ ;
 
@@ -763,8 +712,6 @@ _RECV_END_:
 }
 STATIC int _wilddog_conn_pingSend
     (
-    u32 fd,
-    Wilddog_Address_T *Addrin,
     Wilddog_Conn_T *p_conn
     )
 {
@@ -775,10 +722,12 @@ STATIC int _wilddog_conn_pingSend
     /*  creat pkt */
     d_conn_send.cmd = WILDDOG_CONN_CMD_PING;
     res = _wilddog_conn_pkt_creat(&d_conn_send,&p_pkt);
+    
     if(res < 0)
         return WILDDOG_ERR_NULL;
+        
     /*  send */    
-    res = _wilddog_conn_pkt_send(fd,Addrin,NULL,p_pkt);
+    res = _wilddog_conn_pkt_send(NULL,p_pkt);
     _wilddog_conn_pkt_free(&p_pkt);
 	wilddog_debug_level(WD_DEBUG_LOG,"send ping %s!", res >= 0?("Success"):("Failed"));
     return res;
@@ -791,8 +740,7 @@ STATIC int _wilddog_conn_keepLink(Wilddog_Conn_T *p_conn)
     if( DIFF(p_conn->d_ralySend, _wilddog_getTime()) > WILDDOG_PING_INTERVAL)
     {
 
-        res = _wilddog_conn_pingSend(p_conn->d_socketid,&p_conn->d_remoteAddr, \
-                                        p_conn);
+        res = _wilddog_conn_pingSend(p_conn);
         if(res >= 0)
             p_conn->d_ralySend =_wilddog_getTime();
     }
@@ -855,7 +803,7 @@ STATIC int _wilddog_conn_trySync(Wilddog_Repo_T *p_repo)
 
     res = _wilddog_conn_keepLink(p_repo->p_rp_conn);
     res = _wilddog_conn_retransmit(p_repo->p_rp_conn);
-    res = _wilddog_conn_auth_delete(p_repo);
+    res = _wilddog_conn_auth_detect(p_repo);
 
     return res ;
     
@@ -872,20 +820,10 @@ Wilddog_Conn_T * _wilddog_conn_init(Wilddog_Repo_T* p_repo)
     p_repo_conn->p_conn_repo = p_repo;
     p_repo_conn->f_conn_send = (Wilddog_Func_T)_wilddog_conn_send;
     p_repo_conn->f_conn_trysyc = (Wilddog_Func_T)_wilddog_conn_trySync;
+    
     p_repo->p_rp_conn = p_repo_conn;
- #ifdef WILDDOG_SELFTEST                       
-	ramtest_skipLastmalloc();
-#endif   
-    wilddog_openSocket((int*)&p_repo_conn->d_socketid);
-    _wilddog_conn_getHost( &p_repo->p_rp_conn->d_remoteAddr,
-                             p_repo->p_rp_url->p_url_host,WILDDOG_PORT);
-#ifdef WILDDOG_SELFTEST                        
-	ramtest_gethostbyname();
-#endif
-#ifdef WILDDOG_SELFTEST     
-	performtest_star_tm();
-#endif
-    _wilddog_conn_pkt_init(p_repo_conn->d_socketid,&p_repo_conn->d_remoteAddr);
+
+    _wilddog_conn_pkt_init(p_repo_conn->p_conn_repo->p_rp_url->p_url_host,WILDDOG_PORT);
 #ifdef WILDDOG_SELFTEST    
 	performtest_tm_getDtlsHsk();	
  	performtest_star_tm();
@@ -918,12 +856,12 @@ Wilddog_Conn_T* _wilddog_conn_deinit(Wilddog_Repo_T*p_repo)
             _wilddog_conn_node_remove(p_repo->p_rp_conn,&cur);
         }
     }
-    _wilddog_conn_pkt_deinit(p_repo->p_rp_conn->d_socketid, \
-                                &p_repo->p_rp_conn->d_remoteAddr);
+    _wilddog_conn_pkt_deinit();
+    
     p_repo->p_rp_conn->p_conn_node_hd = NULL;
-    p_repo->p_rp_conn->d_socketid = 0;
     wfree( p_repo->p_rp_conn);
     p_repo->p_rp_conn = NULL;
+    
     return NULL;
 }
 
