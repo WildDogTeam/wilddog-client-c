@@ -108,7 +108,7 @@ int test(char *uid)
 {
 	char url[1024];
 
-	//char en_key = 0;
+	char en_key = 0;
 	BOOL isFinished = FALSE;
 	Wilddog_T wilddog;
 	Wilddog_Handle_T s_handle;
@@ -555,13 +555,15 @@ int test(char *uid)
 int main(int argc, char *argv[])
 {
 	int opt;
-	char uid[256];
-	//char url[1024];
+	//char uid[256];
+	char url[1024];
 	
-	memset(uid,0,sizeof(uid));	
-	//memset(url,0,sizeof(url));	
-	//test("coaps://mk.wilddogio.com");
-	//return 0;
+	//memset(uid,0,sizeof(uid));	
+	memset(url,0,sizeof(url));	
+	test("embedded");
+	return 0;
+
+#if 0
 
 	while ((opt = getopt(argc, argv, "hl:")) != -1) 
 	{
@@ -592,5 +594,7 @@ int main(int argc, char *argv[])
 	test(uid);
 
 	return 0;
+
+#endif
 }
 
