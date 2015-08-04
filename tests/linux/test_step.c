@@ -108,7 +108,7 @@ int test(char *uid)
 {
 	char url[1024];
 
-	char en_key = 0;
+	//char en_key = 0;
 	BOOL isFinished = FALSE;
 	Wilddog_T wilddog;
 	Wilddog_Handle_T s_handle;
@@ -522,7 +522,7 @@ int test(char *uid)
 		{
 			wilddog_debug("get new data %d times!", count++);
 			isFinished = FALSE;
-			if(count > 1)
+			if(count > 0)
 			{
 				wilddog_debug("off the data!");
 				wilddog_removeObserver(wilddog, WD_ET_VALUECHANGE);
@@ -554,7 +554,7 @@ int test(char *uid)
 
 int main(int argc, char *argv[])
 {
-	int opt;
+	//int opt;
 	//char uid[256];
 	char url[1024];
 	
