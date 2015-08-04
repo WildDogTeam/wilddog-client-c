@@ -574,6 +574,7 @@ int _wilddog_conn_coap_send
         return WILDDOG_ERR_INVALID;
 #ifdef DEBUG_LEVEL
     if(WD_DEBUG_LOG == DEBUG_LEVEL)
+    	printf("sec coap send");
         coap_show_pdu(p_coap);
 #endif
     _wilddog_conn_coap_auth_updata(p_auth,p_coap);
@@ -904,6 +905,8 @@ STATIC int _wilddog_conn_coap_recvDispatch
         
         /* todo handle err*/
         /*@ dele pkt node */
+        wilddog_debug("delete coap node *pp_cn_pkt =%p \n",*pp_cn_pkt);
+        
         if(_wilddog_conn_coap_noObserve(curr))
             _wilddog_conn_pkt_free((void**)&curr);
         return WILDDOG_ERR_NOERR;
@@ -950,6 +953,7 @@ Wilddog_Return_T _wilddog_conn_pkt_recv
     }
 #ifdef WILDDOG_DEBUG
 #if DEBUG_LEVEL <= WD_DEBUG_LOG
+	printf("recv:\n");
 	coap_show_pdu(p_pdu);
 #endif
 #endif

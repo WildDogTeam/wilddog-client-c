@@ -34,6 +34,7 @@
 #define STABTEST_ONEHOUR    (3600000)
 #define STAB_DEBUG	0
 
+
 #define STABTEST_URL	"coap://c_test.wilddogio.com/stab_test"
 #define STABTEST_PATH	"stabtest/"
 #define STAB_KEY		"K"
@@ -182,7 +183,7 @@ STATIC void stab_addObserverFunc
 
     return;
 }
-int stabtest_reques(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
+int stabtest_request(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
 {
 
 	Wilddog_Node_T *p_head = NULL,*p_node = NULL;
@@ -252,7 +253,7 @@ int stab_oneCrcuRequest(void)
 	stab_set_runtime();
     /*Init a wilddog client*/
     client = wilddog_initWithUrl((Wilddog_Str_T *)STABTEST_URL);
-	stab_get_requestRes(stabtest_reques(cmd,client,p_finish));
+	stab_get_requestRes(stabtest_request(cmd,client,p_finish));
 
     while(1)
     {
@@ -264,7 +265,7 @@ int stab_oneCrcuRequest(void)
         	onFinish = FALSE;
         	otherFinish = FALSE;
 			STABTEST_NEXTREQUEST(cmd);
-			stab_get_requestRes(stabtest_reques(cmd,client,p_finish));
+			stab_get_requestRes(stabtest_request(cmd,client,p_finish));
 			
 			if(STABTEST_OFFREQUEST(cmd))
 			{

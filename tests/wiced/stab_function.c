@@ -408,7 +408,7 @@ STATIC void stab_settest_serialSet_send(void)
 		if(res>=0)
 		{
 			stab_setdata[i].setfault = 0;
-			stab_settest_request++; 
+			//stab_settest_request++;
 			stab_settest_setsuccess++;	
 		}
 		else
@@ -456,9 +456,10 @@ STATIC void stab_settest_serialGetValueFunc
 {
 	stab_get_recvErr(err,STABTEST_CMD_GET);
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
-		stab_settest_request = (stab_settest_request ==0 )?0:(stab_settest_request-1 );
+		;//stab_settest_request = (stab_settest_request ==0 )?0:(stab_settest_request-1 );
 	else
 		stab_settest_judge((Wilddog_Node_T*)p_snapshot,arg);
+	stab_settest_request++;
 	serialgetsend_cnt--;
     return;
 }
