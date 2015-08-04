@@ -16,6 +16,10 @@ WD_LIMIT=$?
 
 WD_NODE=$?
 
+./bin/test_step
+
+WD_STEP=$?
+
 echo "\n*************************************************************************\n"
 
 if [ ${WD_PROPERTY} -ne 0 ]
@@ -37,6 +41,13 @@ then
 	echo "wilddog node test failed, please run test_node to find more information!"
 else
 	echo "wilddog node test pass!"
+fi
+
+if [ ${WD_STEP} -ne 0 ]
+then
+	echo "wilddog step test failed, please run test_step to find more information!"
+else
+	echo "wilddog step test pass!"
 fi
 
 echo "\n*************************************************************************\n"

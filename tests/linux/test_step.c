@@ -108,7 +108,7 @@ int test(char *uid)
 {
 	char url[1024];
 
-	char en_key = 0;
+	//char en_key = 0;
 	BOOL isFinished = FALSE;
 	Wilddog_T wilddog;
 	Wilddog_Handle_T s_handle;
@@ -136,7 +136,7 @@ int test(char *uid)
 	printf("*******************************************\n");
 	printf("\n\n");
 	
-#ifndef WILDDOG_PORT_TYPE_WICED
+#if 0 //ndef WILDDOG_PORT_TYPE_WICED
 	while(1)
 	{
 		en_key= getchar();
@@ -244,7 +244,7 @@ int test(char *uid)
 	printf("*******************************************\n");
 	printf("\n\n");
 
-#ifndef WILDDOG_PORT_TYPE_WICED
+#if 0//ndef WILDDOG_PORT_TYPE_WICED
 
 	while(1)
 	{
@@ -285,7 +285,7 @@ int test(char *uid)
 	printf("*******************************************\n");
 	printf("\n\n");
 	
-#ifndef WILDDOG_PORT_TYPE_WICED
+#if 0//ndef WILDDOG_PORT_TYPE_WICED
 
 	while(1)
 	{
@@ -322,7 +322,7 @@ int test(char *uid)
 	printf("*******************************************\n");
 	printf("\n\n");
 
-#ifndef WILDDOG_PORT_TYPE_WICED
+#if 0//ndef WILDDOG_PORT_TYPE_WICED
 	
 	while(1)
 	{
@@ -364,7 +364,7 @@ int test(char *uid)
 	printf("*******************************************\n");
 	printf("\n\n");
 
-#ifndef WILDDOG_PORT_TYPE_WICED
+#if 0//ndef WILDDOG_PORT_TYPE_WICED
 
 	while(1)
 	{
@@ -417,7 +417,7 @@ int test(char *uid)
 	printf("*******************************************\n");
 	printf("\n\n");
 
-#ifndef WILDDOG_PORT_TYPE_WICED
+#if 0//ndef WILDDOG_PORT_TYPE_WICED
 	
 	while(1)
 	{
@@ -461,7 +461,7 @@ int test(char *uid)
 	printf("*******************************************\n");
 	printf("\n\n");
 
-#ifndef WILDDOG_PORT_TYPE_WICED
+#if 0//ndef WILDDOG_PORT_TYPE_WICED
 	
 	while(1)
 	{
@@ -503,7 +503,7 @@ int test(char *uid)
 	printf("*******************************************\n");
 	printf("\n\n");
 
-#ifndef WILDDOG_PORT_TYPE_WICED
+#if 0//ndef WILDDOG_PORT_TYPE_WICED
 
 	while(1)
 	{
