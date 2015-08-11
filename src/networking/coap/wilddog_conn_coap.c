@@ -489,30 +489,44 @@ void _wilddog_conn_coap_node_destory
         wfree(*p_node);
         *p_node = NULL;
         }
+	
+	wilddog_debug();
 }
-INLINE void _wilddog_conn_coap_node_remove
+INLINE int _wilddog_conn_coap_node_remove
     (
     Wilddog_Conn_Coap_PCB_T *p_pcb,
     Wilddog_Conn_Coap_PacketNode_T *p_dele
     )
 {
+	
+    Wilddog_Conn_Coap_PacketNode_T *curr,*tmp;
 
     wilddog_debug_level(WD_DEBUG_LOG,"coap remove node:%p\n",p_dele);
     wilddog_debug_level(WD_DEBUG_LOG,"p_dele->p_CoapPkt = %p\n",p_dele->p_CoapPkt);
-    if( p_dele->p_CoapPkt  == NULL || \
-    	p_dele->p_CoapPkt->hdr->type != COAP_MESSAGE_CON)
-        return;
-        
-    p_pcb->d_pkt_cnt = (p_pcb->d_pkt_cnt)?(p_pcb->d_pkt_cnt - 1):0;
-    LL_DELETE(p_pcb->P_hd, p_dele);
-    return;
+    if( !(p_dele->p_CoapPkt  != NULL &&
+    	p_dele->p_CoapPkt->hdr->type == COAP_MESSAGE_CON ))
+        return  1;
+
+	LL_FOREACH_SAFE( p_coap_pcb->P_hd  ,curr,tmp)
+    {
+		if(curr == p_dele)
+		{
+			p_pcb->d_pkt_cnt = (p_pcb->d_pkt_cnt)?(p_pcb->d_pkt_cnt - 1):0;
+			LL_DELETE(p_pcb->P_hd, p_dele);
+			return 0;
+		}
+		
+    }
+
+    return 1; 
 }
 
 void _wilddog_conn_pkt_free(void **pp_pkt)
 {
-    _wilddog_conn_coap_node_remove(p_coap_pcb, \
-                                   (Wilddog_Conn_Coap_PacketNode_T*)*pp_pkt);
-    if(pp_pkt)
+    if( _wilddog_conn_coap_node_remove(p_coap_pcb,*pp_pkt) )
+		return ;
+	
+    if( pp_pkt && (*pp_pkt))
     {
         _wilddog_conn_coap_node_destory((Wilddog_Conn_Coap_PacketNode_T **)pp_pkt);
     }
@@ -914,8 +928,10 @@ STATIC int _wilddog_conn_coap_recvDispatch
 		/* call back*/
 		if(curr->f_cn_cb)
 			curr->f_cn_cb( curr->p_conn,curr->p_cn_node,p_cpk_recv);
+#if 0		
         if(_wilddog_conn_coap_noObserve(curr))
             _wilddog_conn_pkt_free((void**)&curr);
+#endif		
         return WILDDOG_ERR_NOERR;
     }
     return WILDDOG_ERR_NULL;
@@ -943,6 +959,7 @@ Wilddog_Return_T _wilddog_conn_pkt_recv
         return WILDDOG_ERR_NOERR; 
     }
 
+	p_cpk_recv->d_recvlen = recv_size;
     /*@  coap verify  malloc */
     p_pdu = _wilddog_conn_coap_recVerify(p_buf,recv_size);
 #ifdef WILDDOG_SELFTEST                        
@@ -1006,6 +1023,7 @@ Wilddog_Return_T _wilddog_conn_pkt_deinit(void)
 	if(p_coap_pcb->d_coap_session_cnt > 0)
 		return WILDDOG_ERR_NOERR;
 
+	wilddog_debug("");
     if(p_coap_pcb)
     {
         LL_FOREACH_SAFE( p_coap_pcb->P_hd  ,curr,tmp)

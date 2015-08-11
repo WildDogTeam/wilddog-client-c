@@ -21,6 +21,7 @@ typedef struct WILDDOG_CONN_COAP_PACKET_NODE_T{
     struct WILDDOG_CONN_COAP_PACKET_NODE_T *next;
 
     u32 d_observer_cnt;
+	
     u8 d_observer_flag;  /*observe 0x01*/
     u8 d_separate_flag; 
     u8 d_dismsgid_fig;

@@ -8,7 +8,7 @@
  * History:
  * Version      Author          Date        Description
  *
- * 0.4.0        lsx       2015-05-15  Create file.
+ * 0.4.0        lxs       2015-05-15  Create file.
  *
  */
  
@@ -180,9 +180,11 @@ STATIC int _wilddog_conn_auth_send(Wilddog_Repo_T *p_repo)
 
     memset(&d_arg,0,sizeof(Wilddog_ConnCmd_Arg_T));
     memset(&d_url,0,sizeof(Wilddog_Url_T));
-    
-    d_url.p_url_host = p_repo->p_rp_url->p_url_host;
+
+	
     d_arg.p_url = &d_url;
+    d_url.p_url_host = p_repo->p_rp_url->p_url_host;
+	
     return _wilddog_conn_send(WILDDOG_CONN_CMD_AUTH,p_repo,&d_arg);
 
 }
@@ -219,6 +221,7 @@ STATIC int _wilddog_conn_observeFlagSet
     )
 {
     int res =0;
+	
     if(p_cn_node->d_cmd == WILDDOG_CONN_CMD_ON)
     {
         p_cn_node->d_observe_flag = flag;
@@ -365,9 +368,11 @@ void _wilddog_conn_node_remove
         }
         
         wilddog_debug_level(WD_DEBUG_WARN, "conn remove node =%p\n",*pp_conn_node);
-#if 0
-        if( (*pp_conn_node)->p_cn_pkt != NULL)
-         	_wilddog_conn_pkt_free(&(*pp_conn_node)->p_cn_pkt);
+#if 1
+        if( (*pp_conn_node)->p_cn_pkt )
+        {
+         	_wilddog_conn_pkt_free(&((*pp_conn_node)->p_cn_pkt));
+		}
 #endif       	
         wfree(*pp_conn_node);
         *pp_conn_node = NULL;
@@ -504,6 +509,17 @@ STATIC  int _wilddog_conn_sendWithAuth
     else 
         return _wilddog_conn_pkt_send((u8 *)&p_conn->d_wauth,p_pkt);
 }
+/*
+ * Function:	_wilddog_conn_send_cmd2PktSend
+ * Description: parsing payload host path into Wilddog_Conn_PktSend_T.
+ * Input:		 
+ * Output:		N/A
+ * Return:		 .
+*/
+STATIC int _wilddog_conn_send_cmd2PktSend()
+{
+	
+}
 /* add cmd request to sending list */
 STATIC int _wilddog_conn_send
     (
@@ -522,9 +538,10 @@ STATIC int _wilddog_conn_send
     /*  illegality input */
     if( !p_arg || !p_repo || !p_repo->p_rp_conn)
         return WILDDOG_ERR_INVALID;
+	
     p_conn = p_repo->p_rp_conn;
 
-    /* cmd analyze */
+    /* get payload */
     memset(&d_conn_send,0,sizeof(Wilddog_Conn_PktSend_T));
     d_conn_send.cmd = cmd;
 
@@ -535,7 +552,7 @@ STATIC int _wilddog_conn_send
         d_conn_send.p_payload = p_payload->p_dt_data;
     }
 
-    /*  malloc */
+    /* host path malloc  */
     res = _wilddog_conn_urlMalloc(cmd,p_repo->p_rp_conn,p_arg->p_url, \
                                   &d_conn_send.p_url);
     if(res < 0) 
@@ -554,7 +571,6 @@ STATIC int _wilddog_conn_send
     wilddog_debug_level(WD_DEBUG_LOG,"conn get pkt node=%p\n",p_conn_node->p_cn_pkt);
     if(res < 0)
 	{
-		
 		_wilddog_conn_node_remove(p_conn,&p_conn_node);  		
 		goto _CONN_SEND_FREE;
     }
@@ -730,10 +746,12 @@ STATIC int _wilddog_conn_cb
     )
 {
 	int res ;
+	
+	wilddog_debug();
 	res = _wilddog_conn_cbDispatch(p_conn,p_cn_node,p_cn_recvData);
 	p_conn->d_ralyRecv = _wilddog_getTime();
 	if(_wilddog_conn_observeFlagSet(WILDDOG_Conn_Observe_Notif,p_cn_node)== 0)
-			_wilddog_conn_node_remove(p_conn,&p_cn_node);
+		_wilddog_conn_node_remove(p_conn,&p_cn_node);
 	
 	return res;
 }
