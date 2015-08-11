@@ -89,6 +89,12 @@ typedef struct WILDDOG_CONN_PKTSEND_T{
 
     u32 d_payloadlen;
     u8 *p_payload;  
+
+	/*recv call back */
+	Wilddog_Conn_T *p_conn;
+    Wilddog_Conn_Node_T *p_cn_node;
+	Wilddog_Func_T f_cn_callback;
+	
 }Wilddog_Conn_PktSend_T;
 
 typedef struct WILDDOG_CONN_RECVDATA_T
@@ -130,7 +136,6 @@ Wilddog_Return_T _wilddog_conn_pkt_send
     );
 Wilddog_Return_T _wilddog_conn_pkt_recv
     (
-    void **pp_cn_pkt,
     Wilddog_Conn_RecvData_T *p__cpk_recv
     );
 Wilddog_Conn_T * _wilddog_conn_init(Wilddog_Repo_T* p_repo);

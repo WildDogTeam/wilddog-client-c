@@ -82,6 +82,12 @@ STATIC int _wilddog_conn_urlMalloc
 STATIC int _wilddog_conn_send(Wilddog_Conn_Cmd_T cmd,
                                 Wilddog_Repo_T *p_repo,
                                 Wilddog_ConnCmd_Arg_T *p_arg);
+STATIC int _wilddog_conn_cb
+	    (
+    Wilddog_Conn_T *p_conn,
+    Wilddog_Conn_Node_T *p_cn_node,
+    Wilddog_Conn_RecvData_T *p_cn_recvData
+    );
 
 
 /*LOCK and UNLOCK used for multi thread*/
@@ -318,7 +324,6 @@ STATIC int _wilddog_conn_node_add
     (
     Wilddog_Conn_Cmd_T cmd ,
     Wilddog_ConnCmd_Arg_T *p_arg,
-    void *p_pkt,
     Wilddog_Conn_T *p_conn,
     Wilddog_Conn_Node_T **pp_conn_node
     )
@@ -331,7 +336,7 @@ STATIC int _wilddog_conn_node_add
         
     p_conn->d_ralySend = _wilddog_getTime();
     (*pp_conn_node)->d_cmd = cmd;
-    (*pp_conn_node)->p_cn_pkt = p_pkt;
+    (*pp_conn_node)->p_cn_pkt = NULL;
     
     (*pp_conn_node)->f_cn_callback = p_arg->p_complete;
     (*pp_conn_node)->p_cn_cb_arg = p_arg->p_completeArg;
@@ -513,7 +518,7 @@ STATIC int _wilddog_conn_send
     Wilddog_Conn_T *p_conn= NULL;
     Wilddog_Conn_Node_T *p_conn_node = NULL;
     Wilddog_Payload_T *p_payload = NULL;
-    void *p_pkt = NULL;
+
     /*  illegality input */
     if( !p_arg || !p_repo || !p_repo->p_rp_conn)
         return WILDDOG_ERR_INVALID;
@@ -532,34 +537,44 @@ STATIC int _wilddog_conn_send
 
     /*  malloc */
     res = _wilddog_conn_urlMalloc(cmd,p_repo->p_rp_conn,p_arg->p_url, \
-                                    &d_conn_send.p_url);
+                                  &d_conn_send.p_url);
     if(res < 0) 
         goto _CONN_SEND_FREE;
-    
+
+	/* malloc conn node  add list */
+    res = _wilddog_conn_node_add(cmd,p_arg,p_conn,&p_conn_node);
+	if(res < 0) 
+        goto _CONN_SEND_FREE;
+	
     /*  creat pkt */
-
-    res = _wilddog_conn_pkt_creat(&d_conn_send,&p_pkt);
-    wilddog_debug_level(WD_DEBUG_LOG,"conn get pkt node=%p\n",p_pkt);
+	d_conn_send.p_conn = p_repo->p_rp_conn;
+	d_conn_send.p_cn_node = p_conn_node;
+	d_conn_send.f_cn_callback = (Wilddog_Func_T) _wilddog_conn_cb;
+    res = _wilddog_conn_pkt_creat(&d_conn_send,&p_conn_node->p_cn_pkt);
+    wilddog_debug_level(WD_DEBUG_LOG,"conn get pkt node=%p\n",p_conn_node->p_cn_pkt);
     if(res < 0)
-        goto _CONN_SEND_FREE;
-    /*  send */
-    res = _wilddog_conn_sendWithAuth(cmd,p_pkt,p_conn);
-    if(res < 0)
-    {
-            goto _CONN_SEND_FREE;
+	{
+		
+		_wilddog_conn_node_remove(p_conn,&p_conn_node);  		
+		goto _CONN_SEND_FREE;
     }
-    /* malloc conn node  add list */
-    res = _wilddog_conn_node_add(cmd,p_arg,p_pkt,p_conn,&p_conn_node);
-
+	
+    /*  send */
+    res = _wilddog_conn_sendWithAuth(cmd,p_conn_node->p_cn_pkt,p_conn);
     if(res < 0)
+    {	
+		_wilddog_conn_node_remove(p_conn,&p_conn_node);  		
         goto _CONN_SEND_FREE;
-        
+    }
+
     res = _wilddog_conn_Observer_handle(p_arg,p_conn,p_conn_node);
 
 _CONN_SEND_FREE:
 
     _wilddog_conn_freePayload(&p_payload);
-    _wilddog_conn_urlFree(&d_conn_send.p_url);
+    _wilddog_conn_urlFree(&d_conn_send.p_url);	
+
+	
     return res;
 }
 
@@ -628,7 +643,7 @@ STATIC void _wilddog_conn_cb_get
     
     return;
 }
-STATIC int _wilddog_conn_cb
+STATIC int _wilddog_conn_cbDispatch
     (
     Wilddog_Conn_T *p_conn,
     Wilddog_Conn_Node_T *p_cn_node,
@@ -637,7 +652,7 @@ STATIC int _wilddog_conn_cb
 {
     Wilddog_Conn_RecvData_T d_cn_recvData;
 
-    wilddog_debug_level(WD_DEBUG_WARN,"conn CB ERROR=%lu\n",p_cn_recvData->d_RecvErr);
+    wilddog_debug_level(WD_DEBUG_WARN,"conn CB ERROR=%lu \n",p_cn_recvData->d_RecvErr);
 
     d_cn_recvData.d_RecvErr = p_cn_recvData->d_RecvErr;
     /* handle error**/
@@ -706,6 +721,22 @@ STATIC int _wilddog_conn_cb
     }
     return 0;
 } 
+/* coap call while get an respone */
+STATIC int _wilddog_conn_cb
+	    (
+    Wilddog_Conn_T *p_conn,
+    Wilddog_Conn_Node_T *p_cn_node,
+    Wilddog_Conn_RecvData_T *p_cn_recvData
+    )
+{
+	int res ;
+	res = _wilddog_conn_cbDispatch(p_conn,p_cn_node,p_cn_recvData);
+	p_conn->d_ralyRecv = _wilddog_getTime();
+	if(_wilddog_conn_observeFlagSet(WILDDOG_Conn_Observe_Notif,p_cn_node)== 0)
+			_wilddog_conn_node_remove(p_conn,&p_cn_node);
+	
+	return res;
+}
 STATIC int _wilddog_conn_timeoutCB
     (
     Wilddog_Conn_T *p_conn,
@@ -713,6 +744,7 @@ STATIC int _wilddog_conn_timeoutCB
     )
 {
     Wilddog_Conn_RecvData_T d_cn_recvData;
+	
     if(_wilddog_conn_auth_get(p_conn) == WILDDOG_CONN_AUTH_AUTHED)
     	d_cn_recvData.d_RecvErr = WILDDOG_ERR_RECVTIMEOUT;
     else
@@ -721,13 +753,13 @@ STATIC int _wilddog_conn_timeoutCB
     d_cn_recvData.d_recvlen = 0;
     d_cn_recvData.p_Recvdata = NULL;
     
-    return _wilddog_conn_cb(p_conn,p_cn_node,&d_cn_recvData);
+    return _wilddog_conn_cbDispatch(p_conn,p_cn_node,&d_cn_recvData);
 }
 STATIC int _wilddog_conn_recv(Wilddog_Conn_T *p_conn)
 {
-    Wilddog_Conn_Node_T *p_cur=NULL,*p_tmp=NULL;
+	
     int res =0;
-    void *p_cn_pkt = NULL;
+    Wilddog_Conn_Node_T *p_cur=NULL,*p_tmp=NULL;
     Wilddog_Conn_RecvData_T d_cn_recvpkt;
     d_cn_recvpkt.d_recvlen= WILDDOG_PROTO_MAXSIZE;
     d_cn_recvpkt.d_RecvErr = 0;
@@ -739,22 +771,9 @@ STATIC int _wilddog_conn_recv(Wilddog_Conn_T *p_conn)
         wilddog_debug_level(WD_DEBUG_ERROR, "malloc failed!");
         return WILDDOG_ERR_NULL;
     }
-    res = _wilddog_conn_pkt_recv(&p_cn_pkt,&d_cn_recvpkt);
-    wilddog_debug("get 1 pkt node =%p\n",p_cn_pkt);
-    if( res <0 || p_cn_pkt == NULL || d_cn_recvpkt.p_Recvdata == NULL )
-        goto _RECV_END_ ;
 	
-    wilddog_debug("get 2 vpkt node =%p\n",p_cn_pkt);
-    LL_FOREACH_SAFE(p_conn->p_conn_node_hd,p_cur,p_tmp)
-    {
-        if( p_cur->p_cn_pkt == p_cn_pkt )
-        {
-            res = _wilddog_conn_cb(p_conn,p_cur,&d_cn_recvpkt);
-            p_conn->d_ralyRecv = _wilddog_getTime();
-            if(_wilddog_conn_observeFlagSet(WILDDOG_Conn_Observe_Notif,p_cur)== 0)
-                    _wilddog_conn_node_remove(p_conn,&p_cur);
-        }
-    }
+    res = _wilddog_conn_pkt_recv(&d_cn_recvpkt);
+	
 _RECV_END_:
     _wilddog_conn_freeRecvBuffer(d_cn_recvpkt.p_Recvdata);
     
@@ -850,7 +869,6 @@ STATIC int _wilddog_conn_trySync(Wilddog_Repo_T *p_repo)
     int res = 0;
     
     res = _wilddog_conn_recv(p_repo->p_rp_conn);
-
     res = _wilddog_conn_keepLink(p_repo->p_rp_conn);
     res = _wilddog_conn_retransmit(p_repo->p_rp_conn);
     res = _wilddog_conn_auth_detect(p_repo);

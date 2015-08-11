@@ -29,8 +29,10 @@ typedef struct WILDDOG_CONN_COAP_PACKET_NODE_T{
 	u32 d_maxAge;	
     u32 d_nxTm_sendObserver;
 
-    coap_pdu_t* p_CoapPkt;  
-
+    coap_pdu_t* p_CoapPkt;
+	void *p_conn;
+	void *p_cn_node;
+	Wilddog_Func_T f_cn_cb;
 }Wilddog_Conn_Coap_PacketNode_T;
 
 typedef struct WILDDOG_CONN_COAP_PCB{
