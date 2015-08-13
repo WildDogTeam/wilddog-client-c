@@ -125,7 +125,7 @@ int test(char *uid)
 
 	int count = 0;	
 	sprintf(url,"%s%s%s",TEST_URL_HEAD,uid,TEST_URL_END);
-
+    
 	memset(&s_handle, 0, sizeof(s_handle));
 	s_handle.isFinished = FALSE;
 
@@ -276,7 +276,6 @@ int test(char *uid)
 
 	
 	/*************************************************************/
-	
 	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)url);
 
 	printf("*******************************************\n");

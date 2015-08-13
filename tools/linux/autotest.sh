@@ -16,6 +16,10 @@ WD_LIMIT=$?
 
 WD_NODE=$?
 
+./bin/test_multipleHost
+
+WD_MULTIPLEHOST=$?
+
 echo "\n*************************************************************************\n"
 
 if [ ${WD_PROPERTY} -ne 0 ]
@@ -39,4 +43,10 @@ else
 	echo "wilddog node test pass!"
 fi
 
+if [ ${WD_MULTIPLEHOST} -ne 0 ]
+then
+	echo "wilddog test_multipleHost test failed, please run test_multipleHost to find more information!"
+else
+	echo "wilddog test_multipleHost test pass!"
+fi
 echo "\n*************************************************************************\n"

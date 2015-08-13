@@ -38,7 +38,7 @@ extern "C"
 
 
 #ifdef WILDDOG_DEBUG
-#define DEBUG_LEVEL WD_DEBUG_ALL
+#define DEBUG_LEVEL WD_DEBUG_ERROR
 
 #define wilddog_debug_level(level, format,...) do{if(level >= DEBUG_LEVEL){ \
     printf("func:%s LINE: %d: "format"\n", __func__, __LINE__, ##__VA_ARGS__); \
@@ -113,7 +113,7 @@ typedef enum WILDDOG_RETURN_T
     WILDDOG_ERR_MAXRETRAN = -9,
     WILDDOG_ERR_RECVTIMEOUT = -10,
     WILDDOG_ERR_RECVNOMATCH = -11,
-
+	WILDDOG_ERR_CLIENTOFFLINE = -12,
 /*****************HTTP return error******************/
     WILDDOG_HTTP_OK = 200,
     WILDDOG_HTTP_CREATED = 201,

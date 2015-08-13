@@ -28,7 +28,6 @@ STATIC Wilddog_Address_T l_defaultAddr_t[2] =
 	{4, {211,151,208,196}, 5683},
 	{4, {211,151,208,197}, 5683}
 };
-STATIC u8 l_recvData[WILDDOG_PROTO_MAXSIZE];
 
 STATIC int _wilddog_sec_hashIndex(Wilddog_Str_T *p_host, int totalNum)
 {

@@ -33,7 +33,8 @@ extern "C"
 #define PONG_QURES	"seq="
 #define PONG_NUMBERMAX	(98)
 #define PONG_NUMBERLEN	(2)
-#define PONG_REQUESINTERVAL	(100000)//(10*60*1000)
+#define PONG_REQUESINTERVAL	(10*60*1000)
+#define PONG_REQUEST_IMMEDIATELY	(1000)	/* auth timeout need to pong immediately*/	
 
 typedef enum WILDDOG_CONN_CMD_TYPE
 {
@@ -57,7 +58,8 @@ typedef struct WILDDOG_CONN_NODE_T
     void  *p_cn_pkt;
 
     u8 d_cmd;
-    u8 d_observe_flag;
+    u8 d_observe_flag;	
+	u8  d_reObserver_flag;
     Wilddog_Func_T f_cn_callback;
     u8 *p_cn_path;
     void* p_cn_cb_arg;
@@ -70,7 +72,7 @@ typedef struct WILDDOG_CONN_T
     
     u8  d_auth_st;
 	u8 	d_pong_state;
-	u8 d_pong_num;
+	u8  d_pong_num;
 	
     u32 d_wauth;
     u32 d_ralyRecv;
