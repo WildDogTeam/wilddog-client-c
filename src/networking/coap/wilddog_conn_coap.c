@@ -148,7 +148,7 @@ STATIC int _wilddog_conn_coap_cmd2Typecode(Wilddog_Conn_Cmd_T cmd,
             
        case WILDDOG_CONN_CMD_PONG:
             *p_type = COAP_MESSAGE_CON;
-            *p_code = COAP_REQUEST_POST;
+            *p_code = COAP_REQUEST_GET;
             *pp_observe = NULL;
             break;
             
@@ -335,12 +335,19 @@ STATIC void _wilddog_conn_coap_pduOptionAdd( coap_pdu_t* p_coap, u8 * host,
 STATIC int _wilddog_conn_coap_countPacktSize(Wilddog_Conn_PktSend_T *p_cp_pkt)
 {
 	int len = 0,n=0;
+	
+	wilddog_debug("");
 	/*option*/
 	if(p_cp_pkt->p_url)
 	{
+		
 		Wilddog_Url_T *p_url = p_cp_pkt->p_url;
+	wilddog_debug("p_url=%p \n",p_url);
+	wilddog_debug("host =%p  ::%s \n",p_url->p_url_host,p_url->p_url_host);
 		if(p_url->p_url_host)
-			len = 4+strlen((const char *)p_url->p_url_host);
+			len = 4+ strlen((const char *)p_url->p_url_host);
+		
+		wilddog_debug("");
 		if(p_url->p_url_query)
 			len += 6+ strlen((const char *)p_url->p_url_query);
 		if(p_url->p_url_path)
@@ -371,19 +378,24 @@ coap_pdu_t
     index = p_coap_pcb->d_pkt_idx++;
     index = htons(index);
     
+	wilddog_debug("");
     d_packetsize = _wilddog_conn_coap_countPacktSize(p_cp_pkt);
+	
+	wilddog_debug("");
     /*@ todo */
     p_coap = coap_pdu_init(types,codes, index,d_packetsize);
 
     if(!p_coap)
         return NULL;
     
+	wilddog_debug("");
     /*@ add token */
     
     temtoken = _sys_rand_get();
     temtoken = (temtoken<<8) | (p_coap_pcb->d_pkt_idx & 0xff);
     coap_add_token(p_coap, COAP_TOKENLEN, (u8*)&temtoken);
     
+	wilddog_debug("");
     /*@ add option*/
     if(p_cp_pkt->p_url)
     {
@@ -446,11 +458,16 @@ Wilddog_Conn_Coap_PacketNode_T *_wilddog_conn_coap_node_creat
     
     if(_wilddog_conn_coap_cmd2Typecode(p_pkt->cmd,&types,&codes,&p_observe) < 0)
         return NULL;
-        
+	      
     p_coap = _wilddog_conn_coap_pduCreat(types,codes,p_observe,p_pkt);
     if(p_coap == NULL)
         return NULL;
     wilddog_debug_level(WD_DEBUG_LOG,"coap creat pdu =%p\n",p_coap); 
+#ifdef WILDDOG_DEBUG
+#if DEBUG_LEVEL <= WD_DEBUG_LOG
+		coap_show_pdu(p_coap);
+#endif
+#endif
 
     /*@ malloc coap pkt node*/
     p_node = wmalloc(sizeof(Wilddog_Conn_Coap_PacketNode_T));
@@ -490,7 +507,6 @@ void _wilddog_conn_coap_node_destory
         *p_node = NULL;
         }
 	
-	wilddog_debug();
 }
 INLINE int _wilddog_conn_coap_node_remove
     (

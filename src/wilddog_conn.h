@@ -27,10 +27,13 @@ extern "C"
 
 #define AUTHR_PATH  "/.cs"
 #define AUTHR_QURES ".cs="
-
-#define PONG_PATH	"/.pong"
-#define PONG_QURES	".sequence="
 #define AUTHR_LEN   (4)
+
+#define PONG_PATH	"/.ping"
+#define PONG_QURES	"seq="
+#define PONG_NUMBERMAX	(98)
+#define PONG_NUMBERLEN	(2)
+#define PONG_REQUESINTERVAL	(100000)//(10*60*1000)
 
 typedef enum WILDDOG_CONN_CMD_TYPE
 {
@@ -51,7 +54,7 @@ typedef struct WILDDOG_CONN_NODE_T
     u32 d_cn_regist_tm;
     u32 d_cn_nextsend_tm;
     u32 d_cn_retansmit_cnt;
-    void    *p_cn_pkt;
+    void  *p_cn_pkt;
 
     u8 d_cmd;
     u8 d_observe_flag;
@@ -65,8 +68,9 @@ typedef struct WILDDOG_CONN_T
 {
     Wilddog_Repo_T *p_conn_repo;
     
-    u8 d_auth_st;
+    u8  d_auth_st;
 	u8 	d_pong_state;
+	u8 d_pong_num;
 	
     u32 d_wauth;
     u32 d_ralyRecv;

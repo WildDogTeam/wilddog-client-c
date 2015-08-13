@@ -72,16 +72,19 @@ int main(int argc, char **argv)
         wilddog_debug("new wilddog failed!");
         return 0;
     }
+	
     wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, test_addObserverFunc, (void*)&isFinished);
+	isFinished = FALSE;
+	
     while(1)
     {
         if(TRUE == isFinished)
         {
-            //wilddog_debug("get new data %d times!", count++);
-            isFinished = FALSE;
-            if(count > 0)
+            wilddog_debug("get new data %d times!", count++);
+			isFinished = FALSE;
+            if(count > 12)
             {
-                //wilddog_debug("off the data!");
+                wilddog_debug("off the data!");
                 wilddog_removeObserver(wilddog, WD_ET_VALUECHANGE);
                 break;
             }
