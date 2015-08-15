@@ -11,8 +11,6 @@
 #include "wilddog_debug.h"
 #include "demo.h"
 
-
-
 STATIC void test_getValueFunc(
     const Wilddog_Node_T* p_snapshot, 
     void* arg, 

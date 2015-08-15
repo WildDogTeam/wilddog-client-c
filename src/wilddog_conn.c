@@ -360,8 +360,8 @@ STATIC Wilddog_Payload_T *_wilddog_conn_allocStoreArg(
     Wilddog_Payload_T *p_payload = NULL;
 
     u8 *p_buf = NULL;
-    
-    p_conn->p_conn_repo->p_rp_store->p_se_callback(
+    int len = 0;
+    len = p_conn->p_conn_repo->p_rp_store->p_se_callback(
 							p_conn->p_conn_repo->p_rp_store,cmd,&p_buf,0);
     if(p_buf == NULL)   
         return NULL;
@@ -373,7 +373,6 @@ STATIC Wilddog_Payload_T *_wilddog_conn_allocStoreArg(
 	p_payload->d_dt_len = strlen((const char *)p_buf);  
     p_payload->p_dt_data = wmalloc(p_payload->d_dt_len);
     memcpy(p_payload->p_dt_data,p_buf,p_payload->d_dt_len);
-	
 	return p_payload;	
 }
 STATIC INLINE void _wilddog_conn_node_addlist
