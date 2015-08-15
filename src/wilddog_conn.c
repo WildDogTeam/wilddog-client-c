@@ -903,7 +903,8 @@ STATIC int _wilddog_conn_cbDispatch
           	_wilddog_conn_cb_auth(p_conn,p_cn_node,&d_cn_recvData);
             break;
         case WILDDOG_CONN_CMD_PONG:
-			_wilddog_conn_pong_cb(p_conn,p_cn_node,&d_cn_recvData);
+			/* todo */
+			//_wilddog_conn_pong_cb(p_conn,p_cn_node,&d_cn_recvData);
 			break;
         case WILDDOG_CONN_CMD_PUSH:
             _wilddog_conn_cb_push
@@ -1110,7 +1111,7 @@ STATIC int _wilddog_conn_trySync(Wilddog_Repo_T *p_repo)
     res = _wilddog_conn_keepLink(p_repo->p_rp_conn);
     res = _wilddog_conn_retransmit(p_repo->p_rp_conn);
     res = _wilddog_conn_auth_detect(p_repo);
-	res = _wilddog_conn_pong_trysync(p_repo);
+	//res = _wilddog_conn_pong_trysync(p_repo);
     return res ;
     
 }
