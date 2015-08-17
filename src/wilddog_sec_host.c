@@ -88,10 +88,10 @@ int _wilddog_sec_getHost
 	}
 #if 1
 		p_remoteAddr->len = 4;
-		p_remoteAddr->ip[0] = 211;
-		p_remoteAddr->ip[1] = 151;
-		p_remoteAddr->ip[2] = 208;
-		p_remoteAddr->ip[3] = 197;
+		p_remoteAddr->ip[0] = 10;
+		p_remoteAddr->ip[1] = 18;
+		p_remoteAddr->ip[2] = 2;
+		p_remoteAddr->ip[3] = 200;
 #endif 
 
     p_remoteAddr->port = d_port;

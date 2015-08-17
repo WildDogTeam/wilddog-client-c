@@ -9,7 +9,7 @@ UNAR=ar x
 RM = rm -rf
 MV = mv
 
-CFLAGS+=-Wall -g
+CFLAGS+=-Wall -pthread -g
 
 ifeq ($(COVER), 1)
 CFLAGS+= -fprofile-arcs -ftest-coverage

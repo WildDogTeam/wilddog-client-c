@@ -24,7 +24,7 @@ typedef struct WILDDOG_CONN_COAP_PACKET_NODE_T{
 	
     u8 d_observer_flag;  /*observe 0x01*/
     u8 d_separate_flag; 
-    u8 d_dismsgid_fig;
+    /* u8 d_lock_flag; todo*/
     u8 d_blockIdx;
 
 	u32 d_maxAge;	
@@ -43,6 +43,7 @@ typedef struct WILDDOG_CONN_COAP_PCB{
     
     u32 d_nx_reObserverTm;
 
+	u8 d_recvLock_flag;
     u16 d_coap_session_cnt;
     u16 d_pkt_idx;
     u8 *p_auth;

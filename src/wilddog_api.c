@@ -173,9 +173,8 @@ Wilddog_Return_T wilddog_addObserver
     )
 {
     Wilddog_Arg_On_T args;
-    
     wilddog_assert(wilddog, WILDDOG_ERR_NULL);
-    
+	
     args.p_ref = wilddog;
     args.d_event = event;
     args.p_onData = (Wilddog_Func_T)onDataChange;

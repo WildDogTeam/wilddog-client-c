@@ -134,6 +134,7 @@ Wilddog_Return_T _wilddog_conn_pkt_init
     u16 d_port
     );
 void _wilddog_conn_pkt_free(void **pp_pkt);
+
 Wilddog_Return_T _wilddog_conn_pkt_deinit(void);
 Wilddog_Return_T _wilddog_conn_pkt_send
     (

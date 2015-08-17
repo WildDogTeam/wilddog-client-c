@@ -486,8 +486,6 @@ STATIC void _wilddog_conn_cmd_offEvent
             (memcmp(p_path,p_cur->p_cn_path, strlen((const char *)p_cur->p_cn_path)) == 0)
             )
         {
-            if(p_cur->p_cn_pkt != NULL)
-                _wilddog_conn_pkt_free(&p_cur->p_cn_pkt);
             _wilddog_conn_node_remove(p_conn,&p_cur);   
             return ;
         }
@@ -904,7 +902,7 @@ STATIC int _wilddog_conn_cbDispatch
             break;
         case WILDDOG_CONN_CMD_PONG:
 			/* todo */
-			//_wilddog_conn_pong_cb(p_conn,p_cn_node,&d_cn_recvData);
+			_wilddog_conn_pong_cb(p_conn,p_cn_node,&d_cn_recvData);
 			break;
         case WILDDOG_CONN_CMD_PUSH:
             _wilddog_conn_cb_push

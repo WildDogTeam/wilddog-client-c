@@ -54,10 +54,14 @@ typedef enum{
     WILDDOG_CONN_COAPPKT_NO_SEPARATE = 0,
     WILDDOG_CONN_COAPPKT_IS_SEPARATE ,
 }WILDDOG_CONN_COAP_SEPARATEFLAG_T;
-
+typedef enum{
+	_COAP_UNLOCK,
+	_COAP_LOCK
+}_COAP_LOCK_STATE;
 STATIC Wilddog_Conn_Coap_PCB_T *p_coap_pcb = NULL;
 
 extern u32 _wilddog_getTime(void);
+
 int _wilddog_conn_coap_send
     (
     u8 *p_auth,
@@ -813,16 +817,17 @@ STATIC void _wilddog_conn_coap_recv_updateMaxAge
             memcpy((u8*)&p_node->d_maxAge,p_optionvalue,d_optionlen); 
 #endif
 			/*updata next reobserver time*/
-			p_node->d_nxTm_sendObserver = _sys_coap_return_tm() + p_node->d_maxAge;
+			p_node->d_nxTm_sendObserver = _sys_coap_return_tm() + \
+				p_node->d_maxAge;
 			
-            wilddog_debug_level(WD_DEBUG_LOG,"Max-Age = %lu \n",(u32)p_node->d_maxAge);
+            wilddog_debug_level(WD_DEBUG_LOG,"Max-Age = %lu \n",\
+				(u32)p_node->d_maxAge);
             /*  updata reObserver time */ 
             _wilddog_conn_coap_updateReObserverTm();
         }
     }
 
 }
-
 STATIC int _wilddog_conn_coap_recv_observCheck
     (
     Wilddog_Conn_Coap_PacketNode_T *p_node,
@@ -968,7 +973,8 @@ Wilddog_Return_T _wilddog_conn_pkt_recv
     }
 
 	p_cpk_recv->d_recvlen = recv_size;
-    /*@  coap verify  malloc */
+
+		/*@  coap verify  malloc */
     p_pdu = _wilddog_conn_coap_recVerify(p_buf,recv_size);
 #ifdef WILDDOG_SELFTEST                        
   	ramtest_caculate_peakRam();
