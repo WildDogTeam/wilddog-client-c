@@ -357,10 +357,9 @@ STATIC Wilddog_Payload_T *_wilddog_conn_allocStoreArg(
     )
 {
     Wilddog_Payload_T *p_payload = NULL;
-
     u8 *p_buf = NULL;
-    int len = 0;
-    len = p_conn->p_conn_repo->p_rp_store->p_se_callback(
+	
+    p_conn->p_conn_repo->p_rp_store->p_se_callback(
 							p_conn->p_conn_repo->p_rp_store,cmd,&p_buf,0);
     if(p_buf == NULL)   
         return NULL;

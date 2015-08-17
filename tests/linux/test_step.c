@@ -46,7 +46,7 @@ Wilddog_step_res_T l_step;
 STATIC void test_step_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
 {
 	*(BOOL*)arg = TRUE;
-	printf("push err =%lu \n",err);	
+	printf("\t push err =%d \n",err);	
 	l_step.res_pushSuccess = TRUE;
 	
 	return;
@@ -56,7 +56,7 @@ STATIC void test_step_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
 STATIC void test_step_deleteFunc(void* arg, Wilddog_Return_T err)
 {
 	*(BOOL*)arg = TRUE;
-	printf("delete err =%lu \n",err);	
+	printf("\t delete err =%d \n",err);	
 	l_step.res_deleteSuccess = TRUE;
 	
 	return;
@@ -66,7 +66,7 @@ STATIC void test_step_setFunc(void* arg, Wilddog_Return_T err)
 {
 	
 	*(BOOL*)arg = TRUE;
-	printf("set err =%lu \n",err);	
+	printf("\t set err =%d \n",err);	
 	l_step.res_setValueSuccess = TRUE;
 	return;
 }
@@ -78,7 +78,7 @@ STATIC void test_step_getFunc(
 {
 	
 	*(BOOL*)arg = TRUE;
-	printf("get err =%lu \n",err);	
+	printf("\t get err =%d \n",err);	
 	l_step.res_getValueSuccess = TRUE;
 
 	return;
@@ -90,7 +90,7 @@ STATIC void test_step_getObserverFunc(
 {
 	
 	*(BOOL*)arg = TRUE;
-	printf("res_addObserverSuccess err =%lu \n",err);	
+	printf("\t res_addObserverSuccess err =%d \n",err);	
 	l_step.res_addObserverSuccess = TRUE;
 
 	return;
@@ -103,7 +103,7 @@ STATIC void test_step_authFunc
     )
 {
 	*(BOOL*)arg = TRUE;
-	printf("set auth err =%lu \n",err);	
+	printf("\t set auth err =%d \n",err);	
 	l_step.res_setAuthSuccess = TRUE;
 
 
@@ -141,11 +141,9 @@ int main(void)
 {
 	char url[1024];
 
-	char en_key = 0;
 	int res;
 	BOOL isFinished = FALSE;
 	Wilddog_T wilddog;
-	Wilddog_Handle_T s_handle;
 	Wilddog_Node_T *p_head = NULL, *p_node = NULL/*, *p_snapshot = NULL*/;
 	u8 value1[5] = {246,12,0,0,6};
 	/*u8 value2[4] = {23,67,98,1};*/
@@ -158,16 +156,13 @@ int main(void)
 					*L3c3 = NULL,*L3c4 = NULL,*L3c5 = NULL;
 	Wilddog_Node_T *L4c1 = NULL,*L4c2 = NULL,
 					*L4c3 = NULL,*L4c4 = NULL,*L4c5 = NULL;
-	
-	printf("**********STEP TEST **************** \n");
-
-	int count = 0;	
+		
 	memset(url,0,sizeof(url));
 	sprintf(url,"%s%s%s",TEST_STEP_URLHEADE,TEST_STEP_HOST,TEST_STEP_PATH);
-    
-	memset(&s_handle, 0, sizeof(s_handle));
-	s_handle.isFinished = FALSE;
 
+ 	printf("**********STEP TEST **************** \n");
+	printf("\t url = %s\n",url);
+	
 	root = wilddog_node_createNum((Wilddog_Str_T *)"root",9999);
 	L1c1 = wilddog_node_createFalse((Wilddog_Str_T *)"L1c1");
 	L1c2 = wilddog_node_createTrue((Wilddog_Str_T *)"L1c2");
@@ -251,7 +246,8 @@ int main(void)
 	
 	/*auth*/
 	isFinished = FALSE;
-	wilddog_auth(TEST_STEP_HOST,TEST_STEP_AUTHS,strlen(TEST_STEP_AUTHS), \
+	wilddog_auth((Wilddog_Str_T*)TEST_STEP_HOST, \
+		(u8*)TEST_STEP_AUTHS,strlen(TEST_STEP_AUTHS), \
 		test_step_authFunc,(void*)&isFinished);
 	while(1)
 	{

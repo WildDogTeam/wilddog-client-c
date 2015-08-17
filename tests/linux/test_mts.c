@@ -211,7 +211,6 @@ void test_mts_resPrintf(Test_Client_T *p_client)
 }
 int main(int argc, char **argv)
 {
-	int opt;
     Test_Client_T client;
    	pthread_t trysync_pid, main_pid;
 	

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <malloc.h>
+#include <string.h>
 
 #include<sys/time.h>
 
@@ -60,7 +61,7 @@ typedef struct MULTIPLE_SETDATA_T
 
 STATIC Multiple_client_T multipleClient[3];
 
-STATIC int multiple_judge(Wilddog_Node_T* p_snapshot,char* src)
+STATIC int multiple_judge(const Wilddog_Node_T* p_snapshot,char* src)
 {
 	int len;
 	if( p_snapshot != 0 &&
@@ -89,7 +90,7 @@ STATIC void multiple_getValueFunc
 	wilddog_debug();
 }
 
-STATIC void multiple_removeValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void multiple_removeValueFunc( void* arg, Wilddog_Return_T err)
 {
 	Multiple_client_T *p_client = (Multiple_client_T*)arg;
 	p_client->d_recvFlag = 1;
@@ -101,7 +102,7 @@ STATIC void multiple_removeValueFunc(void* arg, Wilddog_Return_T err)
 		p_client->d_deleteResult = 1;
 
 }
-STATIC void multiple_setValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void multiple_setValueFunc( void* arg, Wilddog_Return_T err)
 {
                         
 	Multiple_client_T *p_client = (Multiple_client_T*)arg;
