@@ -292,7 +292,6 @@ STATIC int _wilddog_conn_pong_cb
         tmpData.d_dt_len = p_cn_recvData->d_recvlen;
         tmpData.d_dt_pos = 0;
         tmpData.p_dt_data = p_cn_recvData->p_Recvdata;
-		wilddog_debug("");
 
         p_snapshot = _wilddog_payload2Node((Wilddog_Payload_T*)&tmpData);
 		p_recv_value = wilddog_node_getValue(p_snapshot,&len);		
@@ -804,7 +803,9 @@ STATIC void _wilddog_conn_cb_get
 #ifdef WILDDOG_SELFTEST
 		ramtest_skipLastmalloc();
 #endif
+
         p_snapshot = _wilddog_payload2Node((Wilddog_Payload_T*)&tmpData);
+
 #ifdef WILDDOG_SELFTEST        
         ramtest_caculate_nodeRam();
 #endif
@@ -935,6 +936,7 @@ STATIC int _wilddog_conn_cbDispatch
             break;
         
     }
+	
     return 0;
 } 
 /* coap call while get an respone */
@@ -961,7 +963,6 @@ STATIC int _wilddog_conn_timeoutCB
     )
 {
     Wilddog_Conn_RecvData_T d_cn_recvData;
-	
     if(_wilddog_conn_auth_get(p_conn) == WILDDOG_CONN_AUTH_AUTHED)
     	d_cn_recvData.d_RecvErr = WILDDOG_ERR_RECVTIMEOUT;
     else
