@@ -38,7 +38,7 @@ extern "C"
 
 
 #ifdef WILDDOG_DEBUG
-#define DEBUG_LEVEL WD_DEBUG_ERROR
+#define DEBUG_LEVEL WD_DEBUG_ALL
 
 #define wilddog_debug_level(level, format,...) do{if(level >= DEBUG_LEVEL){ \
     printf("func:%s LINE: %d: "format"\n", __func__, __LINE__, ##__VA_ARGS__); \

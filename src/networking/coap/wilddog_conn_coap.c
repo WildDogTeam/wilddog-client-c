@@ -958,11 +958,8 @@ Wilddog_Return_T _wilddog_conn_pkt_recv
     int recv_size,res =-1;
 
     coap_pdu_t *p_pdu = NULL;
-    u8 p_buf[WILDDOG_PROTO_MAXSIZE];
-
-	memset(p_buf, 0, WILDDOG_PROTO_MAXSIZE);
 	
-    recv_size = _wilddog_sec_recv(p_buf, WILDDOG_PROTO_MAXSIZE);
+    recv_size = _wilddog_sec_recv(p_cpk_recv->p_Recvdata, WILDDOG_PROTO_MAXSIZE);
     
     /*@ NO enougth space */
     if( recv_size <= 0 || recv_size  > p_cpk_recv->d_recvlen ) 
@@ -975,7 +972,7 @@ Wilddog_Return_T _wilddog_conn_pkt_recv
 	p_cpk_recv->d_recvlen = recv_size;
 
 		/*@  coap verify  malloc */
-    p_pdu = _wilddog_conn_coap_recVerify(p_buf,recv_size);
+    p_pdu = _wilddog_conn_coap_recVerify(p_cpk_recv->p_Recvdata,recv_size);
 #ifdef WILDDOG_SELFTEST                        
   	ramtest_caculate_peakRam();
 #endif

@@ -28,12 +28,13 @@ extern "C"
 #define AUTHR_PATH  "/.cs"
 #define AUTHR_QURES ".cs="
 #define AUTHR_LEN   (4)
+#define AUTHR_LENINBYTE	(2*AUTHR_LEN)
 
 #define PONG_PATH	"/.ping"
 #define PONG_QURES	"seq="
 #define PONG_NUMBERMAX	(98)
 #define PONG_NUMBERLEN	(2)
-#define PONG_REQUESINTERVAL	(10*60*1000)
+#define PONG_REQUESINTERVAL	 (4000)//(10*60*1000)
 #define PONG_REQUEST_IMMEDIATELY	(1000)	/* auth timeout need to pong immediately*/	
 
 typedef enum WILDDOG_CONN_CMD_TYPE

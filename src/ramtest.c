@@ -146,6 +146,7 @@ void ramtest_titile_printf(void)
 {
 	printf("\n|---------------------------RAM--测试-----------------------------------------------");
 	printf("---------------------------------------------------------------------------------------------|\n");
+	printf("NO\tQueries\tUnSend\tErrorRecv\tDTLS\tUDPSize\tPeakMemory\tAverageMemory\t")
 	printf("|\t次数\t请求数\t未发出请求数\t接收错误\tDTLS\tUDP数据包大小\t内存峰值\t平均内存占用\t请求队列占用内存\tX509占用内存\tNode树占用内存\t|\n");	
 }
 void ramtest_end_printf(void)

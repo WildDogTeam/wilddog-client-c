@@ -86,7 +86,7 @@ int _wilddog_sec_getHost
 		p_remoteAddr->len = l_defaultAddr_t[i].len;
 		memcpy(p_remoteAddr->ip, l_defaultAddr_t[i].ip, l_defaultAddr_t[i].len);
 	}
-#if 0
+#if 1
 		p_remoteAddr->len = 4;
 		p_remoteAddr->ip[0] = 10;
 		p_remoteAddr->ip[1] = 18;
