@@ -263,6 +263,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
     Wilddog_ConnCmd_Arg_T *arg
     )
 {
+	Wilddog_Return_T err = WILDDOG_ERR_NOERR;
     Wilddog_EventNode_T *node, *tmp_node = NULL, *prev_tmp_node = NULL;
     Wilddog_EventNode_T *head;
     Wilddog_Str_T *tmp;
@@ -382,7 +383,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 					
 	                if(p_conn && p_conn->f_conn_send)
 	                {
-		                p_conn->f_conn_send(WILDDOG_CONN_CMD_OFF, \
+		                err = p_conn->f_conn_send(WILDDOG_CONN_CMD_OFF, \
 		                                    event->p_ev_store->p_se_repo,arg);
 	                }
 					
@@ -414,7 +415,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
         		head->flag = ON_FLAG;
 				
         		if(p_conn && p_conn->f_conn_send)
-	                p_conn->f_conn_send(WILDDOG_CONN_CMD_ON, \
+	                err = p_conn->f_conn_send(WILDDOG_CONN_CMD_ON, \
 	                                    event->p_ev_store->p_se_repo,arg);
         	}
             head = head->next;
@@ -425,6 +426,11 @@ Wilddog_Return_T _wilddog_event_nodeAdd
         }
     }
 	
+    if(err != WILDDOG_ERR_NOERR)
+    {
+        wilddog_debug_level(WD_DEBUG_ERROR, "send on to server failed!");
+        return WILDDOG_ERR_INVALID;
+    }
 
     return WILDDOG_ERR_NOERR;
 }
