@@ -16,7 +16,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
- 
+
+#include "wilddog.h"
 #include "wilddog_url_parser.h"
 #include "wilddog_config.h"
 #include "wilddog_ct.h"
@@ -62,11 +63,28 @@ void wfree(void* ptr)
  * Output:      N/A
  * Return:      New pointer.
 */
-void *wrealloc(void *ptr, size_t size)
+void *wrealloc(void *ptr, size_t oldSize, size_t newSize)
 {
+#ifdef WILDDOG_PORT_TYPE_QUCETEL
+	void* tmpPtr = NULL;
+#endif
+
     if(!ptr)
-        return wmalloc(size);
-    return realloc( ptr, size);
+        return wmalloc(newSize);
+#ifdef WILDDOG_PORT_TYPE_QUCETEL
+
+	tmpPtr = (void*)wmalloc(newSize);
+	if(!tmpPtr)
+	{
+		wfree(ptr);
+		return NULL;
+	}
+	memcpy(tmpPtr, ptr, oldSize > newSize? (newSize):(oldSize));
+	wfree(ptr);
+	return tmpPtr;
+#else
+	return realloc( ptr, newSize);
+#endif
 }
 /*
  * Function:    _wilddog_atoi
@@ -150,7 +168,7 @@ void _wilddog_syncTime(void)
     u32 currTime = _wilddog_getTime();
 
     /*every repo will receive WILDDOG_RECEIVE_TIMEOUT ms*/
-    u32 calTime = recentTime + _wilddog_ct_getRepoNum() * WILDDOG_RECEIVE_TIMEOUT;
+    u32 calTime = recentTime + WILDDOG_RECEIVE_TIMEOUT;
     
     /*calTime < recentTime means overflow*/
     if(calTime < recentTime)

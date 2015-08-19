@@ -20,6 +20,7 @@
 #include <string.h>
 #include <stdlib.h> 
 
+#include "wilddog.h"
 #include "wilddog_url_parser.h"
 #include "wilddog_ct.h"
 #include "wilddog_debug.h"
@@ -177,7 +178,7 @@ STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
         if(NULL != node->p_wn_child)
         {
             p_childStr = wilddog_debug_n2jsonStringInner(node->p_wn_child);
-            p_str = (Wilddog_Str_T *)wrealloc(p_str, \
+            p_str = (Wilddog_Str_T *)wrealloc(p_str, strlen((const char *)p_str), \
                                 len + 4 + strlen((const char *)p_childStr) + 1);
             if(NULL == p_str)
             {
@@ -192,7 +193,7 @@ STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
         if(NULL != node->p_wn_next)
         {
             p_brother = wilddog_debug_n2jsonStringInner(node->p_wn_next);
-            p_str = (Wilddog_Str_T *)wrealloc(p_str, \
+            p_str = (Wilddog_Str_T *)wrealloc(p_str, strlen((const char *)p_str),\
                                 len + 4 + strlen((const char *)p_brother) + 1);
             if(NULL == p_str)
             {
@@ -224,7 +225,8 @@ STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
         }
         if(node->d_wn_type == WILDDOG_NODE_TYPE_FALSE)
         {
-            p_str = (Wilddog_Str_T *)wrealloc(p_str, len + 6);
+            p_str = (Wilddog_Str_T *)wrealloc(p_str, strlen((const char *)p_str),\
+				                              len + 6);
             if(NULL == p_str)
             {
                 wilddog_debug_level(WD_DEBUG_ERROR, "malloc failed!");
@@ -234,7 +236,8 @@ STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
         }
         else if(node->d_wn_type == WILDDOG_NODE_TYPE_TRUE)
         {
-            p_str = (Wilddog_Str_T *)wrealloc(p_str, len + 5);
+            p_str = (Wilddog_Str_T *)wrealloc(p_str, strlen((const char *)p_str), \
+				                              len + 5);
             if(NULL == p_str)
             {
                 wilddog_debug_level(WD_DEBUG_ERROR, "malloc failed!");
@@ -245,7 +248,8 @@ STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
         }
         else if(node->d_wn_type == WILDDOG_NODE_TYPE_NULL)
         {
-            p_str = (Wilddog_Str_T *)wrealloc(p_str, len + 5);
+            p_str = (Wilddog_Str_T *)wrealloc(p_str, strlen((const char *)p_str),\
+				                              len + 5);
             if(NULL == p_str)
             {
                 wilddog_debug_level(WD_DEBUG_ERROR, "malloc failed!");
@@ -259,7 +263,7 @@ STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
             Wilddog_Str_T tmp[12];
             memset(tmp, 0, 12);
             sprintf((char*)tmp, "%d", *(int*)(node->p_wn_value));
-            p_str = (Wilddog_Str_T *)wrealloc(p_str, \
+            p_str = (Wilddog_Str_T *)wrealloc(p_str, strlen((const char *)p_str),\
                                         len + 2 + strlen((const char *)tmp));
             if(NULL == p_str)
             {
@@ -273,7 +277,7 @@ STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
             Wilddog_Str_T tmp[40];
             memset(tmp, 0, 40);
             sprintf((char*)tmp, "%lf", *(wFloat*)(node->p_wn_value));
-            p_str = (Wilddog_Str_T *)wrealloc(p_str, \
+            p_str = (Wilddog_Str_T *)wrealloc(p_str, strlen((const char *)p_str),\
                                         len + 2 + strlen((const char *)tmp));
             if(NULL == p_str)
             {
@@ -293,7 +297,7 @@ STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
                 wfree(p_str);
                 return NULL;
             }
-            p_str = (Wilddog_Str_T *)wrealloc(p_str, \
+            p_str = (Wilddog_Str_T *)wrealloc(p_str, strlen((const char *)p_str),\
                             len + 4 + strlen((const char *)node->p_wn_value));
             if(NULL == p_str)
             {

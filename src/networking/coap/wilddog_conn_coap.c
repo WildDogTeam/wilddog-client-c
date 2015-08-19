@@ -54,14 +54,10 @@ typedef enum{
     WILDDOG_CONN_COAPPKT_NO_SEPARATE = 0,
     WILDDOG_CONN_COAPPKT_IS_SEPARATE ,
 }WILDDOG_CONN_COAP_SEPARATEFLAG_T;
-typedef enum{
-	_COAP_UNLOCK,
-	_COAP_LOCK
-}_COAP_LOCK_STATE;
+
 STATIC Wilddog_Conn_Coap_PCB_T *p_coap_pcb = NULL;
 
 extern u32 _wilddog_getTime(void);
-
 int _wilddog_conn_coap_send
     (
     u8 *p_auth,
@@ -480,7 +476,7 @@ Wilddog_Conn_Coap_PacketNode_T *_wilddog_conn_coap_node_creat
 
     return p_node;
 }
-void _wilddog_conn_coap_node_destory
+STATIC void _wilddog_conn_coap_node_destory
     (
     Wilddog_Conn_Coap_PacketNode_T **p_node
     )
@@ -505,7 +501,7 @@ void _wilddog_conn_coap_node_destory
         }
 	
 }
-INLINE int _wilddog_conn_coap_node_remove
+STATIC INLINE int _wilddog_conn_coap_node_remove
     (
     Wilddog_Conn_Coap_PCB_T *p_pcb,
     Wilddog_Conn_Coap_PacketNode_T *p_dele
@@ -779,12 +775,14 @@ STATIC int _wilddog_conn_coap_recv_separationRespCheck
     coap_pdu_t *p_resp
     )
 {
-    if(p_node->p_CoapPkt->hdr->type == COAP_MESSAGE_CON){
+    if(p_node->p_CoapPkt->hdr->type == COAP_MESSAGE_CON)
+    {
         /* empty message */
         if(p_resp->hdr->code == 0 )
         {
-            return WILDDOG_CONN_COAP_RESPON_IGNORE;
             p_node->d_separate_flag = WILDDOG_CONN_COAPPKT_IS_SEPARATE;
+            return WILDDOG_CONN_COAP_RESPON_IGNORE;
+            
         }
     }
 
@@ -817,17 +815,16 @@ STATIC void _wilddog_conn_coap_recv_updateMaxAge
             memcpy((u8*)&p_node->d_maxAge,p_optionvalue,d_optionlen); 
 #endif
 			/*updata next reobserver time*/
-			p_node->d_nxTm_sendObserver = _sys_coap_return_tm() + \
-				p_node->d_maxAge;
+			p_node->d_nxTm_sendObserver = _sys_coap_return_tm() + p_node->d_maxAge;
 			
-            wilddog_debug_level(WD_DEBUG_LOG,"Max-Age = %lu \n",\
-				(u32)p_node->d_maxAge);
+            wilddog_debug_level(WD_DEBUG_LOG,"Max-Age = %lu \n",(u32)p_node->d_maxAge);
             /*  updata reObserver time */ 
             _wilddog_conn_coap_updateReObserverTm();
         }
     }
 
 }
+
 STATIC int _wilddog_conn_coap_recv_observCheck
     (
     Wilddog_Conn_Coap_PacketNode_T *p_node,
@@ -926,7 +923,9 @@ STATIC int _wilddog_conn_coap_recvDispatch
 			}
         }
         printf("\n");
-#endif        
+#endif
+        memset(p_cpk_recv->p_Recvdata, 0, p_cpk_recv->d_recvlen);
+        p_cpk_recv->d_recvlen = tmplen > p_cpk_recv->d_recvlen?(p_cpk_recv->d_recvlen):(tmplen);
         if(p_buftemp != NULL)
         {
             memcpy(p_cpk_recv->p_Recvdata,p_buftemp,p_cpk_recv->d_recvlen);

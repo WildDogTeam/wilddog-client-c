@@ -53,6 +53,19 @@ void parsed_url_free(struct parsed_url *);
 /*
  * Check whether the character is permitted in scheme string
  */
+#if 0
+#ifdef WILDDOG_PORT_TYPE_QUCETEL
+#define isalpha(c) wd_isalpha(c)
+STATIC int wd_isalpha(int c)
+{
+    if(c >= 'a' && c <= 'z')
+        return 2;
+    if(c >= 'A' && c <= 'Z')
+        return 1;
+    return 0;
+}
+#endif
+#endif
 STATIC INLINE int _is_scheme_char(int c)
 {
     return (!isalpha(c) && '+' != c && '-' != c && '.' != c) ? 0 : 1;

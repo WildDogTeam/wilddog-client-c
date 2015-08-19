@@ -25,6 +25,12 @@
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
+#include "wilddog.h"
+
+#define __LITTLE_ENDIAN WILDDOG_LITTLE_ENDIAN
+#define __BIG_ENDIAN (1 - WILDDOG_LITTLE_ENDIAN)
+
+#define __BYTE_ORDER WILDDOG_LITTLE_ENDIAN
 
 #if defined(POLARSSL_NET_C)
 

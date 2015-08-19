@@ -225,7 +225,6 @@ STATIC void _wilddog_conn_auth_reset
 	}
 	else
 		_wilddog_conn_auth_set(p_conn,WILDDOG_CONN_AUTH_AUTHING,NULL);
-		
 }
 
 STATIC INLINE void _wilddog_conn_pongstatus_set
@@ -275,7 +274,7 @@ STATIC int _wilddog_conn_pong_trysync(Wilddog_Repo_T *p_repo)
 	if( _wilddog_getTime() >= p_conn->d_pong_nextSendTm &&
 		DIFF(_wilddog_getTime(),p_conn->d_pong_nextSendTm) < (0xffff) )
 	{
-		wilddog_debug("curr = %d ; nextime =%d",_wilddog_getTime(),p_conn->d_pong_nextSendTm);
+		wilddog_debug_level(WD_DEBUG_LOG, "curr = %d ; nextime =%d",_wilddog_getTime(),p_conn->d_pong_nextSendTm);
 		return _wilddog_conn_pong_send(p_conn);
 
 	}

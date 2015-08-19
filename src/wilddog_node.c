@@ -434,6 +434,7 @@ Wilddog_Node_T * wilddog_node_createObject
     }
     return p_head;
 }
+
 /*
  * Function:    wilddog_node_setKey
  * Description: Set a node's key.
@@ -794,50 +795,48 @@ Wilddog_Return_T wilddog_node_addChild
         first_child = node->p_wn_child;
         while(first_child != NULL)
         {
-	    if(first_child->p_wn_key != NULL && newnode->p_wn_key != NULL)
-	    {
-		if( strcmp( (const char *)first_child->p_wn_key, (const char *)newnode->p_wn_key ) == 0)	
-	        {
-			break;
+		    if(first_child->p_wn_key != NULL && newnode->p_wn_key != NULL)
+		    {
+				if( strcmp( (const char *)first_child->p_wn_key, (const char *)newnode->p_wn_key ) == 0)	
+			    {
+					break;
+				}
+		    }
+	    	first_child = first_child->p_wn_next;
 		}
-	    }
-	    first_child = first_child->p_wn_next;
-	}
-	if(first_child == NULL)
-	{
-	    {
+		if(first_child == NULL)
+		{
 		    first_child = node->p_wn_child;
 		    first_child->p_wn_prev = newnode;
 		    newnode->p_wn_next = first_child;
 		    newnode->p_wn_parent = node;
 		    node->p_wn_child = newnode;
-	    }
-	}
-	else
-	{
-            if(first_child->p_wn_prev == NULL)
-	    {
-	    	newnode->p_wn_prev = NULL;
-		newnode->p_wn_next = first_child->p_wn_next;
-		newnode->p_wn_parent = node;
-		node->p_wn_child = newnode;
-	    }
-	    else
-	    {
-		    first_child->p_wn_prev->p_wn_next = newnode;
-		    newnode->p_wn_prev = first_child->p_wn_prev;
-		    if(first_child->p_wn_next != NULL)
+		}
+		else
+		{
+	        if(first_child->p_wn_prev == NULL)
 		    {
-			    first_child->p_wn_next->p_wn_prev = newnode;
-			    newnode->p_wn_next = first_child->p_wn_next;
+		    	newnode->p_wn_prev = NULL;
+				newnode->p_wn_next = first_child->p_wn_next;
+				newnode->p_wn_parent = node;
+				node->p_wn_child = newnode;
 		    }
-		    newnode->p_wn_parent = node;
-	    }
-	    first_child->p_wn_prev = NULL;
-	    first_child->p_wn_next = NULL;
-	    first_child->p_wn_parent = NULL;
-	    wilddog_node_delete(first_child);
-	}
+		    else
+		    {
+			    first_child->p_wn_prev->p_wn_next = newnode;
+			    newnode->p_wn_prev = first_child->p_wn_prev;
+			    if(first_child->p_wn_next != NULL)
+			    {
+				    first_child->p_wn_next->p_wn_prev = newnode;
+				    newnode->p_wn_next = first_child->p_wn_next;
+			    }
+			    newnode->p_wn_parent = node;
+		    }
+		    first_child->p_wn_prev = NULL;
+		    first_child->p_wn_next = NULL;
+		    first_child->p_wn_parent = NULL;
+		    wilddog_node_delete(first_child);
+		}
     }
     else
     {
@@ -850,7 +849,6 @@ Wilddog_Return_T wilddog_node_addChild
         node->p_wn_child = newnode;
     }
     return WILDDOG_ERR_NOERR;
-
 }
 
 Wilddog_Return_T wilddog_node_deleteChildren(Wilddog_Node_T *p_node)
