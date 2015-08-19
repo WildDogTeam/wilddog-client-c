@@ -1,4 +1,4 @@
-﻿#!/bin/sh
+﻿#!/bin/bash
 
 cd ../../
 
@@ -16,10 +16,17 @@ WD_LIMIT=$?
 
 WD_NODE=$?
 
+./bin/test_multipleHost
+
+WD_MULTIPLEHOST=$?
+
+#./bin/test_mts
+
+#WD_MTS=$?
+
 ./bin/test_step
 
 WD_STEP=$?
-
 echo "\n*************************************************************************\n"
 
 if [ ${WD_PROPERTY} -ne 0 ]
@@ -42,12 +49,22 @@ then
 else
 	echo "wilddog node test pass!"
 fi
-
+if [ ${WD_MULTIPLEHOST} -ne 0 ]
+then
+	echo "wilddog test_multipleHost test failed, please run test_multipleHost to find more information!"
+else
+	echo "wilddog test_multipleHost test pass!"
+fi
+#if [ ${WD_MTS} -ne 0 ]
+#then
+#	echo "wilddog test_mts test failed, please run test_mts to find more information!"
+#else
+#	echo "wilddog test_mts test pass!"
+#fi
 if [ ${WD_STEP} -ne 0 ]
 then
-	echo "wilddog step test failed, please run test_step to find more information!"
+	echo "wilddog test_step test failed, please run test_step to find more information!"
 else
-	echo "wilddog step test pass!"
+	echo "wilddog test_step test pass!"
 fi
-
 echo "\n*************************************************************************\n"

@@ -25,8 +25,7 @@
 #else
 #include POLARSSL_CONFIG_FILE
 #endif
-#include "wilddog.h"
-#include "test_lib.h"
+
 #if defined(POLARSSL_SSL_CLI_C)
 
 #include "polarssl/debug.h"

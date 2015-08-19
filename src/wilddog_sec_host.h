@@ -5,7 +5,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+extern int _wilddog_sec_getHost
+    (
+    Wilddog_Address_T *p_remoteAddr,
+    Wilddog_Str_T *p_host,
+    u16 d_port
+    );
 extern Wilddog_Return_T _wilddog_sec_send
     (
     void* p_data, 
@@ -28,4 +33,3 @@ extern Wilddog_Return_T _wilddog_sec_deinit(void);
 #endif
 
 #endif/*_WILDDOG_SEC_H_*/
-

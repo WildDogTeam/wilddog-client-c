@@ -80,7 +80,7 @@ STATIC Wilddog_Return_T _wilddog_store_setAuth
     Wilddog_Store_AuthArg_T * p_authArg = (Wilddog_Store_AuthArg_T*)arg;
     Wilddog_Conn_T *p_conn = p_store->p_se_repo->p_rp_conn;
     Wilddog_ConnCmd_Arg_T connCmd;
-    
+	
     if(p_authArg->d_len > WILDDOG_AUTH_LEN)
         return WILDDOG_ERR_INVALID;
 
@@ -90,10 +90,9 @@ STATIC Wilddog_Return_T _wilddog_store_setAuth
 	{
 		if(p_authArg->d_len != 0)
 			return WILDDOG_ERR_NULL;
-		
-	    memcpy(p_store->p_se_auth->p_auth,p_authArg->p_data, p_authArg->d_len);
 	}
-
+	else
+		memcpy(p_store->p_se_auth->p_auth,p_authArg->p_data, p_authArg->d_len);
 	p_store->p_se_auth->d_len = p_authArg->d_len;
     
     connCmd.p_url = p_authArg->p_url;
@@ -150,7 +149,7 @@ STATIC u16 _wilddog_store_getAuth
     )
 {
     *(u8**)arg = p_store->p_se_auth->p_auth;
-    
+	
     wilddog_assert(arg, 0);
     return p_store->p_se_auth->d_len;
 }

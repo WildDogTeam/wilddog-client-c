@@ -251,15 +251,14 @@ void performtest_init( u32 delay_tm,u8 tree_num, u8 request_num)
 }
 void performtest_titile_printf(void)
 {
-	printf("\n>--------------------------------------------------------------------------");
-	printf("----------运行时间--测试-------------------------------------------------------------------------------<\n");
-	printf("次数\t请求数\t未发请求\t数据包大小\t丢包率\tDTLS\tTrysncDelay\tDTLS握手\t签名认证\t发出Auth");
-	printf("\t等待Auth\t处理Auth\t发出请求\tDTLS封包\t等待接收\tDTLS解包\t处理接收\t|\n");	
+	printf("\n>--------------------------Perform--Test-------------------\n");
+	printf("NO\tQueries\tUnSend\tUDPSize\tLossRate\tTrysncDelay\t");
+	printf("DtlsHandShake\tCertification\tSendAuth\tWaitAuth\tHandleAuth\t");
+	printf("RequestSend\tDtlsEncrypt\tRecvWait\tDtlsDecypt\tHandleRecv\t| \n");
 }
 void performtest_end_printf(void)
 {
-	printf(">--------------------------------------------------------------------------");
-	printf("---------------------------------------------------------------------------------------------<\n");	
+	printf(">--------------------------------------------------\n");
 }
 void performtest_printf(Performtest_T *p)
 {
@@ -268,15 +267,13 @@ void performtest_printf(Performtest_T *p)
 	char tembuf[20];
 	memset(tembuf,0,20);
 
-	sprintf(tembuf,"%d/%d",p->d_recv_err,(p->request_num - p->d_send_fault)/*,p->d_recv*/);
+	sprintf(tembuf,"%d/%d",p->d_recv_err,(p->request_num - p->d_send_fault));
 	printf("%d",++perform_indx);
 	printf("\t%d",p->request_num);
 	printf("\t%d",p->d_send_fault);	
-	printf("\t\t%d",tree2len[p->tree_num]);
-	printf("\t\t%s",tembuf);
-
-	printf("\t%ld",p->d_tm_dtels);
-	printf("\t%ld",p->d_tm_trysync_delay);
+	printf("\t%d",tree2len[p->tree_num]);
+	printf("\t%s",tembuf);
+	printf("\t\t%ld",p->d_tm_trysync_delay);
 	printf("\t\t%ld",p->d_tm_dtls_hsk);
 	printf("\t\t%ld",p->d_tm_dtls_hsk_verify);	
 	printf("\t\t%ld",p->d_tm_dtls_auth_send);

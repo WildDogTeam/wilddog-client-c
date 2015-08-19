@@ -58,6 +58,7 @@ int main(void)
 	test_results[0].name = "wilddog_getParent";
 	test_results[1].name = "wilddog_getRoot";
 	test_results[2].name = "wilddog_getChild";
+
 	test_results[3].name = "wilddog_getKey";
 	
 	/*
@@ -186,6 +187,7 @@ int main(void)
 		TEST_RESULT_PRINTF("test_all:get chile error",TESTFUNCNAME_TABLECASE,TEST_ERR,ABORT_ERR);
 		return ABORT_ERR;
 	}
+
 
 	repo1_ref2_key = wilddog_getKey(p_repo1_ref2);
 	repo2_ref2_key = wilddog_getKey(p_repo2_ref2);
