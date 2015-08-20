@@ -275,7 +275,11 @@ int stab_oneCrcuRequest(void)
 void stab_titlePrint(void)
 {
 	printf("\t>----------------------------------------------------<\n");
-	printf("\tcount\truntime\tram\tUnlaunchRatio\tLostRatio\tSuccessRatio\tSuccessSetS \n");
+	printf("\tcount\truntime\tram\tUnlaunchRatio\tLostRatio\tSuccessRatio\t");
+	if(TEST_TYPE == TEST_STAB_FULLLOAD)
+	    printf("SuccessSetS");
+
+	printf("\n");
 }
 void stab_endPrint(void)
 {
@@ -309,7 +313,8 @@ void stab_resultPrint(void)
 	printf("\t%s",unlaunchRatio);
 	printf("\t\t%s",lossRatio);
 	printf("\t\t%s",successRatio);
-	printf("\t\t%s",settest_succRatio);
+	if(TEST_TYPE == TEST_STAB_FULLLOAD)
+	    printf("\t\t%s",settest_succRatio);
 	printf("\n");
 	return;
 }

@@ -85,15 +85,7 @@ int _wilddog_sec_getHost
 		i = _wilddog_sec_getDefaultIpIndex(p_host);
 		p_remoteAddr->len = l_defaultAddr_t[i].len;
 		memcpy(p_remoteAddr->ip, l_defaultAddr_t[i].ip, l_defaultAddr_t[i].len);
-	}
-#if 0
-		p_remoteAddr->len = 4;
-		p_remoteAddr->ip[0] = 10;
-		p_remoteAddr->ip[1] = 18;
-		p_remoteAddr->ip[2] = 2;
-		p_remoteAddr->ip[3] = 200;
-#endif 
-
+	} 
     p_remoteAddr->port = d_port;
 	
 #undef WILDDOG_COAP_LOCAL_HOST

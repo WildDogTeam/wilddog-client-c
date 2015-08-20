@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
  *
  * FileName: performtest.c
@@ -286,7 +286,7 @@ void performtest_printf(Performtest_T *p)
 	printf("\t\t%ld",p->d_tm_recv_dtls);
 	printf("\t\t%ld",p->d_tm_recv);
 
-	printf("\t\t|\n");
+	printf("\n");
 
 }
 STATIC void test_onQueryFunc(

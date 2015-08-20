@@ -110,7 +110,8 @@ $(WILDDOG_TOP_DIR)/src/wilddog_debug.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_event.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_node.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_store.c \
-$(WILDDOG_TOP_DIR)/src/wilddog_url_parser.c
+$(WILDDOG_TOP_DIR)/src/wilddog_url_parser.c \
+$(WILDDOG_TOP_DIR)/src/wilddog_sec_host.c
 
 #==============================================================================
 # Configuration

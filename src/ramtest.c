@@ -167,7 +167,7 @@ void ramtest_printf(Ramtest_T *p)
 	printf("\t\t\t%ld",p->d_x509_ram);
 	printf("\t\t%ld",p->d_node_ram);
 
-	printf("\t\t|\n");
+	printf("\n");
 
 }
 

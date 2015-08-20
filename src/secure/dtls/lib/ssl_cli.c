@@ -52,6 +52,7 @@ typedef UINT32 uint32_t;
 #include <time.h>
 #endif
 
+#include "test_lib.h"
 #if defined(POLARSSL_SSL_SESSION_TICKETS)
 /* Implementation that should never be optimized out by the compiler */
 static void polarssl_zeroize( void *v, size_t n ) {
