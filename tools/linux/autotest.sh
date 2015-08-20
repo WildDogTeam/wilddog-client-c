@@ -20,9 +20,9 @@ WD_NODE=$?
 
 WD_MULTIPLEHOST=$?
 
-#./bin/test_mts
+./bin/test_mts
 
-#WD_MTS=$?
+WD_MTS=$?
 
 ./bin/test_step
 
@@ -55,12 +55,12 @@ then
 else
 	echo "wilddog test_multipleHost test pass!"
 fi
-#if [ ${WD_MTS} -ne 0 ]
-#then
-#	echo "wilddog test_mts test failed, please run test_mts to find more information!"
-#else
-#	echo "wilddog test_mts test pass!"
-#fi
+if [ ${WD_MTS} -ne 0 ]
+then
+	echo "wilddog test_mts test failed, please run test_mts to find more information!"
+else
+	echo "wilddog test_mts test pass!"
+fi
 if [ ${WD_STEP} -ne 0 ]
 then
 	echo "wilddog test_step test failed, please run test_step to find more information!"

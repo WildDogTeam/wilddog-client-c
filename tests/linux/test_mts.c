@@ -117,8 +117,9 @@ STATIC void *thread_trysync(void *args)
 	Test_Client_T *p_client = (Test_Client_T*)args;
 	while(1)
 	{
-		 wilddog_trySync();
-		if(p_client->request_cnt == 0)
+		
+		wilddog_trySync();
+		if( p_client->request_cnt == 0)
 		{
 			p_client->destory_flag = TEST_TRUE;
 			break;
@@ -242,26 +243,21 @@ int main(int argc, char **argv)
     {
         return -1;
     }
-#if 1
+
 	if( pthread_create(&trysync_pid, NULL, thread_trysync,(void*)&client ))  
     {  
         return -1;  
     }  
-#endif  
+  
     if( pthread_create(&main_pid, NULL, thread_main,(void*)&client) )  
     {  
         return -1;  
     } 
-	
-    while(1)
-    {
-    	
+	while(1)
+	{
+		sleep(1);
 		if(client.destory_flag == TEST_TRUE)
-		{
-			
-			printf("break\n");
 			break;
-		}
 	}
 	test_mts_resPrintf(&client);
     wilddog_destroy(&client.wd_client);
