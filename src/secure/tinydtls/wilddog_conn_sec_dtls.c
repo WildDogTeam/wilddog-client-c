@@ -34,6 +34,7 @@
 
 #include "wilddog.h"
 #include "wilddog_port.h"
+#include "wilddog_sec_host.h"
 
 #ifdef __GNUC__
 #define UNUSED_PARAM __attribute__((unused))
@@ -52,6 +53,8 @@ typedef struct WILDDOG_CONN_SEC_T{
 }Wilddog_Conn_Sec_T;
 
 STATIC  Wilddog_Conn_Sec_T d_conn_sec_dtls;
+STATIC Wilddog_Address_T l_tinyaddr_in;
+STATIC int l_tinyfd;
 
 /*publick key*/
 STATIC const unsigned char server_pub_key_x[] = 
@@ -369,24 +372,29 @@ STATIC int _wilddog_sec_setSession(int fd, Wilddog_Address_T * addr_in)
 #endif
 	return 0;
 }
-/*@
-*dtls_context_t  Fields
-    unsigned char   cookie_secret [DTLS_COOKIE_SECRET_LENGTH]
-    clock_time_t    cookie_secret_age
-    dtls_peer_t *   peers
-    void *  app
-    dtls_handler_t *    h
-    unsigned char   readbuf [DTLS_MAX_BUF]
+
+/*
+ * Function:    _wilddog_sec_init
+ * Description: Initialize no security session
+ * Input:    p_host: Remote Host   
+		   d_port: Remote Server's port
+ * Output:  N/A
+ * Return:  Success: 0 else init failure
 */
 Wilddog_Return_T _wilddog_sec_init
     (
-    int fd, 
-    Wilddog_Address_T * addr_in
+    Wilddog_Str_T *p_host,
+    u16 d_port
     )
 {
     int res = 0;
     memset(&d_conn_sec_dtls, 0, sizeof(Wilddog_Conn_Sec_T));
-    _wilddog_sec_setSession(fd,addr_in);
+	
+	wilddog_openSocket(&l_tinyfd);
+	res = _wilddog_sec_getHost(&l_tinyaddr_in,p_host,d_port);
+	if(res <0 )
+		return res;
+    _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
     dtls_init();
     tiny_dtls_set_log_level(WD_DEBUG_DTLS);
     d_conn_sec_dtls.dtls_context = dtls_new_context(&d_conn_sec_dtls.d_fd);
@@ -409,10 +417,16 @@ Wilddog_Return_T _wilddog_sec_init
     }
     return res;
 }
+/*
+ * Function:    _wilddog_sec_send
+ * Description: tinyDtls send function
+ * Input:  	p_data: The buffer which store the sending data
+ *			len: The length of the wanting send data
+ * Output:      N/A
+ * Return:      The length of the actual sending data
+*/
 Wilddog_Return_T _wilddog_sec_send
     (
-    int fd, 
-    Wilddog_Address_T * addr_in, 
     void* p_data, 
     s32 len
     )
@@ -421,10 +435,11 @@ Wilddog_Return_T _wilddog_sec_send
     s32 unsendlen = len;
     int res = 0;
     
-    _wilddog_sec_setSession(fd,addr_in);
+    _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
     
     if(d_conn_sec_dtls.d_delstState != DTLS_EVENT_CONNECTED)
         return 0;
+	
     while(unsendlen)
     {       
         res = dtls_write(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst, \
@@ -444,16 +459,22 @@ Wilddog_Return_T _wilddog_sec_send
     
     return res;
 }
+
+/*
+ * Function:    _wilddog_sec_recv
+ * Description: No security recv function
+ * Input: 		len: The length of the wanting receive data
+ * Output:      p_data: The buffer which store the receiving data
+ * Return:      The length of the actual receiving data
+*/
 int _wilddog_sec_recv
     (
-    int fd, 
-    Wilddog_Address_T * addr_in, 
     void* p_data, 
     s32 len
     )
 {
     int res = 0;
-    _wilddog_sec_setSession(fd,addr_in);
+    _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
     d_conn_sec_dtls.p_recvbuf = p_data;
     d_conn_sec_dtls.d_recvlen = len;
     d_conn_sec_dtls.d_recvFig = 0;
@@ -466,15 +487,19 @@ int _wilddog_sec_recv
     return res;
     
 }
-
-Wilddog_Return_T _wilddog_sec_deinit
-    (
-    int fd, 
-    Wilddog_Address_T * addr_in
-    )
+/*
+ * Function:    _wilddog_sec_deinit
+ * Description: close soket.Destroy no security session
+ * Input:       N/A
+ * Output:      N/A
+ * Return:      Success: 0
+*/
+Wilddog_Return_T _wilddog_sec_deinit(void)
 {
-    
+	  /* send terminate alert*/	
       dtls_free_context(d_conn_sec_dtls.dtls_context);
-      return 0;
+	  if(l_tinyfd)
+      	wilddog_closeSocket(l_tinyfd);
+      return WILDDOG_ERR_NOERR;
 }
 

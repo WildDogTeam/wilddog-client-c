@@ -901,15 +901,15 @@ STATIC int _wilddog_conn_coap_recvDispatch
         res = _wilddog_conn_coap_recv_observCheck(curr,p_resp);
         
         if(res == WILDDOG_CONN_COAP_RESPON_IGNORE)
-            return WILDDOG_ERR_NOERR;
+            goto RECV_DISPATCH_NOERR;
         else if(res == WILDDOG_ERR_OBSERVEERR)
             return WILDDOG_ERR_OBSERVEERR;
             
         /*@ Separation of reply  do not remove */
         if( _wilddog_conn_coap_recv_separationRespCheck(curr,p_resp) \
             == WILDDOG_CONN_COAP_RESPON_IGNORE )
-            return WILDDOG_ERR_NOERR;
-        /*
+			goto RECV_DISPATCH_NOERR;
+		/*
         **@ todo Fragmentation
         **@ get payload
         */
@@ -936,7 +936,7 @@ STATIC int _wilddog_conn_coap_recvDispatch
         /* get error code */
         p_cpk_recv->d_RecvErr = _wilddog_conn_coap_code2Http( \
                                 _wilddog_conn_coap_code2int(p_resp->hdr->code));
-
+RECV_DISPATCH_NOERR:
 		*P_node_respon = curr;
 		
         /* todo handle err*/

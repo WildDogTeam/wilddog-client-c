@@ -35,7 +35,7 @@
 #define STAB_DEBUG	0
 
 
-#define STABTEST_URL	"coap://c_test.wilddogio.com/stab_test"
+#define STABTEST_URL	"coap://c_test.wilddogio.com/stabtest"
 #define STABTEST_PATH	"stabtest/"
 #define STAB_KEY		"K"
 #define STAB_DATA		"D"

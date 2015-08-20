@@ -10,10 +10,8 @@ STATIC int l_fd;
 /*
  * Function:    _wilddog_sec_send
  * Description: No security send function
- * Input:       fd: socket id    
- *		addr_in: The address which contains ip and port
- *		p_data: The buffer which store the sending data
- *		len: The length of the wanting send data
+ * Input:  	p_data: The buffer which store the sending data
+ *			len: The length of the wanting send data
  * Output:      N/A
  * Return:      The length of the actual sending data
 */
@@ -37,9 +35,7 @@ Wilddog_Return_T _wilddog_sec_send
 /*
  * Function:    _wilddog_sec_recv
  * Description: No security recv function
- * Input:       fd: socket id    
- *		addr_in: The address which contains ip and port
- *		len: The length of the wanting receive data
+ * Input: 		len: The length of the wanting receive data
  * Output:      p_data: The buffer which store the receiving data
  * Return:      The length of the actual receiving data
 */
@@ -55,10 +51,10 @@ int _wilddog_sec_recv
 /*
  * Function:    _wilddog_sec_init
  * Description: Initialize no security session
- * Input:       fd: socket id    
- 		addr_in: The address which contains ip and port
+ * Input:   p_host: Remote Host   
+			d_port: Remote Server's port
  * Output:      N/A
- * Return:      Success: 0
+ * Return:      Success: 0 else init failure
 */
 Wilddog_Return_T _wilddog_sec_init
    (
@@ -75,9 +71,8 @@ Wilddog_Return_T _wilddog_sec_init
 
 /*
  * Function:    _wilddog_sec_deinit
- * Description: Destroy no security session
- * Input:       fd: socket id    
- 		addr_in: The address which contains ip and port
+ * Description: close soket.Destroy no security session
+ * Input:       N/A
  * Output:      N/A
  * Return:      Success: 0
 */
