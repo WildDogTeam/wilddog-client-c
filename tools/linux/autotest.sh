@@ -1,4 +1,6 @@
-﻿#!/bin/bash
+﻿#!/bin/sh
+
+echo $(pwd)
 
 cd ../../
 
@@ -27,6 +29,8 @@ WD_MTS=$?
 ./bin/test_step
 
 WD_STEP=$?
+
+make clean
 echo "\n*************************************************************************\n"
 
 if [ ${WD_PROPERTY} -ne 0 ]

@@ -1,4 +1,15 @@
-﻿0.4.5 2015.08.01
+﻿0.4.6 not published
+新增：
+新增多线程测试；
+添加pong机制；
+修复：
+修复setAuth 不会保存用户设置auth的bug；
+修复多host情况下会丢包的bug；
+修复coap模块在删除节点会多次free的bug；
+改进：
+去除不必要的malloc；
+
+0.4.5 2015.08.01
 新增：
 增加tinydtls支持，采用Raw Public Key方式，APP_SEC_TYPE可配置为tinydtls；
 改进：

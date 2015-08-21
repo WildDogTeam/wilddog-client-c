@@ -928,7 +928,7 @@ STATIC int _wilddog_conn_coap_recvDispatch
 #endif
         memset(p_cpk_recv->p_Recvdata, 0, p_cpk_recv->d_recvlen);
         p_cpk_recv->d_recvlen = tmplen > p_cpk_recv->d_recvlen?(p_cpk_recv->d_recvlen):(tmplen);
-        if(p_buftemp != NULL)
+        if(p_buftemp != NULL && p_cpk_recv->d_recvlen > 0)
         {
             memcpy(p_cpk_recv->p_Recvdata,p_buftemp,p_cpk_recv->d_recvlen);
         }

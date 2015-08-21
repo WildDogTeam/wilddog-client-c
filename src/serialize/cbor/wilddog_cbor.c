@@ -839,11 +839,11 @@ STATIC int _wilddog_n2c_encodeUint
     )
 {
     Wilddog_Str_T *ptr;
-    if(p_data->d_dt_pos + sizeof(s32) + 1 > p_data->d_dt_len )
+    if(p_data->d_dt_pos + sizeof(s32) + 2 > p_data->d_dt_len )
     {
         ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
-			                            p_data->d_dt_pos + sizeof(s32) + 1);
-		p_data->d_dt_len = p_data->d_dt_pos + sizeof(s32) + 1;
+			                            p_data->d_dt_pos + sizeof(s32) + 2);
+		p_data->d_dt_len = p_data->d_dt_pos + sizeof(s32) + 2;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");

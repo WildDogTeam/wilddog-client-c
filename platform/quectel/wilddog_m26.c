@@ -22,7 +22,7 @@
 #define WD_M26_WAIT_TIME 500
 #define WD_CONTEXT_ID 0
 STATIC int l_isInitialed = FALSE;
-
+#if 0
 typedef struct _WILDDOG_CYCLE_DATA_T
 {
     int len;
@@ -46,9 +46,9 @@ typedef struct _WILDDOG_CYCLE_T
     Wd_Cycle_Data_T value[1];
 #endif
 }Wilddog_Cycle_T;
-
+#endif
 int wilddog_ql_init(void);
-
+#if 0
 STATIC Wilddog_Cycle_T l_cycle;
 STATIC Wilddog_Cycle_T* l_pCycle = NULL;
 STATIC Wilddog_Cycle_T* wd_cycle_init(u8 total, int dataSize)
@@ -131,7 +131,7 @@ STATIC int wd_cycle_dequeue(Wilddog_Cycle_T *cycle, u8* ptr, int size)
     cycle->end = (cycle->end + 1) % (cycle->total);
     return copySize;
 }
-
+#endif
 void wd_GPRS_activeCb(u8 contexId, s32 errCode, void* customParam)
 {
     if(errCode == SOC_SUCCESS)
@@ -206,10 +206,6 @@ void wd_socket_read(s32 socketId, s32 errCode, void* customParam )
         else if(ret > 0)
         {
             Ql_Debug_Trace("<-- Receive data success,ret=%d.-->\r\n",ret);
-            if(!wd_cycle_enqueue(l_pCycle,data, ret))
-            {
-                Ql_Debug_Trace("<-- enqueue failure,ret=%d.-->\r\n",ret);
-            }
         }
     }
 }
@@ -240,14 +236,10 @@ static ST_GprsConfig  gprsCfg;
 
 int wilddog_ql_init(void)
 {
-    
-
     s32 simStat = SIM_STAT_NOT_INSERTED;
     s32 cgreg = 0;
     s32 ret = 0;
 
-    u8 * ptr123;
-    
     wilddog_debug("initialing!");
     if(TRUE == l_isInitialed)
     {
@@ -276,9 +268,7 @@ int wilddog_ql_init(void)
     /* 3. register gprs status callback */
     Ql_GPRS_Register(WD_CONTEXT_ID, &wd_gprs_func_cb, NULL);
     wilddog_debug("Ql_GPRS_Register");
-    //ptr123 = wmalloc(34);
-    //wilddog_debug("ptr123 = %p", ptr123);
-    //wfree(ptr123);
+
     /* 4. configures GPRS parameters */
     Ql_strcpy((char*)gprsCfg.apnName, APN_NAME);
     Ql_memset(gprsCfg.apnUserId, 0x0, sizeof(gprsCfg.apnUserId));
@@ -320,7 +310,7 @@ int wilddog_m26_gethostbyname(Wilddog_Address_T* addr,char* host)
     wilddog_debug("ret = %d, ipcount = %d, ip = %x\r\n", ret, ipCount, ipAddr[0]);
     if(SOC_SUCCESS == ret && ipCount > 0)
     {
-        Ql_memcpy(addr->ip, &(ipAddr[0]), 4);
+        Ql_memcpy(addr->ip, (u8*)&(ipAddr[0]), 4);
         addr->len = 4;
     }
     else
@@ -341,6 +331,7 @@ int wilddog_m26_openSocket(int* socketId)
     wilddog_debug("socket id = %d", *socketId);
     return 0;
 }
+
 int wilddog_m26_closeSocket(int socketId)
 {
     if(socketId > 0)
@@ -366,8 +357,9 @@ int wilddog_m26_send
 
         if(ret < 0)
         {
-            Ql_GPRS_DeactivateEx(WD_CONTEXT_ID, TRUE);
-            l_isInitialed = FALSE;
+                //Ql_GPRS_DeactivateEx(WD_CONTEXT_ID, TRUE);
+                //l_isInitialed = FALSE;
+                //wilddog_ql_init();
         }
         return ret;
     }
@@ -393,7 +385,7 @@ int wilddog_m26_receive
     
     if(socketId <= 0)
         return -1;
-    while(count)
+    while(count > 0)
 /*    if(!wd_cycle_isEmpty(l_pCycle))*/
     {
     #if 1
