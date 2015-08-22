@@ -32,6 +32,8 @@
 #ifdef WILDDOG_SELFTEST
 #define STABTEST_ONEHOUR    (3600000)
 #define STAB_DEBUG	0
+#define STABTEST_CYCLE_URL	"coaps://c_test.wilddogio.com/stabtest"
+
 #define STABTEST_URL	"coaps://c_test.wilddogio.com/"
 #endif
 #define STABTEST_PATH	"stabtest/"
@@ -115,7 +117,7 @@ STATIC void stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
 {
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
-		printf("in %lu; methtype = %lu recvErr= %d",stab_runtime,methtype,err);
+		printf("in %lu; methtype = %lu recvErr= %d \n",stab_runtime,methtype,err);
 		if(err == WILDDOG_ERR_RECVTIMEOUT)
 			stab_recvFault++;
 	}
@@ -244,7 +246,8 @@ int stab_oneCrcuRequest(void)
 	/* mark star time*/
 	stab_set_runtime();
     /*Init a wilddog client*/
-    client = wilddog_initWithUrl((Wilddog_Str_T *)STABTEST_URL);
+    client = wilddog_initWithUrl((Wilddog_Str_T *)STABTEST_CYCLE_URL);
+	
 	stab_get_requestRes(stabtest_reques(cmd,client,p_finish));
 
     while(1)
@@ -275,7 +278,11 @@ int stab_oneCrcuRequest(void)
 void stab_titlePrint(void)
 {
 	printf("\t>----------------------------------------------------<\n");
-	printf("\tcount\truntime\tram\tUnlaunchRatio\tLostRatio\tSuccessRatio\tSuccessSetS \n");
+	printf("\tcount\truntime\tram\tUnlaunchRatio\tLostRatio\tSuccessRatio\t");
+	if(TEST_TYPE == TEST_STAB_FULLLOAD)
+	    printf("SuccessSetS");
+
+	printf("\n");
 }
 void stab_endPrint(void)
 {
@@ -309,7 +316,8 @@ void stab_resultPrint(void)
 	printf("\t%s",unlaunchRatio);
 	printf("\t\t%s",lossRatio);
 	printf("\t\t%s",successRatio);
-	printf("\t\t%s",settest_succRatio);
+	if(TEST_TYPE == TEST_STAB_FULLLOAD)
+	    printf("\t\t%s",settest_succRatio);
 	printf("\n");
 	return;
 }
@@ -318,7 +326,7 @@ void stab_test_cycle(void)
 	
 	ramtest_init(1,1);
 	stab_titlePrint();
-	printf("%s\n",STABTEST_URL);
+	printf("%s\n",STABTEST_CYCLE_URL);
 	while(1)
 	{
 		stab_oneCrcuRequest();
@@ -408,6 +416,7 @@ STATIC void stab_settest_serialSet_send(void)
 		if(res>=0)
 		{
 			stab_setdata[i].setfault = 0;
+			//stab_settest_request++;
 			stab_settest_setsuccess++;	
 		}
 		else
@@ -436,12 +445,14 @@ STATIC void stab_settest_judge(Wilddog_Node_T* p_snapshot,void* arg)
 			return ;
 		}
 		else
+		{
 			wilddog_debug("truevalue:%s,getvalue:%s\n", \
-			              p_set1->data,wilddog_node_getValue(p_snapshot,&len));
+			              p_set1->data,wilddog_node_getValue(p_snapshot,&len));			
+			stab_settest_fault++;		
+		}
 
 	}
 
-	stab_settest_fault++;		
 	return ;
 }
 STATIC void stab_settest_serialGetValueFunc
@@ -452,7 +463,11 @@ STATIC void stab_settest_serialGetValueFunc
     )
 {
 	stab_get_recvErr(err,STABTEST_CMD_GET);
-	stab_settest_judge((Wilddog_Node_T*)p_snapshot,arg);
+	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+		;//stab_settest_request = (stab_settest_request ==0 )?0:(stab_settest_request-1 );
+	else
+		stab_settest_judge((Wilddog_Node_T*)p_snapshot,arg);
+	stab_settest_request++;
 	serialgetsend_cnt--;
     return;
 }
@@ -472,15 +487,15 @@ STATIC void stab_settest_serialGet_send(void)
 		stab_get_requestRes(res);
 		if(res>=0)
 		{
-			stab_settest_request++; 
 			serialgetsend_cnt++;
-		}		
-	}
-	while(1)
-	{
-		if(serialgetsend_cnt == 0)
-			break;
-		stab_trysync();
+			while(1)
+			{
+				if(serialgetsend_cnt == 0)
+					break;
+				stab_trysync();
+			}
+		}
+
 	}
 }
 void stab_test_fullLoad(void)

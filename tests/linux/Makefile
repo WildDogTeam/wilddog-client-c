@@ -5,7 +5,7 @@ LIB_PATH = $(TOPDIR)/lib
 
 CFLAGS = $(INCLUDE_PATH)
 
-LDFLAGS = -L$(LIB_PATH) -lwilddog
+LDFLAGS = -L$(LIB_PATH) -lwilddog -lpthread
 ifeq ($(COVER), 1)
 LDFLAGS+= -lgcov
 endif
@@ -15,7 +15,7 @@ TEST_SRCS=$(wildcard *.c)
 TEST_OBJS=$(patsubst %.c, %, $(TEST_SRCS))
 
 testall:
-	for test_obj in $(TEST_OBJS);\
+	@for test_obj in $(TEST_OBJS);\
 		do\
 			$(CC) $(CFLAGS) -o $$test_obj $$test_obj.c $(LDFLAGS);\
 			mv $$test_obj $(TOPDIR)/bin;\

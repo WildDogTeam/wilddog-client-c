@@ -1,4 +1,4 @@
-﻿/*
+/*
  * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
  *
  * FileName: performtest.c
@@ -251,15 +251,14 @@ void performtest_init( u32 delay_tm,u8 tree_num, u8 request_num)
 }
 void performtest_titile_printf(void)
 {
-	printf("\n>--------------------------------------------------------------------------");
-	printf("----------运行时间--测试-------------------------------------------------------------------------------<\n");
-	printf("次数\t请求数\t未发请求\t数据包大小\t丢包率\tDTLS\tTrysncDelay\tDTLS握手\t签名认证\t发出Auth");
-	printf("\t等待Auth\t处理Auth\t发出请求\tDTLS封包\t等待接收\tDTLS解包\t处理接收\t|\n");	
+	printf("\n>--------------------------Perform--Test-------------------\n");
+	printf("NO\tQueries\tUnSend\tUDPSize\tLossRate\tTrysncDelay\t");
+	printf("DtlsHandShake\tCertification\tSendAuth\tWaitAuth\tHandleAuth\t");
+	printf("RequestSend\tDtlsEncrypt\tRecvWait\tDtlsDecypt\tHandleRecv\t| \n");
 }
 void performtest_end_printf(void)
 {
-	printf(">--------------------------------------------------------------------------");
-	printf("---------------------------------------------------------------------------------------------<\n");	
+	printf(">--------------------------------------------------\n");
 }
 void performtest_printf(Performtest_T *p)
 {
@@ -268,15 +267,13 @@ void performtest_printf(Performtest_T *p)
 	char tembuf[20];
 	memset(tembuf,0,20);
 
-	sprintf(tembuf,"%d/%d",p->d_recv_err,(p->request_num - p->d_send_fault)/*,p->d_recv*/);
+	sprintf(tembuf,"%d/%d",p->d_recv_err,(p->request_num - p->d_send_fault));
 	printf("%d",++perform_indx);
 	printf("\t%d",p->request_num);
 	printf("\t%d",p->d_send_fault);	
-	printf("\t\t%d",tree2len[p->tree_num]);
-	printf("\t\t%s",tembuf);
-
-	printf("\t%ld",p->d_tm_dtels);
-	printf("\t%ld",p->d_tm_trysync_delay);
+	printf("\t%d",tree2len[p->tree_num]);
+	printf("\t%s",tembuf);
+	printf("\t\t%ld",p->d_tm_trysync_delay);
 	printf("\t\t%ld",p->d_tm_dtls_hsk);
 	printf("\t\t%ld",p->d_tm_dtls_hsk_verify);	
 	printf("\t\t%ld",p->d_tm_dtls_auth_send);
@@ -289,7 +286,7 @@ void performtest_printf(Performtest_T *p)
 	printf("\t\t%ld",p->d_tm_recv_dtls);
 	printf("\t\t%ld",p->d_tm_recv);
 
-	printf("\t\t|\n");
+	printf("\n");
 
 }
 STATIC void test_onQueryFunc(
@@ -322,13 +319,13 @@ void performtest_handle( u32 delay_tm,u8 tree_num, u8 request_num)
 	Wilddog_T wilddog = 0;
     u8 url[64]={0};
 	
-    sprintf((char*)url, "coaps://c_test.wilddogio.com/performtest/tree_%d", tree2len[tree_num]);
+    sprintf((char*)url, "coaps://c_test.wilddogio.com/performtest/tree_%d", \
+		tree2len[tree_num]);
 	
 	performtest_init(delay_tm,tree_num,request_num);
 	performtest_setSysState(SYS_HSK);
 
 	wilddog = wilddog_initWithUrl(url);
-		  
 	if(0 == wilddog)
 	{
 		return;
@@ -350,7 +347,7 @@ void performtest_handle( u32 delay_tm,u8 tree_num, u8 request_num)
 		int res = wilddog_getValue(wilddog, test_onQueryFunc, NULL);
 		performtest_tm_getSend();
 		/*printf("g_performtest.d_tm_send = %ul\n", g_performtest.d_tm_send);*/
-				if(0 == res)
+		if(0 == res)
 			perform_count++;
 		else
 			g_performtest.d_send_fault++;

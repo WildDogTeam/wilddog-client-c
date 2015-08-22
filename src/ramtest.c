@@ -144,38 +144,32 @@ void ramtest_caculate_peakRam(void)
 }
 void ramtest_titile_printf(void)
 {
-	printf("\n|---------------------------RAM--测试-----------------------------------------------");
-	printf("---------------------------------------------------------------------------------------------|\n");
-	printf("|\t次数\t请求数\t未发出请求数\t接收错误\tDTLS\tUDP数据包大小\t内存峰值\t平均内存占用\t请求队列占用内存\tX509占用内存\tNode树占用内存\t|\n");	
+	printf("\n---------------------------RAM--test-------------------------\n");
+	printf("NO\tQueries\tUnSend\tErrorRecv\tUDPSize\tPeakMemory\tAverageMemory\tRequestQueueMemory\tX509Memory\tNodeTreeMemory\t| \n");
 }
 void ramtest_end_printf(void)
 {
-	printf("|--------------------------------------------------------------------------");
-	printf("---------------------------------------------------------------------------------------------|\n");	
+	printf("----------------------------------------------------------------\n");	
 }
 void ramtest_printf(Ramtest_T *p)
 {
-	char sectype='N';
 	static u8 index_tem = 0;
 
-	printf("|\t%d",++index_tem);
+	printf("%d",++index_tem);
 
 	printf("\t%ld",p->request_num);
 	printf("\t%ld",p->d_sendfalt);
-	printf("\t\t%ld",p->d_recverr);
-	printf("\t\t%c",sectype);
-	printf("\t%d",tree2len[p->tree_num]);
-	printf("\t\t%ld",p->d_peak_ram);
+	printf("\t%ld",p->d_recverr);
+	printf("\t\t%d",tree2len[p->tree_num]);
+	printf("\t%ld",p->d_peak_ram);
 	printf("\t\t%ld",p->d_average_ram);
 	printf("\t\t%ld",p->d_requestQeue_ram);
 	printf("\t\t\t%ld",p->d_x509_ram);
 	printf("\t\t%ld",p->d_node_ram);
 
-	printf("\t\t|\n");
+	printf("\n");
 
 }
-/**  node
-*/
 
 static int count = 0;
 
@@ -205,9 +199,6 @@ STATIC void test_onQueryFunc(
 
 	return;
 }
-
-
-
 void ramtest_handle( u8 tree_num, u8 request_num)
 {
 	u8 m = 0;

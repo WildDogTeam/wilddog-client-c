@@ -12,7 +12,7 @@ DEMO_SRCS=$(wildcard *.c)
 DEMO_OBJS=$(patsubst %.c, %, $(DEMO_SRCS))
 
 demoall:
-	for demo_obj in $(DEMO_OBJS);\
+	@for demo_obj in $(DEMO_OBJS);\
 		do\
 			$(CC) $(CFLAGS) -o $$demo_obj $$demo_obj.c $(LDFLAGS);\
 			mv $$demo_obj $(TOPDIR)/bin;\

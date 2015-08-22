@@ -11,7 +11,7 @@ extern "C" {
 extern void* wmalloc(int size);
 extern void wfree(void* ptr);
 extern int _wilddog_atoi(char* str);
-extern void *wrealloc(void *ptr, size_t size);
+extern void *wrealloc(void *ptr, size_t oldSize, size_t newSize);
 
 extern u8 _wilddog_isUrlValid(Wilddog_Str_T * url);
 extern u8 _wilddog_isAuthValid(Wilddog_Str_T * auth, int len);

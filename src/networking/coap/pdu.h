@@ -223,7 +223,7 @@ coap_pdu_init(unsigned char type, unsigned char code,
  * other field is set to @c 0. Note that @p pdu must be a valid
  * pointer to a coap_pdu_t object created e.g. by coap_pdu_init().
  */
-void coap_pdu_clear(coap_pdu_t *pdu, size_t size);
+int coap_pdu_clear(coap_pdu_t *pdu, size_t size);
 
 /**
  * Creates a new CoAP PDU. The object is created on the heap and must be released
@@ -299,7 +299,7 @@ int coap_add_data(coap_pdu_t *pdu, unsigned int len, const unsigned char *data);
  */
 int coap_get_data(coap_pdu_t *pdu, size_t *len, unsigned char **data);
 
-void coap_show_pdu(const coap_pdu_t *pdu);
+int coap_show_pdu(const coap_pdu_t *pdu);
 
 unsigned int
 print_readable( const unsigned char *data, unsigned int len,

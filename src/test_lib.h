@@ -15,6 +15,7 @@
 #ifndef _WILDDOG_TEST_LIB_H_
 #define _WILDDOG_TEST_LIB_H_
 
+#include "wilddog.h"
 
 #ifdef __cplusplus
 extern "C"

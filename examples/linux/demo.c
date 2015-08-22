@@ -27,9 +27,16 @@ typedef enum _TEST_CMD_TYPE
     TEST_CMD_PUSH,
     TEST_CMD_DELE,
     TEST_CMD_ON,
-    
+    TEST_CMD_SETAUTH,
 }TEST_CMD_TYPE;
 
+STATIC void test_gethost(char *p_host,const char *url)
+{
+	char *star_p = NULL,*end_p = NULL;
+	star_p =  strchr(url,'/')+2;
+	end_p = strchr(star_p,'.');
+	memcpy(p_host,star_p,end_p - star_p);	
+}
 STATIC void test_getValueFunc
     (
     const Wilddog_Node_T* p_snapshot, 
@@ -107,7 +114,20 @@ STATIC void test_addObserverFunc
     
     return;
 }
+STATIC void test_authFunc
+	(
+	    void* arg,
+   	 	Wilddog_Return_T err
+    )
+{
+	*(BOOL*)arg = TRUE;
+	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+    {
+        wilddog_debug("auth failed!;error =%d \n",err);
+        return;
+    }
 
+}
 
 int main(int argc, char **argv) 
 {
@@ -118,11 +138,14 @@ int main(int argc, char **argv)
     char url[1024];
     char value[1024];
     char keys[256];
+	char host[512];
     char *p_inputtype = NULL;
     memset(url,0,sizeof(url));  
     memset(value,0,sizeof(value));
     memset(keys,0,sizeof(keys));
-    int type = 0;
+	memset(host,0,sizeof(host));
+	
+	int type = 0;
     int opt,i,res = 0,cnt=0,cntmax=0;
     int option_index = 0;
     BOOL isFinish = FALSE;
@@ -158,7 +181,8 @@ int main(int argc, char **argv)
             return 0;
         case 'l':
             strcpy(url, (const char*)optarg);
-            //printf("url : %s\n", url);
+			test_gethost(host,url);
+			sprintf(&host[strlen(host)],".wilddogio.com");
             break;          
         default: /* '?' */
             fprintf(stderr, "Usage: %s getValue|setValue|push|removeValue|addObserver -l coap://yourappid.wilddogio.com/ --key a --value 124\n",
@@ -200,11 +224,16 @@ int main(int argc, char **argv)
                 p_inputtype = argv[optind];
                 type= TEST_CMD_ON;
             }
+			else if(strcmp(argv[optind],"setAuth")==0)
+            {
+                p_inputtype = argv[optind];
+                type= TEST_CMD_SETAUTH;
+            }
         }
     }
     if( !type)
     {
-        printf("Usage: %s getValue|setValue|push|removeValue|addObserver -l coap://yourappid.wilddogio.com/ --key a --value 124\n", argv[0]);
+        printf("Usage: %s setAuth|getValue|setValue|push|removeValue|addObserver -l coap://yourappid.wilddogio.com/ --key a --value 124\n", argv[0]);
         return 0;
     }
 
@@ -227,7 +256,7 @@ int main(int argc, char **argv)
     {
         case TEST_CMD_GET:
             /*Send the query method*/
-            res = wilddog_getValue(wilddog, (onQueryFunc)test_getValueFunc, (void*)&isFinish);
+            res = wilddog_getValue(wilddog, (onQueryFunc)test_getValueFunc,(void*)&isFinish);
             break;
         case TEST_CMD_SET:  
             /*Send the set method*/
@@ -239,12 +268,18 @@ int main(int argc, char **argv)
             break;
         case TEST_CMD_DELE:
             /*Send the remove method*/
-            res = wilddog_removeValue(wilddog, test_removeValueFunc, (void*)&isFinish);
+            res = wilddog_removeValue(wilddog, test_removeValueFunc,(void*)&isFinish);
             break;
         case TEST_CMD_ON:
             /*Observe on*/
-            res = wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, test_addObserverFunc, (void*)&isFinish);
+            res = wilddog_addObserver(wilddog, WD_ET_VALUECHANGE,\
+            		test_addObserverFunc, (void*)&isFinish);
             break;
+		case TEST_CMD_SETAUTH:
+			wilddog_debug("TEST_CMD_SETAUTH token = %s",value);
+			res = wilddog_auth((u8*)host,(u8*)value,strlen((const char *)value),\
+				test_authFunc,(void*)&isFinish);
+			break;
     }
     /*Delete the node*/
     wilddog_node_delete(p_head);
