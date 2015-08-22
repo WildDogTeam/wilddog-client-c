@@ -1,5 +1,4 @@
-﻿
-0.4.6 not published
+﻿0.4.6 2015.08.22
 新增：
 新增多线程测试；
 添加pong机制；
@@ -7,19 +6,10 @@
 修复setAuth 不会保存用户设置auth的bug；
 修复多host情况下会丢包的bug；
 修复coap模块在删除节点会多次free的bug；
+修复tinyDtls释放函数dtls_free_context 在wiced 下free非自身malloc的内存的bug。
 改进：
 去除不必要的malloc；
-
-0.4.5 2015.08.22
-修复：
-修复tinyDtls释放函数dtls_free_context 在wiced 下free非自身malloc的内存。
-0.4.5 2015.08.22
-添加：
-添加test_mts.c 添加多线程测试
-0.4.4.2 2015.08.15
-修复：
-修复setAuth 不会保存用户设置auth。
-
+去除了不必要的make信息；
 
 0.4.5 2015.08.01
 新增：

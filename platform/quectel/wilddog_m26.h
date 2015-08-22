@@ -4,7 +4,7 @@
 
 #define APN_NAME "cmnet"
 
-extern int wilddog_ql_init(void);
+extern int wilddog_ql_m26_init(void);
 extern int wilddog_m26_gethostbyname(Wilddog_Address_T* addr,char* host);
 extern int wilddog_m26_openSocket(int* socketId);
 extern int wilddog_m26_closeSocket(int socketId);
