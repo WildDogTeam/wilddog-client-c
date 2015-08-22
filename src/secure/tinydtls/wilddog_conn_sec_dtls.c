@@ -372,51 +372,6 @@ STATIC int _wilddog_sec_setSession(int fd, Wilddog_Address_T * addr_in)
 #endif
 	return 0;
 }
-
-/*
- * Function:    _wilddog_sec_init
- * Description: Initialize no security session
- * Input:    p_host: Remote Host   
-		   d_port: Remote Server's port
- * Output:  N/A
- * Return:  Success: 0 else init failure
-*/
-Wilddog_Return_T _wilddog_sec_init
-    (
-    Wilddog_Str_T *p_host,
-    u16 d_port
-    )
-{
-    int res = 0;
-    memset(&d_conn_sec_dtls, 0, sizeof(Wilddog_Conn_Sec_T));
-	
-	wilddog_openSocket(&l_tinyfd);
-	res = _wilddog_sec_getHost(&l_tinyaddr_in,p_host,d_port);
-	if(res <0 )
-		return res;
-    _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
-    dtls_init();
-    tiny_dtls_set_log_level(WD_DEBUG_DTLS);
-    d_conn_sec_dtls.dtls_context = dtls_new_context(&d_conn_sec_dtls.d_fd);
-
-    if(d_conn_sec_dtls.dtls_context == NULL)
-        return -1;
-
-    /*@ register dtls cb*/
-    dtls_set_handler(d_conn_sec_dtls.dtls_context, &cb);
-
-    /*@ Establishes a DTLS channel with the specified remote peer dst.  
-    **@ star client Hello
-    */
-    res = dtls_connect(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst);
-    while(d_conn_sec_dtls.d_delstState != DTLS_EVENT_CONNECTED)
-    {
-        res = dtls_handle_read(d_conn_sec_dtls.dtls_context);
-        if(res < 0)
-            break;
-    }
-    return res;
-}
 /*
  * Function:    _wilddog_sec_send
  * Description: tinyDtls send function
@@ -456,7 +411,6 @@ Wilddog_Return_T _wilddog_sec_send
             break;
         }
     }
-    
     return res;
 }
 
@@ -487,6 +441,53 @@ int _wilddog_sec_recv
     return res;
     
 }
+
+/*
+ * Function:    _wilddog_sec_init
+ * Description: Initialize no security session
+ * Input:    p_host: Remote Host   
+		   d_port: Remote Server's port
+ * Output:  N/A
+ * Return:  Success: 0 else init failure
+*/
+Wilddog_Return_T _wilddog_sec_init
+    (
+    Wilddog_Str_T *p_host,
+    u16 d_port
+    )
+{
+    int res = 0;
+	
+    memset(&d_conn_sec_dtls, 0, sizeof(Wilddog_Conn_Sec_T));
+	
+	wilddog_openSocket(&l_tinyfd);
+	res = _wilddog_sec_getHost(&l_tinyaddr_in,p_host,d_port);
+	if(res <0 )
+		return res;
+    _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
+    dtls_init();
+    tiny_dtls_set_log_level(WD_DEBUG_DTLS);
+    d_conn_sec_dtls.dtls_context = dtls_new_context(&d_conn_sec_dtls.d_fd);
+
+    if(d_conn_sec_dtls.dtls_context == NULL)
+        return -1;
+
+    /*@ register dtls cb*/
+    dtls_set_handler(d_conn_sec_dtls.dtls_context, &cb);
+
+    /*@ Establishes a DTLS channel with the specified remote peer dst.  
+    **@ star client Hello
+    */
+    res = dtls_connect(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst);
+    while(d_conn_sec_dtls.d_delstState != DTLS_EVENT_CONNECTED)
+    {
+        res = dtls_handle_read(d_conn_sec_dtls.dtls_context);
+        if(res < 0)
+            break;
+    }
+    return res;
+}
+
 /*
  * Function:    _wilddog_sec_deinit
  * Description: close soket.Destroy no security session
@@ -500,6 +501,11 @@ Wilddog_Return_T _wilddog_sec_deinit(void)
       dtls_free_context(d_conn_sec_dtls.dtls_context);
 	  if(l_tinyfd)
       	wilddog_closeSocket(l_tinyfd);
+	  
+	  l_tinyfd = 0;
+	  memset(&l_tinyaddr_in,0,sizeof(l_tinyaddr_in));
+	  memset(&d_conn_sec_dtls, 0, sizeof(Wilddog_Conn_Sec_T));
+	  
       return WILDDOG_ERR_NOERR;
 }
 

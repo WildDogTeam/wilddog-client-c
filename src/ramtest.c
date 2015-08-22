@@ -199,9 +199,6 @@ STATIC void test_onQueryFunc(
 
 	return;
 }
-
-
-
 void ramtest_handle( u8 tree_num, u8 request_num)
 {
 	u8 m = 0;

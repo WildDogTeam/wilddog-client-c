@@ -319,13 +319,13 @@ void performtest_handle( u32 delay_tm,u8 tree_num, u8 request_num)
 	Wilddog_T wilddog = 0;
     u8 url[64]={0};
 	
-    sprintf((char*)url, "coaps://c_test.wilddogio.com/performtest/tree_%d", tree2len[tree_num]);
+    sprintf((char*)url, "coaps://c_test.wilddogio.com/performtest/tree_%d", \
+		tree2len[tree_num]);
 	
 	performtest_init(delay_tm,tree_num,request_num);
 	performtest_setSysState(SYS_HSK);
 
 	wilddog = wilddog_initWithUrl(url);
-		  
 	if(0 == wilddog)
 	{
 		return;
@@ -347,7 +347,7 @@ void performtest_handle( u32 delay_tm,u8 tree_num, u8 request_num)
 		int res = wilddog_getValue(wilddog, test_onQueryFunc, NULL);
 		performtest_tm_getSend();
 		/*printf("g_performtest.d_tm_send = %ul\n", g_performtest.d_tm_send);*/
-				if(0 == res)
+		if(0 == res)
 			perform_count++;
 		else
 			g_performtest.d_send_fault++;

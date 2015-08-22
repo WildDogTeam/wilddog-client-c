@@ -32,6 +32,8 @@
 #ifdef WILDDOG_SELFTEST
 #define STABTEST_ONEHOUR    (3600000)
 #define STAB_DEBUG	0
+#define STABTEST_CYCLE_URL	"coaps://c_test.wilddogio.com/stabtest"
+
 #define STABTEST_URL	"coaps://c_test.wilddogio.com/"
 #endif
 #define STABTEST_PATH	"stabtest/"
@@ -244,7 +246,8 @@ int stab_oneCrcuRequest(void)
 	/* mark star time*/
 	stab_set_runtime();
     /*Init a wilddog client*/
-    client = wilddog_initWithUrl((Wilddog_Str_T *)STABTEST_URL);
+    client = wilddog_initWithUrl((Wilddog_Str_T *)STABTEST_CYCLE_URL);
+	
 	stab_get_requestRes(stabtest_reques(cmd,client,p_finish));
 
     while(1)
@@ -323,7 +326,7 @@ void stab_test_cycle(void)
 	
 	ramtest_init(1,1);
 	stab_titlePrint();
-	printf("%s\n",STABTEST_URL);
+	printf("%s\n",STABTEST_CYCLE_URL);
 	while(1)
 	{
 		stab_oneCrcuRequest();

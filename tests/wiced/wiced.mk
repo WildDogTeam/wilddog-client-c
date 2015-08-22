@@ -4,7 +4,7 @@ WILDDOG_TOP_DIR := ../../
 
 #app layer protocol, such as coap
 APP_PROTO_TYPE=coap
-#security method, such as dtls/nosec
+#security method, such as dtls/nosec/tinydtls
 APP_SEC_TYPE=nosec
 
 PORT_TYPE=wiced
@@ -90,6 +90,28 @@ $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/x509.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/x509_crt.c
 
 $(NAME)_INCLUDES += $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/inc/
+else
+ifeq ($(APP_SEC_TYPE),tinydtls)
+GLOBAL_DEFINES += WILDDOG_PORT=5684
+GLOBAL_DEFINES += DTLS_CHECK_CONTENTTYPE
+GLOBAL_DEFINES += DTLSv12
+GLOBAL_DEFINES += WITH_SHA256
+$(NAME)_SOURCES += $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/ccm.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/crypto.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/debug.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/dtls.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/dtls_time.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/ecc.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/hmac.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/netq.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/peer.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/rijndael.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/session.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/sha2.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/wilddog_conn_sec_dtls.c 
+
+$(NAME)_INCLUDES += $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/
+endif
 endif
 endif
 ########serialize

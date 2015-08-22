@@ -19,6 +19,7 @@
 #include "wilddog_port.h"
 #include "wilddog_config.h"
 
+#include "test_lib.h"
 int wilddog_gethostbyname(Wilddog_Address_T* addr,char* host)
 {
 
@@ -65,6 +66,10 @@ int wilddog_send(int socketId,Wilddog_Address_T* addr_in,void* tosend,s32 tosend
     }
     servaddr.sin_port = htons(addr_in->port);
     memcpy(&servaddr.sin_addr.s_addr,addr_in->ip,addr_in->len);
+#if WILDDOG_SELFTEST
+		performtest_tm_getDtlsSend();
+#endif
+
     wilddog_debug_level(WD_DEBUG_LOG, "addr_in->port = %d, ip = %u.%u.%u.%u\n", addr_in->port, addr_in->ip[0], \
         addr_in->ip[1], addr_in->ip[2], addr_in->ip[3]);
     if((ret = sendto(socketId, tosend, tosendLength, 0, (struct sockaddr *)&servaddr,
@@ -90,6 +95,13 @@ int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s
     {
         return -1;
     }
+#if WILDDOG_SELFTEST
+	{
+		performtest_tm_getAuthWait();
+		performtest_tm_getRecv_wait();
+	}
+#endif
+
     
     return recvlen;
 }

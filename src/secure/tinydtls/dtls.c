@@ -1518,7 +1518,6 @@ static void dtls_destroy_peer(dtls_context_t *ctx, dtls_peer_t *peer, int unlink
 #else /* WITH_CONTIKI */
     list_remove(&ctx->peers, peer);
 #endif /* WITH_CONTIKI */
-
     dtls_dsrv_log_addr(DTLS_LOG_DEBUG, "removed peer", &peer->session);
   }
   dtls_free_peer(peer);
@@ -3050,7 +3049,9 @@ handle_handshake_msg(dtls_context_t *ctx, dtls_peer_t *peer, session_t *session,
 
 #ifdef DTLS_ECC
   case DTLS_HT_CERTIFICATE:
-
+#ifdef WILDDOG_SELFTEST     
+	  performtest_tm_getDtlsHskVerify();
+#endif
     if ((role == DTLS_CLIENT && state != DTLS_STATE_WAIT_SERVERCERTIFICATE) ||
         (role == DTLS_SERVER && state != DTLS_STATE_WAIT_CLIENTCERTIFICATE)) {
       return dtls_alert_fatal_create(DTLS_ALERT_UNEXPECTED_MESSAGE);
@@ -3066,6 +3067,9 @@ handle_handshake_msg(dtls_context_t *ctx, dtls_peer_t *peer, session_t *session,
       peer->state = DTLS_STATE_WAIT_CLIENTKEYEXCHANGE;
     }
     /* update_hs_hash(peer, data, data_length); */
+#ifdef WILDDOG_SELFTEST     
+		  performtest_tm_getDtlsHskVerify();
+#endif
 
     break;
 #endif /* DTLS_ECC */
@@ -3801,7 +3805,8 @@ dtls_new_context(void *app_data) {
 
 void
 dtls_free_context(dtls_context_t *ctx) {
-  dtls_peer_t *p;
+  dtls_peer_t *p = NULL;
+  dtls_peer_t *p_next = NULL;
 
   if (!ctx) {
     return;
@@ -3818,8 +3823,11 @@ dtls_free_context(dtls_context_t *ctx) {
     }
   }
 #else /* WITH_CONTIKI */
-  for (p = list_head(&ctx->peers); p; p = list_item_next(p))
-    dtls_destroy_peer(ctx, p, 1);
+  for (p = list_head(&ctx->peers); p; p = p_next)
+  	{
+  		p_next = list_item_next(p);
+  		dtls_destroy_peer(ctx, p, 1);
+  	}
 #endif /* WITH_CONTIKI */
 
   free_context(ctx);
