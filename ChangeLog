@@ -1,7 +1,8 @@
-0.4.6 2015.08.22
+0.4.5 2015.08.22
 新增：
 新增多线程测试；
 添加pong机制；
+增加tinydtls支持，采用Raw Public Key方式，APP_SEC_TYPE可配置为tinydtls；
 修复：
 修复setAuth 不会保存用户设置auth的bug；
 修复多host情况下会丢包的bug；
@@ -9,14 +10,9 @@
 修复tinyDtls释放函数dtls_free_context 在wiced 下free非自身malloc的内存的bug。
 改进：
 去除不必要的malloc；
-去除了不必要的make信息；
-
-0.4.5 2015.08.01
-新增：
-增加tinydtls支持，采用Raw Public Key方式，APP_SEC_TYPE可配置为tinydtls；
-改进：
 改进Makefile，增加提示，并默认去除不需要的编译信息；
 增加cover测试的自动化脚本
+
 0.4.4 2015.07.27
 修复：
 修复node删除在添加时不判断head是否为空，引起段错误的bug；
@@ -25,6 +21,7 @@
 test_limit 添加发送on-->off-->on连续请求的测试；
 优化event的处理。
 增加tools目录，存放可能使用到的一些工具。
+
 0.4.3 2015.07.17
 改进： 
 修改断言宏，增加系统稳定性。
