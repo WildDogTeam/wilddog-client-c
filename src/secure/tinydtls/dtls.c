@@ -48,6 +48,10 @@
 #include "session.h"
 #include "prng.h"
 
+#ifdef WILDDOG_SELFTEST 
+#include "test_lib.h"
+#endif
+
 #ifdef WITH_SHA256
 #  include "sha2.h"
 #endif
@@ -3806,7 +3810,6 @@ dtls_new_context(void *app_data) {
 void
 dtls_free_context(dtls_context_t *ctx) {
   dtls_peer_t *p = NULL;
-  dtls_peer_t *p_next = NULL;
 
   if (!ctx) {
     return;
@@ -3823,11 +3826,15 @@ dtls_free_context(dtls_context_t *ctx) {
     }
   }
 #else /* WITH_CONTIKI */
-  for (p = list_head(&ctx->peers); p; p = p_next)
-  	{
-  		p_next = list_item_next(p);
-  		dtls_destroy_peer(ctx, p, 1);
-  	}
+	{
+	  dtls_peer_t *p_next = NULL;
+
+	  for (p = list_head(&ctx->peers); p; p = p_next)
+	  	{
+	  		p_next = list_item_next(p);
+	  		dtls_destroy_peer(ctx, p, 1);
+	  	}
+	}
 #endif /* WITH_CONTIKI */
 
   free_context(ctx);
