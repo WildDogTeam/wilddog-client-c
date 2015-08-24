@@ -231,7 +231,10 @@ static void CallBack_UART3_Hdlr(Enum_SerialPort port, Enum_UARTEventType msg, bo
                         memcpy(tmp, dst, len);
                         tmp[len] = 0;
                         data = wd_gps_atof(tmp);
-                        wilddog_debug("lat:%f", data);
+                        //wilddog_debug("lat:%f", data);
+                        /*if is southern, data should be negative*/
+                        if(dst[len + 2] == 'S')
+                            data = 0 - data;
                         l_dlat = data;
                     }
                     wilddog_gps_getValueByIndex(ptr, 5, &dst,&len);
@@ -244,9 +247,11 @@ static void CallBack_UART3_Hdlr(Enum_SerialPort port, Enum_UARTEventType msg, bo
                         memcpy(tmp, dst, len);
                         tmp[len] = 0;
                         data = wd_gps_atof(tmp);
-                        wilddog_debug("lng %f", data);
+                        //wilddog_debug("lng %f", data);
+                        /*if is west, data should be negative*/
+                        if(dst[len + 2] == 'W')
+                            data = 0 - data;
                         l_dlng = data;
-                        
                     }
                }
                else
