@@ -19,6 +19,12 @@
 #include "wilddog_port.h"
 #include "wilddog_config.h"
 #include "wilddog_m26.h"
+
+int wilddog_ql_init(void)
+{
+    return wilddog_ql_m26_init();
+}
+
 int wilddog_gethostbyname(Wilddog_Address_T* addr,char* host)
 {
     return wilddog_m26_gethostbyname(addr, host);

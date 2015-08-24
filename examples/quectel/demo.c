@@ -121,7 +121,6 @@ static void CallBack_UART_Hdlr(Enum_SerialPort port, Enum_UARTEventType msg, boo
 {
     char temp[24];
     Ql_memset(temp, 0, 24);
-    //Ql_UART_Write(UART_PORT1,"in call",strlen("in call"));
     switch (msg)
     {
     case EVENT_UART_READY_TO_READ:
@@ -142,7 +141,6 @@ static void CallBack_UART_Hdlr(Enum_SerialPort port, Enum_UARTEventType msg, boo
     default:
         break;
     }
-    //Ql_UART_Write(UART_PORT1,temp,strlen(temp));
 }
 
 STATIC wFloat wd_gps_atof(char* data)
@@ -198,12 +196,7 @@ STATIC wFloat wd_gps_atof(char* data)
     }
     val = (wFloat)decimal / (wFloat)cal;
     val += integer;
-/*  degree = integer / 100;
-    minute = integer % 100;
-    second = ((wFloat)decimal / (wFloat)cal) * 60;
 
-    val = degree + minute / 60 + second / 3600;
-    */
     degree = integer / 100;
     minute = (val - degree * 100)/ 60;
     val = degree + minute;
@@ -239,7 +232,6 @@ static void CallBack_UART3_Hdlr(Enum_SerialPort port, Enum_UARTEventType msg, bo
                         tmp[len] = 0;
                         data = wd_gps_atof(tmp);
                         wilddog_debug("lat:%f", data);
-                        //wilddog_node_setValue(l_lat, (u8*)&data,sizeof(data));
                         l_dlat = data;
                     }
                     wilddog_gps_getValueByIndex(ptr, 5, &dst,&len);
@@ -253,14 +245,13 @@ static void CallBack_UART3_Hdlr(Enum_SerialPort port, Enum_UARTEventType msg, bo
                         tmp[len] = 0;
                         data = wd_gps_atof(tmp);
                         wilddog_debug("lng %f", data);
-                        //wilddog_node_setValue(l_lng, (u8*)&data,sizeof(data));
                         l_dlng = data;
                         
                     }
                }
                else
                {
-                    wilddog_debug("cannot find");
+                    wilddog_debug_level(WD_DEBUG_LOG, "cannot find");
                }
                //wilddog_debug("%s",m_RxBuf_Uart3);
                //Ql_UART_Write(UART_PORT1,m_RxBuf_Uart3,strlen(m_RxBuf_Uart3));
@@ -277,7 +268,6 @@ static void CallBack_UART3_Hdlr(Enum_SerialPort port, Enum_UARTEventType msg, bo
 static void Callback_Timer(u32 timerId, void* param)
 {
     static int count = 0;
-    //wilddog_debug("in timer!");
     wilddog_increaseTime(100);
     if(count >= 100)
     {
@@ -297,9 +287,6 @@ void proc_main_task(s32 taskId)
 	Ql_UART_Open(UART_PORT2, 115200, FC_NONE);
 	Ql_UART_Register(UART_PORT3, CallBack_UART3_Hdlr, NULL);
 	Ql_UART_Open(UART_PORT3, 9600, FC_NONE);
-
-    //Ql_Timer_Register(TIMER_ID_USER_START, Callback_Timer, NULL);
-    //Ql_Timer_Start(TIMER_ID_USER_START, 1000, TRUE);
     
     Ql_Debug_Trace("<--OpenCPU: Wilddog Client.-->\r\n");
     while(TRUE)
@@ -338,7 +325,7 @@ STATIC void test_getValueFunc
     return;
 }
 
-extern int wilddog_ql_m26_init(void);
+extern int wilddog_ql_init(void);
 
 STATIC void test_setValueFunc(void* arg, Wilddog_Return_T err)
 {
@@ -367,18 +354,6 @@ void wilddog_task(s32 TaskId)
     ST_MSG msg;
     int ret;
     int count = 0;
-//    while(l_start == FALSE)
-//        Ql_Sleep(10);
-/* 	Ql_UART_Register(UART_PORT1, CallBack_UART_Hdlr, NULL);
-	Ql_UART_Open(UART_PORT1, 115200, FC_NONE);
-	Ql_UART_Register(UART_PORT2, CallBack_UART_Hdlr, NULL);
-	Ql_UART_Open(UART_PORT2, 115200, FC_NONE);
-	Ql_UART_Register(UART_PORT3, CallBack_UART3_Hdlr, NULL);
-	Ql_UART_Open(UART_PORT3, 9600, FC_NONE);*/
-	//Ql_UART_Register(UART_PORT1, CallBack_UART_Hdlr, NULL);
-	//Ql_UART_Open(UART_PORT1, 115200, FC_NONE);
-    //Ql_UART_Register(UART_PORT3, CallBack_UART3_Hdlr, NULL);
-    //Ql_UART_Open(UART_PORT3, 9600, FC_NONE);
     
     Ql_Timer_Register(TIMER_ID_USER_START, Callback_Timer, NULL);
     Ql_Timer_Start(TIMER_ID_USER_START, 100, TRUE);
@@ -392,14 +367,11 @@ void wilddog_task(s32 TaskId)
     wilddog_node_addChild(head,node);
     l_head = head;
 
-	wilddog_ql_m26_init();
+	wilddog_ql_init();
     wilddog_debug("wilddog_task success");
 
     wilddog = wilddog_initWithUrl((u8*)"coap://embedded.wilddogio.com/bus1/coordinate");
-    //ret = wilddog_getValue(wilddog, test_getValueFunc, NULL);
-    
-    //wilddog_setValue(wilddog, head, test_setValueFunc, NULL);
-    //wilddog_node_delete(head);
+
     while(1)
     {
         Ql_OS_GetMessage(&msg);
@@ -413,13 +385,10 @@ void wilddog_task(s32 TaskId)
                 wilddog_node_setValue(l_lng, &l_dlng, sizeof(l_dlng));
             }
             wilddog_setValue(wilddog, head, test_setValueFunc, NULL);
-            //wilddog_getValue(wilddog, test_getValueFunc, NULL);
-            //ret = wilddog_unauth("embedded.wilddogio.com", test_setValueFunc, NULL);
             wilddog_debug("count = %d", count++);
         }
         wilddog_trySync();
         wilddog_increaseTime(WILDDOG_RECEIVE_TIMEOUT);
-        //wilddog_debug("hello");
     }
     wilddog_destroy(&wilddog);
     wilddog_node_delete(head);

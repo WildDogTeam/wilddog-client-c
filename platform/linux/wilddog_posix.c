@@ -18,7 +18,6 @@
 #include <assert.h>
 #include "wilddog_port.h"
 #include "wilddog_config.h"
-
 #include "test_lib.h"
 int wilddog_gethostbyname(Wilddog_Address_T* addr,char* host)
 {
@@ -95,13 +94,17 @@ int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s
     {
         return -1;
     }
+    if(memcmp(addr->ip, &remaddr.sin_addr.s_addr, addr->len) || \
+        ntohs(remaddr.sin_port) != addr->port)
+    {
+        wilddog_debug("ip or port not match!");
+        return -1;
+    }
 #if WILDDOG_SELFTEST
 	{
 		performtest_tm_getAuthWait();
 		performtest_tm_getRecv_wait();
 	}
 #endif
-
-    
     return recvlen;
 }

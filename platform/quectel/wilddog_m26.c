@@ -1,3 +1,16 @@
+/*
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
+ *
+ * FileName: wilddog_m26.c
+ *
+ * Description: Wilddog porting for quectel M26.
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.6        Jimmy.Pan       2015-08-24  Create file.
+ *
+ */
 
 
 #include <stdio.h>
@@ -29,7 +42,8 @@ void wd_GPRS_activeCb(u8 contexId, s32 errCode, void* customParam)
 {
     if(errCode == SOC_SUCCESS)
     {
-        Ql_Debug_Trace("<--CallBack: active GPRS successfully.-->\r\n");
+        wilddog_debug_level(WD_DEBUG_LOG, \
+            "<--CallBack: active GPRS successfully.-->");
     }  
 }
 
@@ -37,9 +51,10 @@ void wd_GPRS_deactiveCb(u8 contextId, s32 errCode, void* customParam )
 {
     if (errCode == SOC_SUCCESS)
     {
-        Ql_Debug_Trace("<--CallBack: deactived GPRS successfully.-->\r\n"); 
+        wilddog_debug_level(WD_DEBUG_LOG, \
+            "<--CallBack: deactived GPRS successfully.-->"); 
         l_isInitialed = FALSE;
-        wilddog_ql_m26_init();
+       // wilddog_ql_m26_init();
     }
 }
 
@@ -56,13 +71,18 @@ void wd_socket_close(s32 socketId, s32 errCode, void* customParam )
 {    
     if (errCode == SOC_SUCCESS)
     {
-        Ql_Debug_Trace("<--CallBack: close socket successfully.-->\r\n"); 
+        wilddog_debug_level(WD_DEBUG_LOG, \
+            "<--CallBack: close socket successfully.-->"); 
     }else if(errCode == SOC_BEARER_FAIL)
     {   
-        Ql_Debug_Trace("<--CallBack: close socket failure,(socketId=%d,error_cause=%d)-->\r\n",socketId,errCode); 
+        wilddog_debug_level(WD_DEBUG_ERROR, \
+          "<--CallBack: close socket failure,(socketId=%d,error_cause=%d)-->", \
+          socketId,errCode); 
     }else
     {
-        Ql_Debug_Trace("<--CallBack: close socket failure,(socketId=%d,error_cause=%d)-->\r\n",socketId,errCode); 
+        wilddog_debug_level(WD_DEBUG_ERROR, \
+          "<--CallBack: close socket failure,(socketId=%d,error_cause=%d)-->", \
+          socketId,errCode); 
     }
 }
 
@@ -72,21 +92,27 @@ void wd_socket_accept(s32 listenSocketId, s32 errCode, void* customParam )
 
 void wd_socket_read(s32 socketId, s32 errCode, void* customParam )
 {
-    Ql_Debug_Trace("<--CallBack: socket read,(sock=%d,error=%d)-->\r\n",socketId,errCode);
+    wilddog_debug_level(WD_DEBUG_LOG, \
+        "<--CallBack: socket read,(sock=%d,error=%d)-->",socketId,errCode);
     if(errCode)
     {
-        Ql_Debug_Trace("<--CallBack: socket read failure,(sock=%d,error=%d)-->\r\n",socketId,errCode);
+        wilddog_debug_level(WD_DEBUG_ERROR, \
+            "<--CallBack: socket read failure,(sock=%d,error=%d)-->", \
+            socketId,errCode);
     }
 }
 
 
 void wd_socket_write(s32 socketId, s32 errCode, void* customParam )
 {
-    Ql_Debug_Trace("<--CallBack: socket write,(sock=%d,error=%d)-->\r\n",socketId,errCode);
+    wilddog_debug_level(WD_DEBUG_LOG, \
+        "<--CallBack: socket write,(sock=%d,error=%d)-->",socketId,errCode);
     if(errCode)
     {
-        Ql_Debug_Trace("<--CallBack: socket write failure,(sock=%d,error=%d)-->\r\n",socketId,errCode);
-        Ql_Debug_Trace("<-- Close socket.-->\r\n");
+        wilddog_debug_level(WD_DEBUG_ERROR, \
+            "<--CallBack: socket write failure,(sock=%d,error=%d)-->", \
+            socketId,errCode);
+        wilddog_debug_level(WD_DEBUG_ERROR, "<-- Close socket.-->");
         return;
     }
 }
@@ -118,16 +144,18 @@ int wilddog_ql_m26_init(void)
     RIL_NW_GetSIMCardState(&simStat);
     while(simStat != SIM_STAT_READY)
     {
-		wilddog_debug_level(WD_DEBUG_LOG, "<--SIM card status is unnormal! %d-->",simStat);
+		wilddog_debug_level(WD_DEBUG_LOG, \
+            "<--SIM card status is unnormal! %d-->",simStat);
         Ql_Sleep(WD_M26_WAIT_TIME);
         RIL_NW_GetSIMCardState(&simStat);
     }
     
     /* 2. get gprs state */
     RIL_NW_GetGPRSState(&cgreg);
-    while((cgreg != NW_STAT_REGISTERED) && (cgreg != NW_STAT_REGISTERED_ROAMING))
+    while((cgreg != NW_STAT_REGISTERED) &&(cgreg != NW_STAT_REGISTERED_ROAMING))
     {
-        wilddog_debug_level(WD_DEBUG_LOG, "STATE_NW_QUERY_STATE CHECKING cgreg = %d", cgreg);
+        wilddog_debug_level(WD_DEBUG_LOG, \
+            "STATE_NW_QUERY_STATE CHECKING cgreg = %d", cgreg);
         Ql_Sleep(WD_M26_WAIT_TIME);
         RIL_NW_GetGPRSState(&cgreg);
     }
@@ -165,7 +193,8 @@ int wilddog_m26_gethostbyname(Wilddog_Address_T* addr,char* host)
     memset(ipAddr, 0, sizeof(u32)* 5);
     ret = Ql_IpHelper_GetIPByHostNameEx(WD_CONTEXT_ID, 0, (u8*)host, &ipCount, \
                                         ipAddr);
-    wilddog_debug_level(WD_DEBUG_LOG, "ret = %d, ipcount = %d, ip = %x\r\n", ret, ipCount, ipAddr[0]);
+    wilddog_debug_level(WD_DEBUG_LOG, \
+        "ret = %d, ipcount = %d, ip = %x\r\n", ret, ipCount, ipAddr[0]);
     if(SOC_SUCCESS == ret && ipCount > 0)
     {
         Ql_memcpy(addr->ip, (u8*)&(ipAddr[0]), 4);
@@ -221,8 +250,9 @@ int wilddog_m26_send
     )
 {
     s32 ret;
-    wilddog_debug_level(WD_DEBUG_LOG, "send: ip = %u.%u.%u.%u, port = %d, tosendlength = %d", addr_in->ip[0], \
-                  addr_in->ip[1],addr_in->ip[2],addr_in->ip[3],addr_in->port, tosendLength);
+    wilddog_debug_level(WD_DEBUG_LOG, \
+      "send: ip = %u.%u.%u.%u, port = %d, tosendlength = %d", addr_in->ip[0], \
+      addr_in->ip[1],addr_in->ip[2],addr_in->ip[3],addr_in->port, tosendLength);
     if(socketId > 0)
     {
 
@@ -256,19 +286,30 @@ int wilddog_m26_receive
     u8 srv_address[5] ={0};
     u16 srv_port;
 
-    wilddog_debug_level(WD_DEBUG_LOG, "recv: ip = %u.%u.%u.%u, port = %d, buf = %p, bufLen = %d", \
-                  addr->ip[0], addr->ip[1],addr->ip[2],addr->ip[3],addr->port, \
-                  buf, bufLen);
+    wilddog_debug_level(WD_DEBUG_LOG, \
+        "recv: ip = %u.%u.%u.%u, port = %d, buf = %p, bufLen = %d", \
+        addr->ip[0], addr->ip[1],addr->ip[2],addr->ip[3],addr->port, \
+        buf, bufLen);
 
     if(socketId <= 0)
         return -1;
     while(count > 0)
     {
-        ret = Ql_SOC_RecvFrom(socketId - 1, (u8*)buf, bufLen, (u32*)srv_address, &srv_port);
+        ret = Ql_SOC_RecvFrom(socketId - 1, (u8*)buf, bufLen, \
+            (u32*)srv_address, &srv_port);
         if(ret > 0)
         {
-            return ret;
+            if(memcmp((u8*)&srv_address, addr->ip, addr->len) ||\
+                addr->port != srv_port)
+            {
+                wilddog_debug("receive packet from wrong ip address or port.");
+                memset(buf, 0, bufLen);
+            }
+            else
+                return ret;
         }
+
+
         Ql_Sleep(10);
         count -= 10;
         wilddog_debug_level(WD_DEBUG_LOG, "count = %d, ret = %d", count, ret);
