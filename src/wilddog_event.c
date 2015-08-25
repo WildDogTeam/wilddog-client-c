@@ -431,7 +431,6 @@ Wilddog_Return_T _wilddog_event_nodeAdd
         wilddog_debug_level(WD_DEBUG_ERROR, "send on to server failed!");
         return WILDDOG_ERR_INVALID;
     }
-
     return WILDDOG_ERR_NOERR;
 }
 

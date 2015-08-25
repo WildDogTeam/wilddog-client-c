@@ -15,7 +15,7 @@
 int main(void)
 {
 #ifdef WILDDOG_SELFTEST
-	performtest_all();
+	return performtest_all();
 #endif
 	return 0;
 }

@@ -16,7 +16,7 @@
 #define _WILDDOG_TEST_LIB_H_
 
 #include "wilddog.h"
-
+#include "test_config.h"
 #ifdef __cplusplus
 extern "C"
 {
@@ -50,6 +50,7 @@ typedef struct RAMTEST_T{
 #define NODE_INDEX_RAMTST	1
 #define REQUESTCNT_RAMTST		1
 
+/* ram test_api*/
 extern void ramtest_init(u32 tree_num,u32 request_num);
 extern void ramtest_titile_printf(void);
 extern void ramtest_end_printf(void);
@@ -66,11 +67,8 @@ extern void ramtest_skipLastmalloc(void);
 extern void ramtest_gethostbyname(void);
 extern void ramtest_caculate_packetsize(unsigned short packetSize);
 extern int ramtest_printfmallocState(void);
+extern int ramtest(void);
 
-
-extern void ramtest_handle( u8 tree_num, u8 request_num);
-/* tm*/
-extern void performtest_tm_printf(void);
 
 extern void performtest_star_tm(void);
 extern void performtest_tm_getDtlsHsk(void);
@@ -83,9 +81,10 @@ extern void performtest_tm_getDtlsSend(void);
 extern void performtest_tm_getRecv_wait(void);
 extern void performtest_tm_getRecvDtls(void);
 extern void performtest_tm_getRecv(void);
-extern void performtest_all(void);
-extern void performtest_handle( u32 delay_tm,u8 tree_num, u8 request_num);
+extern int  performtest_all(void);
 
+
+extern int test_buildtreeFunc(const char *p_userUrl);
 
 #endif /* WILDDOG_SELFTEST*/
 #ifdef __cplusplus

@@ -330,6 +330,8 @@ int handle_dtls_event
     d_conn_sec_dtls.d_delstState = code;
     if (level > 0)
     {
+    	
+		dtls_connect(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst);
         perror("DTLS ERROR EVENT");
     }
     return 0;
@@ -393,7 +395,7 @@ Wilddog_Return_T _wilddog_sec_send
     _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
     
     if(d_conn_sec_dtls.d_delstState != DTLS_EVENT_CONNECTED)
-        return 0;
+        return WILDDOG_ERR_SENDERR;
 	
     while(unsendlen)
     {       
@@ -457,7 +459,7 @@ Wilddog_Return_T _wilddog_sec_init
     )
 {
     int res = 0;
-	
+	int sec_int_cnt = 0;
     memset(&d_conn_sec_dtls, 0, sizeof(Wilddog_Conn_Sec_T));
 	
 	wilddog_openSocket(&l_tinyfd);
@@ -466,7 +468,9 @@ Wilddog_Return_T _wilddog_sec_init
 		return res;
     _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
     dtls_init();
+#ifndef WILDDOG_PORT_TYPE_WICED
     tiny_dtls_set_log_level(WD_DEBUG_DTLS);
+#endif
     d_conn_sec_dtls.dtls_context = dtls_new_context(&d_conn_sec_dtls.d_fd);
 
     if(d_conn_sec_dtls.dtls_context == NULL)
@@ -481,6 +485,14 @@ Wilddog_Return_T _wilddog_sec_init
     res = dtls_connect(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst);
     while(d_conn_sec_dtls.d_delstState != DTLS_EVENT_CONNECTED)
     {
+    
+    	if(sec_int_cnt++ > 100)
+			break;
+
+		/*dtls alert */
+    	if( d_conn_sec_dtls.d_delstState < DTLS_EVENT_CONNECT)
+				break;
+		printf("@%p@",d_conn_sec_dtls.d_delstState);
         res = dtls_handle_read(d_conn_sec_dtls.dtls_context);
         if(res < 0)
             break;

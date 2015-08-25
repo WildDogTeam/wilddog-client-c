@@ -33,12 +33,7 @@
 
 #define STABTEST_ONEHOUR    (3600000)
 #define STAB_DEBUG	0
-#if defined(WILDDOG_PORT_TYPE_WICED)
 
-#define STABTEST_URL	TEST_URL/*"coap://c_test.wilddogio.com/"*/
-#else
-#define STABTEST_URL	"coap://c_test.wilddogio.com/"
-#endif
 #define STABTEST_PATH	"stabtest/"
 #define STAB_KEY		"K"
 #define STAB_DATA		"D"
@@ -194,7 +189,7 @@ STATIC	void stab_settest_dataInit(u8 idx)
 		stab_setdata[i].data[1] = 0x30+idx; 
 
 		stab_setdata[i].data[2] = 0x30+i;
-		sprintf(temp_url,"%s%s%s",STABTEST_URL,STABTEST_PATH,stab_setdata[i].key);
+		sprintf(temp_url,"%s/%s",TEST_STAB_SETTEST_URL,stab_setdata[i].key);
  		if(stab_setdata[i].client)
 			wilddog_destroy(&(stab_setdata[i].client));
 		stab_setdata[i].client = wilddog_initWithUrl((Wilddog_Str_T*)temp_url);
