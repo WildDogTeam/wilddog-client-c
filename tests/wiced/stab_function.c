@@ -32,11 +32,8 @@
 #ifdef WILDDOG_SELFTEST
 #define STABTEST_ONEHOUR    (3600000)
 #define STAB_DEBUG	0
-#define STABTEST_CYCLE_URL	"coaps://c_test.wilddogio.com/stabtest"
 
-#define STABTEST_URL	"coaps://c_test.wilddogio.com/"
-#endif
-#define STABTEST_PATH	"stabtest/"
+
 #define STAB_KEY		"K"
 #define STAB_DATA		"D"
 #define STABTEST_KEY	"stability_key"
@@ -107,11 +104,12 @@ STATIC void stab_get_requestRes(Wilddog_Return_T res)
 	}
 	else
 	{
+		stab_rquests++;	
 			/* off with no recv callback*/
 		if(stab_cmd == STABTEST_CMD_OFF)
 			stab_recvSucc++;
 		}
-	stab_rquests++;	
+
 }
 STATIC void stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
 {
@@ -246,7 +244,7 @@ int stab_oneCrcuRequest(void)
 	/* mark star time*/
 	stab_set_runtime();
     /*Init a wilddog client*/
-    client = wilddog_initWithUrl((Wilddog_Str_T *)STABTEST_CYCLE_URL);
+    client = wilddog_initWithUrl((Wilddog_Str_T *)TEST_STAB_CYCLE_URL);
 	
 	stab_get_requestRes(stabtest_reques(cmd,client,p_finish));
 
@@ -326,7 +324,7 @@ void stab_test_cycle(void)
 	
 	ramtest_init(1,1);
 	stab_titlePrint();
-	printf("%s\n",STABTEST_CYCLE_URL);
+	printf("%s\n",TEST_STAB_CYCLE_URL);
 	while(1)
 	{
 		stab_oneCrcuRequest();
@@ -337,8 +335,8 @@ void stab_test_cycle(void)
 STATIC	void stab_settest_dataInit(u8 idx)
 {
 	int i;
-	char temp_url[50];
-	memset(temp_url,0,30);
+	u8 temp_url[TEST_URL_LEN];
+	memset(temp_url,0,TEST_URL_LEN);
 	for(i=0;i<10;i++)
 	{
 		stab_setdata[i].key[0] = 'K';
@@ -348,7 +346,7 @@ STATIC	void stab_settest_dataInit(u8 idx)
 		stab_setdata[i].data[1] = 0x30+idx; 
 
 		stab_setdata[i].data[2] = 0x30+i;
-		sprintf(temp_url,"%s%s%s",STABTEST_URL,STABTEST_PATH,stab_setdata[i].key);
+		sprintf((char*)temp_url,"%s/%s",TEST_STAB_SETTEST_URL,stab_setdata[i].key);
  		if(stab_setdata[i].client)
 			wilddog_destroy(&(stab_setdata[i].client));
 		stab_setdata[i].client = wilddog_initWithUrl((Wilddog_Str_T*)temp_url);
@@ -520,4 +518,5 @@ void stab_test_fullLoad(void)
 	}
 }
 
+#endif
 

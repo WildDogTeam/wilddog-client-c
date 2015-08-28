@@ -231,7 +231,6 @@ extern void *wrealloc(void *ptr, size_t oldSize, size_t newSize);
 
 #include "wilddog_api.h"
 #include "wilddog_debug.h"
-
 #ifdef __cplusplus
 }
 #endif

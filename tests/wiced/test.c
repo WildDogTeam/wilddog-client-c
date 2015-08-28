@@ -26,22 +26,7 @@ void application_start( void )
     /* Run the main application function */
     wiced_network_up(WICED_STA_INTERFACE, WICED_USE_EXTERNAL_DHCP_SERVER, NULL);
 #if TEST_TYPE == TEST_RAM
-    {
-        u8 m=0, n=0;
-        u8 tree_num[3] = {1,2,3};
-        u8 request_num[4] = {1,16,32,64};
-        ramtest_titile_printf();
-    //  ramtest(tree_num[0],1);
-
-        for( m=0; m < 3; m++)
-        {
-            for( n=0; n < 4; n++)
-            {
-                ramtest_handle(tree_num[m],request_num[n]);
-            }
-        }
-        ramtest_end_printf();
-    }
+	ramtest();
 #endif
 #if TEST_TYPE == TEST_TIME
     performtest_all();

@@ -122,6 +122,7 @@ $(NAME)_INCLUDES += $(WILDDOG_TOP_DIR)/src/serialize/cbor/
 #SRC_C:=$(wildcard $(WILDDOG_TOP_DIR)/src/*.c)
 $(NAME)_SOURCES +=  $(WILDDOG_TOP_DIR)/src/performtest.c \
 $(WILDDOG_TOP_DIR)/src/ramtest.c \
+$(WILDDOG_TOP_DIR)/src/test_buildtree.c\
 $(WILDDOG_TOP_DIR)/src/wilddog_api.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_common.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_conn.c \

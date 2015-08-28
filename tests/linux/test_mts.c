@@ -10,8 +10,8 @@
  
 #include "wilddog.h"
 #include "wilddog_debug.h"
+#include "test_lib.h"
 
-#define TEST_MTS_URL	"coap://c_test.wilddogio.com/mts"
 #define TEST_MTS_SETKEY	"MTS_SET_KEY"
 #define TEST_MTS_SETVALUE	"MTS_SET_VALUES"
 #define TEST_SELFREDUCE(n) (n = (n>0)?(n-1):0)

@@ -35,7 +35,6 @@
 #define STAB_DEBUG	0
 
 
-#define STABTEST_URL	"coap://c_test.wilddogio.com/stabtest"
 #define STABTEST_PATH	"stabtest/"
 #define STAB_KEY		"K"
 #define STAB_DATA		"D"
@@ -252,7 +251,7 @@ int stab_oneCrcuRequest(void)
 	/* mark star time*/
 	stab_set_runtime();
     /*Init a wilddog client*/
-    client = wilddog_initWithUrl((Wilddog_Str_T *)STABTEST_URL);
+    client = wilddog_initWithUrl((Wilddog_Str_T *)TEST_STAB_CYCLE_URL);
 	stab_get_requestRes(stabtest_request(cmd,client,p_finish));
 
     while(1)
@@ -321,15 +320,14 @@ void stab_resultPrint(void)
 }
 void stab_test_cycle(void)
 {
-	
 	ramtest_init(1,1);
-	printf("%s\n",STABTEST_URL);
+	printf("%s\n",TEST_STAB_CYCLE_URL);
 	stab_titlePrint();
 	while(1)
 	{
 		stab_oneCrcuRequest();
 		stab_resultPrint();
-		}
+	}
 	stab_endPrint();
 }
 

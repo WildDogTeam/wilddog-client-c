@@ -53,6 +53,7 @@ typedef enum{
 
 #include <sys/time.h>
 #endif
+
 typedef struct PERFORMTERST_T
 {
 	u8 d_sendpackt;
@@ -85,9 +86,16 @@ typedef struct PERFORMTERST_T
 
 }Performtest_T;
 static Performtest_T g_performtest;
-static int tree2len[]={64,127,576,1280};
 static int perform_count = 0;
+static char *lp_tree_path[6][2]={
+			{"127",TEST_TREE_T_127},
+			{"256",TEST_TREE_T_256},
+			{"576",TEST_TREE_T_576},
+			{"810",TEST_TREE_T_810},	
+			{"1044",TEST_TREE_T_1044},
+			{"1280",TEST_TREE_T_1280}
 
+};
 #ifndef WILDDOG_PORT_TYPE_WICED
 u32 performtest_sys_ustm(void)
 {
@@ -271,7 +279,7 @@ void performtest_printf(Performtest_T *p)
 	printf("%d",++perform_indx);
 	printf("\t%d",p->request_num);
 	printf("\t%d",p->d_send_fault);	
-	printf("\t%d",tree2len[p->tree_num]);
+	printf("\t%s",lp_tree_path[p->tree_num][0]);
 	printf("\t%s",tembuf);
 	printf("\t\t%ld",p->d_tm_trysync_delay);
 	printf("\t\t%ld",p->d_tm_dtls_hsk);
@@ -317,14 +325,13 @@ void performtest_handle( u32 delay_tm,u8 tree_num, u8 request_num)
 {
 	u8 m = 0;
 	Wilddog_T wilddog = 0;
-    u8 url[64]={0};
-	
-    sprintf((char*)url, "coaps://c_test.wilddogio.com/performtest/tree_%d", \
-		tree2len[tree_num]);
-	
+    u8 url[TEST_URL_LEN]={0};
+		
 	performtest_init(delay_tm,tree_num,request_num);
 	performtest_setSysState(SYS_HSK);
 
+	memset(url,0,TEST_URL_LEN);
+	sprintf((char*)url,"%s%s",TEST_PERFORM_URL,lp_tree_path[tree_num][1]);
 	wilddog = wilddog_initWithUrl(url);
 	if(0 == wilddog)
 	{
@@ -374,20 +381,24 @@ void performtest_handle( u32 delay_tm,u8 tree_num, u8 request_num)
 	wilddog_destroy(&wilddog);
 	return;
 }
-void performtest_all(void)
+int performtest_all(void)
 {
-	u8 m=0,n=0,d=0;	
-	u8 tree_num[3] = {1,2,3};
+	u8 tree_m=0,n=0,d=0;	
 	u8 request_num[4] = {1,16,32,64};
+	int res = 0;
 	u32 delay_tm[5] = {0,50,100,250,500};
+	if( (res = test_buildtreeFunc(TEST_PERFORM_URL) ) < 0 )
+		return res;
+	
 	performtest_titile_printf();
+	
 	for(d=0; d<2; d++)
 	{
 		for(n=0; n<4; n++)
 		{
-			for(m=0; m<3; m++)
+			for(tree_m=0; tree_m<TEST_TREE_ITEMS; tree_m++)
 			{
-				performtest_handle(delay_tm[d],tree_num[m],request_num[n]);
+				performtest_handle(delay_tm[d],tree_m,request_num[n]);
 #ifdef WILDDOG_PORT_TYPE_WICED
 				wiced_rtos_delay_milliseconds(2000);
 #endif
@@ -396,7 +407,7 @@ void performtest_all(void)
 	}
 	
 	performtest_end_printf();
-	
+	return 0;
 }
 
 #endif
