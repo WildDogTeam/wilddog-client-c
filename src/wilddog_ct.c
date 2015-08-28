@@ -1,9 +1,18 @@
 /*
- * wilddog_ct.c
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
  *
- *  Created on: 2015-05-15
- *      Author: jimmy.pan
+ * FileName: wilddog_ct.c
+ *
+ * Description: core, include container functions.
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.0        Jimmy.Pan       2015-05-15  Create file.
+ * 0.4.3        Jimmy.Pan       2015-07-04  Add l_isStarted.
+ *
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,7 +27,9 @@
 #include "utlist.h"
 #include "wilddog_conn.h"
 
+/*store the head of all repos.*/
 STATIC Wilddog_Repo_Con_T l_wilddog_containTable;
+/*store the wilddog init status.*/
 STATIC BOOL l_isStarted = FALSE;
 
 STATIC Wilddog_Repo_T** _wilddog_ct_getRepoHead(void);
@@ -59,13 +70,25 @@ STATIC Wilddog_Return_T _wilddog_ct_store_remove
     );
 STATIC Wilddog_Return_T _wilddog_ct_store_on(void* p_args, int flag);
 STATIC Wilddog_Return_T _wilddog_ct_store_off(void* p_args, int flag);
-
+/*
+ * Function:    _wilddog_ct_init
+ * Description: Init the container.
+ * Input:       not used.
+ * Output:      N/A
+ * Return:      WILDDOG_ERR_NOERR.
+*/
 STATIC Wilddog_Return_T _wilddog_ct_init(void* args, int flag)
 {
     l_wilddog_containTable.p_rc_head = NULL;
     return WILDDOG_ERR_NOERR;
 }
-
+/*
+ * Function:    _wilddog_ct_getRepoHead
+ * Description: Get the head of the repo.
+ * Input:       N/A.
+ * Output:      N/A
+ * Return:      Pointer to the head.
+*/
 STATIC Wilddog_Repo_T** _wilddog_ct_getRepoHead(void)
 {
     return &(l_wilddog_containTable.p_rc_head);
