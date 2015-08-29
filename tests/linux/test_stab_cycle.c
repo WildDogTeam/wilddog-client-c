@@ -27,6 +27,7 @@
 #include "wilddog_api.h"
 #include "wilddog_ct.h"
 #include "test_lib.h"
+#include "test_config.h"
 
 
 #ifdef WILDDOG_SELFTEST

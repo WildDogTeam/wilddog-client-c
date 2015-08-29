@@ -8,6 +8,7 @@
 
 #include "wilddog.h"
 #include "test_lib.h"
+#include "test_config.h"
 
 #define TESTURL_NUM		50
 #define TESTURL_HARD	"coap://"
@@ -256,7 +257,7 @@ STATIC void test_gethost(char *p_host,const char *url)
 int main(void)
 {
 	
-	char host1[TESTURL_NUM],host2[TESTURL_NUM],host3[TESTURL_NUM];
+	char host1[TEST_URL_LEN],host2[TEST_URL_LEN],host3[TEST_URL_LEN];
 	Wilddog_T client1= 0,client2 = 0,client3 = 0;
 	
 	memset(host1,0,TESTURL_NUM);

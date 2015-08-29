@@ -11,6 +11,8 @@
 #include "wilddog.h"
 #include "wilddog_debug.h"
 #include "test_lib.h"
+#include "test_config.h"
+
 
 #define TEST_MTS_SETKEY	"MTS_SET_KEY"
 #define TEST_MTS_SETVALUE	"MTS_SET_VALUES"

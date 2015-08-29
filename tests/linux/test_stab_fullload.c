@@ -27,7 +27,7 @@
 #include "wilddog_api.h"
 #include "wilddog_ct.h"
 #include "test_lib.h"
-
+#include "test_config.h"
 
 #ifdef WILDDOG_SELFTEST
 
@@ -359,6 +359,10 @@ void stab_test_fullLoad(void)
 #ifndef WILDDOG_PORT_TYPE_WICED
  			sleep(3);
 #endif
+#ifdef WILDDOG_PORT_TYPE_WICED
+			wiced_rtos_delay_milliseconds(1000);
+#endif
+
 			stab_resultPrint();
 			stab_settest_dataDeInit();
  		}

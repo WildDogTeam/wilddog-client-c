@@ -29,15 +29,6 @@
 
 static Ramtest_T d_ramtest;
 
-static char *lp_tree_path[6][2]={
-			{"127",TEST_TREE_T_127},
-			{"256",TEST_TREE_T_256},
-			{"576",TEST_TREE_T_576},
-			{"810",TEST_TREE_T_810},	
-			{"1044",TEST_TREE_T_1044},
-			{"1280",TEST_TREE_T_1280}
-
-};
 
 int ramtest_getLastMallocSize(Ramtest_T *p);
 int ramtest_getSysRamusage(Ramtest_T *p,u32 *p_uage);
@@ -170,7 +161,7 @@ void ramtest_printf(Ramtest_T *p)
 	printf("\t%ld",p->request_num);
 	printf("\t%ld",p->d_sendfalt);
 	printf("\t%ld",p->d_recverr);
-	printf("\t\t%s",lp_tree_path[p->tree_num][0]);
+	printf("\t\t%ld",p->tree_num);
 	printf("\t%ld",p->d_peak_ram);
 	printf("\t\t%ld",p->d_average_ram);
 	printf("\t\t%ld",p->d_requestQeue_ram);
@@ -209,17 +200,15 @@ STATIC void test_onQueryFunc(
 
 	return;
 }
-int ramtest_handle( u8 tree_num, u8 request_num)
+int ramtest_handle( const u8 *p_url,u32 tree_num, u8 request_num)
 {
 	u8 m = 0;
 	Wilddog_T wilddog = 0;
 	
-	u8 url[TEST_URL_LEN]={0};
 
 	ramtest_init(tree_num,request_num);
-	sprintf((char*)url,"%s%s",TEST_RAM_URL,lp_tree_path[tree_num][1]);
 	
-	wilddog = wilddog_initWithUrl(url);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T*)p_url);
 		
 	if(0 == wilddog)
 	{
@@ -249,28 +238,7 @@ int ramtest_handle( u8 tree_num, u8 request_num)
 	wilddog_destroy(&wilddog);
 	return 0;
 }
-int ramtest(void)
-{
-	int res = 0;
-	u8 tree_m=0, n=0;
-	u8 request_num[4] = {1,16,32,64};
-#ifdef WILDDOG_SELFTEST
-	if( (res = test_buildtreeFunc(TEST_RAM_URL) ) < 0 )
-		return res;
 
-	ramtest_titile_printf();
-
-	for( tree_m=0; tree_m < TEST_TREE_ITEMS; tree_m++)
-	{
-		for( n=0; n <4; n++)
-		{
-			ramtest_handle(tree_m,request_num[n]);
-		}
-	}
-	ramtest_end_printf();
-#endif
-	return 0;
-}
 
 #endif
 

@@ -9,6 +9,7 @@
 #include "wilddog_api.h"
 #include "wilddog_ct.h"
 #include "test_lib.h"
+#include "test_config.h"
 
 #define TEST_STEP_RESULT(v)	(( v == 0)?"FAIL":"PASS")
 
