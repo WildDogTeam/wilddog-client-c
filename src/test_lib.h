@@ -16,7 +16,6 @@
 #define _WILDDOG_TEST_LIB_H_
 
 #include "wilddog.h"
-#include "test_config.h"
 #ifdef __cplusplus
 extern "C"
 {
@@ -67,8 +66,7 @@ extern void ramtest_skipLastmalloc(void);
 extern void ramtest_gethostbyname(void);
 extern void ramtest_caculate_packetsize(unsigned short packetSize);
 extern int ramtest_printfmallocState(void);
-extern int ramtest(void);
-
+extern int ramtest_handle( const u8 *p_url,u32 tree_num, u8 request_num);
 
 extern void performtest_star_tm(void);
 extern void performtest_tm_getDtlsHsk(void);
@@ -81,7 +79,15 @@ extern void performtest_tm_getDtlsSend(void);
 extern void performtest_tm_getRecv_wait(void);
 extern void performtest_tm_getRecvDtls(void);
 extern void performtest_tm_getRecv(void);
-extern int  performtest_all(void);
+extern void performtest_titile_printf(void);
+extern void performtest_end_printf(void);
+extern void performtest_handle
+		(
+		u32 delay_tm,
+		const u8 *p_url,
+		u32 tree_num, 
+		u8 request_num
+		);
 
 
 extern int test_buildtreeFunc(const char *p_userUrl);

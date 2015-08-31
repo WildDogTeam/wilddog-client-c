@@ -15,6 +15,8 @@
 
 extern void stab_test_cycle(void);
 extern void stab_test_fullLoad(void);
+extern int test_perform(u8 *p_url);
+extern int test_ram(const char *p_url);
 
 /**
  *  Application start
@@ -26,10 +28,10 @@ void application_start( void )
     /* Run the main application function */
     wiced_network_up(WICED_STA_INTERFACE, WICED_USE_EXTERNAL_DHCP_SERVER, NULL);
 #if TEST_TYPE == TEST_RAM
-	ramtest();
+	test_ram(TEST_RAM_URL);
 #endif
 #if TEST_TYPE == TEST_TIME
-    performtest_all();
+    test_perform(TEST_PERFORM_URL);
 #endif
 #if TEST_TYPE == TEST_STAB_CYCLE
     stab_test_cycle();
