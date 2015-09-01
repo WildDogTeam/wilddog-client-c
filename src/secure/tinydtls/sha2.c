@@ -34,7 +34,13 @@
 
 #include "tinydtls.h"
 #include "dtls_config.h"
-#include <string.h>	/* memcpy()/memset() or bcopy()/bzero() */
+/* memcpy()/memset() or bcopy()/bzero() */
+#if defined(WILDDOG_PORT_TYPE_QUCETEL)
+#include "wilddog.h"
+#else
+#include <string.h>
+#endif
+
 #ifdef HAVE_ASSERT_H
 #include <assert.h>	/* assert() */
 #else
@@ -45,6 +51,12 @@
 #endif
 #include "sha2.h"
 #include "wilddog.h"
+#ifndef WITH_SHA256
+/* The current version of tinyDTLS supports DTLSv1.2 with SHA256 PRF
+   only. */
+#define WITH_SHA256 1
+#endif
+
 /*
  * ASSERT NOTE:
  * Some sanity checking code is included using assert().  On my FreeBSD

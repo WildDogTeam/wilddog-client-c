@@ -24,7 +24,7 @@
  */
 
 #include <string.h>
-
+#include "wilddog.h"
 #include "dtls_config.h"
 #include "global.h"
 #include "numeric.h"

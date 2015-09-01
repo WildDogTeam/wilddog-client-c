@@ -89,7 +89,7 @@ typedef struct PERFORMTERST_T
 static Performtest_T g_performtest;
 static int perform_count = 0;
 
-#ifndef WILDDOG_PORT_TYPE_WICED
+#if !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
 u32 performtest_sys_ustm(void)
 {
 
@@ -99,7 +99,17 @@ u32 performtest_sys_ustm(void)
 	return (u32)(temtm.tv_sec*1000000 + temtm.tv_usec);
 }
 #endif
-
+#ifdef WILDDOG_PORT_TYPE_QUCETEL
+#include "Ql_time.h"
+u32 performtest_sys_ustm(void)
+{
+    u32 seconds;
+    ST_Time time;
+    Ql_GetLocalTime(&time);
+    seconds = Ql_Mktime(&time);
+    return seconds * 1000000;
+}
+#endif
 #ifdef WILDDOG_PORT_TYPE_WICED
 
 #define CPU_CCT	120000000					/* cpu frequency */

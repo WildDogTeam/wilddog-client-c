@@ -10,7 +10,7 @@
 #include "ql_uart.h"
 #include "ql_gprs.h"
 #include "ql_socket.h"
-//#include "ql_network.h"
+#include "ql_system.h"
 #include "ql_timer.h"
 #include "ril_network.h"
 #include "ril.h"
@@ -397,6 +397,8 @@ void wilddog_task(s32 TaskId)
     }
     wilddog_destroy(&wilddog);
     wilddog_node_delete(head);
+    l_lat= NULL;
+    l_lng = NULL;
     return;
 }
 

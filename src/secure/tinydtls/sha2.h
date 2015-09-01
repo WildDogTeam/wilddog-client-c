@@ -46,7 +46,7 @@ extern "C" {
  * file.
  */
 #include <sys/types.h>
-#if defined(WILDDOG_PORT_TYPE_WICED)
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
 #include "wilddog.h"
 
 typedef u8 u_int8_t;     /* 1-byte  (8-bits)  */

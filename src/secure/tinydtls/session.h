@@ -26,12 +26,15 @@
 #ifndef _DTLS_SESSION_H_
 #define _DTLS_SESSION_H_
 
+#if defined(WILDDOG_PORT_TYPE_QUCETEL)
+#include "wilddog.h"
+#else
 #include <string.h>
-
+#endif
 #include "tinydtls.h"
 #include "global.h"
 
-#ifdef WILDDOG_PORT_TYPE_WICED
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
 #include "wilddog.h"
 typedef struct {
   size_t size;       /**< size of addr */

@@ -20,10 +20,15 @@
 #define __APPLE_USE_RFC_3542
 
 #include <stdio.h>
+#if defined(WILDDOG_PORT_TYPE_QUCETEL)
+#include "wilddog.h"
+#else
 #include <string.h>
+#endif
+
 #include <unistd.h>
 #include <ctype.h>
-#ifndef WILDDOG_PORT_TYPE_WICED
+#if !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
 #include <netinet/in.h>
 #endif
 
@@ -98,6 +103,7 @@ STATIC const unsigned char ecdsa_pub_key_y[] =
 };
 
 #ifdef DTLS_PSK
+#if !defined(WILDDOG_PORT_TYPE_QUCETEL) 
 ssize_t read_from_file(char *arg, unsigned char *buf, size_t max_buf_len)
 {
   FILE *f;
@@ -123,6 +129,7 @@ ssize_t read_from_file(char *arg, unsigned char *buf, size_t max_buf_len)
   fclose(f);
   return result;
 }
+#endif
 
 /* The PSK information for DTLS */
 #define PSK_ID_MAXLEN 256
@@ -269,7 +276,7 @@ STATIC int send_to_peer
     Wilddog_Address_T addr_inSend;
 
     addr_inSend.len = session->size;
-#ifdef WILDDOG_PORT_TYPE_WICED
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
     addr_inSend.len = session->addr.len;
     addr_inSend.port = session->addr.port;
     memcpy(addr_inSend.ip,&session->addr.ip,session->size);
@@ -294,7 +301,7 @@ STATIC int dtls_handle_read(struct dtls_context_t *ctx)
     fd = *(int *)dtls_get_app_data(ctx);
     if (!fd)
         return -1;
-#ifdef WILDDOG_PORT_TYPE_WICED
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
     addr_in.len = d_conn_sec_dtls.dst.addr.len;
     addr_in.port = d_conn_sec_dtls.dst.addr.port;
     memcpy(addr_in.ip,&d_conn_sec_dtls.dst.addr.ip,d_conn_sec_dtls.dst.addr.len);
@@ -330,9 +337,9 @@ int handle_dtls_event
     d_conn_sec_dtls.d_delstState = code;
     if (level > 0)
     {
-    	
-		dtls_connect(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst);
-        perror("DTLS ERROR EVENT");
+		//dtls_connect(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst);
+        //perror("DTLS ERROR EVENT");
+        wilddog_debug("DTLS ERROR EVENT");
     }
     return 0;
 }
@@ -360,7 +367,7 @@ STATIC dtls_handler_t cb =
 STATIC int _wilddog_sec_setSession(int fd, Wilddog_Address_T * addr_in)
 {
     d_conn_sec_dtls.d_fd = fd;
-#ifdef WILDDOG_PORT_TYPE_WICED
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
     memcpy(&d_conn_sec_dtls.dst.addr.ip,addr_in->ip,addr_in->len);
     d_conn_sec_dtls.dst.size = addr_in->len;
     d_conn_sec_dtls.dst.addr.len = addr_in->len;
@@ -389,7 +396,7 @@ Wilddog_Return_T _wilddog_sec_send
     )
 {       
     uint8 *p_buf = p_data;
-    s32 unsendlen = len;
+    s32 sendLen = 0;
     int res = 0;
     
     _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
@@ -397,23 +404,27 @@ Wilddog_Return_T _wilddog_sec_send
     if(d_conn_sec_dtls.d_delstState != DTLS_EVENT_CONNECTED)
         return WILDDOG_ERR_SENDERR;
 	
-    while(unsendlen)
+    while(sendLen < len)
     {       
+        /*res = dtls_write(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst, \
+                          (uint8 *)p_buf, unsendlen);*/
         res = dtls_write(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst, \
-                          (uint8 *)p_buf, unsendlen);
-        if (res >= 0 && (res != unsendlen))
+                         (uint8 *)(p_buf + sendLen), len - sendLen);
+        if (res >= 0 )// && (res != unsendlen))
         {
-            memmove(p_buf, p_buf + res, unsendlen - res);
-            unsendlen -= res;
+            sendLen += res;
+            //memmove(p_buf, p_buf + res, unsendlen - res);
+            //unsendlen -= res;
         }
         else 
         {
-            if(res >= 0 )
-                res = len;
+            //if(res >= 0 )
+            //    res = len;
             break;
         }
     }
-    return res;
+    //return res;
+    return sendLen;
 }
 
 /*
@@ -485,14 +496,13 @@ Wilddog_Return_T _wilddog_sec_init
     res = dtls_connect(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst);
     while(d_conn_sec_dtls.d_delstState != DTLS_EVENT_CONNECTED)
     {
-    
     	if(sec_int_cnt++ > 100)
 			break;
 
 		/*dtls alert */
     	if( d_conn_sec_dtls.d_delstState < DTLS_EVENT_CONNECT)
 				break;
-		printf("@%p@",d_conn_sec_dtls.d_delstState);
+
         res = dtls_handle_read(d_conn_sec_dtls.dtls_context);
         if(res < 0)
             break;

@@ -40,7 +40,7 @@
 #include "state.h"
 #include "crypto.h"
 
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
 #include "uthash.h"
 #endif /* WITH_CONTIKI */
 
@@ -50,7 +50,7 @@ typedef enum { DTLS_CLIENT=0, DTLS_SERVER } dtls_peer_type;
  * Holds security parameters, local state and the transport address
  * for each peer. */
 typedef struct dtls_peer_t {
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
   UT_hash_handle hh;
 #else /* WITH_CONTIKI */
   struct dtls_peer_t *next;

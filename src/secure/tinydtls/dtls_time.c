@@ -30,6 +30,11 @@
 #ifdef WILDDOG_PORT_TYPE_WICED
 #include "wiced.h"
 #include "wilddog.h"
+#else
+#if defined(WILDDOG_PORT_TYPE_QUCETEL)
+#include "wilddog.h"
+#include "Ql_time.h"
+#endif
 #endif
 #include "tinydtls.h"
 #include "dtls_config.h"
@@ -77,11 +82,26 @@ static int wd_gettimeofday(struct timeval*tv, struct timezone *tz)
 
     return 0;
 }
+#else
+#if defined(WILDDOG_PORT_TYPE_QUCETEL)
+static int wd_gettimeofday(struct timeval*tv, struct timezone *tz)
+{
+    u32 seconds;
+    ST_Time time;
+    Ql_GetLocalTime(&time);
+    seconds = Ql_Mktime(&time);
+    tv->tv_sec = seconds;
+    tv->tv_usec = 0;
+
+    return 0;
+}
+
+#endif
 #endif
 void dtls_ticks(dtls_tick_t *t) {
 #ifdef HAVE_SYS_TIME_H
   struct timeval tv;
-#ifdef WILDDOG_PORT_TYPE_WICED
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
   wd_gettimeofday(&tv, NULL);
 #else
   gettimeofday(&tv, NULL);

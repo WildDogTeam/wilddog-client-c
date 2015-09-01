@@ -236,7 +236,7 @@ size_t dtls_prf(const unsigned char *key, size_t keylen,
  * \param buf       A result buffer that is large enough to hold
  *                  the generated digest.
  */
-void dtls_mac(dtls_hmac_context_t *hmac_ctx, 
+int dtls_mac(dtls_hmac_context_t *hmac_ctx, 
 	      const unsigned char *record,
 	      const unsigned char *packet, size_t length,
 	      unsigned char *buf);

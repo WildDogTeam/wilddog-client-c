@@ -31,9 +31,23 @@
 #ifndef _DTLS_DTLS_TIME_H_
 #define _DTLS_DTLS_TIME_H_
 
+#if defined(WILDDOG_PORT_TYPE_QUCETEL)
+struct  timeval
+{
+    long  tv_sec;
+    long  tv_usec;
+};
+struct  timezone
+{
+    int  tz_minuteswest;
+    int  tz_dsttime;   
+};
+
+#else
+
 #include <stdint.h>
 #include <sys/time.h>
-
+#endif
 #include "tinydtls.h"
 
 /**
@@ -46,8 +60,10 @@
 #ifdef WITH_CONTIKI
 #include "clock.h"
 #else /* WITH_CONTIKI */
-#include <time.h>
+#if !defined(WILDDOG_PORT_TYPE_QUCETEL)
 
+#include <time.h>
+#endif
 #ifndef CLOCK_SECOND
 # define CLOCK_SECOND 1000
 #endif

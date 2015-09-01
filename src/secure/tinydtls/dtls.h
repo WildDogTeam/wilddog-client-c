@@ -38,7 +38,7 @@
 #include "state.h"
 #include "peer.h"
 
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
 #include "uthash.h"
 #include "t_list.h"
 #endif /* WITH_CONTIKI */

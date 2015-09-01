@@ -1,6 +1,6 @@
 
 APP_PROTO_TYPE=coap
-#security method, such as dtls/nosec
+#security method, such as dtls/tinydtls/nosec
 APP_SEC_TYPE=nosec
 
 PORT_TYPE=quectel
@@ -60,7 +60,13 @@ $(WILDDOG_TOP_DIR)\src\secure\$(APP_SEC_TYPE) \
 $(WILDDOG_TOP_DIR)\src\secure\$(APP_SEC_TYPE)\lib
 
 else
-
+ifeq ($(APP_SEC_TYPE),tinydtls)
+C_PREDEF += -D WILDDOG_PORT=5684
+WILDDOG_SECURE = $(wildcard $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/*.c)
+WILDDOG_INC += -I $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)
+WILDDOG_SRC_DIR += $(WILDDOG_TOP_DIR)\src\secure \
+$(WILDDOG_TOP_DIR)\src\secure\$(APP_SEC_TYPE)
+endif
 endif
 endif
 
