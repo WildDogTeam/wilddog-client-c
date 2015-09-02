@@ -163,7 +163,7 @@ char * _wilddog_event_pathRelative( char *spath, char *dpath)
  *              arg: The pointer to data url.
  *              err: error code.
  * Output:      N/A
- * Return:      if spath is "/a/b/c"  dpath is "/a/b/c/d/e", return "/d/e.
+ * Return:      N/A
 */
 void _wilddog_event_trigger
     ( 
@@ -249,15 +249,15 @@ void _wilddog_event_trigger
     }
 }
 
-//todo 
+ 
 /*
  * Function:    _wilddog_event_nodeAdd
- * Description: The event handler, called by connectivity layer.
- * Input:       node: The pointer to data node tree.
- *              arg: The pointer to data url.
- *              err: error code.
+ * Description: The event add handler, called by connectivity layer.
+ * Input:       event: The pointer to Wilddog_Event_T.
+ *              type: The event type.
+ *              arg: Wilddog_ConnCmd_Arg_T.
  * Output:      N/A
- * Return:      if spath is "/a/b/c"  dpath is "/a/b/c/d/e", return "/d/e.
+ * Return:      success: WILDDOG_ERR_NOERR ; fail:WILDDOG_ERR_NULL
 */
 Wilddog_Return_T _wilddog_event_nodeAdd
     ( 
@@ -267,26 +267,25 @@ Wilddog_Return_T _wilddog_event_nodeAdd
     )
 {
 	Wilddog_Return_T err = WILDDOG_ERR_NOERR;
-    //todo change prev_tmp_node to prev_node
-    Wilddog_EventNode_T *node, *tmp_node = NULL, *prev_tmp_node = NULL;
-    Wilddog_EventNode_T *head;
+    
+    Wilddog_EventNode_T *node = NULL, *tmp_node = NULL, *prev_node = NULL;
+    Wilddog_EventNode_T *head = NULL;
     Wilddog_Str_T *tmp;
     Wilddog_Conn_T *p_conn = event->p_ev_store->p_se_repo->p_rp_conn;
+	u32 len = 0;
 
     head = event->p_head;
-
-    //do the judge first
-    node = _wilddog_event_nodeInit(); 
-    if(node == NULL)
-        return WILDDOG_ERR_NULL;
-    //todo p_url exist or not
+    
     if(arg->p_url)
     {
-		if(arg->p_url->p_url_path)
+		if(arg->p_url->p_url_path && arg->p_url->p_url_host)
 		{
-		//todo store strlen((const char *)arg->p_url->p_url_host)
-		    node->p_url->p_url_path= (Wilddog_Str_T *)wmalloc(strlen( \
-		        (const char *)arg->p_url->p_url_path)+1);
+			node = _wilddog_event_nodeInit(); 
+			if(node == NULL)
+				return WILDDOG_ERR_NULL;
+		
+			len = strlen((const char *)arg->p_url->p_url_path);
+		    node->p_url->p_url_path= (Wilddog_Str_T *)wmalloc(len + 1);
 			
 		    if(node->p_url->p_url_path == NULL)
 		    {
@@ -296,15 +295,10 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 		        return WILDDOG_ERR_NULL;
 		    }
 
-		    memcpy( node->p_url->p_url_path, arg->p_url->p_url_path, \
-		        strlen((const char *)arg->p_url->p_url_path));
-		}
-        //todo if the p_url->p_url_path is not exist
-		if(arg->p_url->p_url_host)
-		{
-		//todo store strlen((const char *)arg->p_url->p_url_host)
-			node->p_url->p_url_host= (Wilddog_Str_T *)wmalloc(strlen( \
-										(const char *)arg->p_url->p_url_host)+1);
+		    memcpy( node->p_url->p_url_path, arg->p_url->p_url_path, len);
+	
+		    len = strlen((const char *)arg->p_url->p_url_host);
+			node->p_url->p_url_host= (Wilddog_Str_T *)wmalloc(len + 1);
 			if(node->p_url->p_url_host == NULL)
 			{
 				wilddog_debug_level( WD_DEBUG_ERROR, \
@@ -313,12 +307,18 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 				return WILDDOG_ERR_NULL;
 			}
 			
-			memcpy( node->p_url->p_url_host, arg->p_url->p_url_host, \
-				strlen((const char *)arg->p_url->p_url_host));
+			memcpy( node->p_url->p_url_host, arg->p_url->p_url_host, len);
 		}
-        //todo if the p_url->p_url_host is not exists
+		else
+		{
+			return WILDDOG_ERR_NULL;
+		}
 
     }
+	else
+	{
+		return WILDDOG_ERR_NULL;
+	}
 
     wilddog_debug_level(WD_DEBUG_LOG, "event node path:%s\n", \
 		                node->p_url->p_url_path);
@@ -328,7 +328,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
     node->flag = OFF_FLAG;
 
 	tmp_node = head;
-	prev_tmp_node = head;
+	prev_node = head;
 	while(tmp_node)
 	{
 		int slen = 0, dlen = 0, len = 0;
@@ -341,7 +341,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 			                (const char*) node->p_url->p_url_path, len);
 		if((cmpResult < 0 ) || ((cmpResult == 0) && (slen < dlen)))
 		{
-		    prev_tmp_node = tmp_node;
+		    prev_node = tmp_node;
 			tmp_node = tmp_node->next;	
 		}
 		else if( ((cmpResult == 0) && (slen == dlen)) )
@@ -359,14 +359,14 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 			break;
 		}
 	}
-	if(prev_tmp_node == tmp_node)
+	if(prev_node == tmp_node)
 	{
 	    node->next = tmp_node;
 	    event->p_head = node;
 	}
 	else
 	{
-	    prev_tmp_node->next = node;
+	    prev_node->next = node;
 	    node->next = tmp_node;
 	}
 
@@ -476,12 +476,12 @@ STATIC Wilddog_EventNode_T * _wilddog_event_nodeFind
 
 /*
  * Function:    _wilddog_event_nodeDelete
- * Description: Delete an event.
- * Input:       event: The pointer to event structure.
+ * Description: The event delete handler, called by connectivity layer.
+ * Input:       event: The pointer to Wilddog_Event_T.
  *              type: The event type.
- *              arg: the args.
+ *              arg: Wilddog_ConnCmd_Arg_T.
  * Output:      N/A
- * Return:      If success, return 0.
+ * Return:      success: WILDDOG_ERR_NOERR ; fail:WILDDOG_ERR_NULL
 */
 Wilddog_Return_T _wilddog_event_nodeDelete
     ( 
@@ -491,9 +491,10 @@ Wilddog_Return_T _wilddog_event_nodeDelete
     ) 
 {
     Wilddog_Return_T err = WILDDOG_ERR_NOERR;
-    Wilddog_EventNode_T *node, *prev_node, *tmp_node;
-    Wilddog_EventNode_T *head;
-    Wilddog_ConnCmd_Arg_T *tmp_arg;
+    Wilddog_EventNode_T *node = NULL, *prev_node = NULL, *tmp_node = NULL;
+    Wilddog_EventNode_T *head = NULL;
+    Wilddog_ConnCmd_Arg_T *tmp_arg = NULL;
+	u32 len = 0;
     Wilddog_Conn_T *p_conn = event->p_ev_store->p_se_repo->p_rp_conn;
     u8 pathContain = WD_EVENT_PATHCONTAIN_OTHER;
 	u8 prePathContain = WD_EVENT_PATHCONTAIN_OTHER;
@@ -540,7 +541,6 @@ Wilddog_Return_T _wilddog_event_nodeDelete
 			{
 				if(node->flag == OFF_FLAG)
 				{
-				    //todo use the local var & use the url in the node
 					tmp_arg = (Wilddog_ConnCmd_Arg_T *)wmalloc(sizeof(Wilddog_ConnCmd_Arg_T));
 					if(tmp_arg == NULL)
 					{
@@ -553,9 +553,8 @@ Wilddog_Return_T _wilddog_event_nodeDelete
             			wilddog_debug_level( WD_DEBUG_ERROR, \
                 			"cannot wmalloc tmp arg url!");
 					}
-
-			        tmp_arg->p_url->p_url_host= (Wilddog_Str_T *)wmalloc( \
-						    strlen((const char *)node->p_url->p_url_host)+1);
+					len = strlen((const char *)node->p_url->p_url_host);
+			        tmp_arg->p_url->p_url_host= (Wilddog_Str_T *)wmalloc( len + 1);
 					
 			        if(tmp_arg->p_url->p_url_host == NULL)
 			        {
@@ -565,11 +564,10 @@ Wilddog_Return_T _wilddog_event_nodeDelete
 			            return WILDDOG_ERR_NULL;
 			        }
 
-					memcpy( tmp_arg->p_url->p_url_host, node->p_url->p_url_host, \
-            			strlen((const char *)node->p_url->p_url_host));
+					memcpy( tmp_arg->p_url->p_url_host, node->p_url->p_url_host, len);
 
-			        tmp_arg->p_url->p_url_path= (Wilddog_Str_T *)wmalloc( \
-						strlen((const char *)node->p_url->p_url_path)+1);
+					len = strlen((const char *)node->p_url->p_url_path);
+			        tmp_arg->p_url->p_url_path= (Wilddog_Str_T *)wmalloc( len + 1);
 					
 			        if(tmp_arg->p_url->p_url_path == NULL)
 			        {
@@ -579,8 +577,7 @@ Wilddog_Return_T _wilddog_event_nodeDelete
 			            return WILDDOG_ERR_NULL;
 			        }
 
-					memcpy( tmp_arg->p_url->p_url_path, node->p_url->p_url_path, \
-            			strlen((const char *)node->p_url->p_url_path));
+					memcpy( tmp_arg->p_url->p_url_path, node->p_url->p_url_path, len);
 
 					tmp_arg->p_complete = node->p_onData;
          	 		tmp_arg->p_completeArg=node->p_dataArg;
