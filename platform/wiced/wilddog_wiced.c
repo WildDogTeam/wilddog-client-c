@@ -125,7 +125,7 @@ int wilddog_send
 
     memcpy( data, tosend, tosendLength );
 #if WILDDOG_SELFTEST
-    performtest_tm_getDtlsSend();
+    performtest_getDtlsSendTime();
 #endif
     wiced_packet_set_data_end( packet, (uint8_t*) ( data + tosendLength ) );
     wilddog_debug_level(WD_DEBUG_LOG, "socketId = %d, port = %d\n", \
@@ -218,8 +218,8 @@ int wilddog_receive
                 /*end*/
 #if WILDDOG_SELFTEST
                 {
-                    performtest_tm_getAuthWait();
-                    performtest_tm_getRecv_wait();
+                    performtest_getWaitSessionQueryTime();
+                    performtest_getWaitRecvTime();
                 }
 #endif
                 wilddog_debug_level(WD_DEBUG_LOG, "received %d data!", pos);

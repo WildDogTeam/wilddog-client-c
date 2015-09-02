@@ -53,6 +53,7 @@ STATIC Wilddog_EventNode_T * _wilddog_event_nodeInit()
     head->next = NULL;
     head->p_onData = NULL;
     head->p_dataArg = NULL;
+    head->flag = OFF_FLAG;
 
     return head;
 }
@@ -154,6 +155,7 @@ char * _wilddog_event_pathRelative( char *spath, char *dpath)
         return (dpath + slength );
 }
 
+//todo
 /*
  * Function:    _wilddog_event_trigger
  * Description: The event handler, called by connectivity layer.
@@ -172,7 +174,7 @@ void _wilddog_event_trigger
 {
     Wilddog_EventNode_T *enode = NULL;
     Wilddog_Repo_T *repo;
-    Wilddog_Node_T *obj_node, *obj_node_prev, *obj_node_next;
+    Wilddog_Node_T *obj_node = NULL , *obj_node_prev = NULL , *obj_node_next = NULL;
     u8 flag;
     Wilddog_Str_T *p_str ;
     flag = 0;
@@ -247,6 +249,7 @@ void _wilddog_event_trigger
     }
 }
 
+//todo 
 /*
  * Function:    _wilddog_event_nodeAdd
  * Description: The event handler, called by connectivity layer.
@@ -264,6 +267,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
     )
 {
 	Wilddog_Return_T err = WILDDOG_ERR_NOERR;
+    //todo change prev_tmp_node to prev_node
     Wilddog_EventNode_T *node, *tmp_node = NULL, *prev_tmp_node = NULL;
     Wilddog_EventNode_T *head;
     Wilddog_Str_T *tmp;
@@ -271,14 +275,16 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 
     head = event->p_head;
 
-
+    //do the judge first
     node = _wilddog_event_nodeInit(); 
     if(node == NULL)
         return WILDDOG_ERR_NULL;
+    //todo p_url exist or not
     if(arg->p_url)
     {
 		if(arg->p_url->p_url_path)
 		{
+		//todo store strlen((const char *)arg->p_url->p_url_host)
 		    node->p_url->p_url_path= (Wilddog_Str_T *)wmalloc(strlen( \
 		        (const char *)arg->p_url->p_url_path)+1);
 			
@@ -293,8 +299,10 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 		    memcpy( node->p_url->p_url_path, arg->p_url->p_url_path, \
 		        strlen((const char *)arg->p_url->p_url_path));
 		}
+        //todo if the p_url->p_url_path is not exist
 		if(arg->p_url->p_url_host)
 		{
+		//todo store strlen((const char *)arg->p_url->p_url_host)
 			node->p_url->p_url_host= (Wilddog_Str_T *)wmalloc(strlen( \
 										(const char *)arg->p_url->p_url_host)+1);
 			if(node->p_url->p_url_host == NULL)
@@ -308,6 +316,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 			memcpy( node->p_url->p_url_host, arg->p_url->p_url_host, \
 				strlen((const char *)arg->p_url->p_url_host));
 		}
+        //todo if the p_url->p_url_host is not exists
 
     }
 
@@ -330,8 +339,7 @@ Wilddog_Return_T _wilddog_event_nodeAdd
 		len = (slen < dlen ? slen : dlen);
 		cmpResult = strncmp((const char*)tmp_node->p_url->p_url_path, \
 			                (const char*) node->p_url->p_url_path, len);
-		if((cmpResult < 0 ) 
-		|| ((cmpResult == 0) && (slen < dlen)))
+		if((cmpResult < 0 ) || ((cmpResult == 0) && (slen < dlen)))
 		{
 		    prev_tmp_node = tmp_node;
 			tmp_node = tmp_node->next;	
@@ -532,6 +540,7 @@ Wilddog_Return_T _wilddog_event_nodeDelete
 			{
 				if(node->flag == OFF_FLAG)
 				{
+				    //todo use the local var & use the url in the node
 					tmp_arg = (Wilddog_ConnCmd_Arg_T *)wmalloc(sizeof(Wilddog_ConnCmd_Arg_T));
 					if(tmp_arg == NULL)
 					{

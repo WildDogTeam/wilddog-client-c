@@ -31,8 +31,8 @@
 
 #define CUCL_UNIT_MS	1000000		/* unit of time in report table */
 
-#define APPEND_TM(a)	do{	if((a) ==0 ) (a) = performtest_cacl_tm();\
-							else (a) = performtest_cacl_tm() - (a);}while(0)
+#define APPEND_TM(a)	do{	if((a) ==0 ) (a) = performtest_calDiffTime();\
+							else (a) = performtest_calDiffTime() - (a);}while(0)
 #define GET_AVERAGE(a,b) do{if((a)==0) (a) = b;\
 							else (a) = ((a) + (b))/2;}while(0)
 #define SYS_ISIN(s)		(g_performtest.d_sysState == (s))
@@ -90,7 +90,7 @@ static Performtest_T g_performtest;
 static int perform_count = 0;
 
 #if !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
-u32 performtest_sys_ustm(void)
+u32 performtest_getSystime(void)
 {
 
 	struct timeval temtm; 
@@ -101,7 +101,7 @@ u32 performtest_sys_ustm(void)
 #endif
 #ifdef WILDDOG_PORT_TYPE_QUCETEL
 #include "Ql_time.h"
-u32 performtest_sys_ustm(void)
+u32 performtest_getSystime(void)
 {
     u32 seconds;
     ST_Time time;
@@ -132,18 +132,14 @@ void cpucycleCnt_get(const u8 *p)
 	fflush(stdout);
 	cpucycle_rst();
 }
-u32 performtest_sys_ustm(void)
+u32 performtest_getSystime(void)
 {
 	/*printf("DWT_CYCCNT = %u;clock US=%u\n",(*DWT_CYCCNT),(*DWT_CYCCNT) /120);*/
 	return((*DWT_CYCCNT) /120);
 }
 #endif
 
-u32 performtest_getSys_tm(u32 d_systm)
-{
-	return performtest_sys_ustm();
-}
-void performtest_star_tm(void)
+void performtest_timeReset(void)
 {
 
 #ifdef WILDDOG_PORT_TYPE_WICED
@@ -151,17 +147,17 @@ void performtest_star_tm(void)
 	g_performtest.d_tm_star = 0;
 /*	printf("d_tm_star=%u\n",g_performtest.d_tm_star);*/
 #else 
-	g_performtest.d_tm_star = performtest_sys_ustm();
+	g_performtest.d_tm_star = performtest_getSystime();
 /*	printf("d_tm_star=%u\n",g_performtest.d_tm_star);*/
 
 #endif
 }
 
-u32 performtest_cacl_tm(void)
+u32 performtest_calDiffTime(void)
 {
-	u32 diff_tm = performtest_sys_ustm();
+	u32 diff_tm = performtest_getSystime();
 	
-/*	printf("performtest_cacl_tm :d_tm_star=%u;diff_tm=%u\n",g_performtest.d_tm_star,diff_tm);*/
+/*	printf("performtest_calDiffTime :d_tm_star=%u;diff_tm=%u\n",g_performtest.d_tm_star,diff_tm);*/
 #ifndef WILDDOG_PORT_TYPE_WICED
 	diff_tm = TM_DIFF(diff_tm,g_performtest.d_tm_star);
 #endif
@@ -171,7 +167,7 @@ void performtest_setSysState(u8 state)
 {
 	g_performtest.d_sysState = state;
 }		
-void performtest_tm_getDtlsHsk(void)
+void performtest_getDtlsHskTime(void)
 {
 	if(SYS_ISIN(SYS_HSK))
 	{
@@ -179,78 +175,69 @@ void performtest_tm_getDtlsHsk(void)
 		performtest_setSysState(SYS_AUTHSENDING);
 	}
 }
-void performtest_tm_getDtlsHskVerify(void)
+void performtest_getDtlsHskVerifyTime(void)
 {
 	if(SYS_ISIN(SYS_HSK))
 		APPEND_TM(g_performtest.d_tm_dtls_hsk_verify);
 }
-void performtest_tm_getAuthSend(void)
+void performtest_getSessionQueryTime(void)
 {
 	APPEND_TM(g_performtest.d_tm_dtls_auth_send);
 	performtest_setSysState(SYS_AUTHSENDING);
 }
-void performtest_tm_getAuthWait(void)
+void performtest_getWaitSessionQueryTime(void)
 {
 	if(SYS_ISIN(SYS_AUTHRECV)){
 		APPEND_TM(g_performtest.d_tm_dtls_auth_wait);
-		performtest_star_tm();
+		performtest_timeReset();
 	}
 }
-void performtest_tm_getAuthHandle(void)
+void performtest_getHandleSessionResponTime(void)
 {
 	if(SYS_ISIN(SYS_AUTHRECV))
 	{
 		APPEND_TM(g_performtest.d_tm_dtls_auth_handle);
 		performtest_setSysState(SYS_APPLICATIONSENDING);
-		performtest_star_tm();
+		performtest_timeReset();
 	}
 }
-void performtest_tm_getSend(void)
+void performtest_getSendTime(void)
 {
 	if(SYS_ISIN(SYS_APPLICATIONSENDING))
 	{
-		u32 temp = performtest_cacl_tm();
+		u32 temp = performtest_calDiffTime();
 		GET_AVERAGE(g_performtest.d_tm_send,temp);
 	}
 }
-void performtest_tm_getDtlsSend(void)
+void performtest_getDtlsSendTime(void)
 {
 	if(SYS_ISIN(SYS_APPLICATIONSENDING) )
 	{
-		u32 temp = performtest_cacl_tm();
+		u32 temp = performtest_calDiffTime();
 		GET_AVERAGE(g_performtest.d_tm_dtls_send,temp);
 	}
  }
-void performtest_tm_getRecv_wait(void)
+void performtest_getWaitRecvTime(void)
 {
 	if(SYS_ISIN(SYS_APPLICATIONRECV))
 	{
 		APPEND_TM(g_performtest.d_tm_recv_wait);
-		performtest_star_tm();
+		performtest_timeReset();
 	}
 }
-void performtest_tm_getRecvDtls(void)
+void performtest_getHandleRecvDtlsTime(void)
 {
 	if(SYS_ISIN(SYS_APPLICATIONRECV))
 	{
 		APPEND_TM(g_performtest.d_tm_recv_dtls);
 	}
 }
-void performtest_tm_getRecv(void)
+void performtest_getHandleRecvTime(void)
 {
 	if(SYS_ISIN(SYS_APPLICATIONRECV))
 	{
 		APPEND_TM(g_performtest.d_tm_recv);
 		performtest_setSysState(SYS_APPLICATIONRECVDONE);
-	}
-}
-void performtest_tm_printf(void)
-{
-	if(SYS_ISIN(SYS_APPLICATIONRECV))
-	{
-		static u32 tm_temp=0;
-		APPEND_TM(tm_temp);
-		printf("performtest_tm =%ld\n",tm_temp);
 	}
 }
 void performtest_init( u32 delay_tm,u32 tree_num, u8 request_num)
@@ -305,7 +292,7 @@ STATIC void test_onQueryFunc(
 	void* arg, 
 	Wilddog_Return_T err)
 {
-	performtest_tm_getRecv();
+	performtest_getHandleRecvTime();
 	perform_count = (perform_count <= 0)?0:perform_count - 1;
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
@@ -345,20 +332,20 @@ void performtest_handle
 	}
 	perform_count = 0;
 	performtest_setSysState(SYS_AUTHRECV);
-	performtest_star_tm();
+	performtest_timeReset();
 	while(1)
 	{
 		wilddog_trySync();
 		if(SYS_ISIN(SYS_APPLICATIONSENDING))
 			break;
 	}
-	performtest_star_tm();
+	performtest_timeReset();
 	for(m=0; m < request_num; m++)
 	{
-		performtest_star_tm();
+		performtest_timeReset();
 		/*printf("g_performtest.d_tm_star = %ul\n", g_performtest.d_tm_star);*/
 		int res = wilddog_getValue(wilddog, test_onQueryFunc, NULL);
-		performtest_tm_getSend();
+		performtest_getSendTime();
 		/*printf("g_performtest.d_tm_send = %ul\n", g_performtest.d_tm_send);*/
 		if(0 == res)
 			perform_count++;
@@ -366,7 +353,7 @@ void performtest_handle
 			g_performtest.d_send_fault++;
 		/*printf("send =%d;res =%d \n",perform_count,res);*/
 	}
-	performtest_star_tm();
+	performtest_timeReset();
 	performtest_setSysState(SYS_APPLICATIONRECV);
 	while(1)
 	{

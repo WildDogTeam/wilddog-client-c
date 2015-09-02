@@ -34,6 +34,7 @@ STATIC VOLATILE u32 l_wilddog_currTime = 0;
 void* wmalloc(int size)
 {
     void* ptr = NULL;
+    wilddog_assert(size, NULL);
     ptr = malloc(size);
     if(NULL != ptr)
     {
@@ -127,7 +128,7 @@ u8 _wilddog_isAuthValid(u8 * auth, int len)
  * Output:      N/A
  * Return:      N/A
 */
-void _wilddog_setTimeIncrease(u32 ms)
+void INLINE _wilddog_setTimeIncrease(u32 ms)
 {
     l_wilddog_currTime += ms;
     return;
@@ -170,35 +171,7 @@ void _wilddog_syncTime(void)
     /*every repo will receive WILDDOG_RECEIVE_TIMEOUT ms*/
     u32 calTime = recentTime + WILDDOG_RECEIVE_TIMEOUT;
     
-    /*calTime < recentTime means overflow*/
-    if(calTime < recentTime)
-    {
-        /*overflow*/
-        if(currTime > recentTime)
-        {
-            /*
-             * currTime not overflow, means time not increased enough, 
-             * force to calTime
-             */
-            currTime = calTime;
-        }
-        else
-        {
-            /*
-             * if curr time <= recent time ,means user did not call the increase
-             * function,use default.
-             */
-            currTime = currTime > recentTime ? (currTime):(calTime);
-        }
-    }
-    else
-    {
-        /*
-         * if curr time <= recent time ,means user did not call the increase 
-         * function,use default.
-         */
-        currTime = currTime > recentTime ? (currTime):(calTime);
-    }
+    currTime = (currTime != recentTime ? (currTime):(calTime));
     
     _wilddog_setTime(currTime);
     recentTime = currTime;

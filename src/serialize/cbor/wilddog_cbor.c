@@ -144,6 +144,7 @@ STATIC void _wilddog_c2n_numHandler
     Wilddog_Str_T *p_num
     )
 {
+    //todo costdown
     switch(dataLen)
     {
         case 1:
@@ -285,6 +286,7 @@ STATIC Wilddog_Str_T * _wilddog_c2n_parseStr
     }
 
     p_data->d_dt_pos += pos;
+    //todo test
     if(TRUE == var)
     {
         /*can not go here!*/
@@ -612,14 +614,14 @@ STATIC wFloat _wilddog_parseFloat(Wilddog_Payload_T * p_data)
         float tmp;
         _wilddog_swap32((u8*)(p_data->p_dt_data  + p_data->d_dt_pos+ 1),(u8 *) &tmp);
         num = tmp;
-        p_data->d_dt_pos += 5;
+        p_data->d_dt_pos += 5;// 1 byte head + 4 bytes data
     }
     else if(WILDDOG_CBOR_FLOAT64 == head)
     {
 #if WILDDOG_MACHINE_BITS != 8
         /* only used in 32 bit machine*/
         _wilddog_swap64((u8*)(p_data->p_dt_data  + p_data->d_dt_pos+ 1),(u8 *) &num);
-        p_data->d_dt_pos += 9;
+        p_data->d_dt_pos += 9;// 1 byte head + 4bytes data
 #else
         num = -1;
 #endif
@@ -686,13 +688,13 @@ Wilddog_Node_T *_wilddog_cbor2Node(Wilddog_Payload_T* p_data)
     else
     {
         Wilddog_Node_T * p_node = NULL;
-        wFloat d_float;
+        wFloat d_float = 1.0;
         s8 d_type = 0;
         Wilddog_Str_T* p_value = NULL;
         if(WILDDOG_CBOR_SPECIAL == type)
         {
             d_type = _wilddog_c2n_parseSpecial(p_data , &d_float);
-            if(0 > d_type)
+            if(0 > d_type || d_float < 0)
             {
                 wilddog_debug_level(WD_DEBUG_ERROR, "parse special error!");
                 return NULL;
@@ -852,7 +854,8 @@ STATIC int _wilddog_n2c_encodeUint
         }
         p_data->p_dt_data = ptr;
     }
-        
+
+    //todo store the p_wn_value    
     *(p_data->p_dt_data + p_data->d_dt_pos) = \
                 WILDDOG_CBOR_UINT | \
                 _wilddog_n2c_uintAdditionalInfo(*(u32 *)(p_node->p_wn_value)); 
@@ -912,6 +915,7 @@ STATIC int _wilddog_n2c_encodeNegint
         p_data->p_dt_data = ptr;
     }
 
+    //todo store the p_wn_value
     *(p_data->p_dt_data + p_data->d_dt_pos) = \
         WILDDOG_CBOR_NEGINT | \
         _wilddog_n2c_uintAdditionalInfo((-1 - *(s32 *)(p_node->p_wn_value))); 
@@ -1079,6 +1083,8 @@ STATIC int _wilddog_n2c_encodeFloat
         }
         p_data->p_dt_data = ptr;
     }
+
+    //todo  use oen define
 #if WILDDOG_MACHINE_BITS != 8
     *(p_data->p_dt_data + p_data->d_dt_pos) = WILDDOG_CBOR_FLOAT64;
 #else
@@ -1356,7 +1362,10 @@ STATIC int _wilddog_n2c_inner
     {
 
         _wilddog_n2c_encodeUStringKey(p_node, p_data);
-
+        //todo costdown _wilddog_n2c_uintAdditionalInfo
+        // merge uint and negint
+        // merge bstr and utf8str
+        // merge true false and null
         if(WILDDOG_NODE_TYPE_NUM == p_node->d_wn_type)   /*number*/
         {
             
@@ -1477,6 +1486,7 @@ Wilddog_Payload_T * _wilddog_node2Cbor(Wilddog_Node_T * p_node)
         }
         p_data->p_dt_data = ptr;
         p_data->d_dt_pos = 0;
+        //todo 
         newptr = wmalloc(p_data->d_dt_len - 0);
         if(newptr == NULL)
         {
@@ -1485,6 +1495,7 @@ Wilddog_Payload_T * _wilddog_node2Cbor(Wilddog_Node_T * p_node)
         }
         memcpy(newptr, p_data->p_dt_data+0, p_data->d_dt_len-0);
         wfree(ptr);
+        // todo 
         p_data->d_dt_len -= 0;
         p_data->p_dt_data = newptr;
         p_node->p_wn_key = p_tmp;

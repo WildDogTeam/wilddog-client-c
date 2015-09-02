@@ -77,7 +77,7 @@ int _wilddog_sec_getHost
 		ramtest_gethostbyname();
 #endif
 #ifdef WILDDOG_SELFTEST     
-		performtest_star_tm();
+		performtest_timeReset();
 #endif
 
 	if(-1 == res)

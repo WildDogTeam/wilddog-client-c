@@ -68,17 +68,17 @@ extern void ramtest_caculate_packetsize(unsigned short packetSize);
 extern int ramtest_printfmallocState(void);
 extern int ramtest_handle( const u8 *p_url,u32 tree_num, u8 request_num);
 
-extern void performtest_star_tm(void);
-extern void performtest_tm_getDtlsHsk(void);
-extern void performtest_tm_getDtlsHskVerify(void);
-extern void performtest_tm_getAuthSend(void);
-extern void performtest_tm_getAuthWait(void);
-extern void performtest_tm_getAuthHandle(void);
-extern void performtest_tm_getSend(void);
-extern void performtest_tm_getDtlsSend(void);
-extern void performtest_tm_getRecv_wait(void);
-extern void performtest_tm_getRecvDtls(void);
-extern void performtest_tm_getRecv(void);
+extern void performtest_timeReset(void);
+extern void performtest_getDtlsHskTime(void);
+extern void performtest_getDtlsHskVerifyTime(void);
+extern void performtest_getSessionQueryTime(void);
+extern void performtest_getWaitSessionQueryTime(void);
+extern void performtest_getHandleSessionResponTime(void);
+extern void performtest_getSendTime(void);
+extern void performtest_getDtlsSendTime(void);
+extern void performtest_getWaitRecvTime(void);
+extern void performtest_getHandleRecvDtlsTime(void);
+extern void performtest_getHandleRecvTime(void);
 extern void performtest_titile_printf(void);
 extern void performtest_end_printf(void);
 extern void performtest_handle

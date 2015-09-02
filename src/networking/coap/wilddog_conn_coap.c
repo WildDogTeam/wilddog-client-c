@@ -279,8 +279,7 @@ STATIC void _wilddog_conn_coap_sendReObserver(
     if(updateReObserverTm_flag)
     	_wilddog_conn_coap_updateReObserverTm();
 }
-/* message equ */
-STATIC INLINE int _wilddog_conn_coap_midEqu(coap_pdu_t* p_node,coap_pdu_t* p_resp)
+STATIC INLINE int _wilddog_conn_coap_mesageMatch(coap_pdu_t* p_node,coap_pdu_t* p_resp)
 {
     return (p_node->hdr->id != p_resp->hdr->id);
 }
@@ -306,7 +305,7 @@ STATIC void _wilddog_conn_coap_pduOptionAdd( coap_pdu_t* p_coap, u8 * host,
     if (observe)
     {
         d_obs = (*observe)?1:0;
-        /* todo observer len */
+        /*   observer len */
         coap_add_option(p_coap, COAP_OPTION_OBSERVE, 1, &d_obs);
     }
     /* @add path */
@@ -379,7 +378,7 @@ coap_pdu_t
     index = htons(index);
     
     d_packetsize = _wilddog_conn_coap_countPacktSize(p_cp_pkt);
-    /*@ todo */
+    /*@ malloc coap packet */
     p_coap = coap_pdu_init(types,codes, index,d_packetsize);
 
     if(!p_coap)
@@ -569,14 +568,14 @@ int _wilddog_conn_pkt_creat
     *pp_pkt_creat = p_node;
     return res;
 }
-STATIC int _wilddog_conn_coap_auth_updata(u8 *p_auth,coap_pdu_t *p_pdu)
+STATIC int _wilddog_conn_coap_auth_update(u8 *p_auth,coap_pdu_t *p_pdu)
 {
     coap_opt_iterator_t d_oi;
     coap_opt_t *p_op = NULL;
     u8 *p_opvalue = NULL;
 
 	    
-    /* seek option*/
+    /*   seek option*/
     p_op = coap_check_option(p_pdu,COAP_OPTION_URI_QUERY,&d_oi);
     if(p_op == NULL)
         return WILDDOG_ERR_NOERR;
@@ -607,7 +606,7 @@ int _wilddog_conn_coap_send
     if(DEBUG_LEVEL <= WD_DEBUG_LOG )
         coap_show_pdu(p_coap);
 #endif
-    _wilddog_conn_coap_auth_updata(p_auth,p_coap);
+    _wilddog_conn_coap_auth_update(p_auth,p_coap);
     res = _wilddog_sec_send(p_coap->hdr, p_coap->length);
     if (res < 0) 
     {
@@ -623,7 +622,7 @@ Wilddog_Return_T _wilddog_conn_pkt_send
     u8 *p_auth,void *p_cn_pkt
     )
 {
-    /*@ todo  Fragmentation send */
+    /*@   Fragmentation send */
     int res =0;
     Wilddog_Conn_Coap_PacketNode_T *p_node = NULL;
     
@@ -766,7 +765,7 @@ STATIC int _wilddog_conn_coap_recv_respCheck
     /*  message id check*/
     if( _wilddog_conn_coap_noSeparate(p_node)   && 
         _wilddog_conn_coap_noObserve(p_node)    &&
-        _wilddog_conn_coap_midEqu(p_node->p_CoapPkt,p_resp))
+        _wilddog_conn_coap_mesageMatch(p_node->p_CoapPkt,p_resp))
             return WILDDOG_ERR_RECVNOMATCH;
 
     return 0;
@@ -910,7 +909,6 @@ STATIC int _wilddog_conn_coap_recvDispatch
             == WILDDOG_CONN_COAP_RESPON_IGNORE )
 			goto RECV_DISPATCH_NOERR;
 		/*
-        **@ todo Fragmentation
         **@ get payload
         */
         coap_get_data(p_resp,&tmplen,&p_buftemp);
@@ -939,7 +937,6 @@ STATIC int _wilddog_conn_coap_recvDispatch
 RECV_DISPATCH_NOERR:
 		*P_node_respon = curr;
 		
-        /* todo handle err*/
         /*@ dele pkt node */
 		/* call back*/
 #if 0
@@ -982,7 +979,7 @@ Wilddog_Return_T _wilddog_conn_pkt_recv
   	ramtest_caculate_peakRam();
 #endif
 #ifdef WILDDOG_SELFTEST               
-		performtest_tm_getRecvDtls();
+		performtest_getHandleRecvDtlsTime();
 #endif
 
     if(p_pdu == NULL)
@@ -1010,7 +1007,6 @@ Wilddog_Return_T _wilddog_conn_pkt_recv
 	/*free pdu and callback */
 	coap_delete_pdu(p_pdu);
 
-	/* todo handle err*/
 	/*@ dele pkt node */
 	/* call back*/
 	if(p_node_respond && p_node_respond->f_cn_cb)
@@ -1030,7 +1026,8 @@ Wilddog_Return_T _wilddog_conn_pkt_init
         p_coap_pcb = wmalloc(sizeof(Wilddog_Conn_Coap_PCB_T));
         if(p_coap_pcb ==  NULL)
             return WILDDOG_ERR_NULL;
-        p_coap_pcb->d_pkt_idx = rand();
+        
+        p_coap_pcb->d_pkt_idx =(u16)_sys_rand_get();
         p_coap_pcb->d_coap_session_cnt = 1;
         
     }

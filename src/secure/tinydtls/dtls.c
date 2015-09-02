@@ -3055,7 +3055,7 @@ handle_handshake_msg(dtls_context_t *ctx, dtls_peer_t *peer, session_t *session,
 #ifdef DTLS_ECC
   case DTLS_HT_CERTIFICATE:
 #ifdef WILDDOG_SELFTEST     
-	  performtest_tm_getDtlsHskVerify();
+	  performtest_getDtlsHskVerifyTime();
 #endif
     if ((role == DTLS_CLIENT && state != DTLS_STATE_WAIT_SERVERCERTIFICATE) ||
         (role == DTLS_SERVER && state != DTLS_STATE_WAIT_CLIENTCERTIFICATE)) {
@@ -3073,7 +3073,7 @@ handle_handshake_msg(dtls_context_t *ctx, dtls_peer_t *peer, session_t *session,
     }
     /* update_hs_hash(peer, data, data_length); */
 #ifdef WILDDOG_SELFTEST     
-		  performtest_tm_getDtlsHskVerify();
+		  performtest_getDtlsHskVerifyTime();
 #endif
 
     break;

@@ -110,8 +110,8 @@ STATIC Wilddog_T _wilddog_ct_createRef(void *args, int flag)
     Wilddog_Url_T *p_url = NULL;
     Wilddog_Ref_T *p_ref = NULL;
     Wilddog_Repo_T *p_repo = NULL;
-
     Wilddog_Str_T *url = (Wilddog_Str_T*)args;
+    
     wilddog_assert(url, 0);
 
 	if(FALSE == l_isStarted)
@@ -119,7 +119,8 @@ STATIC Wilddog_T _wilddog_ct_createRef(void *args, int flag)
 		_wilddog_ct_init(NULL, 0);
 		l_isStarted = TRUE;
 	}
-	
+
+    //todo remove
     /*add valid check!*/
     if(!_wilddog_isUrlValid(url))
         return 0;
@@ -316,6 +317,7 @@ STATIC Wilddog_Ref_T * _wilddog_ct_getRef(void* arg, int flag)
 
     if(NULL == p_ref)
     {
+        //todo merge with create ref
         /*cannot find ref, new one*/
         p_ref = (Wilddog_Ref_T*)wmalloc(sizeof(Wilddog_Ref_T));
         if(NULL == p_ref)
@@ -355,7 +357,8 @@ STATIC Wilddog_Repo_T * _wilddog_ct_createRepo(Wilddog_Url_T *p_url)
     Wilddog_Url_T * p_rp_url = NULL;
 
 	wilddog_assert(p_url, NULL);
- 
+
+    //todo costdown
     p_repo = _wilddog_ct_findRepo(p_url->p_url_host);
     
     if(NULL != p_repo)
@@ -650,7 +653,7 @@ size_t _wilddog_ct_ioctl(Wilddog_Api_Cmd_T cmd, void* arg, int flags)
 {
     NOT_USED(flags);
     
-    if(cmd > WILDDOG_APICMD_MAXCMD || cmd < 0)
+    if(cmd > WILDDOG_APICMD_MAXCMD || cmd <= 0)
         return 0;
     else
         return (size_t)(Wilddog_ApiCmd_FuncTable[cmd])(arg, flags);     

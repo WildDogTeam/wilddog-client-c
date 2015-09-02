@@ -53,16 +53,15 @@ typedef enum WILDDOG_CONN_CMD_TYPE
 typedef struct WILDDOG_CONN_NODE_T
 {
     struct WILDDOG_CONN_NODE_T *next;
-    u32 d_cn_regist_tm;
-    u32 d_cn_nextsend_tm;
-    u32 d_cn_retansmit_cnt;
-    void  *p_cn_pkt;
-
-    u8 d_cmd;
-    u8 d_observe_flag;	
+    u32 d_cn_regist_tm;//todo 
+    u32 d_cn_nextsend_tm;//todo
+    u32 d_cn_retansmit_cnt;//todo
+    void  *p_cn_pkt;    
     Wilddog_Func_T f_cn_callback;
     u8 *p_cn_path;
     void* p_cn_cb_arg;
+    u8 d_cmd;
+    u8 d_observe_flag;	
     
 }Wilddog_Conn_Node_T;
 
@@ -70,18 +69,18 @@ typedef struct WILDDOG_CONN_T
 {
     Wilddog_Repo_T *p_conn_repo;
     
-    u8  d_auth_st;
-	u8 	d_pong_state;
+    u8  d_auth_st;//todo
+	u8 	d_pong_state;//todo reonline
 	u8  d_pong_num;
 	u8  d_reObserver_flag;
 	
-    u32 d_wauth;
-    u32 d_ralyRecv;
-    u32 d_ralySend;
+    u32 d_wauth;//d_token
+    u32 d_ralyRecv;//mv
+    u32 d_ralySend;//mv
     
-    u32 d_pong_nextSendTm;
+    u32 d_pong_nextSendTm;//todo
 
-    Wilddog_Func_T f_conn_trysyc;
+    Wilddog_Func_T f_conn_trysyc;//todo 
     Wilddog_Func_T f_conn_send;
     
     struct WILDDOG_CONN_NODE_T *p_conn_node_hd;

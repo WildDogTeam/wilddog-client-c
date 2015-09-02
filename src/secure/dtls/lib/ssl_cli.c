@@ -2990,11 +2990,11 @@ int ssl_handshake_client_step( ssl_context *ssl )
 
        case SSL_SERVER_CERTIFICATE:
 #ifdef WILDDOG_SELFTEST
-			performtest_tm_getDtlsHskVerify();
+			performtest_getDtlsHskVerifyTime();
 #endif
            ret = ssl_parse_certificate( ssl );
 #ifdef WILDDOG_SELFTEST     
-			performtest_tm_getDtlsHskVerify();
+			performtest_getDtlsHskVerifyTime();
 #endif   
 
            break;
