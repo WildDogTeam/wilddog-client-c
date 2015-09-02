@@ -620,9 +620,9 @@ STATIC Wilddog_Return_T _wilddog_ct_conn_sync(void *arg, int flag)
     LL_FOREACH_SAFE(*p_head, p_curr, p_tmp)
     {
         p_conn = p_curr->p_rp_conn;
-        if(p_conn && p_conn->f_conn_trysyc)
+        if(p_conn && p_conn->f_conn_trysync)
         {
-            (p_conn->f_conn_trysyc)(p_curr);
+            (p_conn->f_conn_trysync)(p_curr);
         }
 
     }
