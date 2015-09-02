@@ -34,16 +34,16 @@
 
 #define TEST_URL_LEN		(127)	
 
-#define TEST_RAM_URL			"coap://sky.wilddogio.com/ramtest"
-#define TEST_PERFORM_URL		"coap://sky.wilddogio.com/performtest"
-#define TEST_STAB_CYCLE_URL		"coap://sky.wilddogio.com/stab_cycle"
-#define TEST_STAB_SETTEST_URL	"coap://sky.wilddogio.com/set_test"
-#define TEST_STEP_URL			"coap://sky.wilddogio.com/step"
-#define TEST_MTS_URL			"coap://sky.wilddogio.com/MTS"
+#define TEST_RAM_URL			"coap://AppId.wilddogio.com/ramtest"
+#define TEST_PERFORM_URL		"coap://AppId.wilddogio.com/performtest"
+#define TEST_STAB_CYCLE_URL		"coap://AppId.wilddogio.com/stab_cycle"
+#define TEST_STAB_SETTEST_URL	"coap://AppId.wilddogio.com/set_test"
+#define TEST_STEP_URL			"coap://AppId.wilddogio.com/step"
+#define TEST_MTS_URL			"coap://AppId.wilddogio.com/MTS"
 
-#define TEST_MULTIHOST_URL1		"coap://c_test1.wilddogio.com/"
-#define TEST_MULTIHOST_URL2		"coap://c_test2.wilddogio.com/"
-#define TEST_MULTIHOST_URL3		"coap://c_test3.wilddogio.com/"
+#define TEST_MULTIHOST_URL1		"coap://AppId1.wilddogio.com/"
+#define TEST_MULTIHOST_URL2		"coap://AppId2.wilddogio.com/"
+#define TEST_MULTIHOST_URL3		"coap://AppId3.wilddogio.com/"
 
 /*test subject */ 
 #define TEST_STEP_AUTHS 	"yourauth"
