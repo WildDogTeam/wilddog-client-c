@@ -1066,9 +1066,7 @@ STATIC int _wilddog_n2c_encodeString
     )
 {
     Wilddog_Str_T *ptr;
-
-	wilddog_assert(p_node->p_wn_key,WILDDOG_ERR_NULL);
-	wilddog_assert(p_node->p_wn_value,WILDDOG_ERR_NULL);
+	
 	
     if(p_data->d_dt_pos + 6 + p_node->d_wn_len > p_data->d_dt_len )
     {
