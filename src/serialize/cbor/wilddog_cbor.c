@@ -11,6 +11,8 @@
  * 0.4.0        Jimmy.Pan       2015-05-15  Create file.
  * 0.4.3        Baikal.Hu       2015-07-09  Fix BUG: Input more than 256 strings  
  *                                          will cause length parse error.
+ * 0.4.6        Jimmy.Pan       2015-09-06  Fix BUG: If float is -1, parse float
+ *                                          will cause error.
  */
 
 #include <stdio.h>
@@ -29,8 +31,8 @@
 
 typedef enum _NODE_STRING_TYPE
 {
-	TYPE_KEY,
-	TYPE_VALUE
+    TYPE_KEY,
+    TYPE_VALUE
 }Node_String_T;
 
 typedef Wilddog_Str_T *(*_cborParserFunc)(Wilddog_Payload_T * p_data, int* len);
@@ -99,30 +101,32 @@ STATIC s32 _wilddog_c2n_getItemLen(Wilddog_Payload_T* data, s32 *p_num)
     if(num < WILDDOG_CBOR_FOLLOW_1BYTE)
     {
         *p_num = num;
-        return 1;
+        return WILDDOG_CBOR_HEAD_LEN;
     }
     else if(WILDDOG_CBOR_FOLLOW_1BYTE == num)
     {
         *p_num = *(u8*)(p_data + 1);
 
-        return 2;
+        return WILDDOG_CBOR_FOLLOW_1BYTE_LEN + WILDDOG_CBOR_HEAD_LEN;
     }
     else if(WILDDOG_CBOR_FOLLOW_2BYTE == num)
     {
+        /*2bytes after head are the value, and it is in network order*/
         *p_num = ((*(u8*)(p_data + 1)) << 8) | (*(u8*)(p_data + 2));
-        return 3;
+        return WILDDOG_CBOR_FOLLOW_2BYTE_LEN + WILDDOG_CBOR_HEAD_LEN;
     }
     else if(WILDDOG_CBOR_FOLLOW_4BYTE == num)
     {
+        /*4bytes after head are the value, and it is in network order*/
         *p_num = ((*(u8*)(p_data + 1)) << 24) | ((*(u8*)(p_data + 2)) << 16) | \
                  ((*(u8*)(p_data + 3)) <<  8) | ((*(u8*)(p_data + 4)));
-        return 5;
+        return WILDDOG_CBOR_FOLLOW_4BYTE_LEN + WILDDOG_CBOR_HEAD_LEN;
     }
     else if(WILDDOG_CBOR_FOLLOW_VAR == num)
     {
         /*do not let it happen*/
         *p_num = -1;
-        return 1;
+        return WILDDOG_CBOR_HEAD_LEN;
     }
     else
     {
@@ -150,26 +154,17 @@ STATIC void _wilddog_c2n_numHandler
     Wilddog_Str_T *p_num
     )
 {
-    //todo costdown
-    switch(dataLen)
+    if(dataLen == WILDDOG_CBOR_HEAD_LEN         || \
+       dataLen == WILDDOG_CBOR_FOLLOW_1BYTE_LEN || \
+       dataLen == WILDDOG_CBOR_FOLLOW_2BYTE_LEN || \
+       dataLen == WILDDOG_CBOR_FOLLOW_4BYTE_LEN)
     {
-        case 1:
-            if (WILDDOG_CBOR_NEGINT == type)
-                num = 0 - num - 1;
-            break;
-        case 2:
-            
-            if (WILDDOG_CBOR_NEGINT == type)
-                num = 0 - num - 1;
-            break;
-        case 4:
-           
-            if (WILDDOG_CBOR_NEGINT == type)
-                num = 0 - num - 1;
-            break;
-        default:
-            num = 0;
+        if (WILDDOG_CBOR_NEGINT == type)
+            num = -1 - num;
     }
+    else
+        num = 0;
+
     memcpy(p_num, (u8*)&num, sizeof(s32));
     return ;
 }
@@ -190,7 +185,7 @@ STATIC Wilddog_Str_T * _wilddog_c2n_parseInt
     u8 type
     )
 {
-	/*size means how many bytes the data have*/
+    /*size means how many bytes the data have*/
     int pos = 0, size = 0;
     s32 num  = 0;
     Wilddog_Str_T* p_str = NULL;
@@ -285,10 +280,10 @@ STATIC Wilddog_Str_T * _wilddog_c2n_parseStr
         wilddog_debug_level(WD_DEBUG_ERROR, "parse head fail!");
         return NULL;
     }
-    if(num == -1)
+    if(num == WILDDOG_CBOR_FOLLOW_UNKNOW_LEN)
     {
         var = TRUE;
-        num = 0xff;
+        num = WILDDOG_CBOR_FOLLOW_UNKNOW_DEFLEN;
     }
 
     p_data->d_dt_pos += pos;
@@ -298,11 +293,11 @@ STATIC Wilddog_Str_T * _wilddog_c2n_parseStr
         /*can not go here!*/
         int i, len ,count = 0, totalLen = 0;
         u8 strType = 0;
-        Wilddog_Str_T *strP[0xff];
-        u8 strL[0xff];
+        Wilddog_Str_T *strP[WILDDOG_CBOR_FOLLOW_UNKNOW_DEFLEN];
+        u8 strL[WILDDOG_CBOR_FOLLOW_UNKNOW_DEFLEN];
         Wilddog_Str_T * p_tmp= NULL;
-        memset(strP, 0, 0xff);
-        memset(strL, 0, 0xff);
+        memset(strP, 0, WILDDOG_CBOR_FOLLOW_UNKNOW_DEFLEN);
+        memset(strL, 0, WILDDOG_CBOR_FOLLOW_UNKNOW_DEFLEN);
         strType = (*(u8*)(p_data->p_dt_data + p_data->d_dt_pos)) & 0xff;
         /*
          * indefinite string, means several definite strings, totally end by a 
@@ -423,12 +418,12 @@ STATIC Wilddog_Node_T * _wilddog_c2n_parseMap(Wilddog_Payload_T* p_data)
         return NULL;
     }
     /*parse key-value */
-    if(currNum == -1)
+    if(currNum == WILDDOG_CBOR_FOLLOW_UNKNOW_LEN)
     {
         /* waiting break*/
         wilddog_debug_level(WD_DEBUG_WARN, "do not know the length");
         var = TRUE;
-        currNum = 0xff;
+        currNum = WILDDOG_CBOR_FOLLOW_UNKNOW_DEFLEN;
     }
     for(i = 0; i < currNum; i++)
     {
@@ -486,7 +481,7 @@ STATIC Wilddog_Node_T * _wilddog_c2n_parseMap(Wilddog_Payload_T* p_data)
             if(WILDDOG_CBOR_SPECIAL == type)
             {
                 wFloat num;
-			
+            
                 type = _wilddog_c2n_parseSpecial(p_data, &num);
                 if(0 > type)
                 {
@@ -516,7 +511,6 @@ STATIC Wilddog_Node_T * _wilddog_c2n_parseMap(Wilddog_Payload_T* p_data)
             }
             else
             {
-            
                 p_value = _wilddog_c2n_parseSimpleItem(p_data, &len);
                 type = _wilddog_c2n_typeTranslate(type);
                 if(type < 0)
@@ -562,10 +556,10 @@ STATIC void _wilddog_swap32(u8* src, u8* dst)
     dst[2] = src[1];
     dst[3] = src[0];
 #else
-	dst[0] = src[0];
-	dst[1] = src[1];
-	dst[2] = src[2];
-	dst[3] = src[3];
+    dst[0] = src[0];
+    dst[1] = src[1];
+    dst[2] = src[2];
+    dst[3] = src[3];
 #endif
 }
 
@@ -588,14 +582,14 @@ STATIC void _wilddog_swap64(u8* src, u8* dst)
     dst[6] = src[1];
     dst[7] = src[0];
 #else
-	dst[0] = src[0];
-	dst[1] = src[1];
-	dst[2] = src[2];
-	dst[3] = src[3];
-	dst[4] = src[4];
-	dst[5] = src[5];
-	dst[6] = src[6];
-	dst[7] = src[7];
+    dst[0] = src[0];
+    dst[1] = src[1];
+    dst[2] = src[2];
+    dst[3] = src[3];
+    dst[4] = src[4];
+    dst[5] = src[5];
+    dst[6] = src[6];
+    dst[7] = src[7];
 #endif
 }
 
@@ -603,10 +597,10 @@ STATIC void _wilddog_swap64(u8* src, u8* dst)
  * Function:    _wilddog_parseFloat
  * Description: Parse float
  * Input:       p_data: The payload
- * Output:      N/A
- * Return:      Return float type
+ * Output:      data: pointer to wFloat data
+ * Return:      Return TRUE or FALSE 
 */
-STATIC wFloat _wilddog_parseFloat(Wilddog_Payload_T * p_data)
+STATIC BOOL _wilddog_parseFloat(Wilddog_Payload_T * p_data, wFloat* data)
 {
     wFloat num = 0;
     u8 head = *(u8*)(p_data->p_dt_data + p_data->d_dt_pos);
@@ -618,7 +612,7 @@ STATIC wFloat _wilddog_parseFloat(Wilddog_Payload_T * p_data)
     else if(WILDDOG_CBOR_FLOAT32 == head)
     {
         float tmp;
-        _wilddog_swap32((u8*)(p_data->p_dt_data  + p_data->d_dt_pos+ 1),(u8 *) &tmp);
+        _wilddog_swap32((u8*)(p_data->p_dt_data  + p_data->d_dt_pos+ 1),(u8*)&tmp);
         num = tmp;
         p_data->d_dt_pos += 5;// 1 byte head + 4 bytes data
     }
@@ -626,13 +620,14 @@ STATIC wFloat _wilddog_parseFloat(Wilddog_Payload_T * p_data)
     {
 #if WILDDOG_MACHINE_BITS != 8
         /* only used in 32 bit machine*/
-        _wilddog_swap64((u8*)(p_data->p_dt_data  + p_data->d_dt_pos+ 1),(u8 *) &num);
-        p_data->d_dt_pos += 9;// 1 byte head + 4bytes data
+        _wilddog_swap64((u8*)(p_data->p_dt_data + p_data->d_dt_pos + 1),(u8*)&num);
+        p_data->d_dt_pos += 9;// 1 byte head + 8bytes data
 #else
-        num = -1;
+        return FALSE;
 #endif
     }
-    return num;
+    *data = num;
+    return TRUE;
 }
 
 /*
@@ -668,8 +663,10 @@ STATIC s8 _wilddog_c2n_parseSpecial
         WILDDOG_CBOR_FLOAT32 == data || \
         WILDDOG_CBOR_FLOAT64 == data)
     {
-        *p_num = _wilddog_parseFloat(p_data);
-        return WILDDOG_NODE_TYPE_FLOAT;
+        if(TRUE == _wilddog_parseFloat(p_data, p_num))
+            return WILDDOG_NODE_TYPE_FLOAT;
+        else
+            return -1;
     }
     else
         return -1;
@@ -830,7 +827,6 @@ STATIC unsigned char _wilddog_n2c_uintAdditionalInfo(int val)
     }
 
     return WILDDOG_CBOR_FOLLOW_4BYTE;
-
 }
 
 /*
@@ -848,11 +844,14 @@ STATIC int _wilddog_n2c_encodeUint
 {
     Wilddog_Str_T *ptr = NULL;
     Wilddog_Str_T *value = NULL;
-    if(p_data->d_dt_pos + sizeof(s32) + 2 > p_data->d_dt_len )
+    /*uint data max use length*/
+    int maxExpectLen = WILDDOG_CBOR_HEAD_LEN + sizeof(s32);
+    
+    if(p_data->d_dt_pos + maxExpectLen + 1 > p_data->d_dt_len )
     {
         ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
-			                            p_data->d_dt_pos + sizeof(s32) + 2);
-		p_data->d_dt_len = p_data->d_dt_pos + sizeof(s32) + 2;
+                                        p_data->d_dt_pos + maxExpectLen + 1);
+        p_data->d_dt_len = p_data->d_dt_pos + maxExpectLen + 1;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");
@@ -866,13 +865,14 @@ STATIC int _wilddog_n2c_encodeUint
     *(p_data->p_dt_data + p_data->d_dt_pos) = \
                 WILDDOG_CBOR_UINT | \
                 _wilddog_n2c_uintAdditionalInfo(*(u32 *)(value)); 
-    (p_data->d_dt_pos)++;
+    
+    (p_data->d_dt_pos) += WILDDOG_CBOR_HEAD_LEN;
     if(_wilddog_n2c_uintAdditionalInfo(*(u32 *)(value)) == \
             WILDDOG_CBOR_FOLLOW_1BYTE
         )
     {
         *(p_data->p_dt_data + p_data->d_dt_pos) = (*(u32 *)(value));
-        (p_data->d_dt_pos)++;
+        (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_1BYTE_LEN;
     }
     else if(_wilddog_n2c_uintAdditionalInfo(*(u32 *)(value)) == \
         WILDDOG_CBOR_FOLLOW_2BYTE
@@ -880,7 +880,7 @@ STATIC int _wilddog_n2c_encodeUint
     {
         *(u16 *)(p_data->p_dt_data + p_data->d_dt_pos) = \
                                             htons(*(u16 *)(value));
-        (p_data->d_dt_pos) += 2;
+        (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_2BYTE_LEN;
     }
     else if(_wilddog_n2c_uintAdditionalInfo(*(u32 *)(value)) == \
                     WILDDOG_CBOR_FOLLOW_4BYTE
@@ -888,7 +888,7 @@ STATIC int _wilddog_n2c_encodeUint
     {
         *(u32 *)(p_data->p_dt_data + p_data->d_dt_pos) = \
                                             htonl(*(u32 *)(value));
-        (p_data->d_dt_pos) += 4;
+        (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_4BYTE_LEN;
     }
 
     return WILDDOG_ERR_NOERR;
@@ -908,12 +908,15 @@ STATIC int _wilddog_n2c_encodeNegint
     )
 {
     Wilddog_Str_T *ptr = NULL;
-	Wilddog_Str_T *value = NULL;
-    if(p_data->d_dt_pos + sizeof(s32) + 2 > p_data->d_dt_len )
+    Wilddog_Str_T *value = NULL;
+    /*negint data max use length*/
+    int maxExpectLen = WILDDOG_CBOR_HEAD_LEN + sizeof(s32);
+
+    if(p_data->d_dt_pos + maxExpectLen + 1 > p_data->d_dt_len )
     {
         ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
-			                            p_data->d_dt_pos + sizeof(s32) + 2);
-		p_data->d_dt_len = p_data->d_dt_pos + sizeof(s32) + 2;
+                                        p_data->d_dt_pos + maxExpectLen + 1);
+        p_data->d_dt_len = p_data->d_dt_pos + maxExpectLen + 1;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");
@@ -927,14 +930,14 @@ STATIC int _wilddog_n2c_encodeNegint
     *(p_data->p_dt_data + p_data->d_dt_pos) = \
         WILDDOG_CBOR_NEGINT | \
         _wilddog_n2c_uintAdditionalInfo((-1 - *(s32 *)(value))); 
-    (p_data->d_dt_pos)++;
+    (p_data->d_dt_pos) += WILDDOG_CBOR_HEAD_LEN;
     if(_wilddog_n2c_uintAdditionalInfo((-1 - *(s32 *)(value))) == \
         WILDDOG_CBOR_FOLLOW_1BYTE
         )
     {
         *(p_data->p_dt_data + p_data->d_dt_pos) = \
                                             -1 - (*(s32 *)(value));
-        (p_data->d_dt_pos)++;
+        (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_1BYTE_LEN;
     }
     else if(
         _wilddog_n2c_uintAdditionalInfo(-1 - *(s32 *)(value)) == \
@@ -943,7 +946,7 @@ STATIC int _wilddog_n2c_encodeNegint
     {
         *(s16 *)(p_data->p_dt_data + p_data->d_dt_pos) = \
                                     htons(-1 - *(s16 *)(value));
-        (p_data->d_dt_pos) += 2;
+        (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_2BYTE_LEN;
     }
     else if(
         _wilddog_n2c_uintAdditionalInfo(-1 - *(s32 *)(value)) == \
@@ -952,7 +955,7 @@ STATIC int _wilddog_n2c_encodeNegint
     {
         *(s32 *)(p_data->p_dt_data + p_data->d_dt_pos) = \
                                     htonl(-1 - (*(s32 *)(value)));
-        (p_data->d_dt_pos) += 4;
+        (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_4BYTE_LEN;
     }
 
     return WILDDOG_ERR_NOERR;
@@ -972,11 +975,15 @@ STATIC int _wilddog_n2c_encodeSpecial
     )
 {
     Wilddog_Str_T *ptr;
-    if(p_data->d_dt_pos + 2 > p_data->d_dt_len )
+    
+    /*special data max use length*/
+    int maxExpectLen = WILDDOG_CBOR_HEAD_LEN;
+
+    if(p_data->d_dt_pos + maxExpectLen + 1 > p_data->d_dt_len )
     {
         ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
-			                            p_data->d_dt_pos + 2);
-		p_data->d_dt_len = p_data->d_dt_pos + 2;
+                                        p_data->d_dt_pos + maxExpectLen + 1);
+        p_data->d_dt_len = p_data->d_dt_pos + maxExpectLen + 1;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");
@@ -990,16 +997,16 @@ STATIC int _wilddog_n2c_encodeSpecial
     {
         *(p_data->p_dt_data + p_data->d_dt_pos) = WILDDOG_CBOR_TRUE;
     }
-	else if(WILDDOG_NODE_TYPE_FALSE == p_node->d_wn_type)
-	{
-		*(p_data->p_dt_data + p_data->d_dt_pos) = WILDDOG_CBOR_FALSE;
-	}
-	else if(WILDDOG_NODE_TYPE_NULL == p_node->d_wn_type)
-	{
+    else if(WILDDOG_NODE_TYPE_FALSE == p_node->d_wn_type)
+    {
+        *(p_data->p_dt_data + p_data->d_dt_pos) = WILDDOG_CBOR_FALSE;
+    }
+    else if(WILDDOG_NODE_TYPE_NULL == p_node->d_wn_type)
+    {
         *(p_data->p_dt_data + p_data->d_dt_pos) = WILDDOG_CBOR_NULL;
-	}
-	
-    (p_data->d_dt_pos)++;
+    }
+    
+    (p_data->d_dt_pos) += WILDDOG_CBOR_HEAD_LEN;
     
     return WILDDOG_ERR_NOERR;
 }
@@ -1018,12 +1025,15 @@ STATIC int _wilddog_n2c_encodeFloat
     )
 {
     Wilddog_Str_T *ptr;
-    if(p_data->d_dt_pos + 2 + sizeof(wFloat) > p_data->d_dt_len )
+    /*float data max use length*/
+    int maxExpectLen = WILDDOG_CBOR_HEAD_LEN + sizeof(wFloat);
+
+    if(p_data->d_dt_pos + 1 + maxExpectLen > p_data->d_dt_len )
     {
         
         ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
-                                        p_data->d_dt_pos + 2 + sizeof(wFloat));
-		p_data->d_dt_len = p_data->d_dt_pos + 2 + sizeof(wFloat);
+                                        p_data->d_dt_pos + 1 + maxExpectLen);
+        p_data->d_dt_len = p_data->d_dt_pos + 1 + maxExpectLen;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");
@@ -1032,15 +1042,16 @@ STATIC int _wilddog_n2c_encodeFloat
         }
         p_data->p_dt_data = ptr;
     }
-
+    
 #if WILDDOG_MACHINE_BITS != 8
     *(p_data->p_dt_data + p_data->d_dt_pos) = WILDDOG_CBOR_FLOAT64;
-	(p_data->d_dt_pos)++;
-	_wilddog_swap64((u8*)p_node->p_wn_value, \
+    (p_data->d_dt_pos) += WILDDOG_CBOR_HEAD_LEN;
+    
+    _wilddog_swap64((u8*)p_node->p_wn_value, \
                                 (u8*)(p_data->p_dt_data + p_data->d_dt_pos));
 #else
     *(p_data->p_dt_data + p_data->d_dt_pos) = WILDDOG_CBOR_FLOAT32;
-    (p_data->d_dt_pos)++;
+    (p_data->d_dt_pos) += WILDDOG_CBOR_HEAD_LEN;
     _wilddog_swap32((u8*)p_node->p_wn_value, \
                                 (u8*)(p_data->p_dt_data + p_data->d_dt_pos));
 #endif
@@ -1054,7 +1065,7 @@ STATIC int _wilddog_n2c_encodeFloat
  * Function:    _wilddog_n2c_encodeString
  * Description: Encode the node  String 
  * Input:       p_node: pointer to source node
- 			   type: node key or node value
+               type: node key or node value
  * Output:      p_data: output data type
  * Return:      Success:0 Faied:-1
 */
@@ -1066,15 +1077,16 @@ STATIC int _wilddog_n2c_encodeString
     )
 {
     Wilddog_Str_T *ptr;
+    
+    /*string data max use length*/
+    int maxExpectLen = WILDDOG_CBOR_HEAD_LEN + p_node->d_wn_len + \
+                       WILDDOG_CBOR_FOLLOW_4BYTE_LEN;
 
-	wilddog_assert(p_node->p_wn_key,WILDDOG_ERR_NULL);
-	wilddog_assert(p_node->p_wn_value,WILDDOG_ERR_NULL);
-	
-    if(p_data->d_dt_pos + 6 + p_node->d_wn_len > p_data->d_dt_len )
+    if(p_data->d_dt_pos + 1 + maxExpectLen > p_data->d_dt_len )
     {
         ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
-                                       p_data->d_dt_pos + 6 + p_node->d_wn_len);
-		p_data->d_dt_len = p_data->d_dt_pos + 6 + p_node->d_wn_len;
+                                       p_data->d_dt_pos + 1 + maxExpectLen);
+        p_data->d_dt_len = p_data->d_dt_pos + 1 + maxExpectLen;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");
@@ -1084,24 +1096,24 @@ STATIC int _wilddog_n2c_encodeString
         p_data->p_dt_data = ptr;
     }
 
-	if(WILDDOG_NODE_TYPE_UTF8STRING == p_node->d_wn_type)
-	{
-	    *(p_data->p_dt_data + p_data->d_dt_pos) = \
-	        WILDDOG_CBOR_TEXT_STRING | \
-	        _wilddog_n2c_uintAdditionalInfo(p_node->d_wn_len);
-	}
-	else if(WILDDOG_NODE_TYPE_BYTESTRING == p_node->d_wn_type)
-	{
-	    *(p_data->p_dt_data + p_data->d_dt_pos) = \
-	        WILDDOG_CBOR_BYTE_STRING | \
-	        _wilddog_n2c_uintAdditionalInfo(p_node->d_wn_len);
-	}
+    if(WILDDOG_NODE_TYPE_UTF8STRING == p_node->d_wn_type)
+    {
+        *(p_data->p_dt_data + p_data->d_dt_pos) = \
+            WILDDOG_CBOR_TEXT_STRING | \
+            _wilddog_n2c_uintAdditionalInfo(p_node->d_wn_len);
+    }
+    else if(WILDDOG_NODE_TYPE_BYTESTRING == p_node->d_wn_type)
+    {
+        *(p_data->p_dt_data + p_data->d_dt_pos) = \
+            WILDDOG_CBOR_BYTE_STRING | \
+            _wilddog_n2c_uintAdditionalInfo(p_node->d_wn_len);
+    }
     
-    (p_data->d_dt_pos)++;
+    (p_data->d_dt_pos) += WILDDOG_CBOR_HEAD_LEN;
     if(_wilddog_n2c_uintAdditionalInfo(p_node->d_wn_len) == WILDDOG_CBOR_FOLLOW_1BYTE)
     {
         *(p_data->p_dt_data + p_data->d_dt_pos) = p_node->d_wn_len;
-        (p_data->d_dt_pos)++;
+        (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_1BYTE_LEN;
     }
     else if(_wilddog_n2c_uintAdditionalInfo(p_node->d_wn_len) == WILDDOG_CBOR_FOLLOW_2BYTE)
     {
@@ -1110,28 +1122,28 @@ STATIC int _wilddog_n2c_encodeString
         *(p_data->p_dt_data + p_data->d_dt_pos) = (p_node->d_wn_len) & 0xff;
         (p_data->d_dt_pos)++;
     }
-	else if(_wilddog_n2c_uintAdditionalInfo(p_node->d_wn_len) == WILDDOG_CBOR_FOLLOW_4BYTE)
+    else if(_wilddog_n2c_uintAdditionalInfo(p_node->d_wn_len) == WILDDOG_CBOR_FOLLOW_4BYTE)
     {
         *(p_data->p_dt_data + p_data->d_dt_pos) = ((p_node->d_wn_len) & 0xff000000 ) >> 24;
         (p_data->d_dt_pos)++;
         *(p_data->p_dt_data + p_data->d_dt_pos) = ((p_node->d_wn_len) & 0xff0000) >> 16;
         (p_data->d_dt_pos)++;
-		*(p_data->p_dt_data + p_data->d_dt_pos) = ((p_node->d_wn_len) & 0xff00 ) >> 8;
+        *(p_data->p_dt_data + p_data->d_dt_pos) = ((p_node->d_wn_len) & 0xff00 ) >> 8;
         (p_data->d_dt_pos)++;
         *(p_data->p_dt_data + p_data->d_dt_pos) = (p_node->d_wn_len) & 0xff;
         (p_data->d_dt_pos)++;
-    }  
+    }
 
-	if(type == TYPE_KEY)
-	{
-    	memcpy( (p_data->p_dt_data + p_data->d_dt_pos), p_node->p_wn_key, \
-                	p_node->d_wn_len);
-	}
-	else if(type == TYPE_VALUE)
-	{
-    	memcpy( (p_data->p_dt_data + p_data->d_dt_pos), p_node->p_wn_value, \
-                	p_node->d_wn_len);
-	}
+    if(type == TYPE_KEY)
+    {
+        memcpy( (p_data->p_dt_data + p_data->d_dt_pos), p_node->p_wn_key, \
+                    p_node->d_wn_len);
+    }
+    else if(type == TYPE_VALUE)
+    {
+        memcpy( (p_data->p_dt_data + p_data->d_dt_pos), p_node->p_wn_value, \
+                    p_node->d_wn_len);
+    }
     (p_data->d_dt_pos) += p_node->d_wn_len;
 
     return WILDDOG_ERR_NOERR;
@@ -1152,11 +1164,14 @@ STATIC int _wilddog_n2c_encodeMap
     )
 {
     Wilddog_Str_T *ptr;
-    if((p_data->d_dt_pos + 2) > p_data->d_dt_len )
+    /*map data max use length*/
+    int maxExpectLen = WILDDOG_CBOR_HEAD_LEN;
+
+    if((p_data->d_dt_pos + maxExpectLen + 1) > p_data->d_dt_len )
     {
         ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
-			                            p_data->d_dt_pos + 2);
-		p_data->d_dt_len = p_data->d_dt_pos + 2;
+                                        p_data->d_dt_pos + maxExpectLen + 1);
+        p_data->d_dt_len = p_data->d_dt_pos + maxExpectLen + 1;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");
@@ -1169,7 +1184,7 @@ STATIC int _wilddog_n2c_encodeMap
     *(p_data->p_dt_data + p_data->d_dt_pos) = \
         WILDDOG_CBOR_MAP | WILDDOG_CBOR_FOLLOW_VAR;
     
-    (p_data->d_dt_pos)++;
+    (p_data->d_dt_pos) += WILDDOG_CBOR_HEAD_LEN;
 
     return WILDDOG_ERR_NOERR;
 }
@@ -1192,7 +1207,7 @@ STATIC int _wilddog_n2c_inner
     if( p_node->p_wn_child == NULL)
     {
 
-		_wilddog_n2c_encodeString(p_node, p_data, TYPE_KEY);
+        _wilddog_n2c_encodeString(p_node, p_data, TYPE_KEY);
         if(WILDDOG_NODE_TYPE_NUM == p_node->d_wn_type)   /*number*/
         {
             
@@ -1208,17 +1223,17 @@ STATIC int _wilddog_n2c_inner
             }
         }
         else if(WILDDOG_NODE_TYPE_BYTESTRING == p_node->d_wn_type \
-			|| WILDDOG_NODE_TYPE_UTF8STRING == p_node->d_wn_type)   
+            || WILDDOG_NODE_TYPE_UTF8STRING == p_node->d_wn_type)   
         {
-			if(_wilddog_n2c_encodeString(p_node, p_data, TYPE_VALUE))
+            if(_wilddog_n2c_encodeString(p_node, p_data, TYPE_VALUE))
                 return WILDDOG_ERR_NULL;
         }
         else if(WILDDOG_NODE_TYPE_NULL == p_node->d_wn_type \
-			|| WILDDOG_NODE_TYPE_FALSE == p_node->d_wn_type  \
-			|| WILDDOG_NODE_TYPE_TRUE == p_node->d_wn_type) 
+            || WILDDOG_NODE_TYPE_FALSE == p_node->d_wn_type  \
+            || WILDDOG_NODE_TYPE_TRUE == p_node->d_wn_type) 
         {
-			if(_wilddog_n2c_encodeSpecial(p_node, p_data))
-				return WILDDOG_ERR_NULL;
+            if(_wilddog_n2c_encodeSpecial(p_node, p_data))
+                return WILDDOG_ERR_NULL;
         }
         else if(WILDDOG_NODE_TYPE_FLOAT == p_node->d_wn_type)
         {
@@ -1233,7 +1248,7 @@ STATIC int _wilddog_n2c_inner
     }
     else
     {
-		_wilddog_n2c_encodeString(p_node, p_data, TYPE_KEY);
+        _wilddog_n2c_encodeString(p_node, p_data, TYPE_KEY);
 
         if(_wilddog_n2c_encodeMap(p_node, p_data))
             return WILDDOG_ERR_NULL;
@@ -1291,8 +1306,8 @@ Wilddog_Payload_T * _wilddog_node2Cbor(Wilddog_Node_T * p_node)
     if(!_wilddog_n2c_inner(p_node, p_data)) 
     {
         ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
-			                            p_data->d_dt_pos);
-		p_data->d_dt_len = p_data->d_dt_pos;
+                                        p_data->d_dt_pos);
+        p_data->d_dt_len = p_data->d_dt_pos;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");

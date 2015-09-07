@@ -1,3 +1,17 @@
+/*
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
+ *
+ * FileName: wilddog_api.h
+ *
+ * Description: Wilddog's API header files.
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.0        Jimmy.Pan       2015-05-15  Create file.
+ * 0.4.6        Jimmy.Pan       2015-09-06  Add notes.
+ *
+ */
 
 #ifndef _WILDDOG_API_H_
 #define _WILDDOG_API_H_
@@ -14,7 +28,7 @@ extern "C" {
 
 /*
  * Function:    wilddog_increaseTime
- * Description: Optional, user defined time increase. Because sdk need a 
+ * Description: Optional, user defined time increase. Because SDK need a 
  *              time to ageing request packets, if you have a requirement
  *              in accuracy,  you should call this func, in a timer or other 
  *              methods.

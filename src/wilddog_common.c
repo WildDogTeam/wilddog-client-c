@@ -34,7 +34,10 @@ STATIC VOLATILE u32 l_wilddog_currTime = 0;
 void* wmalloc(int size)
 {
     void* ptr = NULL;
-    wilddog_assert(size, NULL);
+
+    if(!size)
+        return NULL;
+    
     ptr = malloc(size);
     if(NULL != ptr)
     {

@@ -1,3 +1,17 @@
+/*
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
+ *
+ * FileName: wilddog_cbor.h
+ *
+ * Description: CBOR API header files.
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.0        Jimmy.Pan       2015-05-15  Create file.
+ * 0.4.6        Jimmy.Pan       2015-09-06  Add notes.
+ *
+ */
 
 #ifndef _WILDDOG_CBOR_H_
 #define _WILDDOG_CBOR_H_
@@ -52,7 +66,12 @@ extern "C"
 #define WILDDOG_CBOR_TYPE(_a) ((_a) & WILDDOG_CBOR_TYPE_MASK)
 #define WILDDOG_CBOR_INFO(_a) ((_a) & WILDDOG_CBOR_INFO_MASK)
 
-
+#define WILDDOG_CBOR_HEAD_LEN  1
+#define WILDDOG_CBOR_FOLLOW_1BYTE_LEN 1
+#define WILDDOG_CBOR_FOLLOW_2BYTE_LEN 2
+#define WILDDOG_CBOR_FOLLOW_4BYTE_LEN 4
+#define WILDDOG_CBOR_FOLLOW_UNKNOW_LEN (-1)
+#define WILDDOG_CBOR_FOLLOW_UNKNOW_DEFLEN 0xff
 extern Wilddog_Node_T *_wilddog_cbor2Node(Wilddog_Payload_T* p_data);
 extern Wilddog_Payload_T *_wilddog_node2Cbor(Wilddog_Node_T * p_node);
 
