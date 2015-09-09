@@ -316,7 +316,7 @@ int test_buildtreeFunc(const char *p_userUrl)
 int main(int argc, char **argv)
 {
 
-	if(argc == 0 )
+	if(argc == 1 )
 	{
 		printf("please input your url \n");
 		printf("\t eg:./bin/test_buildtree coap://yourid.wilddogio.com/yourpath \n");

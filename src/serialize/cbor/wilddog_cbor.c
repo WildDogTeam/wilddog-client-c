@@ -1077,7 +1077,12 @@ STATIC int _wilddog_n2c_encodeString
     )
 {
     Wilddog_Str_T *ptr;
-    
+	size_t len = 0;
+
+	
+    if(NULL == p_node->p_wn_key)
+        return WILDDOG_ERR_NOERR;
+
     /*string data max use length*/
     int maxExpectLen = WILDDOG_CBOR_HEAD_LEN + p_node->d_wn_len + \
                        WILDDOG_CBOR_FOLLOW_4BYTE_LEN;
@@ -1096,55 +1101,70 @@ STATIC int _wilddog_n2c_encodeString
         p_data->p_dt_data = ptr;
     }
 
+	if(type == TYPE_KEY)
+	{
+		if(NULL != p_node->p_wn_key)
+			len = strlen((const char *)p_node->p_wn_key);
+	}
+	else if(type == TYPE_VALUE)
+	{
+		if(WILDDOG_NODE_TYPE_UTF8STRING == p_node->d_wn_type)
+			if(NULL != p_node->p_wn_value)
+				len = strlen((const char *)p_node->p_wn_value);
+
+		if(WILDDOG_NODE_TYPE_BYTESTRING == p_node->d_wn_type)
+				len = p_node->d_wn_len;
+	}
+
     if(WILDDOG_NODE_TYPE_UTF8STRING == p_node->d_wn_type)
     {
         *(p_data->p_dt_data + p_data->d_dt_pos) = \
             WILDDOG_CBOR_TEXT_STRING | \
-            _wilddog_n2c_uintAdditionalInfo(p_node->d_wn_len);
+            _wilddog_n2c_uintAdditionalInfo(len);
     }
     else if(WILDDOG_NODE_TYPE_BYTESTRING == p_node->d_wn_type)
     {
         *(p_data->p_dt_data + p_data->d_dt_pos) = \
             WILDDOG_CBOR_BYTE_STRING | \
-            _wilddog_n2c_uintAdditionalInfo(p_node->d_wn_len);
+            _wilddog_n2c_uintAdditionalInfo(len);
     }
     
     (p_data->d_dt_pos) += WILDDOG_CBOR_HEAD_LEN;
-    if(_wilddog_n2c_uintAdditionalInfo(p_node->d_wn_len) == WILDDOG_CBOR_FOLLOW_1BYTE)
+    if(_wilddog_n2c_uintAdditionalInfo(len) == WILDDOG_CBOR_FOLLOW_1BYTE)
     {
-        *(p_data->p_dt_data + p_data->d_dt_pos) = p_node->d_wn_len;
+        *(p_data->p_dt_data + p_data->d_dt_pos) = len;
         (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_1BYTE_LEN;
     }
-    else if(_wilddog_n2c_uintAdditionalInfo(p_node->d_wn_len) == WILDDOG_CBOR_FOLLOW_2BYTE)
+    else if(_wilddog_n2c_uintAdditionalInfo(len) == WILDDOG_CBOR_FOLLOW_2BYTE)
     {
-        *(p_data->p_dt_data + p_data->d_dt_pos) = (p_node->d_wn_len & 0xff00 ) >> 8;
+        *(p_data->p_dt_data + p_data->d_dt_pos) = (len & 0xff00 ) >> 8;
         (p_data->d_dt_pos)++;
-        *(p_data->p_dt_data + p_data->d_dt_pos) = (p_node->d_wn_len) & 0xff;
+        *(p_data->p_dt_data + p_data->d_dt_pos) = (len) & 0xff;
         (p_data->d_dt_pos)++;
     }
-    else if(_wilddog_n2c_uintAdditionalInfo(p_node->d_wn_len) == WILDDOG_CBOR_FOLLOW_4BYTE)
+    else if(_wilddog_n2c_uintAdditionalInfo(len) == WILDDOG_CBOR_FOLLOW_4BYTE)
     {
-        *(p_data->p_dt_data + p_data->d_dt_pos) = ((p_node->d_wn_len) & 0xff000000 ) >> 24;
+        *(p_data->p_dt_data + p_data->d_dt_pos) = ((len) & 0xff000000 ) >> 24;
         (p_data->d_dt_pos)++;
-        *(p_data->p_dt_data + p_data->d_dt_pos) = ((p_node->d_wn_len) & 0xff0000) >> 16;
+        *(p_data->p_dt_data + p_data->d_dt_pos) = ((len) & 0xff0000) >> 16;
         (p_data->d_dt_pos)++;
-        *(p_data->p_dt_data + p_data->d_dt_pos) = ((p_node->d_wn_len) & 0xff00 ) >> 8;
+        *(p_data->p_dt_data + p_data->d_dt_pos) = ((len) & 0xff00 ) >> 8;
         (p_data->d_dt_pos)++;
-        *(p_data->p_dt_data + p_data->d_dt_pos) = (p_node->d_wn_len) & 0xff;
+        *(p_data->p_dt_data + p_data->d_dt_pos) = (len) & 0xff;
         (p_data->d_dt_pos)++;
     }
 
     if(type == TYPE_KEY)
     {
         memcpy( (p_data->p_dt_data + p_data->d_dt_pos), p_node->p_wn_key, \
-                    p_node->d_wn_len);
+                    len);
     }
     else if(type == TYPE_VALUE)
     {
         memcpy( (p_data->p_dt_data + p_data->d_dt_pos), p_node->p_wn_value, \
-                    p_node->d_wn_len);
+                    len);
     }
-    (p_data->d_dt_pos) += p_node->d_wn_len;
+    (p_data->d_dt_pos) += len;
 
     return WILDDOG_ERR_NOERR;
 
