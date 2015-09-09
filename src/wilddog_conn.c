@@ -1004,7 +1004,7 @@ STATIC int _wilddog_conn_pingSend
     Wilddog_Conn_T *p_conn
     )
 {
-    int res = NULL;
+    int res = 0;
     void *p_pkt = NULL;
     Wilddog_Conn_PktSend_T d_conn_send;
     memset(&d_conn_send,0,sizeof(Wilddog_Conn_PktSend_T));
