@@ -120,6 +120,15 @@ STATIC void _wilddog_conn_initRecvBuffer(void)
 	return;
 }
 #endif
+
+/*
+ * Function:    _wilddog_conn_mallocRecvBuffer
+ * Description: conn layer malloc the buffer which used for recv
+ *   
+ * Input:        N/A
+ * Output:      N/A
+ * Return:      the buffer's pointer
+*/
 STATIC u8* _wilddog_conn_mallocRecvBuffer(void)
 {	
 	u8* buffer = NULL;	
@@ -135,6 +144,15 @@ STATIC u8* _wilddog_conn_mallocRecvBuffer(void)
 	_wilddog_conn_recvBufUnlock();	
 	return buffer;
 }
+
+/*
+ * Function:    _wilddog_conn_freeRecvBuffer
+ * Description: conn layer free the buffer which used for recv
+ *   
+ * Input:        ptr: the buffer's pointer
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_freeRecvBuffer(u8* ptr)
 {	
 	if(!ptr)		
@@ -148,6 +166,14 @@ STATIC void _wilddog_conn_freeRecvBuffer(u8* ptr)
 	_wilddog_conn_recvBufUnlock();
 }                                
 
+/*
+ * Function:    _byte2char
+ * Description: convert the byte to char
+ *   
+ * Input:        byte: the byte
+ * Output:      N/A
+ * Return:      the char
+*/
 STATIC INLINE u8 _byte2char(u8 byte)
 {
 
@@ -157,18 +183,38 @@ STATIC INLINE u8 _byte2char(u8 byte)
         return  ((byte - 0x0a)+'A');
     return 0;
 }
-int _byte2bytestr(u8 *p_dst,u8 *p_dscr,u8 len)
+
+/*
+ * Function:    _byte2bytestr
+ * Description: convert the byte to bytes string
+ *   
+ * Input:        p_src: the pointer of the source byte
+ *                  len: the length of the source byte
+ * Output:      p_dst: the pointer of the destination byte
+ * Return:      0
+*/
+int _byte2bytestr(u8 *p_dst,u8 *p_src,u8 len)
 {
     int i,j;
     for(i=0,j=0;i<len;i++)
     {
-        p_dst[j++] = _byte2char(_GETBYTE_H(p_dscr[i]));
-        p_dst[j++] = _byte2char(_GETBYTE_L(p_dscr[i]));
+        p_dst[j++] = _byte2char(_GETBYTE_H(p_src[i]));
+        p_dst[j++] = _byte2char(_GETBYTE_L(p_src[i]));
     }
     return 0;
 }
-/*@ check auth status*/
-STATIC INLINE void _wilddog_conn_session_stateSet
+
+/*
+ * Function:    _wilddog_conn_session_statusSet
+ * Description: conn layer set session state
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ *                  status: the auth status
+ *                  p_wauth: the pointer of the auth
+ * Output:      N/A
+ * Return:      N/A
+*/
+STATIC INLINE void _wilddog_conn_session_statusSet
     (
     Wilddog_Conn_T *p_conn,
     Wilddog_Conn_AuthState_T status,
@@ -180,13 +226,31 @@ STATIC INLINE void _wilddog_conn_session_stateSet
         memcpy(&p_conn->d_token,p_wauth,AUTHR_LEN);
     
 }
-STATIC Wilddog_Conn_AuthState_T _wilddog_conn_session_stateGet
+
+/*
+ * Function:    _wilddog_conn_session_statusGet
+ * Description: conn layer get session statue
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ * Output:      N/A
+ * Return:      the auth status
+*/
+STATIC Wilddog_Conn_AuthState_T _wilddog_conn_session_statusGet
     (
     Wilddog_Conn_T *p_conn
     )
 {
     return (p_conn->d_sessionState);
 }
+
+/*
+ * Function:    _wilddog_conn_sessionInit
+ * Description: conn layer init session statue
+ *   
+ * Input:        p_repo: the pointer of the repo struct
+ * Output:      N/A
+ * Return:      the session init result
+*/
 STATIC int _wilddog_conn_sessionInit(Wilddog_Repo_T *p_repo)
 {
     Wilddog_ConnCmd_Arg_T d_arg;
@@ -201,6 +265,15 @@ STATIC int _wilddog_conn_sessionInit(Wilddog_Repo_T *p_repo)
     return _wilddog_conn_send(WILDDOG_CONN_CMD_AUTH,p_repo,&d_arg);
 
 }
+
+/*
+ * Function:    _wilddog_conn_sessionReInit
+ * Description: conn layer re-init session statue
+ *   
+ * Input:        p_repo: the pointer of the repo struct
+ * Output:      N/A
+ * Return:      the session re-init result
+*/
 STATIC int _wilddog_conn_sessionReInit(Wilddog_Repo_T *p_repo)
 {
     if(p_repo->p_rp_conn->d_sessionState == WILDDOG_CONN_AUTH_DOAUTH )
@@ -210,8 +283,17 @@ STATIC int _wilddog_conn_sessionReInit(Wilddog_Repo_T *p_repo)
         }
     return 0;
 }
-/* check auth status and change it befor sending any request */
-STATIC void _wilddog_conn_session_stateReset
+
+/*
+ * Function:    _wilddog_conn_session_statusReset
+ * Description: conn layer reset session statue
+ *   
+ * Input:        cmd: the conn command
+ *                  p_conn: the pointer of the conn struct
+ * Output:      N/A
+ * Return:      N/A
+*/
+STATIC void _wilddog_conn_session_statusReset
 	( 
 	Wilddog_Conn_Cmd_T cmd,
 	Wilddog_Conn_T *p_conn
@@ -219,14 +301,23 @@ STATIC void _wilddog_conn_session_stateReset
 {
 	if( cmd != WILDDOG_CONN_CMD_AUTH )
 	{
-		if(WILDDOG_CONN_AUTH_NOAUTH == _wilddog_conn_session_stateGet(p_conn))
-			_wilddog_conn_session_stateSet(p_conn,WILDDOG_CONN_AUTH_DOAUTH,NULL);
+		if(WILDDOG_CONN_AUTH_NOAUTH == _wilddog_conn_session_statusGet(p_conn))
+			_wilddog_conn_session_statusSet(p_conn,WILDDOG_CONN_AUTH_DOAUTH,NULL);
 	}
 	else
-		_wilddog_conn_session_stateSet(p_conn,WILDDOG_CONN_AUTH_AUTHING,NULL);
+		_wilddog_conn_session_statusSet(p_conn,WILDDOG_CONN_AUTH_AUTHING,NULL);
 }
 
-STATIC INLINE void _wilddog_conn_pongstate_set
+/*
+ * Function:    _wilddog_conn_pongstatus_set
+ * Description: conn layer set pong status
+ *   
+ * Input:        p_conn: the conn struct
+ *                  state: the pong status
+ * Output:      N/A
+ * Return:      N/A
+*/
+STATIC INLINE void _wilddog_conn_pongstatus_set
 	(
 	Wilddog_Conn_T *p_conn,
 	_Conn_Pong_State_T state
@@ -234,11 +325,29 @@ STATIC INLINE void _wilddog_conn_pongstate_set
 {
 	p_conn->d_onlineState = state;
 }
-STATIC INLINE u8 _wilddog_conn_pongstate_get(Wilddog_Conn_T *p_conn)
+
+/*
+ * Function:    _wilddog_conn_pongstatus_get
+ * Description: conn layer get pong status
+ *   
+ * Input:        p_conn: the conn struct
+ * Output:      N/A
+ * Return:      the pong status
+*/
+STATIC INLINE u8 _wilddog_conn_pongstatus_get(Wilddog_Conn_T *p_conn)
 {
 	return p_conn->d_onlineState;
 }
-/* put off pong request until next cycle */
+
+/*
+ * Function:    _wilddog_conn_pong_resetNextSendTime
+ * Description: conn layer get pong status
+ *   
+ * Input:        p_conn: the conn struct
+ *                  timeIncreasment: the increasment time
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_pong_resetNextSendTime
 	(
 		Wilddog_Conn_T *p_conn,
@@ -249,6 +358,14 @@ STATIC void _wilddog_conn_pong_resetNextSendTime
 	
 }
 
+/*
+ * Function:    _wilddog_conn_pong_send
+ * Description: conn layer send pong message
+ *   
+ * Input:        p_conn: the conn struct
+ * Output:      N/A
+ * Return:      the send result
+*/
 STATIC int _wilddog_conn_pong_send(Wilddog_Conn_T *p_conn)
 {
 	Wilddog_ConnCmd_Arg_T d_arg;
@@ -264,6 +381,14 @@ STATIC int _wilddog_conn_pong_send(Wilddog_Conn_T *p_conn)
 	return _wilddog_conn_send(WILDDOG_CONN_CMD_PONG,p_conn->p_conn_repo,&d_arg);
 }
 
+/*
+ * Function:    _wilddog_conn_pong_sendNext
+ * Description: conn layer send next pong message
+ *   
+ * Input:        p_repo: the repo struct
+ * Output:      N/A
+ * Return:      the send result
+*/
 STATIC int _wilddog_conn_pong_sendNext(Wilddog_Repo_T *p_repo)
 {
 	Wilddog_Conn_T *p_conn = NULL;
@@ -277,6 +402,17 @@ STATIC int _wilddog_conn_pong_sendNext(Wilddog_Repo_T *p_repo)
 	}
     return WILDDOG_ERR_NOERR;
 }
+
+/*
+ * Function:    _wilddog_conn_pong_cb
+ * Description: conn layer pong callback function
+ *   
+ * Input:        p_conn: the repo struct
+ *                  p_cn_node:the pointer of the conn node
+ *                  p_cn_recvData: the pointer of the conn recv data
+ * Output:      N/A
+ * Return:      0
+*/
 STATIC int _wilddog_conn_pong_cb
 	(
 	Wilddog_Conn_T *p_conn,	
@@ -302,14 +438,14 @@ STATIC int _wilddog_conn_pong_cb
 		if( pongIdx != ( p_conn->d_pong_num+1))
 		{
 			/*  server error*/
-			_wilddog_conn_pongstate_set(p_conn,WILDDOG_CONN_OFFLINE);
+			_wilddog_conn_pongstatus_set(p_conn,WILDDOG_CONN_OFFLINE);
 		}
 		else
 		{
-			if(_wilddog_conn_pongstate_get(p_conn) == WILDDOG_CONN_OFFLINE )
+			if(_wilddog_conn_pongstatus_get(p_conn) == WILDDOG_CONN_OFFLINE )
 			{
 				_wilddog_conn_setReObserverFlag(p_conn,TRUE);
-				_wilddog_conn_pongstate_set(p_conn,WILDDOG_CONN_ONLINE);
+				_wilddog_conn_pongstatus_set(p_conn,WILDDOG_CONN_ONLINE);
 			}
 			p_conn->d_pong_num = pongIdx;
 			_wilddog_conn_pong_resetNextSendTime(p_conn,PONG_REQUESINTERVAL);
@@ -319,9 +455,18 @@ STATIC int _wilddog_conn_pong_cb
     }
 	return 0;
 }
-/* since observer flag have been set,this request node will not delete
-** while receive respond or notify.To delete it , an off request must 
-** sent.*/
+
+/*
+ * Function:    _wilddog_conn_observeFlagSet
+ * Description: since observer flag have been set,this request node will not delete
+ *                    while receive respond or notify.To delete it , an off request must 
+ *                     sent.
+ *   
+ * Input:        flag: the observe flag
+ *                  p_cn_node:the pointer of the conn node
+ * Output:      N/A
+ * Return:      0
+*/
 STATIC int _wilddog_conn_observeFlagSet
     (
     _Conn_Observe_Flag_T flag,
@@ -337,6 +482,15 @@ STATIC int _wilddog_conn_observeFlagSet
         }
     return res;
 }
+
+/*
+ * Function:    _wilddog_conn_isNotify
+ * Description: judge whether the conn node notify
+ *   
+ * Input:        p_cn_node:the pointer of the conn node
+ * Output:      N/A
+ * Return:      if d_observe_flag equal to WILDDOG_Conn_Observe_Notif, return 1; else return 0.
+*/
 STATIC int _wilddog_conn_isNotify
     (
     Wilddog_Conn_Node_T *p_cn_node
@@ -344,6 +498,15 @@ STATIC int _wilddog_conn_isNotify
 {
     return (p_cn_node->d_observe_flag == WILDDOG_Conn_Observe_Notif);
 }
+
+/*
+ * Function:    _wilddog_conn_isObserver
+ * Description: judge whether the conn node observed
+ *   
+ * Input:        p_cn_node:the pointer of the conn node
+ * Output:      N/A
+ * Return:      if d_observe_flag equal to WILDDOG_Conn_Observe_Req, return 1; else return 0.
+*/
 STATIC int _wilddog_conn_isObserver
     (
     Wilddog_Conn_Node_T *p_cn_node
@@ -351,6 +514,16 @@ STATIC int _wilddog_conn_isObserver
 {
     return ((p_cn_node->d_observe_flag & WILDDOG_Conn_Observe_Req) == WILDDOG_Conn_Observe_Req);
 }
+
+/*
+ * Function:    _wilddog_conn_node_addlist
+ * Description: add conn node to the list
+ *   
+ * Input:        p_conn:the pointer of the conn struct
+ *                  nodeadd: the pointer of the add conn node
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC INLINE void _wilddog_conn_node_addlist
     (
     Wilddog_Conn_T *p_conn,
@@ -359,6 +532,16 @@ STATIC INLINE void _wilddog_conn_node_addlist
 {
     LL_APPEND(p_conn->p_conn_node_hd,nodeadd);
 }
+
+/*
+ * Function:    _wilddog_conn_registerTime
+ * Description: conn layer register time
+ *   
+ * Input:        p_conn:the pointer of the conn struct
+ *                  p_cn_node: the pointer of the  conn node
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_registerTime
 	(
 	Wilddog_Conn_T *p_conn,
@@ -366,7 +549,7 @@ STATIC void _wilddog_conn_registerTime
     )
 {
     u32 curr_time = _wilddog_getTime();
-	if( _wilddog_conn_session_stateGet(p_conn) ==  WILDDOG_CONN_AUTH_AUTHING )
+	if( _wilddog_conn_session_statusGet(p_conn) ==  WILDDOG_CONN_AUTH_AUTHING )
 	{
 		p_cn_node->d_cn_registerTime = WILDDOG_RETRANSMITE_TIME + curr_time;
 		p_cn_node->d_cn_nextsendTime = WILDDOG_RETRANSMITE_TIME \
@@ -379,6 +562,15 @@ STATIC void _wilddog_conn_registerTime
 	}
 	p_cn_node->d_cn_retansmitCnt = 1;
 }
+
+/*
+ * Function:    _wilddog_conn_updateRegistertime
+ * Description: conn layer update register time
+ *   
+ * Input:        p_conn:the pointer of the conn struct
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_updateRegistertime
 	( 
 	Wilddog_Conn_T *p_conn
@@ -394,6 +586,17 @@ STATIC void _wilddog_conn_updateRegistertime
 
 }
 
+/*
+ * Function:    _wilddog_conn_node_add
+ * Description: conn layer add conn node
+ *   
+ * Input:        cmd: the conn command
+ *                  p_arg: the conn command arg
+ *                  p_conn: the pointer of the conn struct
+ *                  pp_conn_node: the second rank pointer of the conn node
+ * Output:      N/A
+ * Return:      the add result
+*/
 STATIC int _wilddog_conn_node_add
     (
     Wilddog_Conn_Cmd_T cmd ,
@@ -421,6 +624,15 @@ STATIC int _wilddog_conn_node_add
     return res;
 }
 
+/*
+ * Function:    _wilddog_conn_node_remove
+ * Description: conn layer remove conn node
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ *                  pp_conn_node: the second rank pointer of the conn node
+ * Output:      N/A
+ * Return:      N/A
+*/
 void _wilddog_conn_node_remove
     (
     Wilddog_Conn_T *p_conn,
@@ -448,6 +660,16 @@ void _wilddog_conn_node_remove
         *pp_conn_node = NULL;
     }
 }
+
+/*
+ * Function:    _wilddog_conn_setReObserverFlag
+ * Description: conn layer set reoberver flag
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ *                  state:  the reobserver flag
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_setReObserverFlag
 	(
 	Wilddog_Conn_T *p_conn,
@@ -456,6 +678,15 @@ STATIC void _wilddog_conn_setReObserverFlag
 { 
 	p_conn->d_reObserver_flag = state;
 }
+
+/*
+ * Function:    _wilddog_conn_getReObserverFlag
+ * Description: conn layer get reoberver flag
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ * Output:      N/A
+ * Return:      the reoberver flag
+*/
 STATIC INLINE u8 _wilddog_conn_getReObserverFlag
 	(
 	Wilddog_Conn_T *p_conn
@@ -463,7 +694,16 @@ STATIC INLINE u8 _wilddog_conn_getReObserverFlag
 {
 	return p_conn->d_reObserver_flag;
 }
-/* store path */
+
+/*
+ * Function:    _wilddog_conn_Observer_on
+ * Description: conn layer observer on
+ *   
+ * Input:        p_conn_node: the pointer of the conn node struct
+ *                  Argpath: the arg path
+ * Output:      N/A
+ * Return:      if success, return WILDDOG_ERR_NOERR; else return WILDDOG_ERR_NULL
+*/
 STATIC int _wilddog_conn_Observer_on
     (
     Wilddog_Conn_Node_T *p_conn_node,
@@ -478,7 +718,16 @@ STATIC int _wilddog_conn_Observer_on
     memcpy(p_conn_node->p_cn_path,Argpath,len);
     return WILDDOG_ERR_NOERR;
 }
-/* find on node with path and delete it */
+
+/*
+ * Function:    _wilddog_conn_cmd_offEvent
+ * Description: conn layer observer off
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ *                  p_path: the path
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_cmd_offEvent
     (
     Wilddog_Conn_T *p_conn,
@@ -501,6 +750,16 @@ STATIC void _wilddog_conn_cmd_offEvent
 
 }
 
+/*
+ * Function:    _wilddog_conn_sendMixhandle
+ * Description: conn layer send handle
+ *   
+ * Input:        p_arg: the conn command arg
+ *                  p_conn: the pointer of the conn struct
+ *                  p_conn_node: the pointer of the conn node struct
+ * Output:      N/A
+ * Return:      the send result
+*/
 STATIC int _wilddog_conn_sendMixhandle(
     Wilddog_ConnCmd_Arg_T *p_arg,
     Wilddog_Conn_T *p_conn,
@@ -521,7 +780,17 @@ STATIC int _wilddog_conn_sendMixhandle(
     
     return res;
 }
-/* query = auth*/
+
+/*
+ * Function:    _wilddog_conn_sendWithAuth
+ * Description: conn layer send with auth
+ *   
+ * Input:        cmd: the conn command
+ *                  p_pkt: the pointer of packet
+ *                  p_conn: the pointer of the conn  struct
+ * Output:      N/A
+ * Return:      the send result
+*/
 STATIC  int _wilddog_conn_sendWithAuth
     (
     Wilddog_Conn_Cmd_T cmd,
@@ -530,14 +799,23 @@ STATIC  int _wilddog_conn_sendWithAuth
     )
 {   
 	if(cmd == WILDDOG_CONN_CMD_AUTH )	
-		_wilddog_conn_session_stateSet(p_conn,WILDDOG_CONN_AUTH_AUTHING,NULL);
+		_wilddog_conn_session_statusSet(p_conn,WILDDOG_CONN_AUTH_AUTHING,NULL);
     else 
-	if( _wilddog_conn_session_stateGet(p_conn) != WILDDOG_CONN_AUTH_AUTHED)
+	if( _wilddog_conn_session_statusGet(p_conn) != WILDDOG_CONN_AUTH_AUTHED)
             return 0;
 	
     return _wilddog_conn_pkt_send((u8 *)&p_conn->d_token,p_pkt);
 }
-/* get node data */
+
+/*
+ * Function:    _wilddog_conn_allocNodeData
+ * Description: conn layer malloc the node data
+ *   
+ * Input:        p_data: the pointer of the node data
+ *                  p_sendArg: the pointer of the conn send packet
+ * Output:      N/A
+ * Return:      if success, return WILDDOG_ERR_NOERR; else return WILDDOG_ERR_NULL
+*/
 STATIC int _wilddog_conn_allocNodeData
 	(
 		Wilddog_Node_T * p_data,
@@ -556,6 +834,18 @@ STATIC int _wilddog_conn_allocNodeData
 	else
 		return WILDDOG_ERR_NULL;
 }
+
+/*
+ * Function:    _wilddog_conn_creatSendPayload
+ * Description: conn layer create send payload
+ *   
+ * Input:        cmd: the conn cmd
+ *                  p_conn: the pointer of the conn struct
+ *                  p_nodeData: the pointer of node data
+ *                  p_sendArg: the pointer of the conn send packet
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC int _wilddog_conn_creatSendPayload
 	(  
 		Wilddog_Conn_Cmd_T cmd,
@@ -588,6 +878,15 @@ STATIC int _wilddog_conn_creatSendPayload
 	}
 	return res;
 }
+
+/*
+ * Function:    _wilddog_conn_destroySendPayload
+ * Description: conn layer destroy send payload
+ *   
+ * Input:        p_sendArg: the pointer of the conn send packet
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_destroySendPayload(Wilddog_Conn_PktSend_T *p_sendArg)
 {
 	if(p_sendArg)
@@ -599,7 +898,18 @@ STATIC void _wilddog_conn_destroySendPayload(Wilddog_Conn_PktSend_T *p_sendArg)
 		}
 	}
 }
-/* parsing cmd urln  u have to free while used it */
+
+/*
+ * Function:    _wilddog_conn_allocUrl
+ * Description: conn layer alloc url
+ *   
+ * Input:        cmd: the conn command
+ *                  p_conn: the pointer of the conn struct
+ *                  p_srcUrl: the pointer of the source url
+ *                  pp_dstUrl: the second rank pointer of the destination url
+ * Output:      N/A
+ * Return:      if success, return WILDDOG_ERR_NOERR; else return WILDDOG_ERR_INVALID
+*/
 STATIC int _wilddog_conn_allocUrl
 		(
 			Wilddog_Conn_Cmd_T cmd,
@@ -657,7 +967,15 @@ STATIC int _wilddog_conn_allocUrl
 	}
 	return WILDDOG_ERR_NOERR;
 }
-/* free url and query */
+
+/*
+ * Function:    _wilddog_conn_freeUrl
+ * Description: conn layer free url
+ *   
+ * Input:        p_url: the second rank pointer of the url
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_freeUrl(Wilddog_Url_T **p_url)
 {
 	if(*p_url)
@@ -670,6 +988,17 @@ STATIC void _wilddog_conn_freeUrl(Wilddog_Url_T **p_url)
 	}
 }
 
+/*
+ * Function:    _wilddog_conn_creatpkt
+ * Description: conn layer create packet
+ *   
+ * Input:        cmd: the conn command
+ *                  p_conn: the pointer of the conn struct
+ *                  p_conn_node: the pointer of the conn node struct
+ *                  p_arg:  the pointer of the conn command arg
+ * Output:      N/A
+ * Return:      return the create packet result
+*/
 STATIC int _wilddog_conn_creatpkt
 	(
 	Wilddog_Conn_Cmd_T cmd,
@@ -713,7 +1042,17 @@ STATIC int _wilddog_conn_creatpkt
 	return res;
 
 }
-/* add cmd request to sending list */
+
+/*
+ * Function:    _wilddog_conn_send
+ * Description: conn layer send function
+ *   
+ * Input:        cmd: the conn command
+ *                  p_repo: the pointer of the repo struct
+ *                  p_arg:  the pointer of the conn command arg
+ * Output:      N/A
+ * Return:      if success, return WILDDOG_ERR_NOERR, else return WILDDOG_ERR_INVALID
+*/
 STATIC int _wilddog_conn_send
     (
     Wilddog_Conn_Cmd_T cmd,
@@ -732,7 +1071,7 @@ STATIC int _wilddog_conn_send
     p_conn = p_repo->p_rp_conn;
 
 	/* check server status */
-	if(	_wilddog_conn_pongstate_get(p_conn) == WILDDOG_CONN_OFFLINE && \
+	if(	_wilddog_conn_pongstatus_get(p_conn) == WILDDOG_CONN_OFFLINE && \
 		cmd != WILDDOG_CONN_CMD_PONG )
 		return WILDDOG_ERR_CLIENTOFFLINE;
 	/* malloc conn node  add list */
@@ -749,7 +1088,7 @@ STATIC int _wilddog_conn_send
 		return res;
     }
 	/* check auth and reset auth status */
-	_wilddog_conn_session_stateReset(cmd,p_conn);
+	_wilddog_conn_session_statusReset(cmd,p_conn);
     /*  send */
 	if(_wilddog_getTime() >= p_conn_node->d_cn_registerTime )
 	{
@@ -764,6 +1103,16 @@ STATIC int _wilddog_conn_send
 
     return res;
 }
+
+/*
+ * Function:    _wilddog_conn_cb_set
+ * Description: conn layer set callback function
+ *   
+ * Input:        p_cn_node: the pointer of the conn node struct
+ *                  err: the error code
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_cb_set(Wilddog_Conn_Node_T * p_cn_node,u32 err)
 {
     if(p_cn_node->f_cn_callback)
@@ -771,6 +1120,17 @@ STATIC void _wilddog_conn_cb_set(Wilddog_Conn_Node_T * p_cn_node,u32 err)
 
 }
 
+/*
+ * Function:    _wilddog_conn_cb_push
+ * Description: conn layer push callback function
+ *   
+ * Input:        p_cn_node: the pointer of the conn node struct
+ *                  p_respbuf: the pointer of the response buffer
+ *                  d_respsize: the length of the response buffer
+ *                  err: the error code
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_cb_push
     (
     Wilddog_Conn_Node_T * p_cn_node,
@@ -784,6 +1144,17 @@ STATIC void _wilddog_conn_cb_push
 
 }
 
+/*
+ * Function:    _wilddog_conn_cb_get
+ * Description: conn layer get callback function
+ *   
+ * Input:        p_cn_node: the pointer of the conn node struct
+ *                  p_respbuf: the pointer of the response buffer
+ *                  d_respsize: the length of the response buffer
+ *                  err: the error code
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_cb_get
     (
     Wilddog_Conn_Node_T * p_cn_node,
@@ -827,6 +1198,17 @@ STATIC void _wilddog_conn_cb_get
     
     return;
 }
+
+/*
+ * Function:    _wilddog_conn_cb_auth
+ * Description: conn layer auth callback function
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ *                  p_cn_node: the pointer of the conn node struct
+ *                  p_cn_recvData: the pointer of the conn recv data 
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_cb_auth
 		(
 		Wilddog_Conn_T *p_conn,
@@ -836,7 +1218,7 @@ STATIC void _wilddog_conn_cb_auth
 {
 	if( p_cn_recvData->d_RecvErr == WILDDOG_HTTP_OK )
 	{
-		_wilddog_conn_session_stateSet(p_conn,WILDDOG_CONN_AUTH_AUTHED, \
+		_wilddog_conn_session_statusSet(p_conn,WILDDOG_CONN_AUTH_AUTHED, \
 								  p_cn_recvData->p_Recvdata);
 		/*all  request in sending list must be reSend */
 		_wilddog_conn_updateRegistertime(p_conn);
@@ -846,14 +1228,24 @@ STATIC void _wilddog_conn_cb_auth
   }
   else
   {
-	  	_wilddog_conn_session_stateSet(p_conn,WILDDOG_CONN_AUTH_NOAUTH,NULL);
+	  	_wilddog_conn_session_statusSet(p_conn,WILDDOG_CONN_AUTH_NOAUTH,NULL);
 	  	if(p_cn_recvData->d_RecvErr == WILDDOG_ERR_RECVTIMEOUT )
 			_wilddog_conn_pong_resetNextSendTime(p_conn,\
 										  PONG_REQUEST_IMMEDIATELY);  
   }
 
 }
-/* check server respon  > 500 and no respon */
+
+/*
+ * Function:    _wilddog_conn_cb_checkServerErr
+ * Description: conn layer check server error callback function
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ *                  p_src_recvData: the pointer of the source recv data
+ *                  p_dst_recvData: the pointer of the destination recv data 
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_cb_checkServerErr
 	(
 		Wilddog_Conn_T *p_conn,
@@ -867,10 +1259,10 @@ STATIC void _wilddog_conn_cb_checkServerErr
     	/* recv unauth err */
         if(p_src_recvData->d_RecvErr == WILDDOG_HTTP_UNAUTHORIZED)
         {
-        	if(_wilddog_conn_session_stateGet(p_conn) == WILDDOG_CONN_AUTH_AUTHING)
-            	_wilddog_conn_session_stateSet(p_conn,WILDDOG_CONN_AUTH_NOAUTH,NULL);
+        	if(_wilddog_conn_session_statusGet(p_conn) == WILDDOG_CONN_AUTH_AUTHING)
+            	_wilddog_conn_session_statusSet(p_conn,WILDDOG_CONN_AUTH_NOAUTH,NULL);
            	else
-            	_wilddog_conn_session_stateSet(p_conn,WILDDOG_CONN_AUTH_DOAUTH,NULL);
+            	_wilddog_conn_session_statusSet(p_conn,WILDDOG_CONN_AUTH_DOAUTH,NULL);
 		}
         p_dst_recvData->d_recvlen = 0;
         p_dst_recvData->p_Recvdata = NULL;
@@ -887,6 +1279,16 @@ STATIC void _wilddog_conn_cb_checkServerErr
 		_wilddog_conn_pong_resetNextSendTime(p_conn,PONG_REQUESINTERVAL);
 }
 
+/*
+ * Function:    _wilddog_conn_cbDispatch
+ * Description: conn layer Dispatch callback function
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ *                  p_cn_node: the pointer of the conn node struct
+ *                  p_cn_recvData: the pointer of the conn recv data 
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC int _wilddog_conn_cbDispatch
     (
     Wilddog_Conn_T *p_conn,
@@ -945,7 +1347,17 @@ STATIC int _wilddog_conn_cbDispatch
 	
     return 0;
 } 
-/* coap call while get an respone */
+
+/*
+ * Function:    _wilddog_conn_cb
+ * Description: conn layer  callback function
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ *                  p_cn_node: the pointer of the conn node struct
+ *                  p_cn_recvData: the pointer of the conn recv data 
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC int _wilddog_conn_cb
 	    (
     Wilddog_Conn_T *p_conn,
@@ -961,6 +1373,16 @@ STATIC int _wilddog_conn_cb
 	
 	return res;
 }
+
+/*
+ * Function:    _wilddog_conn_timeoutCB
+ * Description: conn layer  time out callback function
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ *                  p_cn_node: the pointer of the conn node struct
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC int _wilddog_conn_timeoutCB
     (
     Wilddog_Conn_T *p_conn,
@@ -968,7 +1390,7 @@ STATIC int _wilddog_conn_timeoutCB
     )
 {
     Wilddog_Conn_RecvData_T d_cn_recvData;
-    if(_wilddog_conn_session_stateGet(p_conn) == WILDDOG_CONN_AUTH_AUTHED)
+    if(_wilddog_conn_session_statusGet(p_conn) == WILDDOG_CONN_AUTH_AUTHED)
     	d_cn_recvData.d_RecvErr = WILDDOG_ERR_RECVTIMEOUT;
     else
     	d_cn_recvData.d_RecvErr = WILDDOG_ERR_NOTAUTH;
@@ -978,6 +1400,15 @@ STATIC int _wilddog_conn_timeoutCB
     
     return _wilddog_conn_cbDispatch(p_conn,p_cn_node,&d_cn_recvData);
 }
+
+/*
+ * Function:    _wilddog_conn_recv
+ * Description: conn layer  recv function
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC int _wilddog_conn_recv(Wilddog_Conn_T *p_conn)
 {
 	
@@ -999,6 +1430,15 @@ STATIC int _wilddog_conn_recv(Wilddog_Conn_T *p_conn)
     
     return res;
 }
+
+/*
+ * Function:    _wilddog_conn_pingSend
+ * Description: conn layer  send ping
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC int _wilddog_conn_pingSend
     (
     Wilddog_Conn_T *p_conn
@@ -1024,6 +1464,14 @@ STATIC int _wilddog_conn_pingSend
     
 }
 
+/*
+ * Function:    _wilddog_conn_keepLink
+ * Description: conn layer  keep link function
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC int _wilddog_conn_keepLink(Wilddog_Conn_T *p_conn)
 { 
     int res =0 ;
@@ -1038,6 +1486,16 @@ STATIC int _wilddog_conn_keepLink(Wilddog_Conn_T *p_conn)
     return res;
 }
 
+
+/*
+ * Function:    _wilddog_conn_retransTimeout
+ * Description: conn layer  retransmit time out function
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ *                  p_cn_node: the pointer of the conn node struct
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC int _wilddog_conn_retransTimeout
     (
     Wilddog_Conn_T *p_conn,
@@ -1060,6 +1518,14 @@ STATIC int _wilddog_conn_retransTimeout
     return 0;
 }
 
+/*
+ * Function:    _wilddog_conn_reObserver
+ * Description: conn layer  reobserver function
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC int _wilddog_conn_reObserver
 	(
 	Wilddog_Conn_T *p_conn
@@ -1075,7 +1541,7 @@ STATIC int _wilddog_conn_reObserver
 			if(_wilddog_conn_isObserver(cur))
 			{
 				/* check auth and reset auth status */
-				_wilddog_conn_session_stateReset(cur->d_cmd,p_conn);
+				_wilddog_conn_session_statusReset(cur->d_cmd,p_conn);
 				
 			    /*  send */
 				_wilddog_conn_observeFlagSet(WILDDOG_Conn_Observe_Req,cur);
@@ -1088,6 +1554,15 @@ STATIC int _wilddog_conn_reObserver
 	}
 	return res;
 }
+
+/*
+ * Function:    _wilddog_conn_retransmit
+ * Description: conn layer  retransmit function
+ *   
+ * Input:        p_conn: the pointer of the conn struct
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC int _wilddog_conn_retransmit(Wilddog_Conn_T *p_conn)
 {
     Wilddog_Conn_Node_T *cur,*tmp;
@@ -1113,6 +1588,14 @@ STATIC int _wilddog_conn_retransmit(Wilddog_Conn_T *p_conn)
     return res ;
 }
 
+/*
+ * Function:    _wilddog_conn_trySync
+ * Description: conn layer  try sync function
+ *   
+ * Input:        p_repo: the pointer of the repo struct
+ * Output:      N/A
+ * Return:      the result
+*/
 STATIC int _wilddog_conn_trySync(Wilddog_Repo_T *p_repo)
 {
     int res = 0;
@@ -1126,7 +1609,15 @@ STATIC int _wilddog_conn_trySync(Wilddog_Repo_T *p_repo)
     return res ;
     
 }
-/* do dtls hanshake */
+
+/*
+ * Function:    _wilddog_conn_init
+ * Description: conn layer  init function
+ *   
+ * Input:        p_repo: the pointer of the repo struct
+ * Output:      N/A
+ * Return:      the result
+*/
 Wilddog_Conn_T * _wilddog_conn_init(Wilddog_Repo_T* p_repo)
 {
     if(!p_repo)
@@ -1158,7 +1649,15 @@ Wilddog_Conn_T * _wilddog_conn_init(Wilddog_Repo_T* p_repo)
 
     return p_repo_conn;
 }
-/* destory conn list */
+
+/*
+ * Function:    _wilddog_conn_deinit
+ * Description: conn layer  deinit function
+ *   
+ * Input:        p_repo: the pointer of the repo struct
+ * Output:      N/A
+ * Return:      the pointer of the conn struct
+*/
 Wilddog_Conn_T* _wilddog_conn_deinit(Wilddog_Repo_T*p_repo)
 {
 

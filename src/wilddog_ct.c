@@ -94,6 +94,13 @@ STATIC Wilddog_Repo_T** _wilddog_ct_getRepoHead(void)
     return &(l_wilddog_containTable.p_rc_head);
 }
 
+/*
+ * Function:    _wilddog_ct_getRepoNum
+ * Description: Get the number of the repo.
+ * Input:        N/A.
+ * Output:      N/A
+ * Return:      the number.
+*/
 u8 _wilddog_ct_getRepoNum(void)
 {
     int count = 0;
@@ -105,6 +112,15 @@ u8 _wilddog_ct_getRepoNum(void)
     }
     return count;
 }
+
+/*
+ * Function:    _wilddog_ct_createRef
+ * Description: create ref.
+ * Input:        args: the url args
+ *                  flag: the flag, not used
+ * Output:      N/A
+ * Return:      the Wilddog_T
+*/
 STATIC Wilddog_T _wilddog_ct_createRef(void *args, int flag)
 {
     Wilddog_Url_T *p_url = NULL;
@@ -171,6 +187,15 @@ STATIC Wilddog_T _wilddog_ct_createRef(void *args, int flag)
     return (Wilddog_T)p_ref;
 }
 
+
+/*
+ * Function:    _wilddog_ct_destroyRef
+ * Description: destory ref.
+ * Input:        args: the url args
+ *                  flag: the flag, not used
+ * Output:      N/A
+ * Return:      if success, return WILDDOG_ERR_NOERR; else return WILDDOG_ERR_NULL
+*/
 STATIC Wilddog_Return_T _wilddog_ct_destroyRef(void *args, int flag)
 {
     Wilddog_Repo_T * p_repo = NULL;
@@ -233,6 +258,15 @@ STATIC Wilddog_Return_T _wilddog_ct_destroyRef(void *args, int flag)
     return WILDDOG_ERR_NOERR;
 }
 
+
+/*
+ * Function:    _wilddog_ct_findRef
+ * Description: find ref from the repo by the url
+ * Input:        p_repo: the pointer of the repo struct
+ *                  p_url: the url
+ * Output:      N/A
+ * Return:      the pointer of the ref struct
+*/
 STATIC Wilddog_Ref_T *_wilddog_ct_findRef
     (
     Wilddog_Repo_T *p_repo, 
@@ -255,6 +289,15 @@ STATIC Wilddog_Ref_T *_wilddog_ct_findRef
     }
     return NULL;
 }
+
+/*
+ * Function:    _wilddog_ct_getRef
+ * Description: get the ref
+ * Input:        arg: the pointer of the arg get ref struct
+ *                  flag: the flag, not used
+ * Output:      N/A
+ * Return:      the pointer of the ref struct
+*/
 STATIC Wilddog_Ref_T * _wilddog_ct_getRef(void* arg, int flag)
 {
     Wilddog_Arg_GetRef_T * args = (Wilddog_Arg_GetRef_T* )arg;
@@ -349,6 +392,13 @@ STATIC Wilddog_Ref_T * _wilddog_ct_getRef(void* arg, int flag)
     return p_ref;
 }
 
+/*
+ * Function:    _wilddog_ct_createRepo
+ * Description: create the repo
+ * Input:        p_url: the pointer of url
+ * Output:      N/A
+ * Return:      the pointer of the repo struct
+*/
 STATIC Wilddog_Repo_T * _wilddog_ct_createRepo(Wilddog_Url_T *p_url)
 {
     Wilddog_Repo_T *p_repo =NULL;
@@ -406,6 +456,13 @@ STATIC Wilddog_Repo_T * _wilddog_ct_createRepo(Wilddog_Url_T *p_url)
     return p_repo;
 }
 
+/*
+ * Function:    _wilddog_ct_destoryRepo
+ * Description: destory the repo
+ * Input:        p_repo: the pointer of repo
+ * Output:      N/A
+ * Return:      return WILDDOG_ERR_NOERR
+*/
 STATIC Wilddog_Return_T _wilddog_ct_destoryRepo(Wilddog_Repo_T *p_repo)
 {
     Wilddog_Repo_T **p_repoHead = NULL;
@@ -428,6 +485,14 @@ STATIC Wilddog_Return_T _wilddog_ct_destoryRepo(Wilddog_Repo_T *p_repo)
     }
     return WILDDOG_ERR_NOERR;
 }
+
+/*
+ * Function:    _wilddog_ct_findRepo
+ * Description: find repo by the host
+ * Input:        p_host: the pointer of host
+ * Output:      N/A
+ * Return:      the pointer of the repo
+*/
 Wilddog_Repo_T *_wilddog_ct_findRepo(Wilddog_Str_T * p_host)
 {
     Wilddog_Repo_T *p_curr = NULL, *p_tmp = NULL;
@@ -447,6 +512,15 @@ Wilddog_Repo_T *_wilddog_ct_findRepo(Wilddog_Str_T * p_host)
     }
     return NULL;
 }
+
+/*
+ * Function:    _wilddog_ct_store_setAuth
+ * Description: set auth
+ * Input:        p_args: the pointer of the arg set auth struct
+ *                  flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
 STATIC Wilddog_Return_T _wilddog_ct_store_setAuth
     (
     void *p_args, 
@@ -483,6 +557,14 @@ STATIC Wilddog_Return_T _wilddog_ct_store_setAuth
         return WILDDOG_ERR_INVALID;
 }
 
+/*
+ * Function:    _wilddog_ct_store_query
+ * Description: query function
+ * Input:        p_args: the pointer of the arg set auth struct
+ *                  flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
 STATIC Wilddog_Return_T _wilddog_ct_store_query(void *p_args, int flag)
 {
     Wilddog_Arg_Query_T *arg = (Wilddog_Arg_Query_T* )p_args;
@@ -501,6 +583,14 @@ STATIC Wilddog_Return_T _wilddog_ct_store_query(void *p_args, int flag)
         return WILDDOG_ERR_INVALID;
 }
 
+/*
+ * Function:    _wilddog_ct_store_set
+ * Description: set function
+ * Input:        p_args: the pointer of the arg set auth struct
+ *                  flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
 STATIC Wilddog_Return_T _wilddog_ct_store_set(void *p_args, int flag)
 {
     Wilddog_Arg_Set_T *arg = (Wilddog_Arg_Set_T*)p_args;
@@ -521,6 +611,14 @@ STATIC Wilddog_Return_T _wilddog_ct_store_set(void *p_args, int flag)
         return WILDDOG_ERR_INVALID;
 }
 
+/*
+ * Function:    _wilddog_ct_store_push
+ * Description: push function
+ * Input:        p_args: the pointer of the arg set auth struct
+ *                  flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
 STATIC Wilddog_Return_T _wilddog_ct_store_push(void* p_args, int flag)
 {
     Wilddog_Arg_Push_T *arg = (Wilddog_Arg_Push_T*)p_args;
@@ -540,6 +638,14 @@ STATIC Wilddog_Return_T _wilddog_ct_store_push(void* p_args, int flag)
         return WILDDOG_ERR_INVALID;
 }
 
+/*
+ * Function:    _wilddog_ct_store_remove
+ * Description: remove function
+ * Input:        p_args: the pointer of the arg set auth struct
+ *                  flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
 STATIC Wilddog_Return_T _wilddog_ct_store_remove(void* p_args, int flag)
 {
     Wilddog_Arg_Remove_T *arg = (Wilddog_Arg_Remove_T*)p_args;
@@ -558,6 +664,14 @@ STATIC Wilddog_Return_T _wilddog_ct_store_remove(void* p_args, int flag)
         return WILDDOG_ERR_INVALID;
 }
 
+/*
+ * Function:    _wilddog_ct_store_on
+ * Description: oberve on function
+ * Input:        p_args: the pointer of the arg set auth struct
+ *                  flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
 STATIC Wilddog_Return_T _wilddog_ct_store_on(void* p_args, int flag)
 {
     Wilddog_Arg_On_T *arg = (Wilddog_Arg_On_T*)p_args;
@@ -579,6 +693,15 @@ STATIC Wilddog_Return_T _wilddog_ct_store_on(void* p_args, int flag)
     else
         return WILDDOG_ERR_INVALID;
 }
+
+/*
+ * Function:    _wilddog_ct_store_off
+ * Description: oberve off function
+ * Input:        p_args: the pointer of the arg set auth struct
+ *                  flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
 STATIC Wilddog_Return_T _wilddog_ct_store_off(void* p_args, int flag)
 {
     Wilddog_Arg_Off_T *arg = (Wilddog_Arg_Off_T*)p_args;
@@ -598,6 +721,14 @@ STATIC Wilddog_Return_T _wilddog_ct_store_off(void* p_args, int flag)
         return WILDDOG_ERR_INVALID;
 }
 
+/*
+ * Function:    _wilddog_ct_url_getKey
+ * Description: get key 
+ * Input:        p_args: the pointer of the ref struct
+ *                  flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
 STATIC Wilddog_Str_T* _wilddog_ct_url_getKey(void* p_args, int flag)
 {
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T*)p_args;
@@ -607,6 +738,14 @@ STATIC Wilddog_Str_T* _wilddog_ct_url_getKey(void* p_args, int flag)
     return _wilddog_url_getKey(p_ref->p_ref_url->p_url_path);
 }
 
+/*
+ * Function:    _wilddog_ct_conn_sync
+ * Description: sync function 
+ * Input:        arg: the pointer of the repo struct
+ *                  flag: the flag, not used
+ * Output:      N/A
+ * Return:      if success, return WILDDOG_ERR_NOERR
+*/
 STATIC Wilddog_Return_T _wilddog_ct_conn_sync(void *arg, int flag)
 {
     Wilddog_Repo_T** p_head = _wilddog_ct_getRepoHead();
@@ -649,6 +788,16 @@ Wilddog_Func_T Wilddog_ApiCmd_FuncTable[WILDDOG_APICMD_MAXCMD + 1] =
 
 #define NOT_USED(_a)
 
+
+/*
+ * Function:    _wilddog_ct_ioctl
+ * Description: the ioctl function 
+ * Input:        cmd: api command
+ *                  arg: the arg
+ *                  flags: the flag, not used
+ * Output:      N/A
+ * Return:      if success, return WILDDOG_ERR_NOERR
+*/
 size_t _wilddog_ct_ioctl(Wilddog_Api_Cmd_T cmd, void* arg, int flags)
 {
     NOT_USED(flags);

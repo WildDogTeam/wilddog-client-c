@@ -29,6 +29,15 @@ STATIC Wilddog_Address_T l_defaultAddr_t[2] =
 	{4, {211,151,208,197}, 5683}
 };
 
+/*
+ * Function:    _wilddog_sec_hashIndex
+ * Description: sec layer  index hash
+ *   
+ * Input:        p_host: the pointer of the host
+ *                  totalNum: the number
+ * Output:      N/A
+ * Return:      the index
+*/
 STATIC int _wilddog_sec_hashIndex(Wilddog_Str_T *p_host, int totalNum)
 {
 	int len, i, total = 0;
@@ -43,6 +52,14 @@ STATIC int _wilddog_sec_hashIndex(Wilddog_Str_T *p_host, int totalNum)
 	return total & ((1 << (totalNum - 1)) - 1);
 }
 
+/*
+ * Function:    _wilddog_sec_getDefaultIpIndex
+ * Description: sec layer  default ip index
+ *   
+ * Input:        p_host: the pointer of the host
+ * Output:      N/A
+ * Return:      the index
+*/
 STATIC int _wilddog_sec_getDefaultIpIndex(Wilddog_Str_T *p_host)
 {
 	int index;
@@ -56,6 +73,16 @@ STATIC int _wilddog_sec_getDefaultIpIndex(Wilddog_Str_T *p_host)
 	return index;
 }
 
+/*
+ * Function:    _wilddog_sec_getHost
+ * Description: sec layer  get host ip 
+ *   
+ * Input:        p_remoteAddr: the pointer of the ip address
+ *                  p_host: the pointer of the host
+ *                  d_port: the port
+ * Output:      N/A
+ * Return:      the gethostbyname result
+*/
 int _wilddog_sec_getHost
     (
     Wilddog_Address_T *p_remoteAddr,

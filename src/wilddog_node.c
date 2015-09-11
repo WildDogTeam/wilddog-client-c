@@ -744,9 +744,14 @@ STATIC Wilddog_Node_T *_wilddog_node_findInner
 }
 
 /*
- *  The path must in "a/b" format
- *  The root node has a path key '/'
- */
+ * Function:    wilddog_node_find
+ * Description: Find a node from the path.
+ * Input:       node:   The pointer to the head.
+ *				path:	The relative path.
+ * Output:      N/A
+ * Return:      If find, return the pointer of the node.
+ * Others:      N/A
+*/
 Wilddog_Node_T *wilddog_node_find
     ( 
     Wilddog_Node_T *root, 
@@ -775,10 +780,14 @@ Wilddog_Node_T *wilddog_node_find
 }
 
 /*
- * add newnode as node's child
- * if you want to add newnode as node's brother, use the parent node
- *
- */
+ * Function:    wilddog_node_addChild
+ * Description: add newnode as node's child.
+ * Input:       node:   The pointer to the head.
+ *			   newnode:	The newnode.
+ * Output:      N/A
+ * Return:      If add success, return WILDDOG_ERR_NOERR.
+ * Others:      N/A
+*/
 Wilddog_Return_T wilddog_node_addChild
     (
     Wilddog_Node_T *node, 
@@ -850,6 +859,14 @@ Wilddog_Return_T wilddog_node_addChild
     return WILDDOG_ERR_NOERR;
 }
 
+/*
+ * Function:    wilddog_node_deleteChildren
+ * Description: delete node's all child node.
+ * Input:       node:   The pointer to the head.
+ * Output:      N/A
+ * Return:      If delete children node success, return WILDDOG_ERR_NOERR.
+ * Others:      N/A
+*/
 Wilddog_Return_T wilddog_node_deleteChildren(Wilddog_Node_T *p_node)
 {
 	Wilddog_Node_T *p_child = NULL;
@@ -876,6 +893,14 @@ Wilddog_Return_T wilddog_node_deleteChildren(Wilddog_Node_T *p_node)
 	return WILDDOG_ERR_NOERR;
 }
 
+/*
+ * Function:    wilddog_node_delete
+ * Description: delete the p_node and it's child node and free them.
+ * Input:       p_node:   The pointer to the head.
+ * Output:      N/A
+ * Return:      If delete node success, return WILDDOG_ERR_NOERR.
+ * Others:      N/A
+*/
 Wilddog_Return_T wilddog_node_delete( Wilddog_Node_T *p_node)
 {
     Wilddog_Node_T * p_head = NULL;
@@ -930,6 +955,14 @@ DEL_FREE:
     return WILDDOG_ERR_NOERR;
 }
 
+/*
+ * Function:    wilddog_node_clone
+ * Description: clone the node and it's all child node.
+ * Input:       node:   The pointer to the head.
+ * Output:      N/A
+ * Return:      If clone success, return the node copy.
+ * Others:      N/A
+*/
 Wilddog_Node_T * wilddog_node_clone(const Wilddog_Node_T *node)
 {
     Wilddog_Node_T *p_snapshot;

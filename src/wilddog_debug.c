@@ -153,6 +153,13 @@ void wilddog_debug_printnode(const Wilddog_Node_T* node)
     fflush(stdout);
 }
 
+/*
+ * Function:    wilddog_debug_n2jsonStringInner
+ * Description: Inner function: Change node to json string.
+ * Input:       p_head: The head of node.
+ * Output:      N/A
+ * Return:      Pointer to the json string, must free by caller.
+*/
 STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
     (
     Wilddog_Node_T * node

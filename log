@@ -1,0 +1,69 @@
+./examples/linux/Makefile:INCLUDE_PATH=-I$(TOPDIR)/include
+./examples/linux/Makefile:LIB_PATH = $(TOPDIR)/lib
+./examples/linux/Makefile:LDFLAGS := -L$(TOPDIR)/lib -lwilddog
+./examples/linux/Makefile:			mv $$demo_obj $(TOPDIR)/bin;\
+./examples/linux/Makefile:include $(TOPDIR)/project/linux/env.mk
+./examples/Makefile:include $(TOPDIR)/project/linux/env.mk
+./platform/linux/Makefile:INCLUDE_PATH=-I$(TOPDIR)/include -I$(TOPDIR)/src
+./platform/linux/Makefile:LIB_PATH=$(TOPDIR)/lib
+./platform/linux/Makefile:include $(TOPDIR)/project/linux/env.mk
+./platform/Makefile:include $(TOPDIR)/project/linux/env.mk
+./project/linux/env.mk:# in which variable like TOPDIR, TARGET or LIB may be needed
+./project/linux/env.mk:	$(QUIET)test -d $(TOPDIR)/lib || mkdir -p $(TOPDIR)/lib; \
+./project/linux/env.mk:	test -d $(TOPDIR)/bin || mkdir -p $(TOPDIR)/bin
+./project/linux/env.mk:	$(QUIET)$(CC) $(CFLAGS) -o $@ $(TOPDIR)/lib/*.o $(LDFLAGS); 
+./project/linux/env.mk:	$(RM) $(TOPDIR)/lib/*.o; \
+./project/linux/env.mk:	$(MV) $@ $(TOPDIR)/bin; \
+./project/linux/env.mk:	$(RM) $(TOPDIR)/lib $(TOPDIR)/bin; \
+./project/linux/Makefile:export TOPDIR=$(shell pwd)/../../
+./project/linux/Makefile:	@$(AR) libwilddog.a $(TOPDIR)/lib/*.o; \
+./project/linux/Makefile:	rm -rf $(TOPDIR)/lib/*.o; \
+./project/linux/Makefile:	mv libwilddog.a $(TOPDIR)/lib;
+./project/linux/Makefile:	@make -C $(TOPDIR)/src all||exit 1;
+./project/linux/Makefile:	@make -C $(TOPDIR)/src clean||exit 1;
+./project/linux/Makefile:	@make -C $(TOPDIR)/platform all||exit 1;
+./project/linux/Makefile:	@make -C $(TOPDIR)/platform clean||exit 1;
+./project/linux/Makefile:	make WILDDOG_SELFTEST=yes -C $(TOPDIR)/tests/linux testall||exit 1;
+./project/linux/Makefile:	@rm -rf $(TOPDIR)/lib/libwilddog.a
+./project/linux/Makefile:	if test ! -e $(TOPDIR)/lib/libwilddog.a ;\
+./project/linux/Makefile:	make -C $(TOPDIR)/examples/linux demoall||exit 1;
+./src/Makefile:INCLUDE_PATH=-I$(TOPDIR)/include -I$(TOPDIR)/src -I$(TOPDIR)/src/networking/$(APP_PROTO_TYPE)/ 
+./src/Makefile:LIB_PATH = $(TOPDIR)/lib
+./src/Makefile:include $(TOPDIR)/project/linux/env.mk
+./src/networking/coap/Makefile:INCLUDE_PATH=-I$(TOPDIR)/include -I$(TOPDIR)/src
+./src/networking/coap/Makefile:LIB_PATH = $(TOPDIR)/lib
+./src/networking/coap/Makefile:include $(TOPDIR)/project/linux/env.mk
+./src/networking/Makefile:include $(TOPDIR)/project/linux/env.mk
+./src/secure/dtls/lib/Makefile:INCLUDE_PATH=-I$(TOPDIR)/include -I$(TOPDIR)/src  -I../inc
+./src/secure/dtls/lib/Makefile:LIB_PATH = $(TOPDIR)/lib 
+./src/secure/dtls/lib/Makefile:include $(TOPDIR)/project/linux/env.mk
+./src/secure/dtls/Makefile:include $(TOPDIR)/project/linux/env.mk
+./src/secure/Makefile:include $(TOPDIR)/project/linux/env.mk
+./src/secure/nosec/Makefile:INCLUDE_PATH=-I$(TOPDIR)/include -I$(TOPDIR)/src
+./src/secure/nosec/Makefile:LIB_PATH = $(TOPDIR)/lib
+./src/secure/nosec/Makefile:include $(TOPDIR)/project/linux/env.mk
+./src/secure/tinydtls/Makefile:INCLUDE_PATH=-I$(TOPDIR)/include -I$(TOPDIR)/src -DDTLS_CHECK_CONTENTTYPE -DDTLSv12 -DWITH_SHA256
+./src/secure/tinydtls/Makefile:LIB_PATH = $(TOPDIR)/lib
+./src/secure/tinydtls/Makefile:include $(TOPDIR)/project/linux/env.mk
+./src/serialize/cbor/Makefile:INCLUDE_PATH=-I$(TOPDIR)/include -I$(TOPDIR)/src
+./src/serialize/cbor/Makefile:LIB_PATH = $(TOPDIR)/lib
+./src/serialize/cbor/Makefile:include $(TOPDIR)/project/linux/env.mk
+./src/serialize/Makefile:include $(TOPDIR)/project/linux/env.mk
+./tests/linux/Makefile:INCLUDE_PATH=-I$(TOPDIR)/include -I$(TOPDIR)/src
+./tests/linux/Makefile:LIB_PATH = $(TOPDIR)/lib
+./tests/linux/Makefile:			mv $$test_obj $(TOPDIR)/bin;\
+./tests/linux/Makefile:include $(TOPDIR)/project/linux/env.mk
+./tests/Makefile:include $(TOPDIR)/project/linux/env.mk
+./tools/linux/cov.sh:export TOPDIR=$(pwd)/../../
+./tools/linux/cov.sh:cd ${TOPDIR} ; make cover
+./tools/linux/cov.sh:${TOPDIR}./bin/test_limit
+./tools/linux/cov.sh:${TOPDIR}./bin/test_node
+./tools/linux/cov.sh:${TOPDIR}./bin/test_wdProperty
+./tools/linux/cov.sh:cd ${TOPDIR}/example/linux; lcov -d ./ -c -o outputfile.info
+./tools/linux/cov.sh:cd ${TOPDIR}/platform/linux; lcov -d ./ -c -o outputfile.info
+./tools/linux/cov.sh:cd ${TOPDIR}/src; lcov -d ./ -c -o outputfile.info
+./tools/linux/cov.sh:cd ${TOPDIR}/src/networking/coap; lcov -d ./ -c -o outputfile.info
+./tools/linux/cov.sh:cd ${TOPDIR}/src/secure/nosec; lcov -d ./ -c -o outputfile.info
+./tools/linux/cov.sh:cd ${TOPDIR}/src/serialize/cbor; lcov -d ./ -c -o outputfile.info
+./tools/linux/cov.sh:cd ${TOPDIR}; mkdir -p cov
+./tools/linux/cov.sh:cd ${TOPDIR}/cov; \

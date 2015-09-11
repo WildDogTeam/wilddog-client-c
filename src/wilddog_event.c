@@ -155,7 +155,6 @@ char * _wilddog_event_pathRelative( char *spath, char *dpath)
         return (dpath + slength );
 }
 
-//todo
 /*
  * Function:    _wilddog_event_trigger
  * Description: The event handler, called by connectivity layer.
