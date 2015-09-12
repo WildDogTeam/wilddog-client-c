@@ -98,9 +98,8 @@ STATIC BOOL _isKeyValid(Wilddog_Str_T * key, BOOL isSpritValid)
 
 /*
  * Function:    _wilddog_node_newWithStr
- * Description: Create a node with key, if key is a path, create a node tree.
- * Input:       key: the key to be checked.
- *				isSpritValid : if TRUE , '/' is valid
+ * Description: Create a node with key, if key is a path, then create a node tree.
+ * Input:        key: the key which used in the node
  * Output:      p_node: pointer of the last node
  * Return:      Success returns the head of the node tree, or NULL.
 */
@@ -217,7 +216,7 @@ STATIC Wilddog_Node_T * _wilddog_node_newWithStr
 
 /*
  * Function:    wilddog_node_createFalse
- * Description: Create a node, type is FALSE.
+ * Description: Create a node, its type is FALSE.
  * Input:       key:    The pointer to the node's key (can be NULL).
  * Output:      N/A
  * Return:      if success, returns pointer points to the node, else return NULL.
@@ -236,7 +235,7 @@ Wilddog_Node_T * wilddog_node_createFalse(Wilddog_Str_T* key)
 }
 /*
  * Function:    wilddog_node_createTrue
- * Description: Create a node, type is TRUE.
+ * Description: Create a node, its type is TRUE.
  * Input:       key:    The pointer to the node's key (can be NULL).
  * Output:      N/A
  * Return:      if success, returns pointer points to the node, else return NULL.
@@ -255,7 +254,7 @@ Wilddog_Node_T * wilddog_node_createTrue(Wilddog_Str_T* key)
 }
 /*
  * Function:    wilddog_node_createNull
- * Description: Create a node, type is NULL.
+ * Description: Create a node, its type is NULL.
  * Input:       key:    The pointer to the node's key (can be NULL).
  * Output:      N/A
  * Return:      if success, returns pointer points to the node, else return NULL.
@@ -274,9 +273,9 @@ Wilddog_Node_T * wilddog_node_createNull(Wilddog_Str_T* key)
 }
 /*
  * Function:    wilddog_node_createNum
- * Description: Create a node, type is integer(32 bits).
+ * Description: Create a node, its type is integer(32 bits).
  * Input:       key:    The pointer to the node's key (can be NULL).
- *              num:    integer value.
+ *                 num:    integer value.
  * Output:      N/A
  * Return:      if success, returns pointer points to the node, else return NULL.
  * Others:      N/A
@@ -306,9 +305,9 @@ Wilddog_Node_T * wilddog_node_createNum
 }
 /*
  * Function:    wilddog_node_createFloat
- * Description: Create a node, type is float(8-bit machine is 32 bits else 64 bits).
+ * Description: Create a node, its type is float(on 8-bit machine is 32 bits else 64 bits).
  * Input:       key:    The pointer to the node's key (can be NULL).
- *              num:    float value.
+ *                 num:    float value.
  * Output:      N/A
  * Return:      if success, returns pointer points to the node, else return NULL.
  * Others:      N/A
@@ -339,10 +338,10 @@ Wilddog_Node_T * wilddog_node_createFloat
 }
 /*
  * Function:    wilddog_node_createBString
- * Description: Create a node, type is byte string(binary buffer).
+ * Description: Create a node, its type is byte string(binary buffer).
  * Input:       key:    The pointer to the node's key (can be NULL).
- *              value:  pointer to the string.
- *              len:    The length of the string.
+ *                 value: The pointer to the string.
+ *                 len:    The length of the string.
  * Output:      N/A
  * Return:      if success, returns pointer points to the node, else return NULL.
  * Others:      N/A
@@ -376,9 +375,9 @@ Wilddog_Node_T * wilddog_node_createBString
 }
 /*
  * Function:    wilddog_node_createUString
- * Description: Create a node, type is UTF-8 string.
+ * Description: Create a node, its type is UTF-8 string.
  * Input:       key:    The pointer to the node's key (can be NULL).
- *              value:  pointer to the string.
+ *                 value:  The pointer to the string.
  * Output:      N/A
  * Return:      if success, returns pointer points to the node, else return NULL.
  * Others:      N/A
@@ -412,8 +411,8 @@ Wilddog_Node_T * wilddog_node_createUString
 }
 /*
  * Function:    wilddog_node_createObject
- * Description: Create a node, type is OBJECT.
- * Input:       key:    the pointer to the node's key (can be NULL).
+ * Description: Create a node, its type is OBJECT.
+ * Input:       key:    The pointer to the node's key (can be NULL).
  * Output:      N/A
  * Return:      if success, returns pointer points to the node, else return NULL.
  * Others:      N/A
@@ -438,7 +437,7 @@ Wilddog_Node_T * wilddog_node_createObject
  * Function:    wilddog_node_setKey
  * Description: Set a node's key.
  * Input:       node:   The pointer to the node.
- *              key:    The pointer to the node's key.
+ *                 key:    The pointer to the node's new key.
  * Output:      N/A
  * Return:      0 means succeed, negative number means failed.
  * Others:      N/A
@@ -526,7 +525,7 @@ STATIC const Wilddog_Str_T *wilddog_node_getKey(Wilddog_Node_T *node)
  * Function:    wilddog_node_setType
  * Description: Set a node's type.
  * Input:       node:   The pointer to the node.
- *              type:   The new type of the node.
+ *                 type:   The new type of the node.
  * Output:      N/A
  * Return:      if success, returns 0, else return negative number.
  * Others:      N/A
@@ -569,8 +568,8 @@ STATIC u8 wilddog_node_getType(Wilddog_Node_T *node)
  * Function:    wilddog_node_setValue
  * Description: Set a node's value.
  * Input:       node:   The pointer to the node.
- *              value:  The pointer to the new value.
- *              len:    The length of the new value.
+ *                 value:  The pointer to the new value.
+ *                 len:    The length of the new value.
  * Output:      N/A
  * Return:      0 means succeed, negative number means failed.
  * Others:      N/A
@@ -630,7 +629,7 @@ Wilddog_Return_T wilddog_node_setValue
 
 /*
  * Function:    wilddog_node_getValue
- * Description: Set a node's value.
+ * Description: Get a node's value.
  * Input:       node:   The pointer to the node.
  * Output:      len:    The length of the value.
  * Return:      if success, returns point of the value, else return NULL.
@@ -662,7 +661,7 @@ Wilddog_Str_T* wilddog_node_getValue
  * Description: Free a node and it's children.
  * Input:       node:   The pointer to the node.
  * Output:      N/A
- * Return:      N/A
+ * Return:      0
  * Others:      N/A
 */
 int _wilddog_node_free(Wilddog_Node_T *node)
@@ -697,7 +696,7 @@ int _wilddog_node_free(Wilddog_Node_T *node)
 /*
  * Function:    _wilddog_node_findInner
  * Description: Find a node from the path.
- * Input:       node:   The pointer to the head.
+ * Input:         node:   The pointer to the head node.
  *				path:	The relative path.
  * Output:      N/A
  * Return:      If find, return the pointer of the node.
@@ -745,8 +744,9 @@ STATIC Wilddog_Node_T *_wilddog_node_findInner
 
 /*
  * Function:    wilddog_node_find
- * Description: Find a node from the path.
- * Input:       node:   The pointer to the head.
+ * Description: Find a node from the path. It do some checks and 
+ *                    then call _wilddog_node_findInner function.
+ * Input:         node:   The pointer to the head node.
  *				path:	The relative path.
  * Output:      N/A
  * Return:      If find, return the pointer of the node.
@@ -960,7 +960,7 @@ DEL_FREE:
  * Description: clone the node and it's all child node.
  * Input:       node:   The pointer to the head.
  * Output:      N/A
- * Return:      If clone success, return the node copy.
+ * Return:      If clone success, return the pointer of the node copy.
  * Others:      N/A
 */
 Wilddog_Node_T * wilddog_node_clone(const Wilddog_Node_T *node)

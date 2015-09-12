@@ -64,6 +64,14 @@ int _wilddog_conn_coap_send
     coap_pdu_t *p_coap
     );
 
+/*
+ * Function:    _sys_coap_ntol
+ * Description: Convert the byte order
+ * Input:        src: The pointer of the source byte    
+ *		         len: The length of the source byte
+ * Output:      dst: The pointer of the destination byte
+ * Return:      N/A
+*/
 STATIC INLINE void _sys_coap_ntol(u8 *dst,const u8 *src,const u8 len)
 {
 	u8 i;
@@ -72,12 +80,28 @@ STATIC INLINE void _sys_coap_ntol(u8 *dst,const u8 *src,const u8 len)
 		dst[i] = src[len - i -1 ];
 	}
 }
-STATIC INLINE int _sys_rand_get()
+
+/*
+ * Function:    _sys_rand_get
+ * Description: Get a rand number
+ * Input:        N/A    
+ * Output:      N/A
+ * Return:      A rand number 
+*/
+STATIC INLINE int _sys_rand_get(void)
 {
     srand(_wilddog_getTime()); 
     return rand();
 }
-STATIC void _sys_coap_updata_tm(u32 ms)
+
+/*
+ * Function:    _sys_coap_update_tm
+ * Description: Update the coap system time
+ * Input:        ms   
+ * Output:      N/A
+ * Return:      N/A
+*/
+STATIC void _sys_coap_update_tm(u32 ms)
 {
 	static u32 coap_ms = 0;
 	if(l_coap_systm)
@@ -91,16 +115,40 @@ STATIC void _sys_coap_updata_tm(u32 ms)
 		coap_ms = ms;
 	}
 }
+
+/*
+ * Function:    _sys_coap_return_tm
+ * Description: Get the coap system time
+ * Input:        N/A   
+ * Output:      N/A
+ * Return:      The coap system time
+*/
 STATIC INLINE u32 _sys_coap_return_tm(void)
 {
 	return l_coap_systm;
 }
+
+/*
+ * Function:    _sys_coap_setAuth
+ * Description: Set coap auth data
+ * Input:        p_setauth: The pointer of the auth data   
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC INLINE void _sys_coap_setAuth(u8 *p_setauth)
 {
 	if( p_coap_pcb )
 		p_coap_pcb->p_auth = p_setauth;
 	
 }
+
+/*
+ * Function:    _sys_coap_getAuth
+ * Description: Get coap auth data
+ * Input:        N/A   
+ * Output:      N/A
+ * Return:      The pointer of the auth data
+*/
 STATIC INLINE u8 *_sys_coap_getAuth(void)
 {
 	if(p_coap_pcb)
@@ -108,13 +156,27 @@ STATIC INLINE u8 *_sys_coap_getAuth(void)
 	else
 		return 0;
 }
+
+/*
+ * Function:    _wilddog_conn_coap_code2int
+ * Description: Convert the coap code to int number
+ * Input:        code: The coap code   
+ * Output:      N/A
+ * Return:      The int number
+*/
 STATIC INLINE unsigned int _wilddog_conn_coap_code2int(unsigned int code) 
 {
     unsigned int readable = (code >> 5) * 100 + (code & 0x1F);
     return readable;
 }
 
-
+/*
+ * Function:    _wilddog_conn_coap_code2Http
+ * Description: Convert the coap code to http return code
+ * Input:        rec_code: The coap code   
+ * Output:      N/A
+ * Return:      The http return code
+*/
 int _wilddog_conn_coap_code2Http(int rec_code)
 {
     switch(rec_code)
@@ -128,6 +190,15 @@ int _wilddog_conn_coap_code2Http(int rec_code)
     }
     return rec_code;
 }
+
+/*
+ * Function:    _wilddog_conn_coap_findChar
+ * Description: Find the number of  char 'c' exist in  the string buffer
+ * Input:        c: The char   
+ *                  p_buf: The pointer of the string buffer
+ * Output:      N/A
+ * Return:      The number
+*/
 STATIC int _wilddog_conn_coap_findChar(const char c,const unsigned char *p_buf)
 {
 	int res = 0 ;
@@ -139,7 +210,16 @@ STATIC int _wilddog_conn_coap_findChar(const char c,const unsigned char *p_buf)
 	}
 	return res;
 }
-/*convert cmd to coap type and  code field */
+
+/*
+ * Function:    _wilddog_conn_coap_cmd2Typecode
+ * Description: Convert cmd to coap type and  code field
+ * Input:        cmd: The conn command
+ * Output:      p_type: The pointer of the coap type
+ *                  p_code: The pointer of the coap code field
+ *                  pp_observe: The pointer of the observe flag
+ * Return:      If success, return 0; else return WILDDOG_ERR_INVALID
+*/
 STATIC int _wilddog_conn_coap_cmd2Typecode(Wilddog_Conn_Cmd_T cmd,
 															u8 *p_type,u8 *p_code,u32 **pp_observe)
 {
@@ -199,18 +279,50 @@ STATIC int _wilddog_conn_coap_cmd2Typecode(Wilddog_Conn_Cmd_T cmd,
     }
     return res;
 }
+
+/*
+ * Function:    _wilddog_conn_coap_noSeparate
+ * Description: Judge whether the separate flag of the coap packet node is on or off
+ * Input:        p_node: The pointer of the coap packet node
+ * Output:      N/A
+ * Return:      If the flag is off, return 1; if the flag is on, return 0
+*/
 STATIC INLINE int _wilddog_conn_coap_noSeparate(Wilddog_Conn_Coap_PacketNode_T *p_node)
 {
     return (p_node->d_separate_flag == WILDDOG_CONN_COAPPKT_NO_SEPARATE);
 }
+
+/*
+ * Function:    _wilddog_conn_coap_noObserve
+ * Description: Judge whether the observe flag of the coap packet node is on or off
+ * Input:        p_node: The pointer of the coap packet node
+ * Output:      N/A
+ * Return:      If the flag is off, return 1; if the flag is on, return 0
+*/
 STATIC INLINE int _wilddog_conn_coap_noObserve(Wilddog_Conn_Coap_PacketNode_T *p_node)
 {
     return ((p_node->d_observer_flag & WILDDOG_CONN_COAPPKT_IS_OBSERVER) == 0);
 }
+
+/*
+ * Function:    _wilddog_conn_coap_isNotify
+ * Description: Judge whether the coap packet node is notified or not
+ * Input:        p_node: The pointer of the coap packet node
+ * Output:      N/A
+ * Return:      If it's notified, return 1; else, return 0
+*/
 STATIC INLINE int _wilddog_conn_coap_isNotify(Wilddog_Conn_Coap_PacketNode_T *p_node)
 {
     return (p_node->d_observer_flag ==  WILDDOG_CONN_COAPPKT_IS_NOTIFY);
 }
+
+/*
+ * Function:    _wilddog_conn_coap_getNextReObserverTm
+ * Description: Get the next re-observe time
+ * Input:        nxtm_reobserver: The next re-observe time
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC INLINE void _wilddog_conn_coap_getNextReObserverTm(u32 nxtm_reobserver)
 {	
 	if( p_coap_pcb->d_nx_reObserverTm == 0 )
@@ -222,13 +334,22 @@ STATIC INLINE void _wilddog_conn_coap_getNextReObserverTm(u32 nxtm_reobserver)
 }
 /* Get lately reObserver node .
 ** need to be call while some node max-age change */
+
+/*
+ * Function:    _wilddog_conn_coap_updateReObserverTm
+ * Description: Get lately reObserver node .
+ *                    need to be call while some node max-age change
+ * Input:        N/A
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_coap_updateReObserverTm(void)
 {
     Wilddog_Conn_Coap_PacketNode_T *tmp = NULL;
     Wilddog_Conn_Coap_PacketNode_T *curr = NULL;
 
 	
-	_sys_coap_updata_tm((u32) _wilddog_getTime());
+	_sys_coap_update_tm((u32) _wilddog_getTime());
     LL_FOREACH_SAFE((p_coap_pcb->P_hd),curr,tmp)
     {
  		if( _wilddog_conn_coap_noObserve(curr) || \
@@ -243,6 +364,14 @@ STATIC void _wilddog_conn_coap_updateReObserverTm(void)
     }
 }
 /* resend observer */
+
+/*
+ * Function:    _wilddog_conn_coap_sendReObserver
+ * Description: Resend observer
+ * Input:        p_auth: The pointer of the auth data
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_coap_sendReObserver(
     u8 *p_auth    )
 {
@@ -252,7 +381,7 @@ STATIC void _wilddog_conn_coap_sendReObserver(
     Wilddog_Conn_Coap_PacketNode_T *curr = NULL;
 
 	
-	_sys_coap_updata_tm((u32) _wilddog_getTime());
+	_sys_coap_update_tm((u32) _wilddog_getTime());
 	if( p_coap_pcb->d_nx_reObserverTm == 0 || 
 		 p_coap_pcb->d_nx_reObserverTm > _sys_coap_return_tm())
 		return ;
@@ -279,6 +408,15 @@ STATIC void _wilddog_conn_coap_sendReObserver(
     if(updateReObserverTm_flag)
     	_wilddog_conn_coap_updateReObserverTm();
 }
+
+/*
+ * Function:    _wilddog_conn_coap_mesageMatch
+ * Description: Check whether the message is matched
+ * Input:        p_node: The pointer of coap pdu struct
+ *                  p_resp: The pointer of the responsed coap pdu struct
+ * Output:      N/A
+ * Return:      If it matched, return 0; if it not matched, return 1
+*/
 STATIC INLINE int _wilddog_conn_coap_mesageMatch(coap_pdu_t* p_node,coap_pdu_t* p_resp)
 {
     return (p_node->hdr->id != p_resp->hdr->id);
@@ -331,10 +469,17 @@ STATIC void _wilddog_conn_coap_pduOptionAdd( coap_pdu_t* p_coap, u8 * host,
         return;
 }
 
-/* host : 4+ host len
-* path : n*(4+ subpath)
-* query: 4+2+query len
-**/
+/*
+ * Function:    _wilddog_conn_coap_countPacktSize
+ * Description: Count the conn packet size.
+ *                    Count method:
+ *                    host : 4+ host len
+ *                    path : n*(4+ subpath)
+ *                    query: 4+2+query len
+ * Input:        p_cp_pkt: The pointer of conn packet
+ * Output:      N/A
+ * Return:      The number of the conn packet size
+*/
 STATIC int _wilddog_conn_coap_countPacktSize(Wilddog_Conn_PktSend_T *p_cp_pkt)
 {
 	int len = 0,n=0;
@@ -365,8 +510,17 @@ STATIC int _wilddog_conn_coap_countPacktSize(Wilddog_Conn_PktSend_T *p_cp_pkt)
 	return len;
 }
 
-coap_pdu_t
-*_wilddog_conn_coap_pduCreat(   u8 types,u8 codes,u32 *p_observe,
+/*
+ * Function:    _wilddog_conn_coap_pduCreat
+ * Description: Creat a coap pdu struct
+ * Input:        types: The pdu head type
+ *                  codes: The pdu head code
+ *                  p_observe: The pointer of the observe flag
+ *                  p_cp_pkt: The pointer of the conn packet
+ * Output:      N/A
+ * Return:      The pointer of the coap pdu struct
+*/
+coap_pdu_t *_wilddog_conn_coap_pduCreat(   u8 types,u8 codes,u32 *p_observe,
                                             Wilddog_Conn_PktSend_T *p_cp_pkt)
 {
     
@@ -415,6 +569,15 @@ coap_pdu_t
     }
     return p_coap;
 }
+
+/*
+ * Function:    _wilddog_conn_coap_node_add
+ * Description: Add a coap packet node to the coap PCB
+ * Input:        p_pcb: The pointer of the coap PCB
+ *                  p_node: The pointer of the conn coap packet
+ * Output:      N/A
+ * Return:      If success, return WILDDOG_ERR_NOERR; else return WILDDOG_ERR_QUEUEFULL
+*/
 INLINE int _wilddog_conn_coap_node_add
     (
     Wilddog_Conn_Coap_PCB_T *p_pcb,
@@ -436,6 +599,14 @@ INLINE int _wilddog_conn_coap_node_add
         
     return WILDDOG_ERR_NOERR;
 }
+
+/*
+ * Function:    _wilddog_conn_coap_node_creat
+ * Description: Creat a coap packet node by the conn packet
+ * Input:        p_pkt: The pointer of the conn packet
+ * Output:      N/A
+ * Return:      The pointer of the conn packet node
+*/
 Wilddog_Conn_Coap_PacketNode_T *_wilddog_conn_coap_node_creat
     (
     Wilddog_Conn_PktSend_T *p_pkt
@@ -475,6 +646,14 @@ Wilddog_Conn_Coap_PacketNode_T *_wilddog_conn_coap_node_creat
 
     return p_node;
 }
+
+/*
+ * Function:    _wilddog_conn_coap_node_destory
+ * Description: Destory a coap packet node 
+ * Input:        p_node: The second rank pointer of the conn packet node
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_coap_node_destory
     (
     Wilddog_Conn_Coap_PacketNode_T **p_node
@@ -500,6 +679,15 @@ STATIC void _wilddog_conn_coap_node_destory
         }
 	
 }
+
+/*
+ * Function:    _wilddog_conn_coap_node_remove
+ * Description: Remove a coap packet node from the coap PCB 
+ * Input:        p_pcb: The pointer of the coap PCB
+ *                  p_dele: The pointer of the coap packet node
+ * Output:      N/A
+ * Return:      If success, return 0.
+*/
 STATIC INLINE int _wilddog_conn_coap_node_remove
     (
     Wilddog_Conn_Coap_PCB_T *p_pcb,
@@ -529,6 +717,13 @@ STATIC INLINE int _wilddog_conn_coap_node_remove
     return 1; 
 }
 
+/*
+ * Function:    _wilddog_conn_pkt_free
+ * Description: Free a conn packet
+ * Input:        pp_pkt: The second rank pointer of the conn packet
+ * Output:      N/A
+ * Return:      N/A
+*/
 void _wilddog_conn_pkt_free(void **pp_pkt)
 {
     if( _wilddog_conn_coap_node_remove(p_coap_pcb,*pp_pkt) )
@@ -540,6 +735,13 @@ void _wilddog_conn_pkt_free(void **pp_pkt)
     }
 }
 
+/*
+ * Function:    _wilddog_conn_pkt_creat
+ * Description: Create a conn packet
+ * Input:        p_pktSend: The pointer of the conn packet 
+ * Output:      pp_pkt_creat: The second rank pointer of the created packet.
+ * Return:      N/A
+*/
 int _wilddog_conn_pkt_creat
     (
     Wilddog_Conn_PktSend_T *p_pktSend,
@@ -568,6 +770,15 @@ int _wilddog_conn_pkt_creat
     *pp_pkt_creat = p_node;
     return res;
 }
+
+/*
+ * Function:    _wilddog_conn_coap_auth_update
+ * Description: Update the coap auth
+ * Input:        p_auth: The pointer of the auth data 
+ *                  p_pdu: The pointer of the coap pdu
+ * Output:      N/A
+ * Return:      If success, return WILDDOG_ERR_NOERR
+*/
 STATIC int _wilddog_conn_coap_auth_update(u8 *p_auth,coap_pdu_t *p_pdu)
 {
     coap_opt_iterator_t d_oi;
@@ -592,6 +803,15 @@ STATIC int _wilddog_conn_coap_auth_update(u8 *p_auth,coap_pdu_t *p_pdu)
     return WILDDOG_ERR_NOERR;
         
 }
+
+/*
+ * Function:    _wilddog_conn_coap_send
+ * Description: Send the coap auth
+ * Input:        p_auth: The pointer of the auth data 
+ *                  p_coap: The pointer of the coap pdu
+ * Output:      N/A
+ * Return:      If success, return WILDDOG_ERR_NOERR
+*/
 int _wilddog_conn_coap_send
     (
     u8 *p_auth,
@@ -615,7 +835,14 @@ int _wilddog_conn_coap_send
     }
     return res;
 }
-/* do not care url
+
+/*
+ * Function:    _wilddog_conn_pkt_send
+ * Description: Send the conn packet
+ * Input:        p_auth: The pointer of the auth data 
+ *                  p_cn_pkt: The pointer of the coap packet node
+ * Output:      N/A
+ * Return:      If success, return WILDDOG_ERR_NOERR
 */
 Wilddog_Return_T _wilddog_conn_pkt_send
     (
@@ -649,6 +876,13 @@ Wilddog_Return_T _wilddog_conn_pkt_send
     return res ;
 }
 
+/*
+ * Function:    _wilddog_conn_coap_rstSend
+ * Description: Reset the coap send
+ * Input:        p_resp: The pointer of the coap pdu 
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC int _wilddog_conn_coap_rstSend
     (
     coap_pdu_t* p_resp
@@ -680,6 +914,13 @@ STATIC int _wilddog_conn_coap_rstSend
     return res;
 }
 
+/*
+ * Function:    _wilddog_conn_coap_ackSend
+ * Description: Send the coap ack
+ * Input:        resp: The pointer of the coap pdu 
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC int _wilddog_conn_coap_ackSend
     (
     coap_pdu_t* resp
@@ -705,6 +946,14 @@ STATIC int _wilddog_conn_coap_ackSend
 
 }
 
+/*
+ * Function:    _wilddog_conn_coap_ack
+ * Description:  The coap ack
+ * Input:        cmd: The coap response command
+ *                  p_pdu: The pointer of the coap pdu 
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC int _wilddog_conn_coap_ack
     (
     WILDDOG_CONN_COAP_RESP_T cmd,
@@ -723,6 +972,14 @@ STATIC int _wilddog_conn_coap_ack
     return res;
 }
 
+/*
+ * Function:    _wilddog_conn_coap_recVerify
+ * Description:  Verify the receive the coap 
+ * Input:        p_buf: The pointer of the buffer
+ *                  buflen: The length of the buffer 
+ * Output:      N/A
+ * Return:      If success, return the pointer of the coap pdu, else return NULL
+*/
 STATIC coap_pdu_t *_wilddog_conn_coap_recVerify(u8 *p_buf,u32 buflen)
 {
         
@@ -744,6 +1001,14 @@ STATIC coap_pdu_t *_wilddog_conn_coap_recVerify(u8 *p_buf,u32 buflen)
     return NULL;
 }
 
+/*
+ * Function:    _wilddog_conn_coap_recv_respCheck
+ * Description:  check the coap recv response 
+ * Input:        p_node: The pointer of the coap packet node
+ *                  p_resp: The pointer of the coap pdu 
+ * Output:      N/A
+ * Return:      if success, return 0; else return WILDDOG_ERR_RECVNOMATCH
+*/
 STATIC int _wilddog_conn_coap_recv_respCheck
     (
     Wilddog_Conn_Coap_PacketNode_T *p_node,
@@ -770,6 +1035,16 @@ STATIC int _wilddog_conn_coap_recv_respCheck
 
     return 0;
 }
+
+/*
+ * Function:    _wilddog_conn_coap_recv_separationRespCheck
+ * Description:  check the coap recv separation response 
+ * Input:        p_node: The pointer of the coap packet node
+ *                  p_resp: The pointer of the coap pdu 
+ * Output:      N/A
+ * Return:      if success, return WILDDOG_ERR_NOERR; 
+ *                  else return WILDDOG_CONN_COAP_RESPON_IGNORE
+*/
 STATIC int _wilddog_conn_coap_recv_separationRespCheck
     (
     Wilddog_Conn_Coap_PacketNode_T *p_node,
@@ -790,6 +1065,14 @@ STATIC int _wilddog_conn_coap_recv_separationRespCheck
     return WILDDOG_ERR_NOERR;
 }
 /* only in notify */
+/*
+ * Function:    _wilddog_conn_coap_recv_updateMaxAge
+ * Description:  Update coap receive max age 
+ * Input:        p_node: The pointer of the coap packet node
+ *                  p_resp: The pointer of the coap pdu 
+ * Output:      N/A
+ * Return:      N/A
+*/
 STATIC void _wilddog_conn_coap_recv_updateMaxAge
     (
     Wilddog_Conn_Coap_PacketNode_T *p_node,
@@ -825,7 +1108,16 @@ STATIC void _wilddog_conn_coap_recv_updateMaxAge
     }
 
 }
-STATIC int _wilddog_conn_coap_recv_observCheck
+
+/*
+ * Function:    _wilddog_conn_coap_recv_observeCheck
+ * Description:  check coap receive observe flag 
+ * Input:        p_node: The pointer of the coap packet node
+ *                  p_resp: The pointer of the coap pdu 
+ * Output:      N/A
+ * Return:      N/A
+*/
+STATIC int _wilddog_conn_coap_recv_observeCheck
     (
     Wilddog_Conn_Coap_PacketNode_T *p_node,
     coap_pdu_t *p_resp
@@ -871,7 +1163,16 @@ STATIC int _wilddog_conn_coap_recv_observCheck
     return WILDDOG_ERR_NOERR;
 }
 
-/* check coap packer   if match call user callback function  */
+/*
+ * Function:    _wilddog_conn_coap_recvDispatch
+ * Description:  Dispatch the coap received msg 
+ * Input:        p_pcb: The pointer of the coap PCB
+ *                  p_resp: The pointer of the coap pdu 
+ *                  p_cpk_recv: The pointer of the conn receive data
+ *                  P_node_respon: The pointer of the coap packet node
+ * Output:      N/A
+ * Return:      If success, return WILDDOG_ERR_NOERR
+*/
 STATIC int _wilddog_conn_coap_recvDispatch
     (
     Wilddog_Conn_Coap_PCB_T *p_pcb,
@@ -897,7 +1198,7 @@ STATIC int _wilddog_conn_coap_recvDispatch
             continue ; 
             
         /*@ get observer indx */
-        res = _wilddog_conn_coap_recv_observCheck(curr,p_resp);
+        res = _wilddog_conn_coap_recv_observeCheck(curr,p_resp);
         
         if(res == WILDDOG_CONN_COAP_RESPON_IGNORE)
             goto RECV_DISPATCH_NOERR;
@@ -951,6 +1252,13 @@ RECV_DISPATCH_NOERR:
     return WILDDOG_ERR_NULL;
 }
 
+/*
+ * Function:    _wilddog_conn_pkt_recv
+ * Description:  Recv the conn packet 
+ * Input:        p_cpk_recv: The pointer of the receive conn data
+ * Output:      N/A
+ * Return:      N/A
+*/
 Wilddog_Return_T _wilddog_conn_pkt_recv
     (
     Wilddog_Conn_RecvData_T *p_cpk_recv
@@ -1015,6 +1323,15 @@ Wilddog_Return_T _wilddog_conn_pkt_recv
 
     return res;
 }
+
+/*
+ * Function:    _wilddog_conn_pkt_init
+ * Description:  init the conn packet 
+ * Input:        p_host: The pointer of the host
+ *                  d_port: The port number
+ * Output:      N/A
+ * Return:      N/A
+*/
 Wilddog_Return_T _wilddog_conn_pkt_init
     (
     Wilddog_Str_T *p_host,
@@ -1036,6 +1353,14 @@ Wilddog_Return_T _wilddog_conn_pkt_init
     
     return  _wilddog_sec_init(p_host,d_port);
 }
+
+/*
+ * Function:    _wilddog_conn_pkt_deinit
+ * Description:  deinit the conn packet 
+ * Input:        N/A
+ * Output:      N/A
+ * Return:      If success, return WILDDOG_ERR_NOERR
+*/
 Wilddog_Return_T _wilddog_conn_pkt_deinit(void)
 {
     Wilddog_Conn_Coap_PacketNode_T *curr,*tmp;
