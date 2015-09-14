@@ -19,6 +19,14 @@
 #include "wilddog_port.h"
 #include "wilddog_config.h"
 #include "test_lib.h"
+
+/*
+ * Function:    wilddog_gethostbyname
+ * Description: wilddog gethostbyname function, it use the interface in posix.
+ * Input:        host: The pointer of host string.
+ * Output:      addr: The pointer of the Wilddog_Address_T.
+ * Return:      If success, return 0; else return -1.
+*/
 int wilddog_gethostbyname(Wilddog_Address_T* addr,char* host)
 {
 
@@ -33,6 +41,14 @@ int wilddog_gethostbyname(Wilddog_Address_T* addr,char* host)
     
     return 0;
 }
+
+/*
+ * Function:    wilddog_openSocket
+ * Description: wilddog openSocket function, it use the interface in posix.
+ * Input:        N/A
+ * Output:      socketId: The pointer of socket id.
+ * Return:      If success, return 0; else return -1.
+*/
 int wilddog_openSocket(int* socketId)
 {
     int fd;
@@ -44,11 +60,29 @@ int wilddog_openSocket(int* socketId)
     return 0;
 }
 
+/*
+ * Function:    wilddog_closeSocket
+ * Description: wilddog closeSocket function, it use the interface in posix.
+ * Input:        socketId: The socket id.
+ * Output:      N/A
+ * Return:      If success, return 0; else return -1.
+*/
 int wilddog_closeSocket(int socketId)
 {
     return close(socketId);
 }
 
+
+/*
+ * Function:    wilddog_send
+ * Description: wilddog send function, it use the interface in posix.
+ * Input:        socketId: The socket id.
+ *                  addr_in:  The pointer of Wilddog_Address_T
+ *                  tosend: The pointer of the send buffer
+ *                  tosendLength: The length of the send buffer.
+ * Output:      N/A
+ * Return:      If success, return the number of characters sent.; else return -1.
+*/
 int wilddog_send(int socketId,Wilddog_Address_T* addr_in,void* tosend,s32 tosendLength)
 {
     int ret;
@@ -79,6 +113,17 @@ int wilddog_send(int socketId,Wilddog_Address_T* addr_in,void* tosend,s32 tosend
     return ret;
 }
 
+/*
+ * Function:    wilddog_receive
+ * Description: wilddog receive function, it use the interface in posix.
+ * Input:        socketId: The socket id.
+ *                  addr:  The pointer of Wilddog_Address_T
+ *                  buf: The pointer of the send buffer
+ *                  bufLen: The length of the send buffer.
+ *                  timeout: The max timeout in recv process.
+ * Output:      N/A
+ * Return:      If success, return the number of bytes received; else return -1.
+*/
 int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s32 timeout){
     struct sockaddr_in remaddr;
     socklen_t addrlen = sizeof(remaddr);
