@@ -1,9 +1,17 @@
 /*
- * wilddog_posix.c
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
  *
- *  Created on: 2015年3月12日
- *      Author: x
+ * FileName: wilddog_posix.c
+ *
+ * Description: Socket API for quectel platform.
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.5        Jimmy.Pan       2015-08-11  Create file.
+ *
  */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,6 +26,7 @@
 #include <assert.h>
 #include "wilddog_port.h"
 #include "wilddog_config.h"
+#include "wilddog_endian.h"
 #include "test_lib.h"
 
 /*
@@ -97,7 +106,7 @@ int wilddog_send(int socketId,Wilddog_Address_T* addr_in,void* tosend,s32 tosend
         wilddog_debug_level(WD_DEBUG_ERROR, "wilddog_send-unkown addr len!");
         return -1;
     }
-    servaddr.sin_port = htons(addr_in->port);
+    servaddr.sin_port = wilddog_htons(addr_in->port);
     memcpy(&servaddr.sin_addr.s_addr,addr_in->ip,addr_in->len);
 #if WILDDOG_SELFTEST
 		performtest_getDtlsSendTime();
@@ -140,7 +149,7 @@ int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s
         return -1;
     }
     if(memcmp(addr->ip, &remaddr.sin_addr.s_addr, addr->len) || \
-        ntohs(remaddr.sin_port) != addr->port)
+        wilddog_ntohs(remaddr.sin_port) != addr->port)
     {
         wilddog_debug("ip or port not match!");
         return -1;

@@ -62,7 +62,7 @@ coap_pdu_t * coap_pdu_init
 coap_pdu_t *coap_new_pdu() 
 {
   coap_pdu_t *pdu;
-  pdu = coap_pdu_init(0, 0, ntohs(COAP_INVALID_TID), WILDDOG_PROTO_MAXSIZE);
+  pdu = coap_pdu_init(0, 0, wilddog_ntohs(COAP_INVALID_TID), WILDDOG_PROTO_MAXSIZE);
   return pdu;
 }
 
@@ -391,7 +391,7 @@ int coap_show_pdu(const coap_pdu_t *pdu)
   fprintf(COAP_DEBUG_FD, "v:%d t:%d tkl:%d c:%d id:%u",
       pdu->hdr->version, pdu->hdr->type,
       pdu->hdr->token_length,
-      pdu->hdr->code, ntohs(pdu->hdr->id));
+      pdu->hdr->code, wilddog_ntohs(pdu->hdr->id));
 
   /* show options, if any */
   coap_option_iterator_init((coap_pdu_t *)pdu, &opt_iter, COAP_OPT_ALL);

@@ -139,7 +139,7 @@ dsrv_print_addr(const session_t *addr, char *buf, size_t len) {
       return 0;
   
     addrptr = &addr->addr.sin.sin_addr;
-    port = ntohs(addr->addr.sin.sin_port);
+    port = wilddog_ntohs(addr->addr.sin.sin_port);
     break;
   case AF_INET6:
     if (len < INET6_ADDRSTRLEN + 2)
@@ -148,7 +148,7 @@ dsrv_print_addr(const session_t *addr, char *buf, size_t len) {
     *p++ = '[';
 
     addrptr = &addr->addr.sin6.sin6_addr;
-    port = ntohs(addr->addr.sin6.sin6_port);
+    port = wilddog_ntohs(addr->addr.sin6.sin6_port);
 
     break;
   default:

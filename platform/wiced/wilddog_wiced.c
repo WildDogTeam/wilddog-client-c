@@ -70,7 +70,7 @@ int wilddog_gethostbyname( Wilddog_Address_T* addr, char* host )
         return -1;
     }
     tmpIp = address.ip.v4;
-    tmpIp = htonl(tmpIp);
+    tmpIp = wilddog_htonl(tmpIp);
     memcpy( addr->ip, &tmpIp, 4 );
 
     return 0;

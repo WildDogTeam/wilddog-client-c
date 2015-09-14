@@ -879,7 +879,7 @@ STATIC int _wilddog_n2c_encodeUint
         )
     {
         *(u16 *)(p_data->p_dt_data + p_data->d_dt_pos) = \
-                                            htons(*(u16 *)(value));
+                                            wilddog_htons(*(u16 *)(value));
         (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_2BYTE_LEN;
     }
     else if(_wilddog_n2c_uintAdditionalInfo(*(u32 *)(value)) == \
@@ -887,7 +887,7 @@ STATIC int _wilddog_n2c_encodeUint
         )
     {
         *(u32 *)(p_data->p_dt_data + p_data->d_dt_pos) = \
-                                            htonl(*(u32 *)(value));
+                                            wilddog_htonl(*(u32 *)(value));
         (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_4BYTE_LEN;
     }
 
@@ -945,7 +945,7 @@ STATIC int _wilddog_n2c_encodeNegint
         )
     {
         *(s16 *)(p_data->p_dt_data + p_data->d_dt_pos) = \
-                                    htons(-1 - *(s16 *)(value));
+                                    wilddog_htons(-1 - *(s16 *)(value));
         (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_2BYTE_LEN;
     }
     else if(
@@ -954,7 +954,7 @@ STATIC int _wilddog_n2c_encodeNegint
         )
     {
         *(s32 *)(p_data->p_dt_data + p_data->d_dt_pos) = \
-                                    htonl(-1 - (*(s32 *)(value)));
+                                    wilddog_htonl(-1 - (*(s32 *)(value)));
         (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_4BYTE_LEN;
     }
 

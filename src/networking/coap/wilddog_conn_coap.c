@@ -529,7 +529,7 @@ coap_pdu_t *_wilddog_conn_coap_pduCreat(   u8 types,u8 codes,u32 *p_observe,
     int d_packetsize = 0;
     coap_pdu_t* p_coap = NULL;
     index = p_coap_pcb->d_pkt_idx++;
-    index = htons(index);
+    index = wilddog_htons(index);
     
     d_packetsize = _wilddog_conn_coap_countPacktSize(p_cp_pkt);
     /*@ malloc coap packet */
@@ -877,9 +877,9 @@ Wilddog_Return_T _wilddog_conn_pkt_send
 }
 
 /*
- * Function:    _wilddog_conn_coap_rstSend
- * Description: Reset the coap send
- * Input:        p_resp: The pointer of the coap pdu 
+ * Function:    _wilddog_conn_coap_rstSend .
+ * Description: respondse rest .
+ * Input:        p_resp: The pointer of the coap pdu .
  * Output:      N/A
  * Return:      N/A
 */
@@ -916,7 +916,7 @@ STATIC int _wilddog_conn_coap_rstSend
 
 /*
  * Function:    _wilddog_conn_coap_ackSend
- * Description: Send the coap ack
+ * Description: response an ack .
  * Input:        resp: The pointer of the coap pdu 
  * Output:      N/A
  * Return:      N/A
@@ -947,12 +947,12 @@ STATIC int _wilddog_conn_coap_ackSend
 }
 
 /*
- * Function:    _wilddog_conn_coap_ack
- * Description:  The coap ack
- * Input:        cmd: The coap response command
- *                  p_pdu: The pointer of the coap pdu 
+ * Function:    _wilddog_conn_coap_ack .
+ * Description:  response the con request .
+ * Input:        cmd: where the request was legal .
+ *                  p_pdu: The pointer of the coap pdu . 
  * Output:      N/A
- * Return:      N/A
+ * Return:      coap send result .
 */
 STATIC int _wilddog_conn_coap_ack
     (
@@ -978,7 +978,7 @@ STATIC int _wilddog_conn_coap_ack
  * Input:        p_buf: The pointer of the buffer
  *                  buflen: The length of the buffer 
  * Output:      N/A
- * Return:      If success, return the pointer of the coap pdu, else return NULL
+ * Return:      If there's coap packet, return the pointer of the coap pdu, else return NULL
 */
 STATIC coap_pdu_t *_wilddog_conn_coap_recVerify(u8 *p_buf,u32 buflen)
 {
@@ -1038,12 +1038,13 @@ STATIC int _wilddog_conn_coap_recv_respCheck
 
 /*
  * Function:    _wilddog_conn_coap_recv_separationRespCheck
- * Description:  check the coap recv separation response 
+ * Description:  Check where the response packet was separation response . 
  * Input:        p_node: The pointer of the coap packet node
  *                  p_resp: The pointer of the coap pdu 
  * Output:      N/A
- * Return:      if success, return WILDDOG_ERR_NOERR; 
- *                  else return WILDDOG_CONN_COAP_RESPON_IGNORE
+ * Return:      if there's a separation response, 
+ *                  return WILDDOG_CONN_COAP_RESPON_IGNORE,
+ *                  else return WILDDOG_ERR_NOERR.
 */
 STATIC int _wilddog_conn_coap_recv_separationRespCheck
     (
@@ -1067,9 +1068,9 @@ STATIC int _wilddog_conn_coap_recv_separationRespCheck
 /* only in notify */
 /*
  * Function:    _wilddog_conn_coap_recv_updateMaxAge
- * Description:  Update coap receive max age 
+ * Description:  Update coap node receive max age 
  * Input:        p_node: The pointer of the coap packet node
- *                  p_resp: The pointer of the coap pdu 
+ *                  p_resp: The pointer of the receive coap pdu 
  * Output:      N/A
  * Return:      N/A
 */
@@ -1110,12 +1111,13 @@ STATIC void _wilddog_conn_coap_recv_updateMaxAge
 }
 
 /*
- * Function:    _wilddog_conn_coap_recv_observeCheck
- * Description:  check coap receive observe flag 
- * Input:        p_node: The pointer of the coap packet node
- *                  p_resp: The pointer of the coap pdu 
+ * Function:    _wilddog_conn_coap_recv_observeCheck .
+ * Description:  check where receive packet is an notify .   
+ * Input:        p_node: The pointer of the coap packet node .
+ *                  p_resp: the received packet pointer.
  * Output:      N/A
- * Return:      N/A
+ * Return:      if there's a notify return WILDDOG_ERR_NOERR,
+ *                   if the nodify indx  was less then expect indx return WILDDOG_CONN_COAP_RESPON_IGNORE
 */
 STATIC int _wilddog_conn_coap_recv_observeCheck
     (
@@ -1165,12 +1167,12 @@ STATIC int _wilddog_conn_coap_recv_observeCheck
 
 /*
  * Function:    _wilddog_conn_coap_recvDispatch
- * Description:  Dispatch the coap received msg 
- * Input:        p_pcb: The pointer of the coap PCB
- *                  p_resp: The pointer of the coap pdu 
- *                  p_cpk_recv: The pointer of the conn receive data
- *                  P_node_respon: The pointer of the coap packet node
- * Output:      N/A
+ * Description:  Dispatch the coap received msg .
+ * Input:        p_pcb: The pointer of the coap linked list head.
+ *                  p_resp: The pointer of the received coap packet .
+ *
+ * Output:      p_cpk_recv: The pointer of the received payload data .
+ *                  P_node_respon: Node pointer which the response packet .
  * Return:      If success, return WILDDOG_ERR_NOERR
 */
 STATIC int _wilddog_conn_coap_recvDispatch
@@ -1254,8 +1256,8 @@ RECV_DISPATCH_NOERR:
 
 /*
  * Function:    _wilddog_conn_pkt_recv
- * Description:  Recv the conn packet 
- * Input:        p_cpk_recv: The pointer of the receive conn data
+ * Description:  Receive and parse the conn packet.
+ * Input:        p_cpk_recv: The pointer of the receive conn data .
  * Output:      N/A
  * Return:      N/A
 */
@@ -1356,7 +1358,7 @@ Wilddog_Return_T _wilddog_conn_pkt_init
 
 /*
  * Function:    _wilddog_conn_pkt_deinit
- * Description:  deinit the conn packet 
+ * Description:  deinit the conn packet.Free coap linked list .
  * Input:        N/A
  * Output:      N/A
  * Return:      If success, return WILDDOG_ERR_NOERR
