@@ -46,11 +46,11 @@ STATIC void test_onSetFunc(void* arg, Wilddog_Return_T err)
 	return;
 }
 /*************************************build complete binary tree**************************************************************************/
-int test_buildtreeFunc(const char *p_userUrl)
+STATIC int test_buildtreeFunc(void)
 {
 
 	int m = 0;
-	u8 url[TEST_URL_LEN];
+	u8 url[strlen(TEST_URL)+20];
 	Wilddog_Node_T *p_head = NULL;
 	//Wilddog_Node_T *p1 = NULL, *p2 = NULL, *p3 = NULL;
 	
@@ -65,11 +65,7 @@ int test_buildtreeFunc(const char *p_userUrl)
 	Wilddog_Str_T *key = NULL;
 	key = (Wilddog_Str_T*)wmalloc(20);
 
-	if( (int)strlen(p_userUrl) > (TEST_URL_LEN - 10) )
-	{
-		printf("your Url too long \n");
-		return -1;
-	}
+
 	p_head = wilddog_node_createObject(NULL);
 	for(m = 0; m < 2; m++)
 	{
@@ -150,8 +146,8 @@ int test_buildtreeFunc(const char *p_userUrl)
 	}
 /*3*/
 	isFinished = FALSE;
-	memset((void*)url,0,TEST_URL_LEN);
-	sprintf((char*)url,"%s%s",p_userUrl,TEST_TREE_T_127);
+	memset((void*)url,0,sizeof(url));
+	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_127);
 	wilddog = wilddog_initWithUrl(url);
 	if(0 == wilddog)
 	{
@@ -179,8 +175,8 @@ int test_buildtreeFunc(const char *p_userUrl)
 		return 0;
 
 	isFinished = FALSE;
-	memset((void*)url,0,TEST_URL_LEN);
-	sprintf((char*)url,"%s%s",p_userUrl,TEST_TREE_T_256);
+	memset((void*)url,0,sizeof(url));
+	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_256);
 	wilddog = wilddog_initWithUrl(url);
 	
 	if(0 == wilddog)
@@ -209,8 +205,8 @@ int test_buildtreeFunc(const char *p_userUrl)
 		return 0;
 
 	isFinished = FALSE;
-	memset((void*)url,0,TEST_URL_LEN);
-	sprintf((char*)url,"%s%s",p_userUrl,TEST_TREE_T_576);
+	memset((void*)url,0,sizeof(url));
+	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_576);
 	wilddog = wilddog_initWithUrl(url);
 
 	
@@ -238,8 +234,8 @@ int test_buildtreeFunc(const char *p_userUrl)
 	if(TEST_TREE_ITEMS < 4)
 		return 0;
 	isFinished = FALSE;
-	memset((void*)url,0,TEST_URL_LEN);
-	sprintf((char*)url,"%s%s",p_userUrl,TEST_TREE_T_810);
+	memset(url,0,sizeof(url));
+	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_810);
 	wilddog = wilddog_initWithUrl(url);
 
 	if(0 == wilddog)
@@ -266,8 +262,8 @@ int test_buildtreeFunc(const char *p_userUrl)
 	if(TEST_TREE_ITEMS < 5)
 		return 0;
 	isFinished = FALSE;
-	memset((void*)url,0,TEST_URL_LEN);
-	sprintf((char*)url,"%s%s",p_userUrl,TEST_TREE_T_1044);
+	memset((void*)url,0,sizeof(url));
+	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_1044);
 	wilddog = wilddog_initWithUrl(url);
 
 	
@@ -297,8 +293,8 @@ int test_buildtreeFunc(const char *p_userUrl)
 		return 0;
 
 	isFinished = FALSE;
-	memset((void*)url,0,TEST_URL_LEN);
-	sprintf((char*)url,"%s%s",p_userUrl,TEST_TREE_T_1280);
+	memset((void*)url,0,sizeof(url));
+	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_1280);
 	wilddog = wilddog_initWithUrl(url);
 
 	
@@ -334,20 +330,14 @@ int test_buildtreeFunc(const char *p_userUrl)
 **building test tree end 
 **/
 
-int test_perform(u8 *p_url)
+STATIC int test_perform(void)
 {
 
 #ifdef WILDDOG_SELFTEST
 	int res = 0;
-	u8 url[TEST_URL_LEN];
-	if( (d_tree_num[TEST_TREE_ITEMS] + TEST_PROTO_COVER) > WILDDOG_PROTO_MAXSIZE )
-	{
-		printf("please modify WILDDOG_PROTO_MAXSIZE to %lu ,in wilddog_config.h \n",\
-			(d_tree_num[TEST_TREE_ITEMS] + TEST_PROTO_COVER));
-		return -1;
-	}
-
-	if( (res = test_buildtreeFunc((const char*)p_url) ) < 0 )
+	u8 url[strlen(TEST_URL)+20];
+  
+	if( (res = test_buildtreeFunc() ) < 0 )
 			return res;
 	{
 			u8 tree_m=0,n=0,d=0;	
@@ -366,12 +356,9 @@ int test_perform(u8 *p_url)
 						
 						
 						memset(url,0,sizeof(url));
-						sprintf((char*)url,"%s%s",p_url,p_path[tree_m]);
+						sprintf((char*)url,"%s%s",TEST_URL,p_path[tree_m]);
 						performtest_handle(delay_tm[d],url,\
 							d_tree_num[tree_m],request_num[n]);
-#ifdef WILDDOG_PORT_TYPE_WICED
-						wiced_rtos_delay_milliseconds(2000);
-#endif
 
 					}
 				}
@@ -387,6 +374,8 @@ int test_perform(u8 *p_url)
 
 int main(void)
 {
-	return test_perform((u8*)TEST_PERFORM_URL);
+
+
+	return test_perform();
 }
 

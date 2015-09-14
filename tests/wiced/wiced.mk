@@ -17,8 +17,10 @@ $(NAME)_INCLUDES += $(WILDDOG_TOP_DIR)/include
 ########tests
 #EXAMPLE_C:=$(wildcard $(WILDDOG_TOP_DIR)/tests/wiced/*.c)
 $(NAME)_SOURCES += $(WILDDOG_TOP_DIR)/tests/wiced/test.c \
-$(WILDDOG_TOP_DIR)/tests/wiced/stab_function.c
-
+$(WILDDOG_TOP_DIR)/tests/wiced/stab_function.c \
+$(WILDDOG_TOP_DIR)/tests/wiced/test_ram.c \
+$(WILDDOG_TOP_DIR)/tests/wiced/test_buildtree.c \
+$(WILDDOG_TOP_DIR)/tests/wiced/test_perform.c
 
 ##########platform
 #PLATFORM_C:=$(wildcard $(WILDDOG_TOP_DIR)/platform/$(PORT_TYPE)/*.c)
@@ -124,7 +126,6 @@ $(NAME)_INCLUDES += $(WILDDOG_TOP_DIR)/src/serialize/cbor/
 #SRC_C:=$(wildcard $(WILDDOG_TOP_DIR)/src/*.c)
 $(NAME)_SOURCES +=  $(WILDDOG_TOP_DIR)/src/performtest.c \
 $(WILDDOG_TOP_DIR)/src/ramtest.c \
-$(WILDDOG_TOP_DIR)/src/test_buildtree.c\
 $(WILDDOG_TOP_DIR)/src/wilddog_api.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_common.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_conn.c \

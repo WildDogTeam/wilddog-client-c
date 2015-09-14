@@ -22,17 +22,17 @@ static u8 *p_ramtree_url[TEST_TREE_ITEMS] =
 
 static  u32 d_ramtree_num[TEST_TREE_ITEMS] = {127,256,576,810,1044,1280};
 
-int test_ram(const char *p_url)
+int test_ram(VOID)
 {
 
 #ifdef WILDDOG_SELFTEST
 		int res = 0;
-		u8 url[TEST_URL_LEN];
+		u8 url[sizeof(TEST_URL)];
 		u8 tree_m=0, n=0;
 		u8 request_num[4] = {1,16,32,64};
 
 	
-		if( (res = test_buildtreeFunc(TEST_PERFORM_URL) ) < 0 )
+		if( (res = test_buildtreeFunc(TEST_URL) ) < 0 )
 				return res;
 		ramtest_titile_printf();
 	
@@ -49,7 +49,7 @@ int test_ram(const char *p_url)
 			for( n=0; n <4; n++)
 			{
 				memset(url,0,sizeof(url));
-				sprintf(url,"%s%s",p_url,p_ramtree_url[tree_m]);
+				sprintf(url,"%s%s",TEST_URL,p_ramtree_url[tree_m]);
 				ramtest_handle(url,d_ramtree_num[tree_m],request_num[n]);
 			}
 		}

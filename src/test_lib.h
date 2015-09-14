@@ -49,6 +49,19 @@ typedef struct RAMTEST_T{
 #define NODE_INDEX_RAMTST	1
 #define REQUESTCNT_RAMTST		1
 
+#define TEST_URL_END ".wilddogio.com"
+/* tree path */
+#define TEST_TREE_T_127	"/tree_127"
+#define TEST_TREE_T_256	"/tree_256"
+#define TEST_TREE_T_576	"/tree_576"
+#define TEST_TREE_T_810	"/tree_810"
+#define TEST_TREE_T_1044	"/tree_1044"
+#define TEST_TREE_T_1280	"/tree_1280"
+
+#define TEST_TREE_ITEMS		5
+#define TEST_PROTO_COVER		100
+
+
 /* ram test_api*/
 extern void ramtest_init(u32 tree_num,u32 request_num);
 extern void ramtest_titile_printf(void);
@@ -90,7 +103,8 @@ extern void performtest_handle
 		);
 
 
-extern int test_buildtreeFunc(const char *p_userUrl);
+//extern int test_buildtreeFunc(const char *p_userUrl);
+
 
 #endif /* WILDDOG_SELFTEST*/
 #ifdef __cplusplus

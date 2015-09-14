@@ -248,11 +248,13 @@ int stab_oneCrcuRequest(void)
 	BOOL *p_finish = &onFinish;
     Wilddog_T client = 0;
     STABTEST_CMD_TYPE cmd = STABTEST_CMD_ON;
+    
+    
 
 	/* mark star time*/
 	stab_set_runtime();
     /*Init a wilddog client*/
-    client = wilddog_initWithUrl((Wilddog_Str_T *)TEST_STAB_CYCLE_URL);
+    client = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
 	stab_get_requestRes(stabtest_request(cmd,client,p_finish));
 
     while(1)
@@ -322,7 +324,6 @@ void stab_resultPrint(void)
 void stab_test_cycle(void)
 {
 	ramtest_init(1,1);
-	printf("%s\n",TEST_STAB_CYCLE_URL);
 	stab_titlePrint();
 	while(1)
 	{

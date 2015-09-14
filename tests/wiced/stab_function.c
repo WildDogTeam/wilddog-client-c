@@ -27,6 +27,7 @@
 #include "wilddog_api.h"
 #include "wilddog_ct.h"
 #include "test_lib.h"
+#include "test_config.h"
 
 
 #ifdef WILDDOG_SELFTEST
@@ -244,7 +245,7 @@ int stab_oneCrcuRequest(void)
 	/* mark star time*/
 	stab_set_runtime();
     /*Init a wilddog client*/
-    client = wilddog_initWithUrl((Wilddog_Str_T *)TEST_STAB_CYCLE_URL);
+    client = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
 	
 	stab_get_requestRes(stabtest_reques(cmd,client,p_finish));
 
@@ -324,7 +325,7 @@ void stab_test_cycle(void)
 	
 	ramtest_init(1,1);
 	stab_titlePrint();
-	printf("%s\n",TEST_STAB_CYCLE_URL);
+	printf("%s\n",TEST_URL);
 	while(1)
 	{
 		stab_oneCrcuRequest();
@@ -335,8 +336,9 @@ void stab_test_cycle(void)
 STATIC	void stab_settest_dataInit(u8 idx)
 {
 	int i;
-	u8 temp_url[TEST_URL_LEN];
-	memset(temp_url,0,TEST_URL_LEN);
+    char temp_url[strlen(TEST_URL)+20];
+
+    memset(temp_url,0,sizeof(temp_url));
 	for(i=0;i<10;i++)
 	{
 		stab_setdata[i].key[0] = 'K';
@@ -346,7 +348,7 @@ STATIC	void stab_settest_dataInit(u8 idx)
 		stab_setdata[i].data[1] = 0x30+idx; 
 
 		stab_setdata[i].data[2] = 0x30+i;
-		sprintf((char*)temp_url,"%s/%s",TEST_STAB_SETTEST_URL,stab_setdata[i].key);
+		sprintf((char*)temp_url,"%s/%s",TEST_URL,stab_setdata[i].key);
  		if(stab_setdata[i].client)
 			wilddog_destroy(&(stab_setdata[i].client));
 		stab_setdata[i].client = wilddog_initWithUrl((Wilddog_Str_T*)temp_url);

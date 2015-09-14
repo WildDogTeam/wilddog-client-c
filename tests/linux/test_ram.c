@@ -47,11 +47,11 @@ STATIC void test_onSetFunc(void* arg, Wilddog_Return_T err)
 	return;
 }
 /*************************************build complete binary tree**************************************************************************/
-int test_buildtreeFunc(const char *p_userUrl)
+STATIC int test_buildtreeFunc(void)
 {
 
 	int m = 0;
-	u8 url[TEST_URL_LEN];
+	u8 url[strlen(TEST_URL)+20];
 	Wilddog_Node_T *p_head = NULL;
 	//Wilddog_Node_T *p1 = NULL, *p2 = NULL, *p3 = NULL;
 	
@@ -66,11 +66,7 @@ int test_buildtreeFunc(const char *p_userUrl)
 	Wilddog_Str_T *key = NULL;
 	key = (Wilddog_Str_T*)wmalloc(20);
 
-	if( (int)strlen((const char*)p_userUrl) > (TEST_URL_LEN - 10) )
-	{
-		printf("your Url too long \n");
-		return -1;
-	}
+
 	p_head = wilddog_node_createObject(NULL);
 	for(m = 0; m < 2; m++)
 	{
@@ -151,8 +147,8 @@ int test_buildtreeFunc(const char *p_userUrl)
 	}
 /*3*/
 	isFinished = FALSE;
-	memset((void*)url,0,TEST_URL_LEN);
-	sprintf((char*)url,"%s%s",p_userUrl,TEST_TREE_T_127);
+	memset((void*)url,0,sizeof(url));
+	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_127);
 	wilddog = wilddog_initWithUrl(url);
 	if(0 == wilddog)
 	{
@@ -180,8 +176,8 @@ int test_buildtreeFunc(const char *p_userUrl)
 		return 0;
 
 	isFinished = FALSE;
-	memset((void*)url,0,TEST_URL_LEN);
-	sprintf((char*)url,"%s%s",p_userUrl,TEST_TREE_T_256);
+	memset((void*)url,0,sizeof(url));
+	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_256);
 	wilddog = wilddog_initWithUrl(url);
 	
 	if(0 == wilddog)
@@ -210,8 +206,8 @@ int test_buildtreeFunc(const char *p_userUrl)
 		return 0;
 
 	isFinished = FALSE;
-	memset((void*)url,0,TEST_URL_LEN);
-	sprintf((char*)url,"%s%s",p_userUrl,TEST_TREE_T_576);
+	memset((void*)url,0,sizeof(url));
+	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_576);
 	wilddog = wilddog_initWithUrl(url);
 
 	
@@ -239,8 +235,8 @@ int test_buildtreeFunc(const char *p_userUrl)
 	if(TEST_TREE_ITEMS < 4)
 		return 0;
 	isFinished = FALSE;
-	memset((void*)url,0,TEST_URL_LEN);
-	sprintf((char*)url,"%s%s",p_userUrl,TEST_TREE_T_810);
+	memset((void*)url,0,sizeof(url));
+	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_810);
 	wilddog = wilddog_initWithUrl(url);
 
 	if(0 == wilddog)
@@ -267,8 +263,8 @@ int test_buildtreeFunc(const char *p_userUrl)
 	if(TEST_TREE_ITEMS < 5)
 		return 0;
 	isFinished = FALSE;
-	memset((void*)url,0,TEST_URL_LEN);
-	sprintf((char*)url,"%s%s",p_userUrl,TEST_TREE_T_1044);
+	memset((void*)url,0,sizeof(url));
+	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_1044);
 	wilddog = wilddog_initWithUrl(url);
 
 	
@@ -298,8 +294,8 @@ int test_buildtreeFunc(const char *p_userUrl)
 		return 0;
 
 	isFinished = FALSE;
-	memset((void*)url,0,TEST_URL_LEN);
-	sprintf((char*)url,"%s%s",p_userUrl,TEST_TREE_T_1280);
+	memset((void*)url,0,sizeof(url));
+	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_1280);
 	wilddog = wilddog_initWithUrl(url);
 
 	
@@ -334,23 +330,23 @@ int test_buildtreeFunc(const char *p_userUrl)
 /**
 **building test tree end 
 **/
-int test_ram(const char *p_url)
+int test_ram(void)
 {
 
 #ifdef WILDDOG_SELFTEST
 		int res = 0;
-		u8 url[TEST_URL_LEN];
 		u8 tree_m=0, n=0;
 		u8 request_num[4] = {1,16,32,64};
-
+        u8 url[strlen(TEST_URL)+20];
+#if 0
 		if( (d_ramtree_num[TEST_TREE_ITEMS] + TEST_PROTO_COVER) > WILDDOG_PROTO_MAXSIZE )
 		{
 			printf("please modify WILDDOG_PROTO_MAXSIZE to %lu ,in wilddog_config.h \n",\
 				(d_ramtree_num[TEST_TREE_ITEMS] + TEST_PROTO_COVER));
 			return -1;
 		}
-		
-		if( (res = test_buildtreeFunc(TEST_PERFORM_URL) ) < 0 )
+ #endif       
+		if( (res = test_buildtreeFunc() ) < 0 )
 				return res;
 		ramtest_titile_printf();
 	
@@ -359,7 +355,7 @@ int test_ram(const char *p_url)
 			for( n=0; n <4; n++)
 			{
 				memset(url,0,sizeof(url));
-				sprintf((char*)url,"%s%s",p_url,p_ramtree_url[tree_m]);
+				sprintf((char*)url,"%s%s",TEST_URL,p_ramtree_url[tree_m]);
 				ramtest_handle(url,d_ramtree_num[tree_m],request_num[n]);
 			}
 		}
@@ -371,8 +367,7 @@ int test_ram(const char *p_url)
 int main(void)
 {
 #ifdef WILDDOG_SELFTEST
-		
-	return test_ram(TEST_RAM_URL);
+	return test_ram();
 	
 #endif
 }

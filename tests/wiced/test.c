@@ -12,11 +12,13 @@
 #include "wifi_config_dct.h"
 
 #include "test_lib.h"
+//#include "test_config.h"
 
 extern void stab_test_cycle(void);
 extern void stab_test_fullLoad(void);
-extern int test_perform(u8 *p_url);
-extern int test_ram(const char *p_url);
+
+extern int test_perform(void);
+extern int test_ram(void);
 
 /**
  *  Application start
@@ -28,10 +30,10 @@ void application_start( void )
     /* Run the main application function */
     wiced_network_up(WICED_STA_INTERFACE, WICED_USE_EXTERNAL_DHCP_SERVER, NULL);
 #if TEST_TYPE == TEST_RAM
-	test_ram(TEST_RAM_URL);
+	test_ram();
 #endif
 #if TEST_TYPE == TEST_TIME
-    test_perform(TEST_PERFORM_URL);
+    test_perform();
 #endif
 #if TEST_TYPE == TEST_STAB_CYCLE
     stab_test_cycle();

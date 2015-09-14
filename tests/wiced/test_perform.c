@@ -21,14 +21,14 @@ static char *p_tree_url[TEST_TREE_ITEMS] =
 
 static  u32 d_tree_num[TEST_TREE_ITEMS] = {127,256,576,810,1044,1280};
 
-int test_perform(u8 *p_url)
+int test_perform(void)
 {
 
 #ifdef WILDDOG_SELFTEST
 	int res = 0;
-	u8 url[TEST_URL_LEN];
+	u8 url[sizeof(TEST_URL)+20];
 
-	if( (res = test_buildtreeFunc(p_url) ) < 0 )
+	if( (res = test_buildtreeFunc(TEST_URL) ) < 0 )
 			return res;
 	{
 			u8 tree_m=0,n=0,d=0;	
@@ -44,7 +44,7 @@ int test_perform(u8 *p_url)
 					for(tree_m=0; tree_m< TEST_TREE_ITEMS; tree_m++)
 					{
 						memset(url,0,sizeof(url));
-						sprintf(url,"%s%s",p_url,p_ramtree_url[tree_m]);
+						sprintf(url,"%s%s",TEST_URL,p_tree_url[tree_m]);
 						performtest_handle(delay_tm[d],url,\
 							d_tree_num[tree_m],request_num[n]);
 #ifdef WILDDOG_PORT_TYPE_WICED

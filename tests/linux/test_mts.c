@@ -232,14 +232,16 @@ void test_mts_resPrintf(Test_Client_T *p_client)
 }
 int main(int argc, char **argv)
 {
+    
     Test_Client_T client;
    	pthread_t trysync_pid, main_pid;
 	
 	memset(&client,0,sizeof(client));
+    
 
 	printf("**********MTS TEST **************** \n");
-
-    client.wd_client= wilddog_initWithUrl((Wilddog_Str_T *)TEST_MTS_URL);
+    
+    client.wd_client= wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
 
     if(0 ==  client.wd_client)
     {
