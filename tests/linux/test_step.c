@@ -8,11 +8,9 @@
 #include "wilddog_debug.h"
 #include "wilddog_api.h"
 #include "wilddog_ct.h"
+#include "test_lib.h"
+#include "test_config.h"
 
-#define TEST_STEP_URLHEADE	"coap://"
-#define TEST_STEP_HOST		"c_test.wilddogio.com"
-#define TEST_STEP_PATH		"/steptest"
-#define TEST_STEP_AUTHS 	"yourauth"
 #define TEST_STEP_RESULT(v)	(( v == 0)?"FAIL":"PASS")
 
 typedef enum
@@ -105,9 +103,8 @@ STATIC void test_step_authFunc
 	*(BOOL*)arg = TRUE;
 	printf("\t set auth err =%d \n",err);	
 	l_step.res_setAuthSuccess = TRUE;
-
-
 }
+
 STATIC int test_step_res(void)
 {
 	if( 
@@ -152,11 +149,19 @@ STATIC void test_step_printf(void)
 	
 	printf("**********STEP TEST DONE********** \n");
 }
+STATIC void test_gethost(char *p_host,const char *url)
+{
+	char *star_p = NULL,*end_p = NULL;
+	star_p =  strchr(url,'/')+2;
+	end_p = strchr(star_p,'.');
+	memcpy(p_host,star_p,end_p - star_p);	
+    memcpy(&p_host[end_p - star_p],TEST_URL_END,strlen(TEST_URL_END));
+}
+
 int main(void)
 {
-	char url[1024];
-
-	int res;
+	char host[32];
+	int res = 0;
 	BOOL isFinished = FALSE;
 	Wilddog_T wilddog;
 	Wilddog_Node_T *p_head = NULL, *p_node = NULL/*, *p_snapshot = NULL*/;
@@ -171,12 +176,14 @@ int main(void)
 					*L3c3 = NULL,*L3c4 = NULL,*L3c5 = NULL;
 	Wilddog_Node_T *L4c1 = NULL,*L4c2 = NULL,
 					*L4c3 = NULL,*L4c4 = NULL,*L4c5 = NULL;
-		
-	memset(url,0,sizeof(url));
-	sprintf(url,"%s%s%s",TEST_STEP_URLHEADE,TEST_STEP_HOST,TEST_STEP_PATH);
+
+        
+	memset(host,0,sizeof(host));
+    test_gethost(host,TEST_URL);
+    printf(" \t host %s \n",host);
 
  	printf("**********STEP TEST **************** \n");
-	printf("\t url = %s\n",url);
+	printf("\t url = %s\n",TEST_URL);
 	
 	root = wilddog_node_createNum((Wilddog_Str_T *)"root",9999);
 	L1c1 = wilddog_node_createFalse((Wilddog_Str_T *)"L1c1");
@@ -257,12 +264,12 @@ int main(void)
 		l_step.res_node_addSuccess = _STEP_FALSE;
 	}
 
-	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)url);
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
 	
 	/*auth*/
 	isFinished = FALSE;
-	wilddog_auth((Wilddog_Str_T*)TEST_STEP_HOST, \
-		(u8*)TEST_STEP_AUTHS,strlen(TEST_STEP_AUTHS), \
+	wilddog_auth((Wilddog_Str_T*)host, \
+		(u8*)TEST_AUTH,strlen(TEST_AUTH), \
 		test_step_authFunc,(void*)&isFinished);
 	while(1)
 	{
@@ -270,7 +277,6 @@ int main(void)
 			break;
 		wilddog_trySync();
 	}
-	
 	isFinished = FALSE;
 	wilddog_removeValue(wilddog, test_step_deleteFunc,(void*)&isFinished);
 	while(1)

@@ -14,8 +14,10 @@
  *
  */
 
-#include <stdio.h>
+#ifndef WILDDOG_PORT_TYPE_ESP   
+#include <stdio.h>  
 #include <stdint.h>
+#endif
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h> 
@@ -33,7 +35,7 @@
  * Output:      N/A
  * Return:      N/A
 */
-int wilddog_debug_errcodeCheck(int err){
+int WD_SYSTEM wilddog_debug_errcodeCheck(int err){
     switch(err)
     {
         case WILDDOG_ERR_NULL:
@@ -72,7 +74,7 @@ int wilddog_debug_errcodeCheck(int err){
  * Output:      N/A
  * Return:      N/A
 */
-void wilddog_debug_printUrl(Wilddog_T wilddog)
+void WD_SYSTEM wilddog_debug_printUrl(Wilddog_T wilddog)
 {
     Wilddog_Url_T * url = ((Wilddog_Ref_T*)wilddog)->p_ref_url;
     
@@ -94,7 +96,7 @@ void wilddog_debug_printUrl(Wilddog_T wilddog)
  * Output:      N/A
  * Return:      N/A
 */
-void wilddog_debug_printnode(const Wilddog_Node_T* node)
+void WD_SYSTEM wilddog_debug_printnode(const Wilddog_Node_T* node)
 {
     int i = 0;
     if(NULL == node)
@@ -153,7 +155,14 @@ void wilddog_debug_printnode(const Wilddog_Node_T* node)
     fflush(stdout);
 }
 
-STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
+/*
+ * Function:    wilddog_debug_n2jsonStringInner
+ * Description: Inner function: Change node to json string.
+ * Input:       p_head: The head of node.
+ * Output:      N/A
+ * Return:      Pointer to the json string, must free by caller.
+*/
+STATIC Wilddog_Str_T * WD_SYSTEM wilddog_debug_n2jsonStringInner
     (
     Wilddog_Node_T * node
     )
@@ -226,7 +235,7 @@ STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
         if(node->d_wn_type == WILDDOG_NODE_TYPE_FALSE)
         {
             p_str = (Wilddog_Str_T *)wrealloc(p_str, strlen((const char *)p_str),\
-				                              len + 6);
+                                              len + 6);
             if(NULL == p_str)
             {
                 wilddog_debug_level(WD_DEBUG_ERROR, "malloc failed!");
@@ -237,7 +246,7 @@ STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
         else if(node->d_wn_type == WILDDOG_NODE_TYPE_TRUE)
         {
             p_str = (Wilddog_Str_T *)wrealloc(p_str, strlen((const char *)p_str), \
-				                              len + 5);
+                                              len + 5);
             if(NULL == p_str)
             {
                 wilddog_debug_level(WD_DEBUG_ERROR, "malloc failed!");
@@ -249,7 +258,7 @@ STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
         else if(node->d_wn_type == WILDDOG_NODE_TYPE_NULL)
         {
             p_str = (Wilddog_Str_T *)wrealloc(p_str, strlen((const char *)p_str),\
-				                              len + 5);
+                                              len + 5);
             if(NULL == p_str)
             {
                 wilddog_debug_level(WD_DEBUG_ERROR, "malloc failed!");
@@ -341,11 +350,14 @@ STATIC Wilddog_Str_T *wilddog_debug_n2jsonStringInner
  * Output:      N/A
  * Return:      Pointer to the json string, must free by caller.
 */
-Wilddog_Str_T  *wilddog_debug_n2jsonString(Wilddog_Node_T* p_head)
+Wilddog_Str_T  * WD_SYSTEM wilddog_debug_n2jsonString
+    (
+    Wilddog_Node_T* p_head
+    )
 {
     Wilddog_Str_T *p_str = NULL;
     Wilddog_Str_T *p_childStr = NULL;
-	
+    
     wilddog_assert(p_head, NULL);
     if(NULL == p_head->p_wn_child)
     {

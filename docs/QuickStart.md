@@ -8,7 +8,7 @@
 
 获得 SDK，你可以从gitHub中下载。
 
-我们的SDK已经在Linux平台和Wiced平台上成功移植，在此仅以Linux为例，Wiced平台请查看 [开发向导中的移植SDK](https://z.wilddog.com/device/guide/8)。
+我们的SDK已经在Linux平台和Wiced平台、espressif平台上成功移植，在此仅以Linux为例，Wiced平台请查看 [开发向导中的移植SDK](https://z.wilddog.com/device/guide/8)。
 
 ####第三步 编译SDK
 
@@ -18,16 +18,17 @@
 	$ make 
 
 编译示例，编译后的可执行文件在bin目录下
-	
+
+	$ make example
 
 ####第四步 运行示例
 
 向应用URL存储一个key-value结构的数据
 
-$ ./bin/demo set -l <应用URL> --key a --value 1 
+$ ./bin/demo setValue -l <应用URL> --key a --value 1 
 获取应用URL的数据
 
-$ ./bin/demo query -l <应用URL>
+$ ./bin/demo getValue -l <应用URL>
 执行结果：
 
 "/":{"a":"1"}

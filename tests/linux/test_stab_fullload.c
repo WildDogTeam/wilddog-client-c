@@ -27,18 +27,13 @@
 #include "wilddog_api.h"
 #include "wilddog_ct.h"
 #include "test_lib.h"
-
+#include "test_config.h"
 
 #ifdef WILDDOG_SELFTEST
 
 #define STABTEST_ONEHOUR    (3600000)
 #define STAB_DEBUG	0
-#if defined(WILDDOG_PORT_TYPE_WICED)
 
-#define STABTEST_URL	TEST_URL/*"coap://c_test.wilddogio.com/"*/
-#else
-#define STABTEST_URL	"coap://c_test.wilddogio.com/"
-#endif
 #define STABTEST_PATH	"stabtest/"
 #define STAB_KEY		"K"
 #define STAB_DATA		"D"
@@ -179,12 +174,12 @@ void stab_resultPrint(void)
 	printf("\n");
 	return;
 }
-
 STATIC	void stab_settest_dataInit(u8 idx)
 {
 	int i;
-	char temp_url[50];
-	memset(temp_url,0,30);
+    char temp_url[strlen(TEST_URL)+20];
+
+    memset(temp_url,0,sizeof(temp_url));
 	for(i=0;i<10;i++)
 	{
 		stab_setdata[i].key[0] = 'K';
@@ -192,9 +187,8 @@ STATIC	void stab_settest_dataInit(u8 idx)
 		
 		stab_setdata[i].key[1] = 0x30+i; 		
 		stab_setdata[i].data[1] = 0x30+idx; 
-
 		stab_setdata[i].data[2] = 0x30+i;
-		sprintf(temp_url,"%s%s%s",STABTEST_URL,STABTEST_PATH,stab_setdata[i].key);
+		sprintf((char*)temp_url,"%s/%s",TEST_URL,stab_setdata[i].key);
  		if(stab_setdata[i].client)
 			wilddog_destroy(&(stab_setdata[i].client));
 		stab_setdata[i].client = wilddog_initWithUrl((Wilddog_Str_T*)temp_url);
@@ -364,6 +358,10 @@ void stab_test_fullLoad(void)
 #ifndef WILDDOG_PORT_TYPE_WICED
  			sleep(3);
 #endif
+#ifdef WILDDOG_PORT_TYPE_WICED
+			wiced_rtos_delay_milliseconds(1000);
+#endif
+
 			stab_resultPrint();
 			stab_settest_dataDeInit();
  		}
@@ -377,7 +375,6 @@ int main(void)
 	stab_test_fullLoad();
 	return 0;
 }
-
 #endif
 #endif /* WILDDOG_SELFTEST*/
 

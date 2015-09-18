@@ -1,6 +1,6 @@
 /* dtls_config.h.  Generated from dtls_config.h.in by configure.  */
 /* dtls_config.h.in.  Generated from configure.in by autoheader.  */
-
+#include "wilddog.h"
 /* Define if building universal (internal helper macro) */
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
@@ -18,14 +18,15 @@
 #define DTLS_PSK 1
 
 /* Define to 1 if you have the <arpa/inet.h> header file. */
-#ifdef WILDDOG_PORT_TYPE_WICED
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
 #define HAVE_ARPA_INET_H 0
 #else
 #define HAVE_ARPA_INET_H 1
 #endif
 /* Define to 1 if you have the <assert.h> header file. */
+#if !defined(WILDDOG_PORT_TYPE_QUCETEL)
 #define HAVE_ASSERT_H 1
-
+#endif
 /* Define to 1 if you have the <fcntl.h> header file. */
 #define HAVE_FCNTL_H 1
 
@@ -100,7 +101,7 @@
 #define HAVE_SYS_TYPES_H 1
 
 /* Define to 1 if you have the <time.h> header file. */
-#ifdef WILDDOG_PORT_TYPE_WICED
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
 #undef HAVE_TIME_H
 #else
 #define HAVE_TIME_H 1
@@ -109,7 +110,7 @@
 #define HAVE_UNISTD_H 1
 
 /* Define to 1 if you have the `vprintf' function. */
-#ifdef WILDDOG_PORT_TYPE_WICED
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
 #define HAVE_VPRINTF 0
 #else
 #define HAVE_VPRINTF 1

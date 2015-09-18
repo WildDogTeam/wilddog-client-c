@@ -33,7 +33,7 @@
 #ifdef HAVE_ASSERT_H
 #include <assert.h>
 #endif
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
 
 #include <stdlib.h>
 #include "uthash.h"
@@ -66,7 +66,7 @@
 #define dtls_get_sequence_number(H) dtls_uint48_to_ulong((H)->sequence_number)
 #define dtls_get_fragment_length(H) dtls_uint24_to_int((H)->fragment_length)
 
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
 #define HASH_FIND_PEER(head,sess,out)		\
   HASH_FIND(hh,head,sess,sizeof(session_t),out)
 #define HASH_ADD_PEER(head,sess,add)		\
@@ -217,7 +217,7 @@ dtls_peer_t *
 dtls_get_peer(const dtls_context_t *ctx, const session_t *session) {
   dtls_peer_t *p = NULL;
 
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
   HASH_FIND_PEER(ctx->peers, session, p);
 #else /* WITH_CONTIKI */
   for (p = list_head(&ctx->peers); p; p = list_item_next(p))
@@ -230,7 +230,7 @@ dtls_get_peer(const dtls_context_t *ctx, const session_t *session) {
 
 static void
 dtls_add_peer(dtls_context_t *ctx, dtls_peer_t *peer) {
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
   HASH_ADD_PEER(ctx->peers, session, peer);
 #else /* WITH_CONTIKI */
   list_add(&ctx->peers, peer);
@@ -912,8 +912,8 @@ dtls_update_parameters(dtls_context_t *ctx,
   dtls_handshake_parameters_t *config = peer->handshake_params;
   dtls_security_parameters_t *security = dtls_security_params(peer);
 
-  assert(config);
-  assert(data_length > DTLS_HS_LENGTH + DTLS_CH_LENGTH);
+  wilddog_assert(config, -1);
+  wilddog_assert(data_length > DTLS_HS_LENGTH + DTLS_CH_LENGTH, -1);
 
   /* skip the handshake header and client version information */
   data += DTLS_HS_LENGTH + sizeof(uint16);
@@ -1090,11 +1090,12 @@ finalize_hs_hash(dtls_peer_t *peer, uint8 *buf) {
   return dtls_hash_finalize(buf, &peer->handshake_params->hs_state.hs_hash);
 }
 
-static inline void
+static inline int
 clear_hs_hash(dtls_peer_t *peer) {
-  assert(peer);
+  wilddog_assert(peer, -1);
   dtls_debug("clear MAC\n");
   dtls_hash_init(&peer->handshake_params->hs_state.hs_hash);
+  return 0;
 }
 
 /** 
@@ -1517,7 +1518,7 @@ static void dtls_destroy_peer(dtls_context_t *ctx, dtls_peer_t *peer, int unlink
   if (peer->state != DTLS_STATE_CLOSED && peer->state != DTLS_STATE_CLOSING)
     dtls_close(ctx, &peer->session);
   if (unlink) {
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
     HASH_DEL_PEER(ctx->peers, peer);
 #else /* WITH_CONTIKI */
     list_remove(&ctx->peers, peer);
@@ -1563,7 +1564,7 @@ dtls_verify_peer(dtls_context_t *ctx,
 
   dtls_debug_dump("create cookie", mycookie, len);
 
-  assert(len == DTLS_COOKIE_LENGTH);
+  wilddog_assert(len == DTLS_COOKIE_LENGTH, -1);
     
   /* Perform cookie check. */
   len = dtls_get_cookie(data, data_length, &cookie);
@@ -1595,7 +1596,7 @@ dtls_verify_peer(dtls_context_t *ctx,
   dtls_int_to_uint8(p, DTLS_COOKIE_LENGTH);
   p += sizeof(uint8);
 
-  assert(p == mycookie);
+  wilddog_assert(p == mycookie, -1);
 
   p += DTLS_COOKIE_LENGTH;
 
@@ -1705,7 +1706,7 @@ check_client_certificate_verify(dtls_context_t *ctx,
   dtls_hash_ctx hs_hash;
   unsigned char sha256hash[DTLS_HMAC_DIGEST_SIZE];
 
-  assert(is_tls_ecdhe_ecdsa_with_aes_128_ccm_8(config->cipher));
+  wilddog_assert(is_tls_ecdhe_ecdsa_with_aes_128_ccm_8(config->cipher), -1);
 
   data += DTLS_HS_LENGTH;
 
@@ -1827,7 +1828,7 @@ dtls_send_server_hello(dtls_context_t *ctx, dtls_peer_t *peer)
     p += sizeof(uint8);
   }
 
-  assert(p - buf <= sizeof(buf));
+  wilddog_assert(p - buf <= sizeof(buf), -1);
 
   /* TODO use the same record sequence number as in the ClientHello,
      see 4.2.1. Denial-of-Service Countermeasures */
@@ -1863,7 +1864,7 @@ dtls_send_certificate_ecdsa(dtls_context_t *ctx, dtls_peer_t *peer,
   memcpy(p, key->pub_key_y, DTLS_EC_KEY_SIZE);
   p += DTLS_EC_KEY_SIZE;
 
-  assert(p - buf <= sizeof(buf));
+  wilddog_assert(p - buf <= sizeof(buf), -1);
 
   return dtls_send_handshake_msg(ctx, peer, DTLS_HT_CERTIFICATE,
 				 buf, p - buf);
@@ -1983,7 +1984,7 @@ dtls_send_server_key_exchange_ecdh(dtls_context_t *ctx, dtls_peer_t *peer,
 
   p = dtls_add_ecdsa_signature_elem(p, point_r, point_s);
 
-  assert(p - buf <= sizeof(buf));
+  wilddog_assert(p - buf <= sizeof(buf), -1);
 
   return dtls_send_handshake_msg(ctx, peer, DTLS_HT_SERVER_KEY_EXCHANGE,
 				 buf, p - buf);
@@ -2000,7 +2001,7 @@ dtls_send_server_key_exchange_psk(dtls_context_t *ctx, dtls_peer_t *peer,
 
   p = buf;
 
-  assert(len <= DTLS_PSK_MAX_CLIENT_IDENTITY_LEN);
+  wilddog_assert(len <= DTLS_PSK_MAX_CLIENT_IDENTITY_LEN, -1);
   if (len > DTLS_PSK_MAX_CLIENT_IDENTITY_LEN) {
     /* should never happen */
     dtls_warn("psk identity hint is too long\n");
@@ -2013,7 +2014,7 @@ dtls_send_server_key_exchange_psk(dtls_context_t *ctx, dtls_peer_t *peer,
   memcpy(p, psk_hint, len);
   p += len;
 
-  assert(p - buf <= sizeof(buf));
+  wilddog_assert(p - buf <= sizeof(buf), -1);
 
   return dtls_send_handshake_msg(ctx, peer, DTLS_HT_SERVER_KEY_EXCHANGE,
 				 buf, p - buf);
@@ -2056,7 +2057,7 @@ dtls_send_server_certificate_request(dtls_context_t *ctx, dtls_peer_t *peer)
   dtls_int_to_uint16(p, 0);
   p += sizeof(uint16);
 
-  assert(p - buf <= sizeof(buf));
+  wilddog_assert(p - buf <= sizeof(buf), -1);
 
   return dtls_send_handshake_msg(ctx, peer, DTLS_HT_CERTIFICATE_REQUEST,
 				 buf, p - buf);
@@ -2236,7 +2237,7 @@ dtls_send_client_key_exchange(dtls_context_t *ctx, dtls_peer_t *peer)
     return dtls_alert_fatal_create(DTLS_ALERT_INTERNAL_ERROR);
   }
 
-  assert(p - buf <= sizeof(buf));
+  wilddog_assert(p - buf <= sizeof(buf), -1);
 
   return dtls_send_handshake_msg(ctx, peer, DTLS_HT_CLIENT_KEY_EXCHANGE,
 				 buf, p - buf);
@@ -2272,7 +2273,7 @@ dtls_send_certificate_verify_ecdh(dtls_context_t *ctx, dtls_peer_t *peer,
 
   p = dtls_add_ecdsa_signature_elem(p, point_r, point_s);
 
-  assert(p - buf <= sizeof(buf));
+  wilddog_assert(p - buf <= sizeof(buf), -1);
 
   return dtls_send_handshake_msg(ctx, peer, DTLS_HT_CERTIFICATE_VERIFY,
 				 buf, p - buf);
@@ -2304,7 +2305,7 @@ dtls_send_finished(dtls_context_t *ctx, dtls_peer_t *peer,
 
   p += DTLS_FIN_LENGTH;
 
-  assert(p - buf <= sizeof(buf));
+  wilddog_assert(p - buf <= sizeof(buf), -1);
 
   return dtls_send_handshake_msg(ctx, peer, DTLS_HT_FINISHED,
 				 buf, p - buf);
@@ -2452,7 +2453,7 @@ dtls_send_client_hello(dtls_context_t *ctx, dtls_peer_t *peer,
     p += sizeof(uint8);
   }
 
-  assert(p - buf <= sizeof(buf));
+  wilddog_assert(p - buf <= sizeof(buf), -1);
 
   if (cookie_length != 0)
     clear_hs_hash(peer);
@@ -2564,7 +2565,7 @@ check_server_certificate(dtls_context_t *ctx,
 
   update_hs_hash(peer, data, data_length);
 
-  assert(is_tls_ecdhe_ecdsa_with_aes_128_ccm_8(config->cipher));
+  wilddog_assert(is_tls_ecdhe_ecdsa_with_aes_128_ccm_8(config->cipher), -1);
 
   data += DTLS_HS_LENGTH;
 
@@ -2619,7 +2620,7 @@ check_server_key_exchange_ecdsa(dtls_context_t *ctx,
 
   update_hs_hash(peer, data, data_length);
 
-  assert(is_tls_ecdhe_ecdsa_with_aes_128_ccm_8(config->cipher));
+  wilddog_assert(is_tls_ecdhe_ecdsa_with_aes_128_ccm_8(config->cipher), -1);
 
   data += DTLS_HS_LENGTH;
 
@@ -2699,7 +2700,7 @@ check_server_key_exchange_psk(dtls_context_t *ctx,
 
   update_hs_hash(peer, data, data_length);
 
-  assert(is_tls_psk_with_aes_128_ccm_8(config->cipher));
+  wilddog_assert(is_tls_psk_with_aes_128_ccm_8(config->cipher), -1);
 
   data += DTLS_HS_LENGTH;
 
@@ -2740,7 +2741,7 @@ check_certificate_request(dtls_context_t *ctx,
 
   update_hs_hash(peer, data, data_length);
 
-  assert(is_tls_ecdhe_ecdsa_with_aes_128_ccm_8(peer->handshake_params->cipher));
+  wilddog_assert(is_tls_ecdhe_ecdsa_with_aes_128_ccm_8(peer->handshake_params->cipher), -1);
 
   data += DTLS_HS_LENGTH;
 
@@ -3054,7 +3055,7 @@ handle_handshake_msg(dtls_context_t *ctx, dtls_peer_t *peer, session_t *session,
 #ifdef DTLS_ECC
   case DTLS_HT_CERTIFICATE:
 #ifdef WILDDOG_SELFTEST     
-	  performtest_tm_getDtlsHskVerify();
+	  performtest_getDtlsHskVerifyTime();
 #endif
     if ((role == DTLS_CLIENT && state != DTLS_STATE_WAIT_SERVERCERTIFICATE) ||
         (role == DTLS_SERVER && state != DTLS_STATE_WAIT_CLIENTCERTIFICATE)) {
@@ -3072,7 +3073,7 @@ handle_handshake_msg(dtls_context_t *ctx, dtls_peer_t *peer, session_t *session,
     }
     /* update_hs_hash(peer, data, data_length); */
 #ifdef WILDDOG_SELFTEST     
-		  performtest_tm_getDtlsHskVerify();
+		  performtest_getDtlsHskVerifyTime();
 #endif
 
     break;
@@ -3458,7 +3459,7 @@ handle_handshake(dtls_context_t *ctx, dtls_peer_t *peer, session_t *session,
     }
     return res;
   }
-  assert(0);
+  wilddog_assert(0, -1);
   return 0;
 }
 
@@ -3525,15 +3526,15 @@ handle_alert(dtls_context_t *ctx, dtls_peer_t *peer,
   if (data[0] == DTLS_ALERT_LEVEL_FATAL || data[1] == DTLS_ALERT_CLOSE_NOTIFY) {
     dtls_alert("%d invalidate peer\n", data[1]);
     
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
     HASH_DEL_PEER(ctx->peers, peer);
 #else /* WITH_CONTIKI */
     list_remove(&ctx->peers, peer);
 
 #ifndef NDEBUG
-    PRINTF("removed peer [");
+    /*PRINTF("removed peer [");
     PRINT6ADDR(&peer->session.addr);
-    PRINTF("]:%d\n", uip_ntohs(peer->session.port));
+    PRINTF("]:%d\n", uip_ntohs(peer->session.port));*/
 #endif
 #endif /* WITH_CONTIKI */
 
@@ -3596,166 +3597,193 @@ static int dtls_alert_send_from_err(dtls_context_t *ctx, dtls_peer_t *peer,
 /** 
  * Handles incoming data as DTLS message from given peer.
  */
-int
-dtls_handle_message(dtls_context_t *ctx, 
-		    session_t *session,
-		    uint8 *msg, int msglen) {
-  dtls_peer_t *peer = NULL;
-  unsigned int rlen;		/* record length */
-  uint8 *data; 			/* (decrypted) payload */
-  int data_length;		/* length of decrypted payload 
+int dtls_handle_message
+    (
+    dtls_context_t *ctx,
+    session_t *session,
+    uint8 *msg, 
+    int msglen
+    )
+{
+    dtls_peer_t *peer = NULL;
+    unsigned int rlen;		/* record length */
+    uint8 *data; 			/* (decrypted) payload */
+    int data_length;		/* length of decrypted payload 
 				   (without MAC and padding) */
   int err;
 
-  /* check if we have DTLS state for addr/port/ifindex */
-  peer = dtls_get_peer(ctx, session);
+    /* check if we have DTLS state for addr/port/ifindex */
+    peer = dtls_get_peer(ctx, session);
 
-  if (!peer) {
-    dtls_debug("dtls_handle_message: PEER NOT FOUND\n");
-    dtls_dsrv_log_addr(DTLS_LOG_DEBUG, "peer addr", session);
-  } else {
-    dtls_debug("dtls_handle_message: FOUND PEER\n");
-  }
-
-  while ((rlen = is_record(msg,msglen))) {
-    dtls_peer_type role;
-    dtls_state_t state;
-
-    dtls_debug("got packet %d (%d bytes)\n", msg[0], rlen);
-    if (peer) {
-      data_length = decrypt_verify(peer, msg, rlen, &data);
-      if (data_length < 0) {
-	int err =  dtls_alert_fatal_create(DTLS_ALERT_DECRYPT_ERROR);
-        dtls_info("decrypt_verify() failed\n");
-	if (peer->state < DTLS_STATE_CONNECTED) {
-	  dtls_alert_send_from_err(ctx, peer, &peer->session, err);
-	  peer->state = DTLS_STATE_CLOSED;
-	  /* dtls_stop_retransmission(ctx, peer); */
-	  dtls_destroy_peer(ctx, peer, 1);
-	}
-        return err;
-      }
-      role = peer->role;
-      state = peer->state;
-    } else {
-      /* is_record() ensures that msg contains at least a record header */
-      data = msg + DTLS_RH_LENGTH;
-      data_length = rlen - DTLS_RH_LENGTH;
-      state = DTLS_STATE_WAIT_CLIENTHELLO;
-      role = DTLS_SERVER;
+    if (!peer) 
+    {
+        dtls_debug("dtls_handle_message: PEER NOT FOUND\n");
+        dtls_dsrv_log_addr(DTLS_LOG_DEBUG, "peer addr", session);
+    } 
+    else 
+    {
+        dtls_debug("dtls_handle_message: FOUND PEER\n");
     }
 
-    dtls_debug_hexdump("receive header", msg, sizeof(dtls_record_header_t));
-    dtls_debug_hexdump("receive unencrypted", data, data_length);
+    while ((rlen = is_record(msg,msglen))) 
+    {
+        dtls_peer_type role;
+        dtls_state_t state;
 
-    /* Handle received record according to the first byte of the
-     * message, i.e. the subprotocol. We currently do not support
-     * combining multiple fragments of one type into a single
-     * record. */
+        dtls_debug("got packet %d (%d bytes)\n", msg[0], rlen);
+        if (peer) 
+        {
+            data_length = decrypt_verify(peer, msg, rlen, &data);
+            if (data_length < 0) 
+            {
+	            int err =  dtls_alert_fatal_create(DTLS_ALERT_DECRYPT_ERROR);
+                dtls_info("decrypt_verify() failed\n");
+	            if (peer->state < DTLS_STATE_CONNECTED) 
+                {
+                	dtls_alert_send_from_err(ctx, peer, &peer->session, err);
+                	peer->state = DTLS_STATE_CLOSED;
+                	/* dtls_stop_retransmission(ctx, peer); */
+                	dtls_destroy_peer(ctx, peer, 1);
+	            }
+                return err;
+            }
+            role = peer->role;
+            state = peer->state;
+        } 
+        else 
+        {
+            /* is_record() ensures that msg contains at least a record header */
+            data = msg + DTLS_RH_LENGTH;
+            data_length = rlen - DTLS_RH_LENGTH;
+            state = DTLS_STATE_WAIT_CLIENTHELLO;
+            role = DTLS_SERVER;
+        }
 
-    switch (msg[0]) {
+        dtls_debug_hexdump("receive header", msg, sizeof(dtls_record_header_t));
+        dtls_debug_hexdump("receive unencrypted", data, data_length);
 
-    case DTLS_CT_CHANGE_CIPHER_SPEC:
-      if (peer) {
-        dtls_stop_retransmission(ctx, peer);
-      }
-      err = handle_ccs(ctx, peer, msg, data, data_length);
-      if (err < 0) {
-	dtls_warn("error while handling ChangeCipherSpec message\n");
-	dtls_alert_send_from_err(ctx, peer, session, err);
+        /* Handle received record according to the first byte of the
+         * message, i.e. the subprotocol. We currently do not support
+         * combining multiple fragments of one type into a single
+         * record. 
+         */
 
-	/* invalidate peer */
-	dtls_destroy_peer(ctx, peer, 1);
-	peer = NULL;
+        switch (msg[0]) 
+        {
 
-	return err;
-      }
-      break;
+            case DTLS_CT_CHANGE_CIPHER_SPEC:
+                if (peer) 
+                {
+                    dtls_stop_retransmission(ctx, peer);
+                }
+                err = handle_ccs(ctx, peer, msg, data, data_length);
+                if (err < 0) 
+                {
+                    dtls_warn("error while handling ChangeCipherSpec message\n");
+	                dtls_alert_send_from_err(ctx, peer, session, err);
 
-    case DTLS_CT_ALERT:
-      if (peer) {
-        dtls_stop_retransmission(ctx, peer);
-      }
-      err = handle_alert(ctx, peer, msg, data, data_length);
-      if (err < 0 || err == 1) {
-         dtls_warn("received alert, peer has been invalidated\n");
-         /* handle alert has invalidated peer */
-         peer = NULL;
-         return err < 0 ?err:-1;
-      }
-      break;
+                	/* invalidate peer */
+                	dtls_destroy_peer(ctx, peer, 1);
+                	peer = NULL;
 
-    case DTLS_CT_HANDSHAKE:
-      /* Handshake messages other than Finish must use the current
-       * epoch, Finish has epoch + 1. */
+	                return err;
+                }
+                break;
 
-      if (peer) {
-	uint16_t expected_epoch = dtls_security_params(peer)->epoch;
-	uint16_t msg_epoch = 
-	  dtls_uint16_to_int(DTLS_RECORD_HEADER(msg)->epoch);
+            case DTLS_CT_ALERT:
+                if (peer) 
+                {
+                    dtls_stop_retransmission(ctx, peer);
+                }
+                err = handle_alert(ctx, peer, msg, data, data_length);
+                if (err < 0 || err == 1) 
+                {
+                     dtls_warn("received alert, peer has been invalidated\n");
+                     /* handle alert has invalidated peer */
+                     peer = NULL;
+                     return err < 0 ?err:-1;
+                }
+                break;
 
-	/* The new security parameters must be used for all messages
-	 * that are sent after the ChangeCipherSpec message. This
-	 * means that the client's Finished message uses epoch + 1
-	 * while the server is still in the old epoch.
-	 */
-	if (role == DTLS_SERVER && state == DTLS_STATE_WAIT_FINISHED) {
-	  expected_epoch++;
-	}
+            case DTLS_CT_HANDSHAKE:
+                /* Handshake messages other than Finish must use the current
+                 * epoch, Finish has epoch + 1. 
+                 */
 
-	if (expected_epoch != msg_epoch) {
-	  dtls_warn("Wrong epoch, expected %i, got: %i\n",
-		    expected_epoch, msg_epoch);
-	  break;
-	}
-      }
+                if (peer) 
+                {
+	                uint16_t expected_epoch = dtls_security_params(peer)->epoch;
+	                uint16_t msg_epoch = 
+	                dtls_uint16_to_int(DTLS_RECORD_HEADER(msg)->epoch);
 
-      err = handle_handshake(ctx, peer, session, role, state, data, data_length);
-      if (err < 0) {
-	dtls_warn("error while handling handshake packet\n");
-	dtls_alert_send_from_err(ctx, peer, session, err);
-	return err;
-      }
-      if (peer && peer->state == DTLS_STATE_CONNECTED) {
-	/* stop retransmissions */
-	dtls_stop_retransmission(ctx, peer);
-	CALL(ctx, event, &peer->session, 0, DTLS_EVENT_CONNECTED);
-      }
-      break;
+                	/* The new security parameters must be used for all messages
+                	 * that are sent after the ChangeCipherSpec message. This
+                	 * means that the client's Finished message uses epoch + 1
+                	 * while the server is still in the old epoch.
+                	 */
+	                if (role == DTLS_SERVER && state == DTLS_STATE_WAIT_FINISHED) 
+                    {
+	                    expected_epoch++;
+	                }
 
-    case DTLS_CT_APPLICATION_DATA:
-      dtls_info("** application data:\n");
-      if (!peer) {
-        dtls_warn("no peer available, send an alert\n");
-        // TODO: should we send a alert here?
-        return -1;
-      }
-      dtls_stop_retransmission(ctx, peer);
-      CALL(ctx, read, &peer->session, data, data_length);
-      break;
-    default:
-      dtls_info("dropped unknown message of type %d\n",msg[0]);
+	                if (expected_epoch != msg_epoch) 
+                    {
+	                    dtls_warn("Wrong epoch, expected %i, got: %i\n",
+		                          expected_epoch, msg_epoch);
+	                    break;
+	                }
+                }
+
+                err = handle_handshake(ctx, peer, session, role, state, data, \
+                                       data_length);
+                if (err < 0) 
+                {
+	                dtls_warn("error while handling handshake packet\n");
+	                dtls_alert_send_from_err(ctx, peer, session, err);
+	                return err;
+                }
+                if (peer && peer->state == DTLS_STATE_CONNECTED) 
+                {
+	                /* stop retransmissions */
+	                dtls_stop_retransmission(ctx, peer);
+	                CALL(ctx, event, &peer->session, 0, DTLS_EVENT_CONNECTED);
+                }
+                break;
+
+            case DTLS_CT_APPLICATION_DATA:
+                dtls_info("** application data:\n");
+                if (!peer) 
+                {
+                    dtls_warn("no peer available, send an alert\n");
+                    //  TODO: should we send a alert here?
+                    return -1;
+                }
+                dtls_stop_retransmission(ctx, peer);
+                CALL(ctx, read, &peer->session, data, data_length);
+                break;
+            default:
+                dtls_info("dropped unknown message of type %d\n",msg[0]);
+        }
+
+        /* advance msg by length of ciphertext */
+        msg += rlen;
+        msglen -= rlen;
     }
 
-    /* advance msg by length of ciphertext */
-    msg += rlen;
-    msglen -= rlen;
-  }
-
-  return 0;
+    return 0;
 }
 
 dtls_context_t *
 dtls_new_context(void *app_data) {
   dtls_context_t *c;
   dtls_tick_t now;
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
   FILE *urandom = fopen("/dev/urandom", "r");
   unsigned char buf[sizeof(unsigned long)];
 #endif /* WITH_CONTIKI */
 
   dtls_ticks(&now);
-#if defined(WITH_CONTIKI) || defined(WILDDOG_PORT_TYPE_WICED)
+#if defined(WITH_CONTIKI) || defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
   /* FIXME: need something better to init PRNG here */
   dtls_prng_init(now);
 #else /* WITH_CONTIKI */
@@ -3816,7 +3844,7 @@ dtls_free_context(dtls_context_t *ctx) {
   }
 
 
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
 
   dtls_peer_t *tmp;
 
@@ -3844,7 +3872,7 @@ int
 dtls_connect_peer(dtls_context_t *ctx, dtls_peer_t *peer) {
   int res;
 
-  assert(peer);
+  wilddog_assert(peer, -1);
   if (!peer)
     return -1;
 

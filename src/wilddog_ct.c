@@ -1,10 +1,20 @@
 /*
- * wilddog_ct.c
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
  *
- *  Created on: 2015-05-15
- *      Author: jimmy.pan
+ * FileName: wilddog_ct.c
+ *
+ * Description: core, include container functions.
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.0        Jimmy.Pan       2015-05-15  Create file.
+ * 0.4.3        Jimmy.Pan       2015-07-04  Add l_isStarted.
+ *
  */
+#ifndef WILDDOG_PORT_TYPE_ESP   
 #include <stdio.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 
@@ -18,7 +28,9 @@
 #include "utlist.h"
 #include "wilddog_conn.h"
 
+/*store the head of all repos.*/
 STATIC Wilddog_Repo_Con_T l_wilddog_containTable;
+/*store the wilddog init status.*/
 STATIC BOOL l_isStarted = FALSE;
 
 STATIC Wilddog_Repo_T** _wilddog_ct_getRepoHead(void);
@@ -59,19 +71,38 @@ STATIC Wilddog_Return_T _wilddog_ct_store_remove
     );
 STATIC Wilddog_Return_T _wilddog_ct_store_on(void* p_args, int flag);
 STATIC Wilddog_Return_T _wilddog_ct_store_off(void* p_args, int flag);
-
-STATIC Wilddog_Return_T _wilddog_ct_init(void* args, int flag)
+/*
+ * Function:    _wilddog_ct_init
+ * Description: Init the container.
+ * Input:       not used.
+ * Output:      N/A
+ * Return:      WILDDOG_ERR_NOERR.
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_init(void* args, int flag)
 {
     l_wilddog_containTable.p_rc_head = NULL;
     return WILDDOG_ERR_NOERR;
 }
-
-STATIC Wilddog_Repo_T** _wilddog_ct_getRepoHead(void)
+/*
+ * Function:    _wilddog_ct_getRepoHead
+ * Description: Get the head of the repo.
+ * Input:       N/A.
+ * Output:      N/A
+ * Return:      Pointer to the head.
+*/
+STATIC Wilddog_Repo_T** WD_SYSTEM _wilddog_ct_getRepoHead(void)
 {
     return &(l_wilddog_containTable.p_rc_head);
 }
 
-u8 _wilddog_ct_getRepoNum(void)
+/*
+ * Function:    _wilddog_ct_getRepoNum
+ * Description: Get the number of the repo.
+ * Input:       N/A.
+ * Output:      N/A
+ * Return:      the number.
+*/
+u8 WD_SYSTEM _wilddog_ct_getRepoNum(void)
 {
     int count = 0;
     Wilddog_Repo_T** p_head = _wilddog_ct_getRepoHead();
@@ -82,21 +113,31 @@ u8 _wilddog_ct_getRepoNum(void)
     }
     return count;
 }
-STATIC Wilddog_T _wilddog_ct_createRef(void *args, int flag)
+
+/*
+ * Function:    _wilddog_ct_createRef
+ * Description: create ref.
+ * Input:       args: the url args
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      the Wilddog_T
+*/
+STATIC Wilddog_T WD_SYSTEM _wilddog_ct_createRef(void *args, int flag)
 {
     Wilddog_Url_T *p_url = NULL;
     Wilddog_Ref_T *p_ref = NULL;
     Wilddog_Repo_T *p_repo = NULL;
-
     Wilddog_Str_T *url = (Wilddog_Str_T*)args;
+    
     wilddog_assert(url, 0);
 
-	if(FALSE == l_isStarted)
-	{
-		_wilddog_ct_init(NULL, 0);
-		l_isStarted = TRUE;
-	}
-	
+    if(FALSE == l_isStarted)
+    {
+        _wilddog_ct_init(NULL, 0);
+        l_isStarted = TRUE;
+    }
+
+    //todo remove
     /*add valid check!*/
     if(!_wilddog_isUrlValid(url))
         return 0;
@@ -104,7 +145,7 @@ STATIC Wilddog_T _wilddog_ct_createRef(void *args, int flag)
     p_url = _wilddog_url_parseUrl(url);
     if(NULL == p_url)
     {
-		wilddog_debug_level(WD_DEBUG_ERROR, "parse url failed!");
+        wilddog_debug_level(WD_DEBUG_ERROR, "parse url failed!");
         return 0;
     }
 
@@ -147,7 +188,21 @@ STATIC Wilddog_T _wilddog_ct_createRef(void *args, int flag)
     return (Wilddog_T)p_ref;
 }
 
-STATIC Wilddog_Return_T _wilddog_ct_destroyRef(void *args, int flag)
+
+/*
+ * Function:    _wilddog_ct_destroyRef
+ * Description: destory ref.
+ * Input:       args: the url args
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      if success, return WILDDOG_ERR_NOERR; else return 
+ *              WILDDOG_ERR_NULL
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_destroyRef
+    (
+    void *args, 
+    int flag
+    )
 {
     Wilddog_Repo_T * p_repo = NULL;
     Wilddog_Ref_T **p_ref = (Wilddog_Ref_T**)args;
@@ -209,7 +264,16 @@ STATIC Wilddog_Return_T _wilddog_ct_destroyRef(void *args, int flag)
     return WILDDOG_ERR_NOERR;
 }
 
-STATIC Wilddog_Ref_T *_wilddog_ct_findRef
+
+/*
+ * Function:    _wilddog_ct_findRef
+ * Description: find ref from the repo by the url
+ * Input:       p_repo: the pointer of the repo struct
+ *              p_url: the url
+ * Output:      N/A
+ * Return:      the pointer of the ref struct
+*/
+STATIC Wilddog_Ref_T * WD_SYSTEM _wilddog_ct_findRef
     (
     Wilddog_Repo_T *p_repo, 
     Wilddog_Url_T * p_url
@@ -231,7 +295,16 @@ STATIC Wilddog_Ref_T *_wilddog_ct_findRef
     }
     return NULL;
 }
-STATIC Wilddog_Ref_T * _wilddog_ct_getRef(void* arg, int flag)
+
+/*
+ * Function:    _wilddog_ct_getRef
+ * Description: get the ref
+ * Input:       arg: the pointer of the arg get ref struct
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      the pointer of the ref struct
+*/
+STATIC Wilddog_Ref_T * WD_SYSTEM _wilddog_ct_getRef(void* arg, int flag)
 {
     Wilddog_Arg_GetRef_T * args = (Wilddog_Arg_GetRef_T* )arg;
     Wilddog_Ref_T *p_srcRef = (Wilddog_Ref_T *)(args->p_ref);
@@ -245,26 +318,28 @@ STATIC Wilddog_Ref_T * _wilddog_ct_getRef(void* arg, int flag)
     if(!p_srcRef->p_ref_url || !p_srcRef->p_ref_url->p_url_path)
         return NULL;
 
-	/*when user want get parent or root, check whether it is root already*/
-	if(WILDDOG_REFCHG_PARENT == type || WILDDOG_REFCHG_ROOT == type)
-	{
-		if(p_srcRef->p_ref_url->p_url_path)
-		{
-			if(strlen((const char*)p_srcRef->p_ref_url->p_url_path) == 1 && \
-				*(char*)(p_srcRef->p_ref_url->p_url_path) == '/')
-			{
-				/*it is already root, get parent return NULL*/
-				if(WILDDOG_REFCHG_PARENT == type)
-					return NULL;
-				
-				/*it is already root, get root return itself*/
-				return p_srcRef;
-			}
-		}
-	}
-	
-    if(WILDDOG_ERR_NOERR != _wilddog_url_getPath(p_srcRef->p_ref_url->p_url_path, \
-        type, str, &p_path))
+    /*when user want get parent or root, check whether it is root already*/
+    if(WILDDOG_REFCHG_PARENT == type || WILDDOG_REFCHG_ROOT == type)
+    {
+        if(p_srcRef->p_ref_url->p_url_path)
+        {
+            if(strlen((const char*)p_srcRef->p_ref_url->p_url_path) == 1 && \
+                *(char*)(p_srcRef->p_ref_url->p_url_path) == '/')
+            {
+                /*it is already root, get parent return NULL*/
+                if(WILDDOG_REFCHG_PARENT == type)
+                    return NULL;
+                
+                /*it is already root, get root return itself*/
+                return p_srcRef;
+            }
+        }
+    }
+    
+    if(
+        WILDDOG_ERR_NOERR != \
+       _wilddog_url_getPath(p_srcRef->p_ref_url->p_url_path,type, str, &p_path)
+       )
     {
         wilddog_debug_level(WD_DEBUG_ERROR, "can not find path!");
         return NULL;
@@ -284,7 +359,7 @@ STATIC Wilddog_Ref_T * _wilddog_ct_getRef(void* arg, int flag)
 
     /* build a url structure, to find existed ref*/
 
-	/* Reuse p_srcRef's host to find ref.*/
+    /* Reuse p_srcRef's host to find ref.*/
     p_url->p_url_host = p_srcRef->p_ref_url->p_url_host;
     p_url->p_url_path = p_path;
 
@@ -293,6 +368,7 @@ STATIC Wilddog_Ref_T * _wilddog_ct_getRef(void* arg, int flag)
 
     if(NULL == p_ref)
     {
+        //todo merge with create ref
         /*cannot find ref, new one*/
         p_ref = (Wilddog_Ref_T*)wmalloc(sizeof(Wilddog_Ref_T));
         if(NULL == p_ref)
@@ -324,15 +400,26 @@ STATIC Wilddog_Ref_T * _wilddog_ct_getRef(void* arg, int flag)
     return p_ref;
 }
 
-STATIC Wilddog_Repo_T * _wilddog_ct_createRepo(Wilddog_Url_T *p_url)
+/*
+ * Function:    _wilddog_ct_createRepo
+ * Description: create the repo
+ * Input:       p_url: the pointer of url
+ * Output:      N/A
+ * Return:      the pointer of the repo struct
+*/
+STATIC Wilddog_Repo_T * WD_SYSTEM _wilddog_ct_createRepo
+    (
+    Wilddog_Url_T *p_url
+    )
 {
     Wilddog_Repo_T *p_repo =NULL;
     Wilddog_Repo_T **p_repoHead = NULL;
     int len;
     Wilddog_Url_T * p_rp_url = NULL;
 
-	wilddog_assert(p_url, NULL);
- 
+    wilddog_assert(p_url, NULL);
+
+    //todo costdown
     p_repo = _wilddog_ct_findRepo(p_url->p_url_host);
     
     if(NULL != p_repo)
@@ -380,7 +467,17 @@ STATIC Wilddog_Repo_T * _wilddog_ct_createRepo(Wilddog_Url_T *p_url)
     return p_repo;
 }
 
-STATIC Wilddog_Return_T _wilddog_ct_destoryRepo(Wilddog_Repo_T *p_repo)
+/*
+ * Function:    _wilddog_ct_destoryRepo
+ * Description: destory the repo
+ * Input:       p_repo: the pointer of repo
+ * Output:      N/A
+ * Return:      return WILDDOG_ERR_NOERR
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_destoryRepo
+    (
+    Wilddog_Repo_T *p_repo
+    )
 {
     Wilddog_Repo_T **p_repoHead = NULL;
 
@@ -398,11 +495,19 @@ STATIC Wilddog_Return_T _wilddog_ct_destoryRepo(Wilddog_Repo_T *p_repo)
     p_repo = NULL;
     if(!(*p_repoHead))
     {
-		l_isStarted = FALSE;
+        l_isStarted = FALSE;
     }
     return WILDDOG_ERR_NOERR;
 }
-Wilddog_Repo_T *_wilddog_ct_findRepo(Wilddog_Str_T * p_host)
+
+/*
+ * Function:    _wilddog_ct_findRepo
+ * Description: find repo by the host
+ * Input:       p_host: the pointer of host
+ * Output:      N/A
+ * Return:      the pointer of the repo
+*/
+Wilddog_Repo_T * WD_SYSTEM _wilddog_ct_findRepo(Wilddog_Str_T * p_host)
 {
     Wilddog_Repo_T *p_curr = NULL, *p_tmp = NULL;
     Wilddog_Repo_T **p_repoHead = NULL;
@@ -421,7 +526,16 @@ Wilddog_Repo_T *_wilddog_ct_findRepo(Wilddog_Str_T * p_host)
     }
     return NULL;
 }
-STATIC Wilddog_Return_T _wilddog_ct_store_setAuth
+
+/*
+ * Function:    _wilddog_ct_store_setAuth
+ * Description: set auth
+ * Input:       p_args: the pointer of the arg set auth struct
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_setAuth
     (
     void *p_args, 
     int flag
@@ -432,7 +546,7 @@ STATIC Wilddog_Return_T _wilddog_ct_store_setAuth
 
     Wilddog_Store_AuthArg_T authArg;
     Wilddog_Store_T * p_rp_store = NULL;
-	
+    
     wilddog_assert(arg->p_host, WILDDOG_ERR_NULL);
 
     /*add valid check!*/
@@ -457,7 +571,19 @@ STATIC Wilddog_Return_T _wilddog_ct_store_setAuth
         return WILDDOG_ERR_INVALID;
 }
 
-STATIC Wilddog_Return_T _wilddog_ct_store_query(void *p_args, int flag)
+/*
+ * Function:    _wilddog_ct_store_query
+ * Description: query function
+ * Input:       p_args: the pointer of the arg set auth struct
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_query
+    (
+    void *p_args, 
+    int flag
+    )
 {
     Wilddog_Arg_Query_T *arg = (Wilddog_Arg_Query_T* )p_args;
     Wilddog_ConnCmd_Arg_T connCmd;
@@ -475,7 +601,19 @@ STATIC Wilddog_Return_T _wilddog_ct_store_query(void *p_args, int flag)
         return WILDDOG_ERR_INVALID;
 }
 
-STATIC Wilddog_Return_T _wilddog_ct_store_set(void *p_args, int flag)
+/*
+ * Function:    _wilddog_ct_store_set
+ * Description: set function
+ * Input:       p_args: the pointer of the arg set auth struct
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_set
+    (
+    void *p_args, 
+    int flag
+    )
 {
     Wilddog_Arg_Set_T *arg = (Wilddog_Arg_Set_T*)p_args;
     Wilddog_ConnCmd_Arg_T connCmd;
@@ -495,7 +633,19 @@ STATIC Wilddog_Return_T _wilddog_ct_store_set(void *p_args, int flag)
         return WILDDOG_ERR_INVALID;
 }
 
-STATIC Wilddog_Return_T _wilddog_ct_store_push(void* p_args, int flag)
+/*
+ * Function:    _wilddog_ct_store_push
+ * Description: push function
+ * Input:       p_args: the pointer of the arg set auth struct
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_push
+    (
+    void* p_args, 
+    int flag
+    )
 {
     Wilddog_Arg_Push_T *arg = (Wilddog_Arg_Push_T*)p_args;
     Wilddog_ConnCmd_Arg_T connCmd;
@@ -514,7 +664,19 @@ STATIC Wilddog_Return_T _wilddog_ct_store_push(void* p_args, int flag)
         return WILDDOG_ERR_INVALID;
 }
 
-STATIC Wilddog_Return_T _wilddog_ct_store_remove(void* p_args, int flag)
+/*
+ * Function:    _wilddog_ct_store_remove
+ * Description: remove function
+ * Input:       p_args: the pointer of the arg set auth struct
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_remove
+    (
+    void* p_args,
+    int flag
+    )
 {
     Wilddog_Arg_Remove_T *arg = (Wilddog_Arg_Remove_T*)p_args;
     Wilddog_ConnCmd_Arg_T connCmd;
@@ -532,7 +694,19 @@ STATIC Wilddog_Return_T _wilddog_ct_store_remove(void* p_args, int flag)
         return WILDDOG_ERR_INVALID;
 }
 
-STATIC Wilddog_Return_T _wilddog_ct_store_on(void* p_args, int flag)
+/*
+ * Function:    _wilddog_ct_store_on
+ * Description: oberve on function
+ * Input:       p_args: the pointer of the arg set auth struct
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_on
+    (
+    void* p_args, 
+    int flag
+    )
 {
     Wilddog_Arg_On_T *arg = (Wilddog_Arg_On_T*)p_args;
     Wilddog_ConnCmd_Arg_T connCmd;
@@ -553,7 +727,20 @@ STATIC Wilddog_Return_T _wilddog_ct_store_on(void* p_args, int flag)
     else
         return WILDDOG_ERR_INVALID;
 }
-STATIC Wilddog_Return_T _wilddog_ct_store_off(void* p_args, int flag)
+
+/*
+ * Function:    _wilddog_ct_store_off
+ * Description: oberve off function
+ * Input:       p_args: the pointer of the arg set auth struct
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_off
+    (
+    void* p_args, 
+    int flag
+    )
 {
     Wilddog_Arg_Off_T *arg = (Wilddog_Arg_Off_T*)p_args;
     Wilddog_ConnCmd_Arg_T connCmd;
@@ -572,7 +759,19 @@ STATIC Wilddog_Return_T _wilddog_ct_store_off(void* p_args, int flag)
         return WILDDOG_ERR_INVALID;
 }
 
-STATIC Wilddog_Str_T* _wilddog_ct_url_getKey(void* p_args, int flag)
+/*
+ * Function:    _wilddog_ct_url_getKey
+ * Description: get key 
+ * Input:       p_args: the pointer of the ref struct
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return WILDDOG_ERR_INVALID
+*/
+STATIC Wilddog_Str_T* WD_SYSTEM _wilddog_ct_url_getKey
+    (
+    void* p_args, 
+    int flag
+    )
 {
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T*)p_args;
 
@@ -581,7 +780,19 @@ STATIC Wilddog_Str_T* _wilddog_ct_url_getKey(void* p_args, int flag)
     return _wilddog_url_getKey(p_ref->p_ref_url->p_url_path);
 }
 
-STATIC Wilddog_Return_T _wilddog_ct_conn_sync(void *arg, int flag)
+/*
+ * Function:    _wilddog_ct_conn_sync
+ * Description: sync function 
+ * Input:       arg: the pointer of the repo struct
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      if success, return WILDDOG_ERR_NOERR
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_conn_sync
+    (
+    void *arg, 
+    int flag
+    )
 {
     Wilddog_Repo_T** p_head = _wilddog_ct_getRepoHead();
     Wilddog_Repo_T* p_curr, *p_tmp;
@@ -594,9 +805,9 @@ STATIC Wilddog_Return_T _wilddog_ct_conn_sync(void *arg, int flag)
     LL_FOREACH_SAFE(*p_head, p_curr, p_tmp)
     {
         p_conn = p_curr->p_rp_conn;
-        if(p_conn && p_conn->f_conn_trysyc)
+        if(p_conn && p_conn->f_conn_trysync)
         {
-            (p_conn->f_conn_trysyc)(p_curr);
+            (p_conn->f_conn_trysync)(p_curr);
         }
 
     }
@@ -623,11 +834,26 @@ Wilddog_Func_T Wilddog_ApiCmd_FuncTable[WILDDOG_APICMD_MAXCMD + 1] =
 
 #define NOT_USED(_a)
 
-size_t _wilddog_ct_ioctl(Wilddog_Api_Cmd_T cmd, void* arg, int flags)
+
+/*
+ * Function:    _wilddog_ct_ioctl
+ * Description: the ioctl function 
+ * Input:       cmd: api command
+ *              arg: the arg
+ *              flags: the flag, not used
+ * Output:      N/A
+ * Return:      if success, return WILDDOG_ERR_NOERR
+*/
+size_t WD_SYSTEM _wilddog_ct_ioctl
+    (
+    Wilddog_Api_Cmd_T cmd,
+    void* arg, 
+    int flags
+    )
 {
     NOT_USED(flags);
     
-    if(cmd > WILDDOG_APICMD_MAXCMD || cmd < 0)
+    if(cmd > WILDDOG_APICMD_MAXCMD || cmd <= 0)
         return 0;
     else
         return (size_t)(Wilddog_ApiCmd_FuncTable[cmd])(arg, flags);     

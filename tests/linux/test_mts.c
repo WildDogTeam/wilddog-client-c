@@ -10,8 +10,10 @@
  
 #include "wilddog.h"
 #include "wilddog_debug.h"
+#include "test_lib.h"
+#include "test_config.h"
 
-#define TEST_MTS_URL	"coap://c_test.wilddogio.com/mts"
+
 #define TEST_MTS_SETKEY	"MTS_SET_KEY"
 #define TEST_MTS_SETVALUE	"MTS_SET_VALUES"
 #define TEST_SELFREDUCE(n) (n = (n>0)?(n-1):0)
@@ -230,14 +232,16 @@ void test_mts_resPrintf(Test_Client_T *p_client)
 }
 int main(int argc, char **argv)
 {
+    
     Test_Client_T client;
    	pthread_t trysync_pid, main_pid;
 	
 	memset(&client,0,sizeof(client));
+    
 
 	printf("**********MTS TEST **************** \n");
-
-    client.wd_client= wilddog_initWithUrl((Wilddog_Str_T *)TEST_MTS_URL);
+    
+    client.wd_client= wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
 
     if(0 ==  client.wd_client)
     {

@@ -16,7 +16,11 @@
 #define _BITS_H_
 
 #include <sys/types.h>
+
+#ifndef WILDDOG_PORT_TYPE_ESP
 #include <stdint.h>
+#endif
+
 #include "wilddog.h"
 /** 
  * Sets the bit @p bit in bit-vector @p vec. This function returns @c

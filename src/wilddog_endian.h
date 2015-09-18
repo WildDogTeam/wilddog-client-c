@@ -18,36 +18,36 @@ extern "C"
     (((val) & 0x00FF) << 8)))
 
 
-#ifndef htonl
-#define htonl(val)  __WD_SWAP32__(val)
-#endif /* htonl */
-#ifndef ntohl
-#define ntohl(val)  __WD_SWAP32__(val)
+#ifndef wilddog_htonl
+#define wilddog_htonl(val)  __WD_SWAP32__(val)
+#endif /*htonl */
+#ifndef wilddog_ntohl
+#define wilddog_ntohl(val)  __WD_SWAP32__(val)
 #endif /* htonl */
 
-#ifndef htons
-#define htons(val)  __WD_SWAP16__(val)
+#ifndef wilddog_htons
+#define wilddog_htons(val)  __WD_SWAP16__(val)
 #endif /*htons */
 
-#ifndef ntohs
-#define ntohs(val)  __WD_SWAP16__(val)
+#ifndef wilddog_ntohs
+#define wilddog_ntohs(val)  __WD_SWAP16__(val)
 #endif /*htons */
 
 #else
     
-#ifndef htonl
-#define htonl(val)  
+#ifndef wilddog_htonl
+#define wilddog_htonl(val)  
 #endif /* htonl */
-#ifndef ntohl
-#define ntohl(val)  
+#ifndef wilddog_ntohl
+#define wilddog_ntohl(val)  
 #endif /* htonl */
 
-#ifndef htons
-#define htons(val)  
+#ifndef wilddog_htons
+#define wilddog_htons(val)  
 #endif /*htons */
 
-#ifndef ntohs
-#define ntohs(val)  
+#ifndef wilddog_ntohs
+#define wilddog_ntohs(val)  
 #endif /*htons */
 
 #endif

@@ -25,7 +25,8 @@
 
 #include "tinydtls.h"
 #include "dtls_config.h"
-
+#include "wilddog.h"
+#include "wilddog_endian.h"
 #if defined(HAVE_ASSERT_H) && !defined(assert)
 #include <assert.h>
 #endif
@@ -38,6 +39,9 @@
 #endif
 #ifdef WILDDOG_PORT_TYPE_WICED
 #include "wiced.h"
+#include "wilddog.h"
+#endif
+#if defined(WILDDOG_PORT_TYPE_QUCETEL)
 #include "wilddog.h"
 #endif
 #ifdef HAVE_TIME_H
@@ -82,7 +86,7 @@ print_timestamp(char *s, size_t len, time_t t) {
 }
 
 #else /* alternative implementation: just print the timestamp */
-#if defined(WILDDOG_PORT_TYPE_WICED)
+#if defined(WILDDOG_PORT_TYPE_WICED)|| defined(WILDDOG_PORT_TYPE_QUCETEL)
 static inline size_t
 print_timestamp(char *s, size_t len, time_t t)
 {
@@ -136,7 +140,7 @@ dsrv_print_addr(const session_t *addr, char *buf, size_t len) {
       return 0;
   
     addrptr = &addr->addr.sin.sin_addr;
-    port = ntohs(addr->addr.sin.sin_port);
+    port = wilddog_ntohs(addr->addr.sin.sin_port);
     break;
   case AF_INET6:
     if (len < INET6_ADDRSTRLEN + 2)
@@ -145,7 +149,7 @@ dsrv_print_addr(const session_t *addr, char *buf, size_t len) {
     *p++ = '[';
 
     addrptr = &addr->addr.sin6.sin6_addr;
-    port = ntohs(addr->addr.sin6.sin6_port);
+    port = wilddog_ntohs(addr->addr.sin6.sin6_port);
 
     break;
   default:
@@ -212,7 +216,7 @@ dsrv_print_addr(const session_t *addr, char *buf, size_t len) {
 #endif
 }
 
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
 void 
 dsrv_log(log_t level, char *format, ...) {
   static char timebuf[32];
@@ -294,7 +298,7 @@ void dtls_dsrv_log_addr(log_t level, const char *name, const session_t *addr)
   dsrv_log(level, "%s: %s\n", name, addrbuf);
 }
 
-#ifndef WITH_CONTIKI
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
 void 
 dtls_dsrv_hexdump_log(log_t level, const char *name, const unsigned char *buf, size_t length, int extend) {
   static char timebuf[32];
@@ -347,9 +351,10 @@ dtls_dsrv_hexdump_log(log_t level, const char *name, const unsigned char *buf, s
   if (maxlog < level)
     return;
 
+#if !defined(WILDDOG_PORT_TYPE_QUCETEL)
   if (print_timestamp(timebuf,sizeof(timebuf), clock_time()))
     PRINTF("%s ", timebuf);
-
+#endif
   if (level >= 0 && level <= DTLS_LOG_DEBUG) 
     PRINTF("%s ", loglevels[level]);
 

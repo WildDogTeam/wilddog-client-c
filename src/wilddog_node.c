@@ -13,7 +13,9 @@
  *
  */
  
+#ifndef WILDDOG_PORT_TYPE_ESP
 #include <stdio.h>
+#endif
 #include <string.h>
 #include <stdlib.h>
  
@@ -32,7 +34,7 @@ Wilddog_Return_T wilddog_node_deleteChildren(Wilddog_Node_T *p_node);
  * Output:      N/A
  * Return:      Pointer to the new node.
 */
-Wilddog_Node_T *_wilddog_node_new(void)
+Wilddog_Node_T * WD_SYSTEM _wilddog_node_new(void)
 {
     Wilddog_Node_T *node;
 
@@ -58,14 +60,14 @@ Wilddog_Node_T *_wilddog_node_new(void)
  * Function:    _isKeyValid
  * Description: Check the key is valid or not.
  * Input:       key: the key to be checked.
- *				isSpritValid : if TRUE , '/' is not valid
+ *              isSpritValid : if TRUE , '/' is not valid
  * Output:      N/A
  * Return:      valid returns TRUE, others return FALSE.
 */
-STATIC BOOL _isKeyValid(Wilddog_Str_T * key, BOOL isSpritValid)
+STATIC BOOL WD_SYSTEM _isKeyValid(Wilddog_Str_T * key, BOOL isSpritValid)
 {
     int len, i;
-	volatile u8 data;
+    volatile u8 data;
 
     if(NULL == key)
         return TRUE;
@@ -77,7 +79,7 @@ STATIC BOOL _isKeyValid(Wilddog_Str_T * key, BOOL isSpritValid)
         return TRUE;
     for(i = 0; i < len; i++)
     {
-		data = key[i];
+        data = key[i];
         if( data <  32  || \
             data == '.' || \
             data == '$' || \
@@ -87,11 +89,11 @@ STATIC BOOL _isKeyValid(Wilddog_Str_T * key, BOOL isSpritValid)
             data ==  127
             )
             return FALSE;
-		if(FALSE == isSpritValid)
-		{
-			if(data == '/')
-				return FALSE;
-		}
+        if(FALSE == isSpritValid)
+        {
+            if(data == '/')
+                return FALSE;
+        }
     }
     return TRUE;
 }
@@ -99,12 +101,11 @@ STATIC BOOL _isKeyValid(Wilddog_Str_T * key, BOOL isSpritValid)
 /*
  * Function:    _wilddog_node_newWithStr
  * Description: Create a node with key, if key is a path, create a node tree.
- * Input:       key: the key to be checked.
- *				isSpritValid : if TRUE , '/' is valid
+ * Input:       key: the key which used in the node
  * Output:      p_node: pointer of the last node
  * Return:      Success returns the head of the node tree, or NULL.
 */
-STATIC Wilddog_Node_T * _wilddog_node_newWithStr
+STATIC Wilddog_Node_T * WD_SYSTEM _wilddog_node_newWithStr
     (
     Wilddog_Str_T* key, 
     Wilddog_Node_T** p_node
@@ -125,7 +126,7 @@ STATIC Wilddog_Node_T * _wilddog_node_newWithStr
         *p_node = p_head;
         return p_head;
     }
-	/* do not check '/', it may be valid. */
+    /* do not check '/', it may be valid. */
     if(_isKeyValid(key, TRUE) == FALSE)
     {
         *p_node = NULL;
@@ -162,9 +163,9 @@ STATIC Wilddog_Node_T * _wilddog_node_newWithStr
         return NULL;
     }
     strcpy((char*)p_tmpStr, (char*)key);
-	/*
-	 * key may be a path like /a/b/c, so create a node tree.
-	 */
+    /*
+     * key may be a path like /a/b/c, so create a node tree.
+     */
     for(i = 0; i < length; i++)
     {
         if(p_tmpStr[i] == '/')
@@ -217,13 +218,13 @@ STATIC Wilddog_Node_T * _wilddog_node_newWithStr
 
 /*
  * Function:    wilddog_node_createFalse
- * Description: Create a node, type is FALSE.
+ * Description: Create a node, its type is FALSE.
  * Input:       key:    The pointer to the node's key (can be NULL).
  * Output:      N/A
- * Return:      if success, returns pointer points to the node, else return NULL.
+ * Return:      if success, return pointer points to the node, else return NULL.
  * Others:      N/A
 */
-Wilddog_Node_T * wilddog_node_createFalse(Wilddog_Str_T* key)
+Wilddog_Node_T * WD_SYSTEM wilddog_node_createFalse(Wilddog_Str_T* key)
 {
     Wilddog_Node_T *p_node = NULL;
     Wilddog_Node_T * p_head = _wilddog_node_newWithStr(key, &p_node);
@@ -236,13 +237,13 @@ Wilddog_Node_T * wilddog_node_createFalse(Wilddog_Str_T* key)
 }
 /*
  * Function:    wilddog_node_createTrue
- * Description: Create a node, type is TRUE.
+ * Description: Create a node, its type is TRUE.
  * Input:       key:    The pointer to the node's key (can be NULL).
  * Output:      N/A
- * Return:      if success, returns pointer points to the node, else return NULL.
+ * Return:      if success, return pointer points to the node, else return NULL.
  * Others:      N/A
 */
-Wilddog_Node_T * wilddog_node_createTrue(Wilddog_Str_T* key)
+Wilddog_Node_T * WD_SYSTEM wilddog_node_createTrue(Wilddog_Str_T* key)
 {
     Wilddog_Node_T *p_node = NULL;
     Wilddog_Node_T * p_head = _wilddog_node_newWithStr(key, &p_node);
@@ -255,13 +256,13 @@ Wilddog_Node_T * wilddog_node_createTrue(Wilddog_Str_T* key)
 }
 /*
  * Function:    wilddog_node_createNull
- * Description: Create a node, type is NULL.
+ * Description: Create a node, its type is NULL.
  * Input:       key:    The pointer to the node's key (can be NULL).
  * Output:      N/A
- * Return:      if success, returns pointer points to the node, else return NULL.
+ * Return:      if success, return pointer points to the node, else return NULL.
  * Others:      N/A
 */
-Wilddog_Node_T * wilddog_node_createNull(Wilddog_Str_T* key)
+Wilddog_Node_T * WD_SYSTEM wilddog_node_createNull(Wilddog_Str_T* key)
 {
     Wilddog_Node_T *p_node = NULL;
     Wilddog_Node_T * p_head = _wilddog_node_newWithStr(key, &p_node);
@@ -274,14 +275,14 @@ Wilddog_Node_T * wilddog_node_createNull(Wilddog_Str_T* key)
 }
 /*
  * Function:    wilddog_node_createNum
- * Description: Create a node, type is integer(32 bits).
+ * Description: Create a node, its type is integer(32 bits).
  * Input:       key:    The pointer to the node's key (can be NULL).
  *              num:    integer value.
  * Output:      N/A
- * Return:      if success, returns pointer points to the node, else return NULL.
+ * Return:      if success, return pointer points to the node, else return NULL.
  * Others:      N/A
 */
-Wilddog_Node_T * wilddog_node_createNum
+Wilddog_Node_T * WD_SYSTEM wilddog_node_createNum
     (
     Wilddog_Str_T* key, 
     s32 num
@@ -306,14 +307,15 @@ Wilddog_Node_T * wilddog_node_createNum
 }
 /*
  * Function:    wilddog_node_createFloat
- * Description: Create a node, type is float(8-bit machine is 32 bits else 64 bits).
+ * Description: Create a node, its type is float(on 8-bit machine is 32 bits 
+ *              else is 64 bits).
  * Input:       key:    The pointer to the node's key (can be NULL).
  *              num:    float value.
  * Output:      N/A
- * Return:      if success, returns pointer points to the node, else return NULL.
+ * Return:      if success, return pointer points to the node, else return NULL.
  * Others:      N/A
 */
-Wilddog_Node_T * wilddog_node_createFloat
+Wilddog_Node_T * WD_SYSTEM wilddog_node_createFloat
     (
     Wilddog_Str_T* key, 
     wFloat num
@@ -339,15 +341,15 @@ Wilddog_Node_T * wilddog_node_createFloat
 }
 /*
  * Function:    wilddog_node_createBString
- * Description: Create a node, type is byte string(binary buffer).
+ * Description: Create a node, its type is byte string(binary buffer).
  * Input:       key:    The pointer to the node's key (can be NULL).
- *              value:  pointer to the string.
+ *              value:  The pointer to the string.
  *              len:    The length of the string.
  * Output:      N/A
- * Return:      if success, returns pointer points to the node, else return NULL.
+ * Return:      if success, return pointer points to the node, else return NULL.
  * Others:      N/A
 */
-Wilddog_Node_T * wilddog_node_createBString
+Wilddog_Node_T * WD_SYSTEM wilddog_node_createBString
     (
     Wilddog_Str_T* key, 
     u8 *value, 
@@ -355,10 +357,10 @@ Wilddog_Node_T * wilddog_node_createBString
     )
 {
     Wilddog_Node_T * p_node= NULL, *p_head;
-	
+    
     if(NULL == value || len < 0)
         return NULL;
-	
+    
     p_head = _wilddog_node_newWithStr(key, &p_node);
     if(p_node)
     {
@@ -376,24 +378,24 @@ Wilddog_Node_T * wilddog_node_createBString
 }
 /*
  * Function:    wilddog_node_createUString
- * Description: Create a node, type is UTF-8 string.
+ * Description: Create a node, its type is UTF-8 string.
  * Input:       key:    The pointer to the node's key (can be NULL).
- *              value:  pointer to the string.
+ *              value:  The pointer to the string.
  * Output:      N/A
- * Return:      if success, returns pointer points to the node, else return NULL.
+ * Return:      if success, return pointer points to the node, else return NULL.
  * Others:      N/A
 */
-Wilddog_Node_T * wilddog_node_createUString
+Wilddog_Node_T * WD_SYSTEM wilddog_node_createUString
     (
     Wilddog_Str_T* key, 
     Wilddog_Str_T *value
     )
 {
     Wilddog_Node_T * p_node = NULL, *p_head;
-	
+    
     if(NULL == value)
         return NULL;
-	
+    
      p_head = _wilddog_node_newWithStr(key, &p_node);
 
     if(p_node)
@@ -412,13 +414,13 @@ Wilddog_Node_T * wilddog_node_createUString
 }
 /*
  * Function:    wilddog_node_createObject
- * Description: Create a node, type is OBJECT.
- * Input:       key:    the pointer to the node's key (can be NULL).
+ * Description: Create a node, its type is OBJECT.
+ * Input:       key:    The pointer to the node's key (can be NULL).
  * Output:      N/A
- * Return:      if success, returns pointer points to the node, else return NULL.
+ * Return:      if success, return pointer points to the node, else return NULL.
  * Others:      N/A
 */
-Wilddog_Node_T * wilddog_node_createObject
+Wilddog_Node_T * WD_SYSTEM wilddog_node_createObject
     (
     Wilddog_Str_T* key
     )
@@ -438,12 +440,12 @@ Wilddog_Node_T * wilddog_node_createObject
  * Function:    wilddog_node_setKey
  * Description: Set a node's key.
  * Input:       node:   The pointer to the node.
- *              key:    The pointer to the node's key.
+ *              key:    The pointer to the node's new key.
  * Output:      N/A
  * Return:      0 means succeed, negative number means failed.
  * Others:      N/A
 */
-STATIC Wilddog_Return_T wilddog_node_setKey
+STATIC Wilddog_Return_T WD_SYSTEM wilddog_node_setKey
     (
     Wilddog_Node_T *node, 
     Wilddog_Str_T *key
@@ -461,17 +463,19 @@ STATIC Wilddog_Return_T wilddog_node_setKey
     if(node->p_wn_parent != NULL)
     {
         first_child = node->p_wn_parent->p_wn_child;
-	while(first_child != NULL)
+        while(first_child != NULL)
         {
-	    if(first_child->p_wn_key != NULL )
-	    {
-		if( strcmp( (const char *)first_child->p_wn_key, (const char *)key ) == 0)	
-	        {
-			return WILDDOG_ERR_INVALID;
-		}
-	    }
-	    first_child = first_child->p_wn_next;
-	}
+            if(first_child->p_wn_key != NULL )
+            {
+                if(strcmp((const char*)first_child->p_wn_key, \
+                           (const char *)key ) == 0
+                   )  
+                {
+                    return WILDDOG_ERR_INVALID;
+                }
+            }
+            first_child = first_child->p_wn_next;
+        }
     }
 
 
@@ -507,7 +511,7 @@ STATIC Wilddog_Return_T wilddog_node_setKey
  * Return:      if success, returns pointer points to the key, else return NULL.
  * Others:      N/A
 */
-STATIC const Wilddog_Str_T *wilddog_node_getKey(Wilddog_Node_T *node)
+STATIC const Wilddog_Str_T * WD_SYSTEM wilddog_node_getKey(Wilddog_Node_T *node)
 {
     if(NULL == node)
         return NULL;
@@ -531,20 +535,24 @@ STATIC const Wilddog_Str_T *wilddog_node_getKey(Wilddog_Node_T *node)
  * Return:      if success, returns 0, else return negative number.
  * Others:      N/A
 */
-STATIC Wilddog_Return_T wilddog_node_setType(Wilddog_Node_T *node, u8 type)
+STATIC Wilddog_Return_T WD_SYSTEM wilddog_node_setType
+    (
+    Wilddog_Node_T *node,
+    u8 type
+    )
 {
     if(NULL == node)
         return WILDDOG_ERR_NULL;
 
-	if(WILDDOG_NODE_TYPE_OBJECT < type)
-		return WILDDOG_ERR_INVALID;
+    if(WILDDOG_NODE_TYPE_OBJECT < type)
+        return WILDDOG_ERR_INVALID;
 
-	/*node change from object to normal, so delete it's children*/
-	if(WILDDOG_NODE_TYPE_OBJECT == node->d_wn_type && \
-		WILDDOG_NODE_TYPE_OBJECT > type)
-	{
-		wilddog_node_deleteChildren(node);
-	}
+    /*node change from object to normal, so delete it's children*/
+    if(WILDDOG_NODE_TYPE_OBJECT == node->d_wn_type && \
+        WILDDOG_NODE_TYPE_OBJECT > type)
+    {
+        wilddog_node_deleteChildren(node);
+    }
     node->d_wn_type = type;
     return WILDDOG_ERR_NOERR;
 }
@@ -554,10 +562,10 @@ STATIC Wilddog_Return_T wilddog_node_setType(Wilddog_Node_T *node, u8 type)
  * Description: Get a node's type.
  * Input:       node:   The pointer to the node.
  * Output:      N/A
- * Return:      if success, returns type of the node, else return negative number.
+ * Return:      if success, return type of the node, else return negative number.
  * Others:      N/A
 */
-STATIC u8 wilddog_node_getType(Wilddog_Node_T *node)
+STATIC u8 WD_SYSTEM wilddog_node_getType(Wilddog_Node_T *node)
 {
     if(NULL == node)
         return WILDDOG_ERR_NULL;
@@ -575,7 +583,7 @@ STATIC u8 wilddog_node_getType(Wilddog_Node_T *node)
  * Return:      0 means succeed, negative number means failed.
  * Others:      N/A
 */
-Wilddog_Return_T wilddog_node_setValue
+Wilddog_Return_T WD_SYSTEM wilddog_node_setValue
     (
     Wilddog_Node_T *node, 
     u8 *value, 
@@ -596,23 +604,23 @@ Wilddog_Return_T wilddog_node_setValue
         node->d_wn_len = 0;
         return WILDDOG_ERR_NOERR;
     }
-	if(WILDDOG_NODE_TYPE_NUM == node->d_wn_type)
-	{
-		len = sizeof(s32);
-	}
-	else if(WILDDOG_NODE_TYPE_FLOAT == node->d_wn_type)
-	{
-		len = sizeof(wFloat);
-	}
-	else if(
-			WILDDOG_NODE_TYPE_NUM > node->d_wn_type 	|| \
-			WILDDOG_NODE_TYPE_OBJECT == node->d_wn_type
-			)
-	{
+    if(WILDDOG_NODE_TYPE_NUM == node->d_wn_type)
+    {
+        len = sizeof(s32);
+    }
+    else if(WILDDOG_NODE_TYPE_FLOAT == node->d_wn_type)
+    {
+        len = sizeof(wFloat);
+    }
+    else if(
+            WILDDOG_NODE_TYPE_NUM > node->d_wn_type     || \
+            WILDDOG_NODE_TYPE_OBJECT == node->d_wn_type
+            )
+    {
         node->p_wn_value = NULL;
         node->d_wn_len = 0;
         return WILDDOG_ERR_NOERR;
-	}
+    }
     node->p_wn_value = wmalloc(len + 1);
     if(node->p_wn_value== NULL)
     {
@@ -630,13 +638,13 @@ Wilddog_Return_T wilddog_node_setValue
 
 /*
  * Function:    wilddog_node_getValue
- * Description: Set a node's value.
+ * Description: Get a node's value.
  * Input:       node:   The pointer to the node.
  * Output:      len:    The length of the value.
  * Return:      if success, returns point of the value, else return NULL.
  * Others:      N/A
 */
-Wilddog_Str_T* wilddog_node_getValue
+Wilddog_Str_T* WD_SYSTEM wilddog_node_getValue
     (
     Wilddog_Node_T *node, 
     int * len
@@ -662,10 +670,10 @@ Wilddog_Str_T* wilddog_node_getValue
  * Description: Free a node and it's children.
  * Input:       node:   The pointer to the node.
  * Output:      N/A
- * Return:      N/A
+ * Return:      0
  * Others:      N/A
 */
-int _wilddog_node_free(Wilddog_Node_T *node)
+int WD_SYSTEM _wilddog_node_free(Wilddog_Node_T *node)
 {
     wilddog_assert(node , -1);
     
@@ -692,18 +700,18 @@ int _wilddog_node_free(Wilddog_Node_T *node)
     if(node != NULL)
         wfree(node);
     node = NULL;
-	return 0;
+    return 0;
 }
 /*
  * Function:    _wilddog_node_findInner
  * Description: Find a node from the path.
- * Input:       node:   The pointer to the head.
- *				path:	The relative path.
+ * Input:       node:   The pointer to the head node.
+ *              path:   The relative path.
  * Output:      N/A
  * Return:      If find, return the pointer of the node.
  * Others:      N/A
 */
-STATIC Wilddog_Node_T *_wilddog_node_findInner
+STATIC Wilddog_Node_T * WD_SYSTEM _wilddog_node_findInner
     (
     Wilddog_Node_T *node, 
     char *path
@@ -744,10 +752,16 @@ STATIC Wilddog_Node_T *_wilddog_node_findInner
 }
 
 /*
- *  The path must in "a/b" format
- *  The root node has a path key '/'
- */
-Wilddog_Node_T *wilddog_node_find
+ * Function:    wilddog_node_find
+ * Description: Find a node from the path. It do some checks and 
+ *                    then call _wilddog_node_findInner function.
+ * Input:       node:   The pointer to the head node.
+ *              path:   The relative path.
+ * Output:      N/A
+ * Return:      If find, return the pointer of the node.
+ * Others:      N/A
+*/
+Wilddog_Node_T * WD_SYSTEM wilddog_node_find
     ( 
     Wilddog_Node_T *root, 
     char *path 
@@ -775,11 +789,15 @@ Wilddog_Node_T *wilddog_node_find
 }
 
 /*
- * add newnode as node's child
- * if you want to add newnode as node's brother, use the parent node
- *
- */
-Wilddog_Return_T wilddog_node_addChild
+ * Function:    wilddog_node_addChild
+ * Description: add newnode as node's child.
+ * Input:       node:   The pointer to the head.
+ *              newnode: The newnode.
+ * Output:      N/A
+ * Return:      If add success, return WILDDOG_ERR_NOERR.
+ * Others:      N/A
+*/
+Wilddog_Return_T WD_SYSTEM wilddog_node_addChild
     (
     Wilddog_Node_T *node, 
     Wilddog_Node_T *newnode
@@ -794,48 +812,50 @@ Wilddog_Return_T wilddog_node_addChild
         first_child = node->p_wn_child;
         while(first_child != NULL)
         {
-		    if(first_child->p_wn_key != NULL && newnode->p_wn_key != NULL)
-		    {
-				if( strcmp( (const char *)first_child->p_wn_key, (const char *)newnode->p_wn_key ) == 0)	
-			    {
-					break;
-				}
-		    }
-	    	first_child = first_child->p_wn_next;
-		}
-		if(first_child == NULL)
-		{
-		    first_child = node->p_wn_child;
-		    first_child->p_wn_prev = newnode;
-		    newnode->p_wn_next = first_child;
-		    newnode->p_wn_parent = node;
-		    node->p_wn_child = newnode;
-		}
-		else
-		{
-	        if(first_child->p_wn_prev == NULL)
-		    {
-		    	newnode->p_wn_prev = NULL;
-				newnode->p_wn_next = first_child->p_wn_next;
-				newnode->p_wn_parent = node;
-				node->p_wn_child = newnode;
-		    }
-		    else
-		    {
-			    first_child->p_wn_prev->p_wn_next = newnode;
-			    newnode->p_wn_prev = first_child->p_wn_prev;
-			    if(first_child->p_wn_next != NULL)
-			    {
-				    first_child->p_wn_next->p_wn_prev = newnode;
-				    newnode->p_wn_next = first_child->p_wn_next;
-			    }
-			    newnode->p_wn_parent = node;
-		    }
-		    first_child->p_wn_prev = NULL;
-		    first_child->p_wn_next = NULL;
-		    first_child->p_wn_parent = NULL;
-		    wilddog_node_delete(first_child);
-		}
+            if(first_child->p_wn_key != NULL && newnode->p_wn_key != NULL)
+            {
+                if(strcmp((const char *)first_child->p_wn_key, \
+                           (const char *)newnode->p_wn_key ) == 0
+                   )    
+                {
+                    break;
+                }
+            }
+            first_child = first_child->p_wn_next;
+        }
+        if(first_child == NULL)
+        {
+            first_child = node->p_wn_child;
+            first_child->p_wn_prev = newnode;
+            newnode->p_wn_next = first_child;
+            newnode->p_wn_parent = node;
+            node->p_wn_child = newnode;
+        }
+        else
+        {
+            if(first_child->p_wn_prev == NULL)
+            {
+                newnode->p_wn_prev = NULL;
+                newnode->p_wn_next = first_child->p_wn_next;
+                newnode->p_wn_parent = node;
+                node->p_wn_child = newnode;
+            }
+            else
+            {
+                first_child->p_wn_prev->p_wn_next = newnode;
+                newnode->p_wn_prev = first_child->p_wn_prev;
+                if(first_child->p_wn_next != NULL)
+                {
+                    first_child->p_wn_next->p_wn_prev = newnode;
+                    newnode->p_wn_next = first_child->p_wn_next;
+                }
+                newnode->p_wn_parent = node;
+            }
+            first_child->p_wn_prev = NULL;
+            first_child->p_wn_next = NULL;
+            first_child->p_wn_parent = NULL;
+            wilddog_node_delete(first_child);
+        }
     }
     else
     {
@@ -850,33 +870,52 @@ Wilddog_Return_T wilddog_node_addChild
     return WILDDOG_ERR_NOERR;
 }
 
-Wilddog_Return_T wilddog_node_deleteChildren(Wilddog_Node_T *p_node)
+/*
+ * Function:    wilddog_node_deleteChildren
+ * Description: delete node's all child node.
+ * Input:       node:   The pointer to the head.
+ * Output:      N/A
+ * Return:      If delete children node success, return WILDDOG_ERR_NOERR.
+ * Others:      N/A
+*/
+Wilddog_Return_T WD_SYSTEM wilddog_node_deleteChildren
+    (
+    Wilddog_Node_T *p_node
+    )
 {
-	Wilddog_Node_T *p_child = NULL;
-	
-	wilddog_assert(p_node, WILDDOG_ERR_NULL);
+    Wilddog_Node_T *p_child = NULL;
+    
+    wilddog_assert(p_node, WILDDOG_ERR_NULL);
 
-	p_child = p_node->p_wn_child;
-	if(p_child)
-	{
-		Wilddog_Node_T *p_brother = p_child->p_wn_next;
-		Wilddog_Node_T *p_nextBrother = p_brother;
+    p_child = p_node->p_wn_child;
+    if(p_child)
+    {
+        Wilddog_Node_T *p_brother = p_child->p_wn_next;
+        Wilddog_Node_T *p_nextBrother = p_brother;
 
-		while(p_nextBrother)
-		{
-			p_brother = p_nextBrother;
-			p_nextBrother = p_brother->p_wn_next;
+        while(p_nextBrother)
+        {
+            p_brother = p_nextBrother;
+            p_nextBrother = p_brother->p_wn_next;
 
-			wilddog_node_delete(p_brother);
-		}
-		wilddog_node_delete(p_child);
-	}
-	p_node->p_wn_child = NULL;
+            wilddog_node_delete(p_brother);
+        }
+        wilddog_node_delete(p_child);
+    }
+    p_node->p_wn_child = NULL;
 
-	return WILDDOG_ERR_NOERR;
+    return WILDDOG_ERR_NOERR;
 }
 
-Wilddog_Return_T wilddog_node_delete( Wilddog_Node_T *p_node)
+/*
+ * Function:    wilddog_node_delete
+ * Description: delete the p_node and it's child node and free them.
+ * Input:       p_node:   The pointer to the head.
+ * Output:      N/A
+ * Return:      If delete node success, return WILDDOG_ERR_NOERR.
+ * Others:      N/A
+*/
+Wilddog_Return_T WD_SYSTEM wilddog_node_delete( Wilddog_Node_T *p_node)
 {
     Wilddog_Node_T * p_head = NULL;
 
@@ -930,7 +969,15 @@ DEL_FREE:
     return WILDDOG_ERR_NOERR;
 }
 
-Wilddog_Node_T * wilddog_node_clone(const Wilddog_Node_T *node)
+/*
+ * Function:    wilddog_node_clone
+ * Description: clone the node and it's all child node.
+ * Input:       node:   The pointer to the head.
+ * Output:      N/A
+ * Return:      If clone success, return the pointer of the node copy.
+ * Others:      N/A
+*/
+Wilddog_Node_T * WD_SYSTEM wilddog_node_clone(const Wilddog_Node_T *node)
 {
     Wilddog_Node_T *p_snapshot;
     Wilddog_Node_T *tmp;
@@ -984,5 +1031,4 @@ Wilddog_Node_T * wilddog_node_clone(const Wilddog_Node_T *node)
         return p_snapshot;  
     }
 }
-
 

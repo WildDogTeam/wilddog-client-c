@@ -34,7 +34,7 @@
 #include "tinydtls.h"
 
 #ifndef WITH_CONTIKI
-#ifndef WILDDOG_PORT_TYPE_WICED
+#if !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
 #include "uthash.h"
 #endif
 #include "utlist.h"

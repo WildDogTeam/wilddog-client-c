@@ -5,8 +5,6 @@ export TOPDIR=$(shell pwd)/../../
 
 AR=ar cr
 
-include client.config
-
 ifndef PORT_TYPE
 export PORT_TYPE=linux
 endif

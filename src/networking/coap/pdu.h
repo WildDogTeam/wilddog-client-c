@@ -8,7 +8,9 @@
 
 #ifndef _PDU_H_
 #define _PDU_H_
+#ifndef WILDDOG_PORT_TYPE_ESP
 #include <stdio.h>
+#endif
 /* pre-defined constants that reflect defaults for CoAP */
 #define COAP_ACK_RANDOM_FACTOR  1
 #define COAP_DEFAULT_RESPONSE_TIMEOUT  2 /* response timeout in seconds */

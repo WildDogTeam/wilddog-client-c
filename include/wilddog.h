@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
+ *
+ * FileName: wilddog.h
+ *
+ * Description: Wilddog's main header files.
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.0        Jimmy.Pan       2015-05-15  Create file.
+ * 0.4.6        Jimmy.Pan       2015-09-06  Add notes.
+ *
+ */
+
 #ifndef _WILDDOG_H_
 #define _WILDDOG_H_
 
@@ -6,15 +21,11 @@ extern "C"
 {
 #endif
 
+#ifndef WILDDOG_PORT_TYPE_ESP
 #include <stdio.h>
-#include "wilddog_config.h"
+#endif
 
-#ifndef TRUE
-#define TRUE (1==1)
-#endif
-#ifndef FALSE
-#define FALSE (1==0)
-#endif
+#include "wilddog_config.h"
 
 #ifndef STATIC
 #define STATIC static
@@ -28,6 +39,7 @@ extern "C"
 #define VOLATILE volatile
 #endif
 
+/* if do not need debug log, undefine it to cost down ROM space. */
 #define WILDDOG_DEBUG
 
 #define WD_DEBUG_ALL    0
@@ -36,36 +48,14 @@ extern "C"
 #define WD_DEBUG_ERROR  3
 #define WD_DEBUG_NODBG  4
 
-#ifdef WILDDOG_PORT_TYPE_QUCETEL
 
-#include "ql_stdlib.h"
-#include "ql_memory.h"
-#include "ql_trace.h"
-#define atoi Ql_atoi
-#define memset Ql_memset
-#define memcpy Ql_memcpy
-#define memcmp Ql_memcmp
-#define strcpy Ql_strcpy
-#define strncpy Ql_strncpy
-#define strcmp Ql_strcmp
-#define strncmp Ql_strncmp
-#define strchr Ql_strchr
-#define strlen Ql_strlen
-#define strstr Ql_strstr
-#define sprintf Ql_sprintf
-#define snprintf Ql_snprintf
-#define sscanf Ql_sscanf
-#define tolower Ql_tolower
-//#define toupper Ql_toupper
-//#define isdigit Ql_isdigit
-#define fprintf(fd, format, ...)  Ql_Debug_Trace(format, ##__VA_ARGS__)
-#define fflush 
-#define malloc Ql_MEM_Alloc
-#define free Ql_MEM_Free
-#define printf Ql_Debug_Trace
-
+#ifdef WILDDOG_PORT_TYPE_ESP	
+#include "wilddog_espressif.h"
+#define FAR ICACHE_FLASH_ATTR
+#define WD_SYSTEM FAR
+#elif defined WILDDOG_PORT_TYPE_QUCETEL
+#include "wilddog_quectel.h"
 #else
-
 typedef unsigned char u8 ;
 typedef unsigned short u16 ;
 typedef unsigned long u32 ;
@@ -74,7 +64,15 @@ typedef signed short s16 ;
 typedef signed long s32 ;
 #endif
 
-
+#ifndef WD_SYSTEM
+#define WD_SYSTEM
+#endif
+#ifndef TRUE
+#define TRUE (1==1)
+#endif
+#ifndef FALSE
+#define FALSE (1==0)
+#endif
 #ifdef WILDDOG_DEBUG
 #define DEBUG_LEVEL WD_DEBUG_ERROR
 
@@ -94,8 +92,6 @@ typedef signed long s32 ;
 #define wilddog_assert(_arg, _return) do{if((_arg)==0) \
     {printf("%s %d, assert failed!\r\n",__func__, __LINE__); \
         return(_return);}}while(0)
-
-
 
 #if WILDDOG_MACHINE_BITS == 8
 typedef float wFloat;
@@ -146,7 +142,7 @@ typedef enum WILDDOG_RETURN_T
     WILDDOG_ERR_MAXRETRAN = -9,
     WILDDOG_ERR_RECVTIMEOUT = -10,
     WILDDOG_ERR_RECVNOMATCH = -11,
-	WILDDOG_ERR_CLIENTOFFLINE = -12,
+    WILDDOG_ERR_CLIENTOFFLINE = -12,
 /*****************HTTP return error******************/
     WILDDOG_HTTP_OK = 200,
     WILDDOG_HTTP_CREATED = 201,
@@ -231,7 +227,7 @@ extern void *wrealloc(void *ptr, size_t oldSize, size_t newSize);
 
 #include "wilddog_api.h"
 #include "wilddog_debug.h"
-
+//#include "wilddog_endian.h"
 #ifdef __cplusplus
 }
 #endif

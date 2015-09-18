@@ -1,10 +1,16 @@
 ﻿#!/bin/sh
 
 echo $(pwd)
-
+if [ $1 -e  ]
+then
+	echo "please use like: autotest.sh nosec | tinydtls | dtls "
+	exit
+fi
 cd ../../
 
-make test
+export APP_SEC_TYPE=$1
+
+make test APP_SEC_TYPE=${APP_SEC_TYPE}
 
 ./bin/test_wdProperty
 
@@ -30,7 +36,7 @@ WD_MTS=$?
 
 WD_STEP=$?
 
-make clean
+make clean APP_SEC_TYPE=${APP_SEC_TYPE}
 echo "\n*************************************************************************\n"
 
 if [ ${WD_PROPERTY} -ne 0 ]

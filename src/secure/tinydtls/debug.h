@@ -84,7 +84,7 @@ extern void tiny_dtls_set_log_level(log_t level);
  * Writes the given text to \c stdout. The text is output only when \p
  * level is below or equal to the log level that set by
  * set_log_level(). */
-#ifdef HAVE_VPRINTF
+#if HAVE_VPRINTF == 1
 void dsrv_log(log_t level, char *format, ...);
 #else
 #define dsrv_log(level, format, ...) PRINTF(format, ##__VA_ARGS__)

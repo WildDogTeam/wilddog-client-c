@@ -13,7 +13,9 @@
  *
  */
  
+#ifndef WILDDOG_PORT_TYPE_ESP   
 #include <stdio.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 
@@ -31,10 +33,14 @@ STATIC VOLATILE u32 l_wilddog_currTime = 0;
  * Output:      N/A
  * Return:      Pointer to the memory.
 */
-void* wmalloc(int size)
+void* WD_SYSTEM wmalloc(int size)
 {
     void* ptr = NULL;
-    ptr = malloc(size);
+
+    if(!size)
+        return NULL;
+    
+    ptr = (void *)malloc(size);
     if(NULL != ptr)
     {
         memset(ptr, 0, size);
@@ -48,7 +54,7 @@ void* wmalloc(int size)
  * Output:      N/A
  * Return:      N/A
 */
-void wfree(void* ptr)
+void WD_SYSTEM wfree(void* ptr)
 {
     if(ptr) 
     {
@@ -63,27 +69,27 @@ void wfree(void* ptr)
  * Output:      N/A
  * Return:      New pointer.
 */
-void *wrealloc(void *ptr, size_t oldSize, size_t newSize)
+void * WD_SYSTEM wrealloc(void *ptr, size_t oldSize, size_t newSize)
 {
-#ifdef WILDDOG_PORT_TYPE_QUCETEL
-	void* tmpPtr = NULL;
+#if defined(WILDDOG_PORT_TYPE_QUCETEL) || defined(WILDDOG_PORT_TYPE_ESP)
+    void* tmpPtr = NULL;
 #endif
 
     if(!ptr)
         return wmalloc(newSize);
-#ifdef WILDDOG_PORT_TYPE_QUCETEL
+#if defined(WILDDOG_PORT_TYPE_QUCETEL) || defined(WILDDOG_PORT_TYPE_ESP)
 
-	tmpPtr = (void*)wmalloc(newSize);
-	if(!tmpPtr)
-	{
-		wfree(ptr);
-		return NULL;
-	}
-	memcpy(tmpPtr, ptr, oldSize > newSize? (newSize):(oldSize));
-	wfree(ptr);
-	return tmpPtr;
+    tmpPtr = (void*)wmalloc(newSize);
+    if(!tmpPtr)
+    {
+        wfree(ptr);
+        return NULL;
+    }
+    memcpy(tmpPtr, ptr, oldSize > newSize? (newSize):(oldSize));
+    wfree(ptr);
+    return tmpPtr;
 #else
-	return realloc( ptr, newSize);
+    return realloc( ptr, newSize);
 #endif
 }
 /*
@@ -93,7 +99,7 @@ void *wrealloc(void *ptr, size_t oldSize, size_t newSize)
  * Output:      N/A
  * Return:      N/A
 */
-int _wilddog_atoi(char* str)
+int WD_SYSTEM _wilddog_atoi(char* str)
 {
     return atoi(str);
 }
@@ -104,7 +110,7 @@ int _wilddog_atoi(char* str)
  * Output:      N/A
  * Return:      N/A
 */
-u8 _wilddog_isUrlValid(Wilddog_Str_T * url)
+u8 WD_SYSTEM _wilddog_isUrlValid(Wilddog_Str_T * url)
 {
     return TRUE;
 }
@@ -116,7 +122,7 @@ u8 _wilddog_isUrlValid(Wilddog_Str_T * url)
  * Output:      N/A
  * Return:      N/A
 */
-u8 _wilddog_isAuthValid(u8 * auth, int len)
+u8 WD_SYSTEM _wilddog_isAuthValid(u8 * auth, int len)
 {
     return TRUE;
 }
@@ -127,7 +133,7 @@ u8 _wilddog_isAuthValid(u8 * auth, int len)
  * Output:      N/A
  * Return:      N/A
 */
-void _wilddog_setTimeIncrease(u32 ms)
+void INLINE WD_SYSTEM _wilddog_setTimeIncrease(u32 ms)
 {
     l_wilddog_currTime += ms;
     return;
@@ -139,7 +145,7 @@ void _wilddog_setTimeIncrease(u32 ms)
  * Output:      N/A
  * Return:      N/A
 */
-STATIC INLINE void _wilddog_setTime(u32 ms)
+STATIC INLINE void WD_SYSTEM _wilddog_setTime(u32 ms)
 {
     l_wilddog_currTime = ms;
 }
@@ -150,7 +156,7 @@ STATIC INLINE void _wilddog_setTime(u32 ms)
  * Output:      N/A
  * Return:      Current time.
 */
-u32 _wilddog_getTime(void)
+u32 WD_SYSTEM _wilddog_getTime(void)
 {
     return l_wilddog_currTime;
 }
@@ -162,7 +168,7 @@ u32 _wilddog_getTime(void)
  * Output:      N/A
  * Return:      N/A
 */
-void _wilddog_syncTime(void)
+void WD_SYSTEM _wilddog_syncTime(void)
 {
     static u32 recentTime = 0;
     u32 currTime = _wilddog_getTime();
@@ -170,35 +176,7 @@ void _wilddog_syncTime(void)
     /*every repo will receive WILDDOG_RECEIVE_TIMEOUT ms*/
     u32 calTime = recentTime + WILDDOG_RECEIVE_TIMEOUT;
     
-    /*calTime < recentTime means overflow*/
-    if(calTime < recentTime)
-    {
-        /*overflow*/
-        if(currTime > recentTime)
-        {
-            /*
-             * currTime not overflow, means time not increased enough, 
-             * force to calTime
-             */
-            currTime = calTime;
-        }
-        else
-        {
-            /*
-             * if curr time <= recent time ,means user did not call the increase
-             * function,use default.
-             */
-            currTime = currTime > recentTime ? (currTime):(calTime);
-        }
-    }
-    else
-    {
-        /*
-         * if curr time <= recent time ,means user did not call the increase 
-         * function,use default.
-         */
-        currTime = currTime > recentTime ? (currTime):(calTime);
-    }
+    currTime = (currTime != recentTime ? (currTime):(calTime));
     
     _wilddog_setTime(currTime);
     recentTime = currTime;

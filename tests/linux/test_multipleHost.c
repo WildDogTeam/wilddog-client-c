@@ -8,18 +8,17 @@
 
 #include "wilddog.h"
 #include "test_lib.h"
+#include "test_config.h"
 
-#define TESTURL_NUM		50
+#define TESTURL_NUM		(32)
 #define TESTURL_HARD	"coap://"
-#define TESTURL_TAIL	".wilddogio.com/multipletest"
+#define TESTURL_TAIL	".wilddogio.com"
 
-#define MULTIPLE_HOST1	"c_test1"
-#define MULTIPLE_HOST2	"c_test2"
-#define MULTIPLE_HOST3	"c_test3"
+#define TEST_MUTIL_HOST1 "host1"
+#define TEST_MUTIL_HOST2 "host2"
+#define TEST_MUTIL_HOST3 "host3"
 
-STATIC  char url1[TESTURL_NUM];
-STATIC  char url2[TESTURL_NUM];
-STATIC  char url3[TESTURL_NUM];
+
 
 
 #define MULTIPLETEST_KEY	"MULTIPLE_key"
@@ -226,7 +225,7 @@ STATIC void multiple_testResultPrint(Multiple_client_T *p_mult_client)
 	char *p_res;
 	
 	memset(url_temp,0,TESTURL_NUM);
-	sprintf(url_temp,"%s%s%s",TESTURL_HARD,p_mult_client->p_host,TESTURL_TAIL);
+	sprintf(url_temp,"%s%s",TESTURL_HARD,p_mult_client->p_host);
 	printf("@@testing: %s\n",url_temp);
 	printf("%20s %s\n","set request:",MULTIPLETEST_GETRESULT(p_res,p_mult_client->d_setResult));
 	printf("%20s %s\n","get request:",MULTIPLETEST_GETRESULT(p_res,p_mult_client->d_getResult));
@@ -247,29 +246,47 @@ STATIC int multiple_testResultReturn(Multiple_client_T *p_mult_client)
 	else
 			return 0;
 }
+STATIC void test_gethost(char *p_host,const char *url)
+{
+	char *star_p = NULL,*end_p = NULL;
+	star_p =  strchr(url,'/')+2;
+	end_p = strchr(star_p,'.');
+	memcpy(p_host,star_p,end_p - star_p);
+    
+    memcpy(&p_host[end_p - star_p],TEST_URL_END,strlen(TEST_URL_END));
+}
+
 int main(void)
 {
 	
-    Wilddog_T client1= 0,client2 = 0,client3 = 0;
+	char host1[TESTURL_NUM],host2[TESTURL_NUM],host3[TESTURL_NUM];
+    
+	Wilddog_T client1= 0,client2 = 0,client3 = 0;
 	
+	memset(host1,0,TESTURL_NUM);
+	memset(host2,0,TESTURL_NUM);	
+	memset(host3,0,TESTURL_NUM);
+
+
 	printf(" @@mutiple test\n");
+	
+	printf("APPID : %s \n",TEST_URL);
+	printf("APPID2 : %s \n",TEST_URL2);
+	printf("APPID3 : %s \n",TEST_URL3);
+	
 
-	
-	sprintf((char*)url1,"%s%s%s",TESTURL_HARD,MULTIPLE_HOST1,TESTURL_TAIL);
-	sprintf((char*)url2,"%s%s%s",TESTURL_HARD,MULTIPLE_HOST2,TESTURL_TAIL);
-	sprintf((char*)url3,"%s%s%s",TESTURL_HARD,MULTIPLE_HOST3,TESTURL_TAIL);
-	
-	printf("%s \n",url1);
-	printf("%s \n",url2);
-	printf("%s \n",url3);
+    test_gethost(host1,TEST_URL);
+    test_gethost(host2,TEST_URL2);
+    test_gethost(host3,TEST_URL3);
 
-	multipleClient[0].p_host = MULTIPLE_HOST1;
-	multipleClient[1].p_host = MULTIPLE_HOST2;
-	multipleClient[2].p_host = MULTIPLE_HOST3;
+
+	multipleClient[0].p_host = host1;
+	multipleClient[1].p_host = host2;
+	multipleClient[2].p_host = host3;
 	
-    client1 = wilddog_initWithUrl((Wilddog_Str_T *)url1);
-    client2 = wilddog_initWithUrl((Wilddog_Str_T *)url2);
-    client3 = wilddog_initWithUrl((Wilddog_Str_T *)url3);
+    client1 = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
+    client2 = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL2);
+    client3 = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL3);
     /* set */
     
 	printf("test set \n");

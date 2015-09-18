@@ -28,7 +28,7 @@ SDK文档。
 
 ####platform
 
-该目录根据不同平台分为不同子目录，分别为linux和wiced。
+该目录根据不同平台分为不同子目录，分别为linux和wiced等。
 
 ####project
 
@@ -70,7 +70,7 @@ Wiced平台需要用户完成Makefile，格式有严格要求，Makefile文件�
 
 *	`APP_SEC_TYPE` ： src/secure目录下，根据编译选项拷贝文件夹；
 
-*	`PORT_TYPE` ： platform目录下，根据编译选项拷贝文件夹，如果你的平台不属于`linux`或`wiced`，那么你需要自己实现平台相关的函数接口。
+*	`PORT_TYPE` ： platform目录下，根据编译选项拷贝文件夹，如果你的平台不属于`linux`或`wiced`等已支持平台，那么你需要自己实现平台相关的函数接口。
 
 ----
 

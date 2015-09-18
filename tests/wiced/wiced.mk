@@ -17,8 +17,10 @@ $(NAME)_INCLUDES += $(WILDDOG_TOP_DIR)/include
 ########tests
 #EXAMPLE_C:=$(wildcard $(WILDDOG_TOP_DIR)/tests/wiced/*.c)
 $(NAME)_SOURCES += $(WILDDOG_TOP_DIR)/tests/wiced/test.c \
-$(WILDDOG_TOP_DIR)/tests/wiced/stab_function.c
-
+$(WILDDOG_TOP_DIR)/tests/wiced/stab_function.c \
+$(WILDDOG_TOP_DIR)/tests/wiced/test_ram.c \
+$(WILDDOG_TOP_DIR)/tests/wiced/test_buildtree.c \
+$(WILDDOG_TOP_DIR)/tests/wiced/test_perform.c
 
 ##########platform
 #PLATFORM_C:=$(wildcard $(WILDDOG_TOP_DIR)/platform/$(PORT_TYPE)/*.c)

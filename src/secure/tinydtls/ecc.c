@@ -37,8 +37,10 @@
  */
 
 //big number functions
+
 #include "ecc.h"
 #include <string.h>
+#include "wilddog.h"
 
 static uint32_t add( const uint32_t *x, const uint32_t *y, uint32_t *result, uint8_t length){
 	uint64_t d = 0; //carry

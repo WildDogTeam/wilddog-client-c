@@ -35,7 +35,7 @@
 #endif
 #endif
 
-#if defined(WILDDOG_PORT_TYPE_WICED)
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
 static inline int
 _dtls_address_equals_impl(const session_t *a,
               const session_t *b)

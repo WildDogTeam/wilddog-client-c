@@ -16,6 +16,14 @@
 #include "wilddog_endian.h"
 #include "wilddog_common.h"
 #include "test_lib.h"
+
+/*
+ * Function:    _packet_get_next_fragment
+ * Description: Get next fragment packet, it use the interface in wiced platform.
+ * Input:       packet: The pointer of packet.
+ * Output:      next_packet_fragment: The second rank pointer of the next packet.
+ * Return:      If success, return 0
+*/
 wiced_result_t _packet_get_next_fragment
     (
     wiced_packet_t* packet, 
@@ -39,6 +47,13 @@ extern wiced_result_t dns_client_add_server_address
     wiced_ip_address_t address 
     );
 
+/*
+ * Function:    wilddog_gethostbyname
+ * Description: wilddog gethostbyname function, it use the interface in wiced platform.
+ * Input:        host: The pointer of host string.
+ * Output:      addr: The pointer of the Wilddog_Address_T.
+ * Return:      If success, return 0; else return -1.
+*/
 int wilddog_gethostbyname( Wilddog_Address_T* addr, char* host )
 {
     wiced_ip_address_t address;
@@ -55,12 +70,19 @@ int wilddog_gethostbyname( Wilddog_Address_T* addr, char* host )
         return -1;
     }
     tmpIp = address.ip.v4;
-    tmpIp = htonl(tmpIp);
+    tmpIp = wilddog_htonl(tmpIp);
     memcpy( addr->ip, &tmpIp, 4 );
 
     return 0;
 }
 
+/*
+ * Function:    wilddog_openSocket
+ * Description: wilddog openSocket function, it use the interface in wiced platform.
+ * Input:        N/A
+ * Output:      socketId: The pointer of socket id.
+ * Return:      If success, return 0; else return -1.
+*/
 int wilddog_openSocket( int* socketId )
 {
     wiced_udp_socket_t* socket = NULL;
@@ -80,6 +102,13 @@ int wilddog_openSocket( int* socketId )
     return 0;
 }
 
+/*
+ * Function:    wilddog_closeSocket
+ * Description: wilddog closeSocket function, it use the interface in wiced platform.
+ * Input:        socketId: The socket id.
+ * Output:      N/A
+ * Return:      If success, return 0; else return -1.
+*/
 int wilddog_closeSocket( int socketId )
 {
     wiced_udp_delete_socket( (wiced_udp_socket_t*) socketId );
@@ -90,6 +119,17 @@ int wilddog_closeSocket( int socketId )
     }
     return 0;
 }
+
+/*
+ * Function:    wilddog_send
+ * Description: wilddog send function, it use the interface in wiced platform.
+ * Input:        socketId: The socket id.
+ *                  addr_in:  The pointer of Wilddog_Address_T
+ *                  tosend: The pointer of the send buffer
+ *                  tosendLength: The length of the send buffer.
+ * Output:      N/A
+ * Return:      If success, return the number of characters sent.; else return -1.
+*/
 int wilddog_send
     ( 
     int socketId, 
@@ -125,7 +165,7 @@ int wilddog_send
 
     memcpy( data, tosend, tosendLength );
 #if WILDDOG_SELFTEST
-    performtest_tm_getDtlsSend();
+    performtest_getDtlsSendTime();
 #endif
     wiced_packet_set_data_end( packet, (uint8_t*) ( data + tosendLength ) );
     wilddog_debug_level(WD_DEBUG_LOG, "socketId = %d, port = %d\n", \
@@ -145,6 +185,18 @@ int wilddog_send
     return -1;
 
 }
+
+/*
+ * Function:    wilddog_receive
+ * Description: wilddog receive function, it use the interface in wiced platform.
+ * Input:        socketId: The socket id.
+ *                  addr:  The pointer of Wilddog_Address_T
+ *                  buf: The pointer of the send buffer
+ *                  bufLen: The length of the send buffer.
+ *                  timeout: The max timeout in recv process.
+ * Output:      N/A
+ * Return:      If success, return the number of bytes received; else return -1.
+*/
 int wilddog_receive
     ( 
     int socketId, 
@@ -218,8 +270,8 @@ int wilddog_receive
                 /*end*/
 #if WILDDOG_SELFTEST
                 {
-                    performtest_tm_getAuthWait();
-                    performtest_tm_getRecv_wait();
+                    performtest_getWaitSessionQueryTime();
+                    performtest_getWaitRecvTime();
                 }
 #endif
                 wilddog_debug_level(WD_DEBUG_LOG, "received %d data!", pos);

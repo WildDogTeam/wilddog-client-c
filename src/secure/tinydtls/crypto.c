@@ -25,7 +25,7 @@
  */
 
 #include <stdio.h>
-
+#include "wilddog.h"
 #include "tinydtls.h"
 #include "dtls_config.h"
 
@@ -45,7 +45,7 @@
 #include "prng.h"
 #include "netq.h"
 
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
 #include <pthread.h>
 #endif
 
@@ -53,13 +53,13 @@
   if (Seed) dtls_hmac_update(Context, (Seed), (Length))
 
 static struct dtls_cipher_context_t cipher_context;
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
 static pthread_mutex_t cipher_context_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 static struct dtls_cipher_context_t *dtls_cipher_context_get(void)
 {
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
   pthread_mutex_lock(&cipher_context_mutex);
 #endif
   return &cipher_context;
@@ -67,12 +67,12 @@ static struct dtls_cipher_context_t *dtls_cipher_context_get(void)
 
 static void dtls_cipher_context_release(void)
 {
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
   pthread_mutex_unlock(&cipher_context_mutex);
 #endif
 }
 
-#if !defined(WITH_CONTIKI) || defined(WILDDOG_PORT_TYPE_WICED)
+#if !defined(WITH_CONTIKI) || defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
 void crypto_init()
 {
 }
@@ -262,7 +262,7 @@ dtls_prf(const unsigned char *key, size_t keylen,
 		     buf, buflen);
 }
 
-void
+int
 dtls_mac(dtls_hmac_context_t *hmac_ctx, 
 	 const unsigned char *record,
 	 const unsigned char *packet, size_t length,
@@ -270,13 +270,14 @@ dtls_mac(dtls_hmac_context_t *hmac_ctx,
   uint16 L;
   dtls_int_to_uint16(L, length);
 
-  assert(hmac_ctx);
+  wilddog_assert(hmac_ctx, -1);
   dtls_hmac_update(hmac_ctx, record +3, sizeof(uint16) + sizeof(uint48));
   dtls_hmac_update(hmac_ctx, record, sizeof(uint8) + sizeof(uint16));
   dtls_hmac_update(hmac_ctx, L, sizeof(uint16));
   dtls_hmac_update(hmac_ctx, packet, length);
   
   dtls_hmac_finalize(hmac_ctx, buf);
+  return 0;
 }
 
 static size_t
@@ -286,7 +287,7 @@ dtls_ccm_encrypt(aes128_ccm_t *ccm_ctx, const unsigned char *src, size_t srclen,
 		 const unsigned char *aad, size_t la) {
   long int len;
 
-  assert(ccm_ctx);
+  wilddog_assert(ccm_ctx, -1);
 
   len = dtls_ccm_encrypt_message(&ccm_ctx->ctx, 8 /* M */, 
 				 max(2, 15 - DTLS_CCM_NONCE_SIZE),
@@ -303,7 +304,7 @@ dtls_ccm_decrypt(aes128_ccm_t *ccm_ctx, const unsigned char *src,
 		 const unsigned char *aad, size_t la) {
   long int len;
 
-  assert(ccm_ctx);
+  wilddog_assert(ccm_ctx, -1);
 
   len = dtls_ccm_decrypt_message(&ccm_ctx->ctx, 8 /* M */, 
 				 max(2, 15 - DTLS_CCM_NONCE_SIZE),
