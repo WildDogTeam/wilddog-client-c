@@ -115,7 +115,7 @@ DDEFINES +=				\
 # Required for each makefile to inherit from the parent
 #
 
-INCLUDES := $(INCLUDES) -I $(PDIR)include -I ./$(PDIR)wilddog/include
+INCLUDES := $(INCLUDES) -I $(PDIR)include -I ./$(PDIR)wilddog_client_coap/include
 PDIR := ../$(PDIR)
 sinclude $(PDIR)Makefile
 
