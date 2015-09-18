@@ -1128,7 +1128,7 @@ STATIC int _wilddog_n2c_encodeString
             WILDDOG_CBOR_BYTE_STRING | \
             _wilddog_n2c_uintAdditionalInfo(len);
     }
-	else if(WILDDOG_NODE_TYPE_OBJECT == p_node->d_wn_type)
+	else
 	{
         *(p_data->p_dt_data + p_data->d_dt_pos) = \
             WILDDOG_CBOR_TEXT_STRING | \
