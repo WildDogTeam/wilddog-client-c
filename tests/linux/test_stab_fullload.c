@@ -174,11 +174,12 @@ void stab_resultPrint(void)
 	printf("\n");
 	return;
 }
-
 STATIC	void stab_settest_dataInit(u8 idx)
 {
 	int i;
+    char temp_url[strlen(TEST_URL)+20];
 
+    memset(temp_url,0,sizeof(temp_url));
 	for(i=0;i<10;i++)
 	{
 		stab_setdata[i].key[0] = 'K';
@@ -186,12 +187,12 @@ STATIC	void stab_settest_dataInit(u8 idx)
 		
 		stab_setdata[i].key[1] = 0x30+i; 		
 		stab_setdata[i].data[1] = 0x30+idx; 
-		stab_setdata[i].data[2] = 0x30+i;
 
-        
+		stab_setdata[i].data[2] = 0x30+i;
+		sprintf((char*)temp_url,"%s/%s",TEST_URL,stab_setdata[i].key);
  		if(stab_setdata[i].client)
 			wilddog_destroy(&(stab_setdata[i].client));
-		stab_setdata[i].client = wilddog_initWithUrl((Wilddog_Str_T*)TEST_URL);
+		stab_setdata[i].client = wilddog_initWithUrl((Wilddog_Str_T*)temp_url);
 		if(stab_setdata[i].p_node)
 		{
 			wilddog_node_delete(stab_setdata[i].p_node);

@@ -1095,7 +1095,7 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeString
     size_t len = 0;
 
     
-    if(NULL == p_node->p_wn_key)
+    if(NULL == p_node->p_wn_key && TYPE_KEY == type)
         return WILDDOG_ERR_NOERR;
 
     /*string data max use length*/
