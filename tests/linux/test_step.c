@@ -180,7 +180,7 @@ int main(void)
         
 	memset(host,0,sizeof(host));
     test_gethost(host,TEST_URL);
-    printf(" \t hsot %s \n",host);
+    printf(" \t host %s \n",host);
 
  	printf("**********STEP TEST **************** \n");
 	printf("\t url = %s\n",TEST_URL);
