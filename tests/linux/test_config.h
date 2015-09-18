@@ -20,11 +20,11 @@
  
 
 /* test url*/
-#define TEST_URL         "coap://sky.wilddogio.com"
+#define TEST_URL         "coap://<your appid1>.wilddogio.com"
 
 /* used in test_multipleHost.c to Test performance while accessing  multiple url the same time.*/
-#define TEST_URL2         "coap://c_test1.wilddogio.com"
-#define TEST_URL3         "coap://c_test2.wilddogio.com"
+#define TEST_URL2         "coap://<your appid2>.wilddogio.com"
+#define TEST_URL3         "coap://<your appid3>.wilddogio.com"
 
 /* Used in test_step.c to test set auth  */
 #define TEST_AUTH 	"yourauth"

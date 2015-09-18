@@ -19,7 +19,7 @@
  
 
 /* test url*/
-#define TEST_URL         "coap://sky.wilddogio.com"
+#define TEST_URL         "coap://<your appid>.wilddogio.com"
 
 /* Used in test_step.c to test set auth  */
 #define TEST_AUTH 	"yourauth"

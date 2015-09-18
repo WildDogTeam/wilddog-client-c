@@ -18,20 +18,18 @@ STATIC int l_res = 0;
 
 STATIC void test_onSetFunc(void* arg, Wilddog_Return_T err)
 {
-
 	if(arg)
 		printf("Building tree : %s  error = %d",(u8*)arg,err);
 	else 
 		printf("Building tree 	error = %d",err);
 
-	
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 		l_res = TEST_BUILDTREE_ERROR;
 		
 	isFinished = TRUE;
 	return;
 }
-/*************************************build complete binary tree**************************************************************************/
+/**************************build complete binary tree**************************/
 int test_buildtreeFunc(const char *p_userUrl)
 {
 
