@@ -8,7 +8,7 @@
 
 获得 SDK，你可以从gitHub中下载。
 
-我们的SDK已经在Linux平台和Wiced平台上成功移植，在此仅以Linux为例，Wiced平台请查看 [开发向导中的移植SDK](https://z.wilddog.com/device/guide/8)。
+我们的SDK已经在Linux平台和Wiced平台、espressif平台上成功移植，在此仅以Linux为例，Wiced平台请查看 [开发向导中的移植SDK](https://z.wilddog.com/device/guide/8)。
 
 ####第三步 编译SDK
 
@@ -18,7 +18,8 @@
 	$ make 
 
 编译示例，编译后的可执行文件在bin目录下
-	
+
+	$ make example
 
 ####第四步 运行示例
 

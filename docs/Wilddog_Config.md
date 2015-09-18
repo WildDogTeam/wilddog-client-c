@@ -4,11 +4,10 @@
 
 编译选项是指在编译阶段需要设置的参数，这里特指已经支持的平台。
 
-linux平台的编译选项在project/linux/client.config中，wiced平台的编译选项在project/wiced/wiced.mk中。
+linux平台的编译选项在make时指定，wiced平台的编译选项在project/wiced/wiced.mk中。
 
 编译选项目前有以下几种：
 
-	APP_PROTO_TYPE : 通信协议类型，目前只支持coap；
 	APP_SEC_TYPE ： 加密类型，目前支持DTLS加密类型dtls和tinydtls，以及无加密类型nosec；
 	PORT_TYPE ： 平台类型，根据不同平台选择；
 
