@@ -6,7 +6,7 @@ export TOPDIR=$(shell pwd)/../../
 AR=ar cr
 
 ifndef PORT_TYPE
-export PORT_TYPE=linux
+export PORT_TYPE=espressif
 endif
 
 ifndef APP_PROTO_TYPE
@@ -30,11 +30,12 @@ WD_OBJS_CLEAN := $(patsubst %,%_clean,$(WD_OBJS))
 wdlib:$(WD_OBJS_BUILD)
 	@$(AR) libwilddog.a $(TOPDIR)/lib/*.o; \
 	rm -rf $(TOPDIR)/lib/*.o; \
-	mv libwilddog.a $(TOPDIR)/lib;
+	cp libwilddog.a $(TOPDIR)/lib;
+	mv libwilddog.a $(TOPDIR)/../lib;
 
 common_build:
 	@echo "Building common files"
-	@make -C $(TOPDIR)/src all||exit 1;
+	@make -C $(TOPDIR)src all||exit 1;
 	
 common_clean:
 	@echo "Cleaning common files"
@@ -48,18 +49,6 @@ platform_clean:
 	@echo "Cleaning platform files"
 	@make -C $(TOPDIR)/platform clean||exit 1;
 
-test:
-	@make clean;make WILDDOG_SELFTEST=yes wdlib; \
-	make WILDDOG_SELFTEST=yes -C $(TOPDIR)/tests/linux testall||exit 1;
-	@rm -rf $(TOPDIR)/lib/libwilddog.a
-	
-
-example:
-	@if test ! -e $(TOPDIR)/lib/libwilddog.a ;\
-	then \
-		make wdlib; \
-	fi
-	@make -C $(TOPDIR)/examples/linux demoall||exit 1;
 	
 
 .PHONY: clean

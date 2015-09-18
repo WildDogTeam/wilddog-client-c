@@ -8,7 +8,9 @@ extern "C"
 #endif
 
 
+#ifndef WILDDOG_PORT_TYPE_ESP
 #include <stdio.h>
+#endif
 
 #include "wilddog_config.h"
 #include "wilddog.h"

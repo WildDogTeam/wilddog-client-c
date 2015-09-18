@@ -24,42 +24,42 @@ extern "C"
 #ifdef WILDDOG_SELFTEST
 
 typedef struct RAMTEST_T{
-	u32 tree_num;
-	u32 request_num;
-	u32 d_sendfalt;
-	u32 d_recverr;
-	u32 d_node_ram;
-	u32 d_x509_ram;
-	u32 d_requestQeue_ram;
-	u32 d_average_ram;
-	u32 d_peak_ram;
-	u32 d_packet_size;
-	u32 d_protocol_size;
-	u32 d_gethostbyname;
+    u32 tree_num;
+    u32 request_num;
+    u32 d_sendfalt;
+    u32 d_recverr;
+    u32 d_node_ram;
+    u32 d_x509_ram;
+    u32 d_requestQeue_ram;
+    u32 d_average_ram;
+    u32 d_peak_ram;
+    u32 d_packet_size;
+    u32 d_protocol_size;
+    u32 d_gethostbyname;
 
-	u32 d_sys_ramusage;
-	u32 d_mallocblks_init;		
-	u32 d_stackblks_init;	
-	u32 mallocblks;
-	u32 stackblks;
-	
+    u32 d_sys_ramusage;
+    u32 d_mallocblks_init;      
+    u32 d_stackblks_init;   
+    u32 mallocblks;
+    u32 stackblks;
+    
 }Ramtest_T;
 
 
-#define NODE_INDEX_RAMTST	1
-#define REQUESTCNT_RAMTST		1
+#define NODE_INDEX_RAMTST   1
+#define REQUESTCNT_RAMTST       1
 
 #define TEST_URL_END ".wilddogio.com"
 /* tree path */
-#define TEST_TREE_T_127	"/tree_127"
-#define TEST_TREE_T_256	"/tree_256"
-#define TEST_TREE_T_576	"/tree_576"
-#define TEST_TREE_T_810	"/tree_810"
-#define TEST_TREE_T_1044	"/tree_1044"
-#define TEST_TREE_T_1280	"/tree_1280"
+#define TEST_TREE_T_127 "/tree_127"
+#define TEST_TREE_T_256 "/tree_256"
+#define TEST_TREE_T_576 "/tree_576"
+#define TEST_TREE_T_810 "/tree_810"
+#define TEST_TREE_T_1044    "/tree_1044"
+#define TEST_TREE_T_1280    "/tree_1280"
 
-#define TEST_TREE_ITEMS		5
-#define TEST_PROTO_COVER		100
+#define TEST_TREE_ITEMS     5
+#define TEST_PROTO_COVER        100
 
 
 /* ram test_api*/
@@ -95,16 +95,12 @@ extern void performtest_getHandleRecvTime(void);
 extern void performtest_titile_printf(void);
 extern void performtest_end_printf(void);
 extern void performtest_handle
-		(
-		u32 delay_tm,
-		const u8 *p_url,
-		u32 tree_num, 
-		u8 request_num
-		);
-
-
-//extern int test_buildtreeFunc(const char *p_userUrl);
-
+    (
+    u32 delay_tm,
+    const u8 *p_url,
+    u32 tree_num, 
+    u8 request_num
+    );
 
 #endif /* WILDDOG_SELFTEST*/
 #ifdef __cplusplus

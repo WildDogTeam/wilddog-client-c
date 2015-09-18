@@ -12,7 +12,9 @@
  * 0.4.3        Jimmy.Pan       2015-07-09  Add annotation.
  *
  */
+#ifndef WILDDOG_PORT_TYPE_ESP
 #include <stdio.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 
@@ -37,7 +39,7 @@ STATIC Wilddog_Return_T _wilddog_store_ioctl
  * Output:      N/A
  * Return:      Pointer to the store structure.
 */
-Wilddog_Store_T *_wilddog_store_init(Wilddog_Repo_T* p_repo)
+Wilddog_Store_T * WD_SYSTEM _wilddog_store_init(Wilddog_Repo_T* p_repo)
 {
     Wilddog_Store_T *p_store = NULL;
     wilddog_assert(p_repo, NULL);
@@ -70,7 +72,7 @@ Wilddog_Store_T *_wilddog_store_init(Wilddog_Repo_T* p_repo)
  * Output:      N/A
  * Return:      If success return 0.
 */
-STATIC Wilddog_Return_T _wilddog_store_setAuth
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_store_setAuth
     (
     Wilddog_Store_T *p_store, 
     void* arg, 
@@ -80,27 +82,27 @@ STATIC Wilddog_Return_T _wilddog_store_setAuth
     Wilddog_Store_AuthArg_T * p_authArg = (Wilddog_Store_AuthArg_T*)arg;
     Wilddog_Conn_T *p_conn = p_store->p_se_repo->p_rp_conn;
     Wilddog_ConnCmd_Arg_T connCmd;
-	
+    
     if(p_authArg->d_len > WILDDOG_AUTH_LEN)
         return WILDDOG_ERR_INVALID;
 
-	memset(p_store->p_se_auth->p_auth, 0, WILDDOG_AUTH_LEN);
+    memset(p_store->p_se_auth->p_auth, 0, WILDDOG_AUTH_LEN);
 
-	if(!p_authArg->p_data)
-	{
-		if(p_authArg->d_len != 0)
-			return WILDDOG_ERR_NULL;
-	}
-	else
-		memcpy(p_store->p_se_auth->p_auth,p_authArg->p_data, p_authArg->d_len);
-	p_store->p_se_auth->d_len = p_authArg->d_len;
+    if(!p_authArg->p_data)
+    {
+        if(p_authArg->d_len != 0)
+            return WILDDOG_ERR_NULL;
+    }
+    else
+        memcpy(p_store->p_se_auth->p_auth,p_authArg->p_data, p_authArg->d_len);
+    p_store->p_se_auth->d_len = p_authArg->d_len;
     
     connCmd.p_url = p_authArg->p_url;
     connCmd.p_complete = (Wilddog_Func_T)p_authArg->p_onAuth;
     connCmd.p_completeArg = p_authArg->p_onAuthArg;
     connCmd.p_data = NULL;
 
-	/*auth data will be called by lower layer*/
+    /*auth data will be called by lower layer*/
     if(p_conn && p_conn->f_conn_send)
     {
         return p_conn->f_conn_send(WILDDOG_CONN_CMD_AUTH, p_store->p_se_repo, \
@@ -116,7 +118,7 @@ STATIC Wilddog_Return_T _wilddog_store_setAuth
  * Output:      N/A
  * Return:      return NULL.
 */
-Wilddog_Store_T *_wilddog_store_deinit(Wilddog_Repo_T* p_repo)
+Wilddog_Store_T* WD_SYSTEM _wilddog_store_deinit(Wilddog_Repo_T* p_repo)
 {
     Wilddog_Store_T *p_store = NULL;
 
@@ -142,14 +144,14 @@ Wilddog_Store_T *_wilddog_store_deinit(Wilddog_Repo_T* p_repo)
  * Output:      N/A
  * Return:      return the auth data len.
 */
-STATIC u16 _wilddog_store_getAuth
+STATIC u16 WD_SYSTEM _wilddog_store_getAuth
     (
     Wilddog_Store_T *p_store, 
     void* arg
     )
 {
     *(u8**)arg = p_store->p_se_auth->p_auth;
-	
+    
     wilddog_assert(arg, 0);
     return p_store->p_se_auth->d_len;
 }
@@ -164,7 +166,7 @@ STATIC u16 _wilddog_store_getAuth
  * Output:      N/A
  * Return:      return data defined by the cmd.
 */
-STATIC Wilddog_Return_T _wilddog_store_ioctl
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_store_ioctl
     (
     Wilddog_Store_T *p_store, 
     Wilddog_Store_Cmd_T cmd, 
@@ -223,3 +225,4 @@ STATIC Wilddog_Return_T _wilddog_store_ioctl
     }
     return WILDDOG_ERR_INVALID;
 }
+

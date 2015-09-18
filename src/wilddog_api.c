@@ -12,7 +12,9 @@
  *
  */
 
+#ifndef WILDDOG_PORT_TYPE_ESP   
 #include <stdio.h>
+#endif
 #include <stdlib.h>
 
 #include "wilddog.h"
@@ -73,7 +75,8 @@ Wilddog_Return_T wilddog_destroy(Wilddog_T *p_wilddog)
 {
     wilddog_assert(p_wilddog, 0);
 
-    return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_DESTROYREF, p_wilddog,0);
+    return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_DESTROYREF, \
+                                               p_wilddog,0);
 }
 
 /*
@@ -303,7 +306,11 @@ Wilddog_Return_T wilddog_addObserver
  * Output:      N/A
  * Return:      0 means succeed, negative number means failed.
 */
-Wilddog_Return_T wilddog_removeObserver(Wilddog_T wilddog, Wilddog_EventType_T event)
+Wilddog_Return_T wilddog_removeObserver
+    (
+    Wilddog_T wilddog, 
+    Wilddog_EventType_T event
+    )
 {
     Wilddog_Arg_Off_T args;
     

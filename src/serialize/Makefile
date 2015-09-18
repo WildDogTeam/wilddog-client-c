@@ -1,4 +1,3 @@
-
 include_dirs= $(DATA_TYPE)
 
-include $(TOPDIR)/project/linux/env.mk
+include $(TOPDIR)/project/$(PORT_TYPE)/env.mk

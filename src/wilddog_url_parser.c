@@ -20,7 +20,9 @@
  *      Hirochika Asai
  */
 
+#ifndef WILDDOG_PORT_TYPE_ESP
 #include <stdio.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -55,7 +57,7 @@ void parsed_url_free(struct parsed_url *);
  */
 #if 0
 #define isalpha(c) wd_isalpha(c)
-STATIC int wd_isalpha(int c)
+STATIC int WD_SYSTEM wd_isalpha(int c)
 {
     if(c >= 'a' && c <= 'z')
         return 2;
@@ -64,7 +66,7 @@ STATIC int wd_isalpha(int c)
     return 0;
 }
 #endif
-STATIC INLINE int _is_scheme_char(int c)
+STATIC INLINE int WD_SYSTEM _is_scheme_char(int c)
 {
     return (!isalpha(c) && '+' != c && '-' != c && '.' != c) ? 0 : 1;
 }
@@ -72,7 +74,7 @@ STATIC INLINE int _is_scheme_char(int c)
 /*
  * See RFC 1738, 3986
  */
-struct parsed_url *parse_url(const char *url)
+struct parsed_url * WD_SYSTEM parse_url(const char *url)
 {
     struct parsed_url *purl;
     const char *tmpstr;
@@ -328,7 +330,7 @@ struct parsed_url *parse_url(const char *url)
 /*
  * Free memory of parsed url
  */
-void parsed_url_free(struct parsed_url *purl)
+void WD_SYSTEM parsed_url_free(struct parsed_url *purl)
 {
     if ( NULL != purl ) {
         if ( NULL != purl->scheme ) {
@@ -367,37 +369,37 @@ void parsed_url_free(struct parsed_url *purl)
  * Return:      success return 0, failed return nagative number.
 */
 
-int _wilddogurl_checkPath(Wilddog_Str_T *p_path)
+int WD_SYSTEM _wilddogurl_checkPath(Wilddog_Str_T *p_path)
 {
-	int len , i;
-	u8 data;
-	wilddog_assert(p_path, WILDDOG_ERR_NULL);
+    int len , i;
+    u8 data;
+    wilddog_assert(p_path, WILDDOG_ERR_NULL);
 
-	len = strlen((const char*)p_path);
+    len = strlen((const char*)p_path);
 
-	if( (p_path[0] == '/') || ((len >= 1) && (p_path[len - 1] == '/')))
-		return WILDDOG_ERR_INVALID;
+    if( (p_path[0] == '/') || ((len >= 1) && (p_path[len - 1] == '/')))
+        return WILDDOG_ERR_INVALID;
 
-	for(i = 0; i < len; i++)
-	{
-		data = p_path[i];
-		if( data <  32  || \
-	        data == '.' || \
-	        data == '$' || \
-	        data == '#' || \
-	        data == '[' || \
-	        data == ']' || \
-	        data ==  127)
-		{
-			return WILDDOG_ERR_INVALID;
-		}
-		if(i < len - 1)
-		{
-			if(data == '/' && p_path[i + 1] == '/')
-				return WILDDOG_ERR_INVALID;
-		}
-	}
-	return WILDDOG_ERR_NOERR;
+    for(i = 0; i < len; i++)
+    {
+        data = p_path[i];
+        if( data <  32  || \
+            data == '.' || \
+            data == '$' || \
+            data == '#' || \
+            data == '[' || \
+            data == ']' || \
+            data ==  127)
+        {
+            return WILDDOG_ERR_INVALID;
+        }
+        if(i < len - 1)
+        {
+            if(data == '/' && p_path[i + 1] == '/')
+                return WILDDOG_ERR_INVALID;
+        }
+    }
+    return WILDDOG_ERR_NOERR;
 }
 
 /*
@@ -407,7 +409,7 @@ int _wilddogurl_checkPath(Wilddog_Str_T *p_path)
  * Output:      N/A
  * Return:      Pointer to the url structure.
 */
-Wilddog_Url_T * _wilddog_url_parseUrl(Wilddog_Str_T * url)
+Wilddog_Url_T * WD_SYSTEM _wilddog_url_parseUrl(Wilddog_Str_T * url)
 {
     struct parsed_url * p_paresd_url = NULL;
     Wilddog_Url_T * p_wd_url = NULL;
@@ -443,7 +445,7 @@ Wilddog_Url_T * _wilddog_url_parseUrl(Wilddog_Str_T * url)
     }
     else 
         return NULL;
-	
+    
     if(NULL == p_paresd_url->path)
     {
         p_wd_url->p_url_path = (Wilddog_Str_T *)wmalloc(len);
@@ -459,12 +461,14 @@ Wilddog_Url_T * _wilddog_url_parseUrl(Wilddog_Str_T * url)
     {
         len += strlen((const char*)p_paresd_url->path);
 
-		if(WILDDOG_ERR_NOERR != _wilddogurl_checkPath((Wilddog_Str_T*)p_paresd_url->path))
-		{
-			_wilddog_url_freeParsedUrl(p_wd_url);
-			parsed_url_free(p_paresd_url);
-			return NULL;
-		}
+        if(WILDDOG_ERR_NOERR != \
+           _wilddogurl_checkPath((Wilddog_Str_T*)p_paresd_url->path)
+           )
+        {
+            _wilddog_url_freeParsedUrl(p_wd_url);
+            parsed_url_free(p_paresd_url);
+            return NULL;
+        }
         p_wd_url->p_url_path = (Wilddog_Str_T *)wmalloc(len + 1);
         if(NULL == p_wd_url->p_url_path)
         {
@@ -506,7 +510,7 @@ Wilddog_Url_T * _wilddog_url_parseUrl(Wilddog_Str_T * url)
  * Output:      N/A
  * Return:      Pointer to the url structure.
 */
-void _wilddog_url_freeParsedUrl(Wilddog_Url_T * p_url)
+void WD_SYSTEM _wilddog_url_freeParsedUrl(Wilddog_Url_T * p_url)
 {
     if(NULL == p_url)
         return;
@@ -531,7 +535,11 @@ void _wilddog_url_freeParsedUrl(Wilddog_Url_T * p_url)
  * Output:      N/A
  * Return:      Same return TRUE, others return FALSE.
 */
-BOOL _wilddog_url_diff(Wilddog_Url_T* p_src, Wilddog_Url_T* p_dst)
+BOOL WD_SYSTEM _wilddog_url_diff
+    (
+    Wilddog_Url_T* p_src,
+    Wilddog_Url_T* p_dst
+    )
 {
     if(
         strcmp((const char*)p_src->p_url_host,(const char*)p_dst->p_url_host) || \
@@ -550,7 +558,7 @@ BOOL _wilddog_url_diff(Wilddog_Url_T* p_src, Wilddog_Url_T* p_dst)
  * Output:      N/A
  * Return:      Pointer to the Key.
 */
-Wilddog_Str_T *_wilddog_url_getKey(Wilddog_Str_T * p_path)
+Wilddog_Str_T * WD_SYSTEM _wilddog_url_getKey(Wilddog_Str_T * p_path)
 {
     int i, len, pos = 0;
     Wilddog_Str_T* p_str = NULL;
@@ -590,7 +598,7 @@ Wilddog_Str_T *_wilddog_url_getKey(Wilddog_Str_T * p_path)
  * Output:      N/A
  * Return:      Pointer to the parent's path.
 */
-STATIC Wilddog_Str_T *_wilddog_url_getParentStr
+STATIC Wilddog_Str_T * WD_SYSTEM _wilddog_url_getParentStr
     (
     Wilddog_Str_T* p_src_path
     )
@@ -618,23 +626,23 @@ STATIC Wilddog_Str_T *_wilddog_url_getParentStr
             break;
         }
     }
-	/* path do not have '/', invalid */
+    /* path do not have '/', invalid */
     if((!pos) && (p_src_path[pos] != '/'))
         return p_path;
 
-	if(pos == 0)
-	{
-		p_path = (Wilddog_Str_T *)wmalloc(2);
-		if(NULL == p_path)
-			return NULL;
-		p_path[0] = '/';
-		return p_path;
-	}
-	
+    if(pos == 0)
+    {
+        p_path = (Wilddog_Str_T *)wmalloc(2);
+        if(NULL == p_path)
+            return NULL;
+        p_path[0] = '/';
+        return p_path;
+    }
+    
     p_path = (Wilddog_Str_T *)wmalloc(pos + 1);
     if(NULL == p_path)
         return NULL;
-	
+    
     strncpy((char*)p_path, (char*)p_src_path, pos);
     return p_path;
 }
@@ -646,7 +654,7 @@ STATIC Wilddog_Str_T *_wilddog_url_getParentStr
  * Output:      N/A
  * Return:      Pointer to the root's path.
 */
-STATIC Wilddog_Str_T *_wilddog_url_getRootStr
+STATIC Wilddog_Str_T * WD_SYSTEM _wilddog_url_getRootStr
     (
     Wilddog_Str_T *p_srcPath
     )
@@ -670,7 +678,7 @@ STATIC Wilddog_Str_T *_wilddog_url_getRootStr
  * Output:      N/A
  * Return:      Pointer to the child's path.
 */
-STATIC Wilddog_Str_T *_wilddog_url_getChildStr
+STATIC Wilddog_Str_T * WD_SYSTEM _wilddog_url_getChildStr
     (
     Wilddog_Str_T*p_srcPath, 
     Wilddog_Str_T* childName
@@ -679,8 +687,8 @@ STATIC Wilddog_Str_T *_wilddog_url_getChildStr
     Wilddog_Str_T *p_path = NULL;
     int len = 0;
     int srcLen = 0, childLen = 0;
-	int dstPathLen = 0;
-	
+    int dstPathLen = 0;
+    
     if(!childName || !p_srcPath)
         return NULL;
     srcLen = strlen((const char*)p_srcPath);
@@ -691,10 +699,10 @@ STATIC Wilddog_Str_T *_wilddog_url_getChildStr
     {
         return NULL;
     }
-	
+    
     if(WILDDOG_ERR_NOERR != _wilddogurl_checkPath(childName))
     {
-		wilddog_debug_level(WD_DEBUG_ERROR, "check path error!");
+        wilddog_debug_level(WD_DEBUG_ERROR, "check path error!");
         return NULL;
     }
     len = srcLen + childLen + 3;
@@ -713,8 +721,8 @@ STATIC Wilddog_Str_T *_wilddog_url_getChildStr
         snprintf((char*)p_path, len , "%s/%s", (char*)p_srcPath, \
             (char*)childName);
     }
-	dstPathLen= strlen((const char *)p_path);
-	p_path[dstPathLen]= 0;
+    dstPathLen= strlen((const char *)p_path);
+    p_path[dstPathLen]= 0;
 
     return p_path;
 }
@@ -729,7 +737,7 @@ STATIC Wilddog_Str_T *_wilddog_url_getChildStr
  * Output:      pp_dstPath: pointer to the new path.
  * Return:      If success return 0, else return negative number.
 */
-Wilddog_Return_T _wilddog_url_getPath
+Wilddog_Return_T WD_SYSTEM _wilddog_url_getPath
     (
     Wilddog_Str_T* p_srcPath, 
     Wilddog_RefChange_T type,

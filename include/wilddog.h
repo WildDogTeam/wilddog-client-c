@@ -21,15 +21,11 @@ extern "C"
 {
 #endif
 
+#ifndef WILDDOG_PORT_TYPE_ESP
 #include <stdio.h>
-#include "wilddog_config.h"
+#endif
 
-#ifndef TRUE
-#define TRUE (1==1)
-#endif
-#ifndef FALSE
-#define FALSE (1==0)
-#endif
+#include "wilddog_config.h"
 
 #ifndef STATIC
 #define STATIC static
@@ -52,7 +48,12 @@ extern "C"
 #define WD_DEBUG_ERROR  3
 #define WD_DEBUG_NODBG  4
 
-#ifdef WILDDOG_PORT_TYPE_QUCETEL
+
+#ifdef WILDDOG_PORT_TYPE_ESP	
+#include "wilddog_espressif.h"
+#define FAR ICACHE_FLASH_ATTR
+#define WD_SYSTEM FAR
+#elif defined WILDDOG_PORT_TYPE_QUCETEL
 #include "wilddog_quectel.h"
 #else
 typedef unsigned char u8 ;
@@ -63,7 +64,15 @@ typedef signed short s16 ;
 typedef signed long s32 ;
 #endif
 
-
+#ifndef WD_SYSTEM
+#define WD_SYSTEM
+#endif
+#ifndef TRUE
+#define TRUE (1==1)
+#endif
+#ifndef FALSE
+#define FALSE (1==0)
+#endif
 #ifdef WILDDOG_DEBUG
 #define DEBUG_LEVEL WD_DEBUG_ERROR
 

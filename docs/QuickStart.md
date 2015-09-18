@@ -24,10 +24,10 @@
 
 向应用URL存储一个key-value结构的数据
 
-$ ./bin/demo set -l <应用URL> --key a --value 1 
+$ ./bin/demo setValue -l <应用URL> --key a --value 1 
 获取应用URL的数据
 
-$ ./bin/demo query -l <应用URL>
+$ ./bin/demo getValue -l <应用URL>
 执行结果：
 
 "/":{"a":"1"}

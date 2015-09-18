@@ -28,14 +28,14 @@ extern "C"
 #define AUTHR_PATH  "/.cs"
 #define AUTHR_QURES ".cs="
 #define AUTHR_LEN   (4)
-#define AUTHR_LENINBYTE	(2*AUTHR_LEN)
+#define AUTHR_LENINBYTE (2*AUTHR_LEN)
 
-#define PONG_PATH	"/.ping"
-#define PONG_QURES	"seq="
-#define PONG_NUMBERMAX	(98)
-#define PONG_NUMBERLEN	(2)
-#define PONG_REQUESINTERVAL	 (10*60*1000)
-#define PONG_REQUEST_IMMEDIATELY	(1000)	/* auth timeout need to pong immediately*/	
+#define PONG_PATH   "/.ping"
+#define PONG_QURES  "seq="
+#define PONG_NUMBERMAX  (98)
+#define PONG_NUMBERLEN  (2)
+#define PONG_REQUESINTERVAL  (10*60*1000)
+#define PONG_REQUEST_IMMEDIATELY    (1000)  /* auth timeout need to pong immediately*/  
 
 typedef enum WILDDOG_CONN_CMD_TYPE
 {
@@ -61,7 +61,7 @@ typedef struct WILDDOG_CONN_NODE_T
     u8 *p_cn_path;
     void* p_cn_cb_arg;
     u8 d_cmd;
-    u8 d_observe_flag;	
+    u8 d_observe_flag;  
     
 }Wilddog_Conn_Node_T;
 
@@ -70,10 +70,10 @@ typedef struct WILDDOG_CONN_T
     Wilddog_Repo_T *p_conn_repo;
     
     u8  d_sessionState;
-	u8 	d_onlineState;
-	u8  d_pong_num;
-	u8  d_reObserver_flag;
-	
+    u8  d_onlineState;
+    u8  d_pong_num;
+    u8  d_reObserver_flag;
+    
     u32 d_token;
     u32 d_recentSendTime;
     
@@ -95,11 +95,11 @@ typedef struct WILDDOG_CONN_PKTSEND_T{
     u32 d_payloadlen;
     u8 *p_payload;  
 
-	/*recv call back */
-	Wilddog_Conn_T *p_conn;
+    /*recv call back */
+    Wilddog_Conn_T *p_conn;
     Wilddog_Conn_Node_T *p_cn_node;
-	Wilddog_Func_T f_cn_callback;
-	
+    Wilddog_Func_T f_cn_callback;
+    
 }Wilddog_Conn_PktSend_T;
 
 typedef struct WILDDOG_CONN_RECVDATA_T
@@ -146,8 +146,6 @@ Wilddog_Return_T _wilddog_conn_pkt_recv
     );
 Wilddog_Conn_T * _wilddog_conn_init(Wilddog_Repo_T* p_repo);
 Wilddog_Conn_T* _wilddog_conn_deinit(Wilddog_Repo_T*p_repo);
-
-
 
 #endif /*_WILDDOG_CONN_H_*/
 
