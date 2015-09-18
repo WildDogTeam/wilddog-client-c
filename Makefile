@@ -17,7 +17,6 @@ export APP_PROTO_TYPE:=coap
 
 all:
 	@echo "Building wilddog lib"
-	@echo $(MAKEFLAGS)
 	@$(MAKE) -C ./project/$(PORT_TYPE) wdlib||exit 1;
 	@echo "Building wilddog lib end!"
 
