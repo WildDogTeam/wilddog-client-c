@@ -174,7 +174,6 @@ void stab_resultPrint(void)
 	printf("\n");
 	return;
 }
-
 STATIC	void stab_settest_dataInit(u8 idx)
 {
 	int i;
