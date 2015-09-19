@@ -28,6 +28,9 @@
 
 #include "wilddog.h"
 
+#define  SSID         "your ssid"
+#define  PASSWORD    "your password"
+
 BOOL dns_flag = FALSE;
 os_timer_t test_timer1;
 
@@ -79,12 +82,9 @@ struct CTX
 void FAR
 fake_sync(void *arg)
 {
-	printf("fake sync\n");
-	//BOOL isFinish = *((BOOL*)arg);
 	struct CTX *ctx = ((struct CTX *)arg);
 
 	if(*(ctx->isFinish)== TRUE)
-	//if(isFinish == TRUE)
 	{
 		printf("finish!!!\n");
 		os_timer_disarm(&test_timer1);
@@ -95,9 +95,7 @@ fake_sync(void *arg)
 	}
 	else
 	{
-		wilddog_debug("try sync\n");
 		wilddog_trySync();	
-		//os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_sync, (void*)&ctx);
 		os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_sync, arg);
 		os_timer_arm(&test_timer1, 1000, 0);
 	}
@@ -137,7 +135,7 @@ fake_main(void)
 		 wilddog_debug_printnode(p_head);
 		 //wilddog_increaseTime(100);
 		 
-		 *wilddog = wilddog_initWithUrl((Wilddog_Str_T *)"coap://sky.wilddogio.com");
+		 *wilddog = wilddog_initWithUrl((Wilddog_Str_T *)"coap://<your appId>.wilddogio.com");
 		
 		if(0 == *wilddog)
 		{
@@ -150,7 +148,6 @@ fake_main(void)
 
 		os_timer_disarm(&test_timer1);
 		os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_sync, (void*)_ctx);
-		//os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_sync, (void*)isFinish);
 		os_timer_arm(&test_timer1, 1000, 0);    	
 	}
 }
@@ -215,8 +212,8 @@ void FAR
 user_set_station_config(void)
 {
    // Wifi configuration 
-	char ssid[32] = "wilddog";
-	char password[64] = "orangeline";
+	char ssid[32] = SSID;
+	char password[64] = PASSWORD;
 
    struct station_config stationConf; 
 

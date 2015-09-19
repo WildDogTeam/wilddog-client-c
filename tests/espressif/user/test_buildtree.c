@@ -23,6 +23,8 @@
 extern void  sync(void);
 extern os_timer_t test_timer1;
 extern os_timer_t test_timer2;
+Wilddog_T wilddog = 0;
+
 
 #define TEST_BUILDTREE_ERROR	(-1)
 
@@ -58,7 +60,6 @@ void FAR sync(void)
 {
 	if(l_res == 4)
     {   
-        printf("\n\ttest_buildtree finished\n");    
         os_timer_disarm(&test_timer2);
 
         wilddog_destroy(&tree_wilddog[0]);
@@ -68,7 +69,6 @@ void FAR sync(void)
     #if TEST_TYPE == TEST_RAM
         u8 url[sizeof(TEST_URL)];
         u8 tree_m=0, n=0;
-		printf("\n\ttest_buildtree finished\n");    
         os_timer_disarm(&test_timer2);
         ramtest_titile_printf();
 			
@@ -91,8 +91,6 @@ void FAR sync(void)
     }
 	else
     {   
-		printf("build tree not completed !!\n");
-        wilddog_debug("try sync\n");
         wilddog_trySync();  
 
         os_timer_setfn(&test_timer2, (os_timer_func_t *)sync, NULL);
@@ -223,7 +221,6 @@ int FAR test_buildtreeFunc(const char *p_userUrl)
 	memset((void*)url,0,sizeof(url));
 	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_127);
 
-    wilddog_debug("url:%s\n", url);
     tree_wilddog[0] = 0;
 	tree_wilddog[0] = wilddog_initWithUrl(url);
 	if(0 == tree_wilddog[0])
