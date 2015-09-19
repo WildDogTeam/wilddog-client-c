@@ -65,8 +65,8 @@ typedef struct STAB_SETDATA_T
 	Wilddog_T client;
 }Stab_Setdata_T;
 STATIC u32 stab_runtime;
-STATIC u32 stab_rquests;
-STATIC u32 stab_rquestFault;
+STATIC u32 stab_requests;
+STATIC u32 stab_requestFault;
 STATIC u32 stab_recvFault;
 STATIC u32 stab_recvSucc;
 STATIC u32 stab_settest_request;
@@ -101,11 +101,11 @@ STATIC void stab_get_requestRes(Wilddog_Return_T res)
 	if(res < 0 )
 	{
 		printf("\tin %lu; send %lu requestErr= %d\n",stab_runtime,stab_cmd,res);
-		stab_rquestFault++;
+		stab_requestFault++;
 	}
 	else
 	{
-		stab_rquests++;	
+		stab_requests++;	
 			/* off with no recv callback*/
 		if(stab_cmd == STABTEST_CMD_OFF)
 			stab_recvSucc++;
@@ -175,7 +175,7 @@ STATIC void stab_addObserverFunc
 
     return;
 }
-int stabtest_reques(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
+int stabtest_request(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
 {
 
 	Wilddog_Node_T *p_head = NULL,*p_node = NULL;
@@ -247,7 +247,7 @@ int stab_oneCrcuRequest(void)
     /*Init a wilddog client*/
     client = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
 	
-	stab_get_requestRes(stabtest_reques(cmd,client,p_finish));
+	stab_get_requestRes(stabtest_request(cmd,client,p_finish));
 
     while(1)
     {
@@ -259,7 +259,7 @@ int stab_oneCrcuRequest(void)
         	onFinish = FALSE;
         	otherFinish = FALSE;
 			STABTEST_NEXTREQUEST(cmd);
-			stab_get_requestRes(stabtest_reques(cmd,client,p_finish));
+			stab_get_requestRes(stabtest_request(cmd,client,p_finish));
 			
 			if(STABTEST_OFFREQUEST(cmd))
 			{
@@ -304,9 +304,9 @@ void stab_resultPrint(void)
 	memset(successRatio,0,20);
 	memset(settest_succRatio,0,20);
 
-	sprintf(unlaunchRatio,"%lu/%lu",stab_rquestFault,stab_rquests);
-	sprintf(lossRatio,"%lu/%lu",stab_recvFault,stab_rquests);	
-	sprintf(successRatio,"%lu/%lu",stab_recvSucc,stab_rquests);
+	sprintf(unlaunchRatio,"%lu/%lu",stab_requestFault,stab_requests);
+	sprintf(lossRatio,"%lu/%lu",stab_recvFault,stab_requests);	
+	sprintf(successRatio,"%lu/%lu",stab_recvSucc,stab_requests);
 	sprintf(settest_succRatio,"(%lu)%lu/%lu",stab_settest_fault,stab_settest_getsuccess,stab_settest_request);
 	
 	printf("\t%lu",++run_cnt);		
