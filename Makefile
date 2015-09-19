@@ -3,12 +3,12 @@ MAKE=make --no-print-directory
 
 ifeq ($(PORT_TYPE), )
 $(warning Do not assign a PORT_TYPE, use linux as default.)
-export PORT_TYPE=linux
+export PORT_TYPE:=linux
 endif
 
 ifeq ($(APP_SEC_TYPE), )
 $(warning Do not assign a APP_SEC_TYPE, use nosec as default.)
-export APP_SEC_TYPE=nosec
+export APP_SEC_TYPE:=nosec
 endif
 
 export APP_PROTO_TYPE:=coap

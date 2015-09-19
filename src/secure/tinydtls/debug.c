@@ -26,6 +26,7 @@
 #include "tinydtls.h"
 #include "dtls_config.h"
 #include "wilddog.h"
+#include "wilddog_endian.h"
 #if defined(HAVE_ASSERT_H) && !defined(assert)
 #include <assert.h>
 #endif

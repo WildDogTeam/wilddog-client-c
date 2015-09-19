@@ -1095,7 +1095,7 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeString
     size_t len = 0;
 
     
-    if(NULL == p_node->p_wn_key)
+    if(NULL == p_node->p_wn_key && TYPE_KEY == type)
         return WILDDOG_ERR_NOERR;
 
     /*string data max use length*/
@@ -1104,7 +1104,7 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeString
 
     if(p_data->d_dt_pos + 1 + maxExpectLen > p_data->d_dt_len )
     {
-        ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
+        ptr = (Wilddog_Str_T*)wrealloc(p_data->p_dt_data, p_data->d_dt_len, \
                                        p_data->d_dt_pos + 1 + maxExpectLen);
         p_data->d_dt_len = p_data->d_dt_pos + 1 + maxExpectLen;
         if(ptr == NULL)
