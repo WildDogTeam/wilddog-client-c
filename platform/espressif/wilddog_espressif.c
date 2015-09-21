@@ -233,8 +233,11 @@ int FAR wilddog_send
 	printf("\n\n");
 	
 	ret = espconn_sent(socket, tosend, tosendLength);
-	wilddog_debug("espconn_sent ret:%d\n", ret);
-
+    
+    if(ret == 0)
+        return tosendLength;
+    else
+        return -1;
 }
 int FAR wilddog_receive
     ( 
@@ -246,7 +249,7 @@ int FAR wilddog_receive
     )
 {
 	struct recv_buf_node *tmp;
-	int len;
+	int len = 0;
 	tmp = head;
 	s32 count = timeout;
 
