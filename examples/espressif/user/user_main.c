@@ -34,9 +34,10 @@
 
 BOOL dns_flag = FALSE;
 os_timer_t test_timer1;
+os_timer_t test_timer2;
+Wilddog_T wilddog;
 
-
-extern os_timer_t client_timer;
+os_timer_t client_timer;
 
 struct espconn socket;
 

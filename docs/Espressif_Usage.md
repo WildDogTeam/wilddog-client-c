@@ -1,5 +1,7 @@
 #### 配置wifi和URL
 
+添加patch：在esp_sdk下的include目录中的espconn.h，添加`#include "ip_addr.h"`
+
 打开`examples/espressif/user/user_main.c`填写热点名称和密码：
 
 
