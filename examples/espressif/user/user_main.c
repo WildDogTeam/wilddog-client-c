@@ -30,6 +30,7 @@
 
 #define  SSID         "your ssid"
 #define  PASSWORD    "your password"
+#define  TEST_URL "coaps://<appId>.wilddogio.com/"
 
 BOOL dns_flag = FALSE;
 os_timer_t test_timer1;
@@ -135,7 +136,7 @@ fake_main(void)
 		 wilddog_debug_printnode(p_head);
 		 //wilddog_increaseTime(100);
 		 
-		 *wilddog = wilddog_initWithUrl((Wilddog_Str_T *)"coap://<your appId>.wilddogio.com");
+		 *wilddog = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
 		
 		if(0 == *wilddog)
 		{
