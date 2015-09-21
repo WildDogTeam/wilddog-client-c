@@ -188,6 +188,7 @@ int FAR wilddog_openSocket( int* socketId )
 	
 	if(espconn_create(&socket) != 0)
 	{
+	    recv_list_deinit();
 		return -1;
 	}
 	
