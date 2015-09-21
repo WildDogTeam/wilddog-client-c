@@ -175,7 +175,7 @@ int FAR wilddog_gethostbyname( Wilddog_Address_T* addr, char* host )
 int FAR wilddog_openSocket( int* socketId )
 {
 	socket.type = ESPCONN_UDP;
-    socket.proto.udp = (esp_udp *)os_zalloc(sizeof(esp_udp));
+    socket.proto.udp = (esp_udp *)wmalloc(sizeof(esp_udp));
     socket.proto.udp->local_port = espconn_port();   
 	socket.proto.udp->remote_port = 5683;
 
@@ -188,7 +188,8 @@ int FAR wilddog_openSocket( int* socketId )
 	
 	if(espconn_create(&socket) != 0)
 	{
-	    recv_list_deinit();
+	    wfree(socket.proto.udp);
+        recv_list_deinit();
 		return -1;
 	}
 	
@@ -200,13 +201,12 @@ int FAR wilddog_openSocket( int* socketId )
 
 int FAR wilddog_closeSocket( int socketId )
 {
-    espconn_delete( (struct espconn*) socketId );
-	wfree(socket.proto.udp);
+    espconn_delete( (struct espconn*) socketId );	
     if ( socketId )
     {
         socketId = 0;
     }
-
+    wfree(socket.proto.udp);
     recv_list_deinit();
     return 0;
 }
