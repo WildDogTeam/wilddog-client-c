@@ -55,6 +55,21 @@ recv_list_init(void)
 }
 
 STATIC void FAR
+recv_list_deinit(void)
+{
+    struct recv_buf_node *tmp = head;
+
+    while(head != NULL)
+    {
+        tmp = head->next;
+        wfree(head->buf);
+        wfree(head);
+        head = tmp;
+    }
+}
+
+
+STATIC void FAR
 send_cb(void *arg)
 {
     struct espconn *pespconn = arg;
@@ -190,6 +205,8 @@ int FAR wilddog_closeSocket( int socketId )
     {
         socketId = 0;
     }
+
+    recv_list_deinit();
     return 0;
 }
 
