@@ -5,6 +5,52 @@
  *
  * Description: Wilddog demo file.
  *
+ * Usage: demo <operation> <-h|-l> <url> [--key=<arg1>] [--value=<arg2>]
+ *      
+ *          operations:
+ *                  getValue:       get value of the url.
+ *                  setValue:       create a new node in the url, need 
+ *                                  [--key=<arg1>] and [--value=<arg2>] followed
+ *                                  ,arg1 means the node's key which will add to 
+ *                                  url, arg2 is arg1's value.
+ *                  push:           push a new node in the url, usage similar to 
+ *                                  <setValue>, but a little different is:
+ *                                  <push> will automatically create a node by
+ *                                  the server.
+ *                  removeValue:    remove the value(and it's children) of the
+ *                                  url.
+ *                  addObserver:    subscribe the url, any change will be pushed
+ *                                  to the client.
+ *                  setAuth:        send the auth token to the server, and get 
+ *                                  the permission to operate, if you set the 
+ *                                  control rules in the cloud. 
+ *                                  need [--value=<token>] followed.
+ *          -h: help
+ *          -l: note that a url followed
+ *          url:
+ *                  like coap://<your appid>.wilddogio.com/[path], <your appid>
+ *                  is the appid of the app you created, and path is the path(
+ *                  node path) in the app. if the tree like this, <1> is your 
+ *                  appid, <a> and <a/b> are both path.
+ *                  
+ *                  your data tree in cloud:
+ *
+ *                  1.wilddogio.com
+ *                  |
+ *                  + a
+ *                    |
+ *                    + b: 1234
+ *
+ *      example: if you input :
+ *                  demo setValue -l coap://1.wilddogio.com/a --key=b --value=1
+ *               you can find the app <1> has a node which key is b, value is 1.
+ *               and then if you input :
+ *                  demo addObserver -l coap://1.wilddogio.com/a/b
+ *               when you change node <b>'s value to 2, the client will receive
+ *               the change, and print in the console( and then quit because of
+ *               our setting, we set the var <cntmax> in main() to 0, so it will
+ *               forced to break, you can remove this judge.)
+ *
  * History:
  * Version      Author          Date        Description
  *
@@ -131,10 +177,6 @@ STATIC void test_authFunc
 
 int main(int argc, char **argv) 
 {
-
-#ifdef  WORDS_BIGENDIAN
-    printf("WORDS_BIGENDIAN \n");
-#endif
     char url[1024];
     char value[1024];
     char keys[256];
@@ -289,7 +331,7 @@ int main(int argc, char **argv)
         {
             wilddog_debug("get new data %d times!", cnt++);
             isFinish = FALSE;
-            if(cnt > cntmax)
+            if(cnt > cntmax)/*force break when received new data.*/
             {
                 printf("event :%s success\n",p_inputtype);
                 if(type ==  TEST_CMD_ON)
