@@ -88,7 +88,7 @@ STATIC u8 serialgetsend_cnt;
 
 
 
-STATIC void stab_set_runtime(void)
+STATIC void WD_SYSTEM stab_set_runtime(void)
 {
 #if defined(WILDDOG_PORT_TYPE_WICED)
 	static u32 stab_startime =0;
@@ -104,7 +104,7 @@ STATIC void stab_set_runtime(void)
 #endif
 }
 
-STATIC void stab_get_requestRes(Wilddog_Return_T res)
+STATIC void WD_SYSTEM stab_get_requestRes(Wilddog_Return_T res)
 {
 	if(res < 0 )
 	{
@@ -120,7 +120,7 @@ STATIC void stab_get_requestRes(Wilddog_Return_T res)
 		}
 
 }
-STATIC void stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
+STATIC void WD_SYSTEM stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
 {
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
@@ -132,7 +132,7 @@ STATIC void stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
 		stab_recvSucc++;
 }
 
-STATIC void stab_getValueFunc
+STATIC void WD_SYSTEM stab_getValueFunc
     (
     const Wilddog_Node_T* p_snapshot, 
     void* arg, 
@@ -145,14 +145,14 @@ STATIC void stab_getValueFunc
     return;
 }
 
-STATIC void stab_removeValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void WD_SYSTEM stab_removeValueFunc(void* arg, Wilddog_Return_T err)
 {
 	stab_get_recvErr(err,STABTEST_CMD_DELE);
     *(BOOL*)arg = TRUE;
 
     return;
 }
-STATIC void stab_setValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void WD_SYSTEM stab_setValueFunc(void* arg, Wilddog_Return_T err)
 {
                         
 	stab_get_recvErr(err,STABTEST_CMD_SET);
@@ -161,7 +161,7 @@ STATIC void stab_setValueFunc(void* arg, Wilddog_Return_T err)
     return;
 }
 
-STATIC void stab_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
+STATIC void WD_SYSTEM stab_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
 {
                         
 	stab_get_recvErr(err,STABTEST_CMD_PUSH);
@@ -170,7 +170,7 @@ STATIC void stab_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
     return;
 }
 
-STATIC void stab_addObserverFunc
+STATIC void WD_SYSTEM stab_addObserverFunc
     (
     const Wilddog_Node_T* p_snapshot, 
     void* arg,
@@ -183,7 +183,7 @@ STATIC void stab_addObserverFunc
 
     return;
 }
-int stabtest_request(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
+int WD_SYSTEM stabtest_request(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
 {
 
 	Wilddog_Node_T *p_head = NULL,*p_node = NULL;
@@ -232,7 +232,7 @@ int stabtest_request(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
     wilddog_node_delete(p_head);
     return res;
 }
-void stab_resultPrint(void)
+void WD_SYSTEM stab_resultPrint(void)
 {
 	char unlaunchRatio[20];
 	char lossRatio[20];	
@@ -265,7 +265,7 @@ void stab_resultPrint(void)
 	return;
 }
 
-STATIC void stab_trysync(void)
+STATIC void WD_SYSTEM stab_trysync(void)
 {
 	stab_set_runtime();
 	
@@ -275,7 +275,7 @@ STATIC void stab_trysync(void)
 
 }
 
-int stab_oneCrcuRequest(void) 
+int WD_SYSTEM stab_oneCrcuRequest(void) 
 {
 	int res = 0;
 	BOOL otherFinish = FALSE,onFinish = FALSE;
@@ -322,7 +322,7 @@ int stab_oneCrcuRequest(void)
     
 }
 
-void stab_titlePrint(void)
+void WD_SYSTEM stab_titlePrint(void)
 {
 	printf("\t>----------------------------------------------------<\n");
 	printf("\tcount\truntime\tram\tUnlaunchRatio\tLostRatio\tSuccessRatio\t");
@@ -331,7 +331,7 @@ void stab_titlePrint(void)
 
 	printf("\n");
 }
-void stab_endPrint(void)
+void WD_SYSTEM stab_endPrint(void)
 {
 	printf("\t>----------------------------------------------------<\n");
 }
@@ -343,7 +343,7 @@ STABTEST_CMD_TYPE cmd = STABTEST_CMD_ON;
 
 extern void stab_test_cycle(void);
 
-void stab_sync(void)
+void WD_SYSTEM stab_sync(void)
 {
     if(TRUE == *p_finish)
     {  
@@ -388,7 +388,7 @@ void stab_sync(void)
 }
 
 
-void stab_test_cycle(void)
+void WD_SYSTEM stab_test_cycle(void)
 {
     wilddog_debug();
     cmd = STABTEST_CMD_ON;
@@ -411,7 +411,7 @@ void stab_test_cycle(void)
     //os_timer_setfn(&test_timer1, (os_timer_func_t *)stab_test_cycle, NULL);
     //os_timer_arm(&test_timer1, 1000, 0); 
 }
-STATIC	void stab_settest_dataInit(u8 idx)
+STATIC	void WD_SYSTEM stab_settest_dataInit(u8 idx)
 {
 	int i;
     char temp_url[strlen(TEST_URL)+20];
@@ -441,7 +441,7 @@ STATIC	void stab_settest_dataInit(u8 idx)
 	}
 
 }
-STATIC void stab_settest_dataDeInit(void)
+STATIC void WD_SYSTEM stab_settest_dataDeInit(void)
 {
 	int i;
 	for(i=0;i<10;i++)
@@ -460,7 +460,7 @@ STATIC void stab_settest_dataDeInit(void)
 	}
 }
 
-STATIC void stab_settest_serialSetValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void WD_SYSTEM stab_settest_serialSetValueFunc(void* arg, Wilddog_Return_T err)
 {
                         
 	stab_get_recvErr(err,STABTEST_CMD_SET);
@@ -481,7 +481,7 @@ STATIC void stab_settest_serialSetValueFunc(void* arg, Wilddog_Return_T err)
 		
     return;
 }
-STATIC void stab_settest_serialSet_send(void)
+STATIC void WD_SYSTEM stab_settest_serialSet_send(void)
 {
 	int i,res;
 	stab_settest_setsuccess = 0;
@@ -507,7 +507,7 @@ STATIC void stab_settest_serialSet_send(void)
 		stab_trysync();
 	}
 }
-STATIC void stab_settest_judge(Wilddog_Node_T* p_snapshot,void* arg)
+STATIC void WD_SYSTEM stab_settest_judge(Wilddog_Node_T* p_snapshot,void* arg)
 {
     int len;
     
@@ -533,7 +533,7 @@ STATIC void stab_settest_judge(Wilddog_Node_T* p_snapshot,void* arg)
 
 	return ;
 }
-STATIC void stab_settest_serialGetValueFunc
+STATIC void WD_SYSTEM stab_settest_serialGetValueFunc
     (
     const Wilddog_Node_T* p_snapshot, 
     void* arg, 
@@ -550,7 +550,7 @@ STATIC void stab_settest_serialGetValueFunc
     return;
 }
 
-STATIC void stab_settest_serialGet_send(void)
+STATIC void WD_SYSTEM stab_settest_serialGet_send(void)
 {
 	Wilddog_Return_T res = 0;
 	int i;
@@ -576,7 +576,7 @@ STATIC void stab_settest_serialGet_send(void)
 
 	}
 }
-void stab_test_fullLoad(void)
+void WD_SYSTEM stab_test_fullLoad(void)
 {
 	int i;
 	
