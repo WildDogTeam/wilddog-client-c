@@ -344,6 +344,7 @@ void WD_SYSTEM performtest_handle
 	)
 {
     u8 m = 0;
+    Wilddog_T wilddog = 0;
         
     performtest_init(delay_tm,tree_num,request_num);
     performtest_setSysState(SYS_HSK);

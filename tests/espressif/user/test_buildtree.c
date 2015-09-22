@@ -6,8 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "wilddog.h"
-#include "test_lib.h"
-#include "test_config.h"
+#include "user_config.h"
 
 #include "ets_sys.h"
 #include "os_type.h"
@@ -27,6 +26,7 @@ Wilddog_T wilddog = 0;
 
 
 #define TEST_BUILDTREE_ERROR	(-1)
+#define TEST_TREE_ITEMS (4)
 
 char *p_performtree_url[TEST_TREE_ITEMS] = 
 					{
@@ -56,7 +56,7 @@ BOOL isFinished = FALSE;
 int l_res = 0;
 
 
-void FAR sync(void)
+void WD_SYSTEM  sync(void)
 {
 	if(l_res == 4)
     {   
@@ -102,7 +102,7 @@ void FAR sync(void)
 
 
 
-STATIC void FAR test_setValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void WD_SYSTEM  test_setValueFunc(void* arg, Wilddog_Return_T err)
 {
 
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
@@ -118,7 +118,7 @@ STATIC void FAR test_setValueFunc(void* arg, Wilddog_Return_T err)
 
 
 /*************************************build complete binary tree**************************************************************************/
-int FAR test_buildtreeFunc(const char *p_userUrl)
+int WD_SYSTEM  test_buildtreeFunc(const char *p_userUrl)
 {
 	int m = 0;
 	u8 url[strlen(TEST_URL)+20];

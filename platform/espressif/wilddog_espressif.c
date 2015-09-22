@@ -55,6 +55,21 @@ recv_list_init(void)
 }
 
 STATIC void FAR
+recv_list_deinit(void)
+{
+    struct recv_buf_node *tmp = head;
+
+    while(head != NULL)
+    {
+        tmp = head->next;
+        wfree(head->buf);
+        wfree(head);
+        head = tmp;
+    }
+}
+
+
+STATIC void FAR
 send_cb(void *arg)
 {
     struct espconn *pespconn = arg;
@@ -160,7 +175,7 @@ int FAR wilddog_gethostbyname( Wilddog_Address_T* addr, char* host )
 int FAR wilddog_openSocket( int* socketId )
 {
 	socket.type = ESPCONN_UDP;
-    socket.proto.udp = (esp_udp *)os_zalloc(sizeof(esp_udp));
+    socket.proto.udp = (esp_udp *)wmalloc(sizeof(esp_udp));
     socket.proto.udp->local_port = espconn_port();   
 	socket.proto.udp->remote_port = 5683;
 
@@ -173,6 +188,8 @@ int FAR wilddog_openSocket( int* socketId )
 	
 	if(espconn_create(&socket) != 0)
 	{
+	    wfree(socket.proto.udp);
+        recv_list_deinit();
 		return -1;
 	}
 	
@@ -184,12 +201,13 @@ int FAR wilddog_openSocket( int* socketId )
 
 int FAR wilddog_closeSocket( int socketId )
 {
-    espconn_delete( (struct espconn*) socketId );
-	wfree(socket.proto.udp);
+    espconn_delete( (struct espconn*) socketId );	
     if ( socketId )
     {
         socketId = 0;
     }
+    wfree(socket.proto.udp);
+    recv_list_deinit();
     return 0;
 }
 
@@ -215,8 +233,11 @@ int FAR wilddog_send
 	printf("\n\n");
 	
 	ret = espconn_sent(socket, tosend, tosendLength);
-	wilddog_debug("espconn_sent ret:%d\n", ret);
-
+    
+    if(ret == 0)
+        return tosendLength;
+    else
+        return -1;
 }
 int FAR wilddog_receive
     ( 
@@ -228,7 +249,7 @@ int FAR wilddog_receive
     )
 {
 	struct recv_buf_node *tmp;
-	int len;
+	int len = 0;
 	tmp = head;
 	s32 count = timeout;
 

@@ -10,33 +10,23 @@
 *******************************************************************************/
 #include "ets_sys.h"
 #include "osapi.h"
-
 #include "user_interface.h"
 #include "espconn.h"
-
-/******************************************************************************
-     * Copyright 2013-2014 Espressif Systems
-     *
-*******************************************************************************/
-#include "ets_sys.h"
 #include "os_type.h"
-#include "osapi.h"
 #include "mem.h"
-#include "user_interface.h"
     
-#include "espconn.h"
 
 #include "wilddog.h"
-#include "test_config.h"
+#include "user_config.h"
 
 BOOL dns_flag = FALSE;
 os_timer_t test_timer1;
 os_timer_t test_timer2;
-
-
 os_timer_t client_timer;
-
 struct espconn socket;
+extern void stab_test_cycle(void);
+
+
 
 
 
@@ -48,7 +38,7 @@ struct espconn socket;
   *                length -- The length of received data
   * Returns      : none
  *******************************************************************************/
-STATIC void FAR
+STATIC void WD_SYSTEM 
 user_udp_recv_cb(void *arg, char *pusrdata, unsigned short length)
 {   
     os_printf("recv udp data: %s\n", pusrdata);
@@ -56,7 +46,7 @@ user_udp_recv_cb(void *arg, char *pusrdata, unsigned short length)
 
  
 
-STATIC void FAR test_setValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void WD_SYSTEM  test_setValueFunc(void* arg, Wilddog_Return_T err)
 {						 
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
     {
@@ -70,7 +60,7 @@ STATIC void FAR test_setValueFunc(void* arg, Wilddog_Return_T err)
 
 
 
-void FAR
+void WD_SYSTEM 
 fake_main(void)
 {
     if(!dns_flag)
@@ -79,7 +69,16 @@ fake_main(void)
     }
     else
     {
+    	ramtest_init(1,1);
+    	stab_titlePrint();
+    	printf("%s\n",TEST_URL);
+#if TEST_TYPE == TEST_STAB_CYCLE
+        os_timer_disarm(&test_timer1);
+        os_timer_setfn(&test_timer1, (os_timer_func_t *)stab_test_cycle, NULL);
+        os_timer_arm(&test_timer1, 1000, 0); 
+#else
         test_buildtreeFunc(TEST_URL);
+#endif
     }
 }
 
@@ -90,15 +89,14 @@ fake_main(void)
  * Parameters   : none
  * Returns      : none
 *******************************************************************************/
-void FAR
-user_check_ip(void)
+void WD_SYSTEM user_check_ip(void)
 {
     struct ip_info ipconfig;
 
-   //disarm timer first
+    //disarm timer first
     os_timer_disarm(&client_timer);
 
-   //get ip info of ESP8266 station
+    //get ip info of ESP8266 station
     wifi_get_ip_info(STATION_IF, &ipconfig);
 
     if (wifi_station_get_connect_status() == STATION_GOT_IP &&  \
@@ -109,8 +107,6 @@ user_check_ip(void)
         socket.type = ESPCONN_UDP;
         socket.state = ESPCONN_NONE;
 
-        Wilddog_Address_T addr;
-        int sk;
         os_timer_disarm(&test_timer1);
         os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_main, NULL);
         os_timer_arm(&test_timer1, 1000, 0);
@@ -140,24 +136,24 @@ user_check_ip(void)
  * Parameters   : none
  * Returns      : none
 *******************************************************************************/
-void FAR
+void WD_SYSTEM 
 user_set_station_config(void)
 {
-   // Wifi configuration 
+    // Wifi configuration 
     char ssid[32] = SSID;
     char password[64] = PASSWORD;
 
     struct station_config stationConf; 
 
-   //need not mac address
+    //need not mac address
     stationConf.bssid_set = 0; 
    
-   //Set ap settings 
+    //Set ap settings 
     os_memcpy(&stationConf.ssid, ssid, 32); 
     os_memcpy(&stationConf.password, password, 64); 
     wifi_station_set_config(&stationConf); 
 
-   //set a timer to check whether got ip from router succeed or not.
+    //set a timer to check whether got ip from router succeed or not.
     os_timer_disarm(&client_timer);
     os_timer_setfn(&client_timer, (os_timer_func_t *)user_check_ip, NULL);
     os_timer_arm(&client_timer, 100, 0);
@@ -181,17 +177,11 @@ void FAR user_init(void)
 {
     os_printf("SDK version:%s\n", system_get_sdk_version());
    
-   //Set softAP + station mode 
+    //Set softAP + station mode 
     wifi_set_opmode(STATION_MODE); 
 
-   //ESP8266 connect to router
+    //ESP8266 connect to router
     user_set_station_config();
-   
-#if 0
-       os_printf("enter deep sleep\n");
-       system_deep_sleep(0xfffffff);
-   
-#endif 
 }
 
 
