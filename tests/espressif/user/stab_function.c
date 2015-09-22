@@ -28,8 +28,7 @@
 #include "wilddog_url_parser.h"
 #include "wilddog_api.h"
 #include "wilddog_ct.h"
-#include "test_lib.h"
-#include "test_config.h"
+#include "user_config.h"
 
 
 #ifdef WILDDOG_PORT_TYPE_ESP   

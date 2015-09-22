@@ -12,6 +12,7 @@
 #include "osapi.h"
 
 #include "user_interface.h"
+#include "user_config.h"
 #include "espconn.h"
 
 /******************************************************************************
@@ -28,9 +29,7 @@
 
 #include "wilddog.h"
 
-#define  SSID         "your ssid"
-#define  PASSWORD    "your password"
-#define  TEST_URL "coaps://<appId>.wilddogio.com/"
+
 
 BOOL dns_flag = FALSE;
 os_timer_t test_timer1;

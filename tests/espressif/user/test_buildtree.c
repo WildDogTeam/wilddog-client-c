@@ -6,8 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "wilddog.h"
-#include "test_lib.h"
-#include "test_config.h"
+#include "user_config.h"
 
 #include "ets_sys.h"
 #include "os_type.h"
@@ -27,6 +26,7 @@ Wilddog_T wilddog = 0;
 
 
 #define TEST_BUILDTREE_ERROR	(-1)
+#define TEST_TREE_ITEMS (4)
 
 char *p_performtree_url[TEST_TREE_ITEMS] = 
 					{

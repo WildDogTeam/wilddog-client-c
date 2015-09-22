@@ -27,7 +27,7 @@
 #include "espconn.h"
 
 #include "wilddog.h"
-#include "test_config.h"
+#include "user_config.h"
 
 BOOL dns_flag = FALSE;
 os_timer_t test_timer1;
