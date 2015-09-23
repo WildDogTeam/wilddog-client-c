@@ -4,8 +4,10 @@
  * FileName: user_main.c
  *
  * Description: This demo  show you how to control a led through the cloud.
- *                   We will creat a led node and push it to server,then subscribe the led node ,
- *                      so you can change led's value in the server to control the led's status.
+ *                   We will creat a led node and push it to server,then subscribe 
+ *                   the led node ,so you can change led's value in the server to 
+ *                   control the led's status.
+ *                      
  *                    
  *           
  * Usage: 
@@ -22,14 +24,18 @@
  *                  + led-demo
  *                      |
  *                      +led:"1"
- *          2、Modification SSID and PASSWORD to the SSID you want to connect
- *                      in user_config.h:
- *          3、If you define DEF_LED_HARDWARE to 1, then you could control a real led(there is 
- *                  a example which use GPIO14 in the code, so you should configure  the led gpio function yourself);
- *                  or you could see the data and the print information.
+ *
+ *          2、Modification SSID and PASSWORD to the SSID you want to 
+ *                  connect in user_config.h:
+ *                      
+ *          3、If you define DEF_LED_HARDWARE to 1, then you could control
+ *                  a real led(there is a example which use GPIO14 in the code, 
+ *                  so you should configure  the led gpio function yourself); or you
+ *                   could see the data and the print information.
  *          
  *
-***************************************************************************/
+************************************************************/
+
  
 #include "ets_sys.h"
 #include "osapi.h"
