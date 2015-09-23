@@ -18,6 +18,8 @@ extern "C" {
 /* This is the default AP the device will connect to (as a client)*/
 #define CLIENT_AP_SSID       "your ssid"
 #define CLIENT_AP_PASSPHRASE "your passport"
+/* Gpio that control led */
+#define DEMO_LED1   (WICED_GPIO_80)
 
 #ifdef __cplusplus
 } /*extern "C" */
