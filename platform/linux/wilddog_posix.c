@@ -65,7 +65,6 @@ int wilddog_openSocket(int* socketId)
         perror("cannot create socket");
         return -1;
     }
-    wilddog_debug("open soket %d \n",fd);
     *socketId = fd;
     return 0;
 }
@@ -80,7 +79,6 @@ int wilddog_openSocket(int* socketId)
 int wilddog_closeSocket(int socketId)
 {
     
-    wilddog_debug("close soket %d \n",socketId);
     return close(socketId);
 }
 

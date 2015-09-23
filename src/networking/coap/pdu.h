@@ -8,6 +8,9 @@
 
 #ifndef _PDU_H_
 #define _PDU_H_
+
+#include "wilddog.h"
+
 #ifndef WILDDOG_PORT_TYPE_ESP
 #include <stdio.h>
 #endif
