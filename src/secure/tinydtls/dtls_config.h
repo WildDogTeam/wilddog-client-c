@@ -151,6 +151,15 @@
 # endif
 #endif
 
+
+#undef WORDS_BIGENDIAN
+
+#if WILDDOG_LITTLE_ENDIAN == 1
+//#undef WORDS_BIGENDIAN
+#else
+#define WORDS_BIGENDIAN  (1)
+#endif
+
 /* Define to `__inline__' or `__inline' if that's what the C compiler
    calls it, or to nothing if 'inline' is not supported under any name.  */
 #ifndef __cplusplus
