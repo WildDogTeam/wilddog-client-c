@@ -1,25 +1,47 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "wilddog_demo_config.h"
 #include "wilddog_api.h"
 
 extern void wilddog_debug_printnode(const Wilddog_Node_T* node);
+
+STATIC void test_gpioSet(const Wilddog_Node_T* p_snapshot)
+{
+    Wilddog_Str_T *p_value = NULL;
+    int len = 0;
+    if(p_snapshot->p_wn_child == NULL)
+        return ;
+    p_value = wilddog_node_getValue(p_snapshot->p_wn_child,&len);
+    wilddog_debug_printnode(p_snapshot);
+    if( p_value[0] == 0x30)
+    {
+
+        wiced_gpio_output_low(DEMO_LED1); 
+        printf("\n set gpio to low \n");
+     }
+      else
+    {
+        
+        printf("\n set gpio to hight \n");
+        wiced_gpio_output_high(DEMO_LED1);
+    }
+}
 
 STATIC void test_onQueryFunc(
     const Wilddog_Node_T* p_snapshot, 
     void* arg, 
     Wilddog_Return_T err)
 {
-    if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
     {
         wilddog_debug("query error!err = %d", err);
         return;
     }
     wilddog_debug("query success!");
+    
     if(p_snapshot)
-    {
-        *(Wilddog_Node_T**)arg = wilddog_node_clone(p_snapshot);
-    }
+       test_gpioSet(p_snapshot);
     
     return;
 }
@@ -39,7 +61,7 @@ int demo(char* url, int* isUnConnected)
 {
     BOOL isFinish = FALSE;
     Wilddog_T wilddog = 0;
-    Wilddog_Node_T * p_node = NULL, *p_head = NULL, *p_node_query = NULL;
+    Wilddog_Node_T * p_node = NULL, *p_head = NULL;
 
     
 
@@ -83,20 +105,9 @@ int demo(char* url, int* isUnConnected)
     
     printf("\n\t send query to %s \n",url);
     /* send query */
-    wilddog_getValue(wilddog, test_onQueryFunc, (void*)(&p_node_query));
+    wilddog_addObserver(wilddog, WD_ET_VALUECHANGE,test_onQueryFunc, 0);
     while(1)
     {
-        if(p_node_query)
-        {
-
-            printf("\t get %s data: \n",url);
-            /* printf recv node as json */
-            wilddog_debug_printnode(p_node_query);
-            /* free p_node_query */
-            wilddog_node_delete(p_node_query);
-            printf("\n");
-            break;
-        }
         wilddog_trySync();
     }
     /* free wilddog*/

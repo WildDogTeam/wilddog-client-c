@@ -37,8 +37,7 @@ endif
 # Required for each makefile to inherit from the parent
 #
 
-INCLUDES := $(INCLUDES) -I $(PDIR)include -I ../../wilddog_client_coap/include  -I ../../wilddog_client_coap/platform/espressif/
-
+INCLUDES := $(INCLUDES) -I $(PDIR)include -I ../../wilddog_client_coap/include -I ../../wilddog_client_coap/src  -I ../../wilddog_client_coap/platform/espressif
 INCLUDES += -I ./
 INCLUDES += -I ../../include/ets
 PDIR := ../$(PDIR)
