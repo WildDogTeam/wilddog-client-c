@@ -55,6 +55,7 @@
  * Version      Author          Date        Description
  *
  * 0.4.3        Baikal.Hu       2015-07-16  Create file.
+ * 0.5.1        Jimmy.Pan       2015-09-22  Add notes.
  *
  */
 
