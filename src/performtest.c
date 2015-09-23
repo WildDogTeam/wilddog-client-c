@@ -29,7 +29,7 @@
 #include "wiced.h"
 #endif
 
-#ifdef WILDDOG_PORT_TYPE_ESP
+#if defined (WILDDOG_PORT_TYPE_ESP) && (defined WILDDOG_SELFTEST)
 #include "user_interface.h"
 extern os_timer_t test_timer2;
 extern Wilddog_T wilddog;
@@ -405,7 +405,7 @@ void WD_SYSTEM performtest_handle
 #endif
 
 
-#ifdef WILDDOG_PORT_TYPE_ESP
+#if defined (WILDDOG_PORT_TYPE_ESP) && (defined WILDDOG_SELFTEST)
 
 void WD_SYSTEM perform_sync2(void)
 {
