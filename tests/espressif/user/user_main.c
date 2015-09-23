@@ -69,10 +69,10 @@ fake_main(void)
     }
     else
     {
+#if TEST_TYPE == TEST_STAB_CYCLE
     	ramtest_init(1,1);
     	stab_titlePrint();
     	printf("%s\n",TEST_URL);
-#if TEST_TYPE == TEST_STAB_CYCLE
         os_timer_disarm(&test_timer1);
         os_timer_setfn(&test_timer1, (os_timer_func_t *)stab_test_cycle, NULL);
         os_timer_arm(&test_timer1, 1000, 0); 
