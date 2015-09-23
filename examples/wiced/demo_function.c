@@ -53,17 +53,13 @@ STATIC void test_onSetFunc(void* arg, Wilddog_Return_T err)
         return;
     }
     wilddog_debug("set success!");
-    *(BOOL*)arg = TRUE;
     return;
 }
 
 int demo(char* url, int* isUnConnected)
 {
-    BOOL isFinish = FALSE;
     Wilddog_T wilddog = 0;
     Wilddog_Node_T * p_node = NULL, *p_head = NULL;
-
-    
 
     p_head = wilddog_node_createObject(NULL);
     /* create a new child to "wilddog" , key is "1", value is "1" */
@@ -79,35 +75,24 @@ int demo(char* url, int* isUnConnected)
         wilddog_debug("new wilddog error");
         return 0;
     }
-    printf("\n\t seting led1=1 to %s\n",url);
+    wilddog_debug("\n\t seting led1=1 to %s\n",url);
     /* expect <appId>.wilddogio.com/ has a new node "1"
      * test_onSetFunc : handle recv data while response
      * */
-    wilddog_setValue(wilddog,p_head,test_onSetFunc,(void*)&isFinish);
+    wilddog_setValue(wilddog,p_head,test_onSetFunc,0);
     /* dele node */
     wilddog_node_delete(p_head);
+    
+    wilddog_debug("\n\t send observe to %s \n",url);
+    /* send query */
+    wilddog_addObserver(wilddog, WD_ET_VALUECHANGE,test_onQueryFunc, 0);
     while(1)
     {
 		if(*isUnConnected)
 		{
 			wilddog_debug("wlan off!");
-			break;
 		}
-        if(TRUE == isFinish)
-        {
-            wilddog_debug("\tset led1=1 success!");
-            break;
-        }
-        /*retransmit¡¢ received and handle response
-         * */
-        wilddog_trySync();
-    }
-    
-    printf("\n\t send query to %s \n",url);
-    /* send query */
-    wilddog_addObserver(wilddog, WD_ET_VALUECHANGE,test_onQueryFunc, 0);
-    while(1)
-    {
+
         wilddog_trySync();
     }
     /* free wilddog*/

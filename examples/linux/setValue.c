@@ -1,3 +1,48 @@
+/*
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
+ *
+ * FileName: setValue.c
+ *
+ * Description: Wilddog demo file for setValue.
+ *
+ * Usage: setValue <-h|-l url>
+ * 
+ *          -h: help
+ *          -l: note that a url followed
+ *          url:
+ *                  like coap://<your appid>.wilddogio.com/[path], <your appid>
+ *                  is the appid of the app you created, and path is the path(
+ *                  node path) in the app. if the tree like this, <1> is your 
+ *                  appid, <a> and <a/b> are both path.
+ *                  
+ *                  your data tree in cloud:
+ *
+ *                  1.wilddogio.com
+ *                  |
+ *                  + a
+ *                    |
+ *                    + b: 1234
+ *
+ *      example: if we input :
+ *                  setValue -l coap://1.wilddogio.com/a
+ *               we will set a node(key is 1, value is "123456") to the cloud, 
+ *               result as follow:
+ *
+ *                  1.wilddogio.com
+ *                  |
+ *                  + a
+ *                    |
+ *                    + b: 1234
+ *                    |
+ *                    + 1:"123456" (node we created)
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.3        Baikal.Hu       2015-07-16  Create file.
+ * 0.5.1        Jimmy.Pan       2015-09-22  Add notes.
+ *
+ */
 
 #include <unistd.h>
 #include <stdio.h>

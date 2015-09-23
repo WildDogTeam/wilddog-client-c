@@ -3,20 +3,25 @@
  *
  * FileName: demo.c
  *
- * Description: This demo  show you how to control an led through the server.
- *                   We will creat a led node and push it to server,then subscribe the led node ,
- *                      so you can change led's value in the server to control led's on and off.
+ * Description: This demo show you how to control an led through server. We will
+ *              creat a led node and push it to server,then subscribe the led 
+ *              node, so you can change led's value in the server to control 
+ *              led's on and off.
  *                  
  *
  *
  * Usage: 
- *          1¡¢Change TEST_URL to your own url in wilddog_demo_config.h:
- *                  like coap://<your appid>.wilddogio.com/[path], <your appid>
- *                  is the appid of the app you created, and path is the path(
- *                  node path) in the app. if the tree like this, <1> is your 
- *                  appid, <a> and <a/b> are both path.
+ *          1. Copy SDK to wiced IDE's <apps> folder, probable path may be 
+ *                  <WICED-SDK\apps\wilddog_client_coap>.
+ *          2. In <wilddog_client_coap\examples\wiced\wilddog_demo_config.h>:
+ *
+ *                  default TEST_URL is coap://<your appid>.wilddogio.com/[path]
+ *                  , change <your appid> to your <appid>, which is the appid 
+ *                  of the app you created, and path is the path(
+ *                  node path) in the app. if the tree like followed , <1> is 
+ *                  your appid, <a> and <a/b> are both path.
  *                  
- *                  after runing that demo your data tree in cloud would like that:
+ *                  after runing demo, your data tree in cloud would like that:
  *
  *                  1.wilddogio.com
  *                  |
@@ -25,24 +30,27 @@
  *                    + b
  *                        |
  *                         +led1:1
- *          2¡¢Modification CLIENT_AP_SSID and CLIENT_AP_PASSPHRASE to the SSID you want to connect
- *                      in wilddog_demo_config.h:
- *          3¡¢Change DEMO_LED1 to the gpio connect to the LED.
+ *
+ *          3. Modify CLIENT_AP_SSID and CLIENT_AP_PASSPHRASE to the SSID you 
+ *             want to connect in wilddog_demo_config.h.
+ *
+ *          4. Change DEMO_LED1 to the gpio which connect to your LED.
+ *
+ *          5. Create a target in <Make Target>(may be in the right corner) like
+ *              this:
+ *              wilddog_client_coap.project.wiced-<yourboard> download run
+ *              
+ *              <yourboard> is the board type, like BCM943362WCD4, etc.
+ *
+ *          6. Connect your board with PC, double click this target you created,
+ *             it will build and write to your board, and then you can control
+ *             your led.
  *          
- *      example: if you input :
- *                  demo setValue -l coap://1.wilddogio.com/a --key=b --value=1
- *               you can find the app <1> has a node which key is b, value is 1.
- *               and then if you input :
- *                  demo addObserver -l coap://1.wilddogio.com/a/b
- *               when you change node <b>'s value to 2, the client will receive
- *               the change, and print in the console( and then quit because of
- *               our setting, we set the var <cntmax> in main() to 0, so it will
- *               forced to break, you can remove this judge.)
  *
  * History:
  * Version      Author          Date        Description
  *
- * 0.4.3        lxs      2015-07-16  Create file.
+ * 0.4.3        lxs             2015-07-16  Create file.
  *
  */
 
@@ -65,6 +73,7 @@ void link_callback_down(void)
     printf("link_callback_down \n");
     g_wifi_down = 1;
 }
+
 /**
  *  Application start
  */
@@ -78,9 +87,11 @@ void application_start( void )
 		wiced_init();
 
 		/* Run the main application function */
-        ret = wiced_network_register_link_callback(link_callback_up,link_callback_down);
+        ret = wiced_network_register_link_callback(link_callback_up, \
+                                                   link_callback_down);
 
-		ret = wiced_network_up(WICED_STA_INTERFACE, WICED_USE_EXTERNAL_DHCP_SERVER, NULL);
+		ret = wiced_network_up(WICED_STA_INTERFACE, \
+                               WICED_USE_EXTERNAL_DHCP_SERVER, NULL);
 		if(WICED_SUCCESS == ret)
 		{
 		    g_wifi_down = 0;

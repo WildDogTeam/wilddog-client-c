@@ -5,7 +5,7 @@
  *
  * Description: Wilddog demo file.
  *
- * Usage: demo <operation> <-h|-l> <url> [--key=<arg1>] [--value=<arg2>]
+ * Usage: demo <operation> <-h|-l url> [--key=<arg1>] [--value=<arg2>]
  *      
  *          operations:
  *                  getValue:       get value of the url.

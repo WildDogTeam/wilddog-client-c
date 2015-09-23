@@ -1,3 +1,42 @@
+/*
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
+ *
+ * FileName: addObserver.c
+ *
+ * Description: Wilddog demo file for observe.
+ *
+ * Usage: addObserver <-h|-l url>
+ * 
+ *          -h: help
+ *          -l: note that a url followed
+ *          url:
+ *                  like coap://<your appid>.wilddogio.com/[path], <your appid>
+ *                  is the appid of the app you created, and path is the path(
+ *                  node path) in the app. if the tree like this, <1> is your 
+ *                  appid, <a> and <a/b> are both path.
+ *                  
+ *                  your data tree in cloud:
+ *
+ *                  1.wilddogio.com
+ *                  |
+ *                  + a
+ *                    |
+ *                    + b: 1234
+ *
+ *      example: if we input :
+ *                  addObserver -l coap://1.wilddogio.com/a
+ *               we can get value of a, which is a node of app <1>.
+ *               and then if we change a's value ,the new value will print in
+ *               the console.
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.3        Baikal.Hu       2015-07-16  Create file.
+ * 0.5.1        Jimmy.Pan       2015-09-22  Add notes.
+ *
+ */
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -77,6 +116,7 @@ int main(int argc, char **argv)
     {
         if(TRUE == isFinished)
         {
+            /*do not quit*/
             //wilddog_debug("get new data %d times!", count++);
             isFinished = FALSE;
             if(count > 0)
