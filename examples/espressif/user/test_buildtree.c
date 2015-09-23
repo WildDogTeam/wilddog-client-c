@@ -19,23 +19,15 @@
 
 
 
-#ifdef WILDDOG_SELFTEST
 extern os_timer_t test_timer1;
 extern os_timer_t test_timer2;
-Wilddog_T wilddog = 0;
-
-
-#define TEST_BUILDTREE_ERROR	(-1)
-
 
 
 Wilddog_T led_wilddog = 0;
-
-
 BOOL isFinished = FALSE;
 
 
-STATIC void test_onObserveFunc	
+STATIC void WD_SYSTEM test_onObserveFunc	
     (   
     const Wilddog_Node_T* p_snapshot,   
     void* arg,  
@@ -78,7 +70,7 @@ STATIC void test_onObserveFunc
 
 
 
-void FAR observe_sync(void *arg)
+void WD_SYSTEM observe_sync(void *arg)
 {
 	if(*(BOOL *)arg == TRUE)
     {   
@@ -98,7 +90,7 @@ void FAR observe_sync(void *arg)
 
 }
 
-void FAR sync(void *arg)
+void WD_SYSTEM sync(void *arg)
 {
 	if(*(BOOL *)arg == TRUE)
     {   
@@ -119,7 +111,7 @@ void FAR sync(void *arg)
 
 
 
-STATIC void FAR test_setValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void WD_SYSTEM test_setValueFunc(void* arg, Wilddog_Return_T err)
 {
 
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
@@ -134,7 +126,7 @@ STATIC void FAR test_setValueFunc(void* arg, Wilddog_Return_T err)
 
 
 /*************************************build complete binary tree**************************************************************************/
-int FAR test_buildtreeFunc(const char *p_userUrl)
+int WD_SYSTEM test_buildtreeFunc(const char *p_userUrl)
 {
 	int m = 0;
 	u8 url[strlen(TEST_URL)+20];
@@ -168,5 +160,4 @@ int FAR test_buildtreeFunc(const char *p_userUrl)
 	os_timer_arm(&test_timer2, 1000, 0);    		
 }
 
-#endif	/*# ifdef WILDDOG_SELFTEST */
 

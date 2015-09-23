@@ -1,6 +1,6 @@
 #### 配置wifi和URL
 
-为esp\_iot\_sdk\_v1.2.0添加patch：将`wilddog_client_coap/platform/espressif`目录下的esp.patch文件拷贝到esp_iot_sdk_v1.2.0根目录下的include目录，并执行`patch -p0 < esp.patch`
+为esp\_iot\_sdk\_v1.2.0添加patch：将`wilddog_client_coap/platform/espressif`目录下的esp.patch文件拷贝到esp\_iot\_sdk\_v1.2.0根目录下的include目录，并执行`patch -p0 < esp.patch`;将`wilddog_client_coap/platform/espressif`目录下的lib_patch.tar.gz解压到esp\_iot\_sdk\_v1.2.0根目录下的lib目录
 
 打开`wilddog_client_coap/examples/espressif/user/user_config.h`填写热点名称和密码：
 

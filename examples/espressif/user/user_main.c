@@ -24,15 +24,9 @@ BOOL dns_flag = FALSE;
 os_timer_t test_timer1;
 os_timer_t test_timer2;
 os_timer_t client_timer;
-Wilddog_T wilddog;
 
 struct espconn socket;
 
-struct CTX
-{
-	BOOL *isFinish;
-	Wilddog_T *wilddog;
-};
 
 
  /******************************************************************************
@@ -67,7 +61,7 @@ test_setValueFunc(void* arg, Wilddog_Return_T err)
 
 
 
-void FAR
+void WD_SYSTEM
 fake_main(void)
 {
     if(!dns_flag)

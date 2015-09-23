@@ -52,7 +52,7 @@
 #define TEST_URL_LEN		(127)	
 
 #define TREE_SN       0
-#define REQ_NUMBER    8
+#define REQ_NUMBER    1
 #define DELAY_TIME_MS  50
 
 
