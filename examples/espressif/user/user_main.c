@@ -233,7 +233,7 @@ void user_init(void)
 {
     os_printf("SDK version:%s\n", system_get_sdk_version());
    
-    //Set softAP + station mode 
+    //Set station mode 
     wifi_set_opmode(STATION_MODE); 
 
     //ESP8266 connect to router

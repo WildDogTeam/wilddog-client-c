@@ -19,7 +19,6 @@
 
 
 #ifdef WILDDOG_SELFTEST
-extern void  sync(void);
 extern os_timer_t test_timer1;
 extern os_timer_t test_timer2;
 Wilddog_T wilddog = 0;
