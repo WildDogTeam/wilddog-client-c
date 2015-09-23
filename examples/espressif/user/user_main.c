@@ -1,13 +1,36 @@
-/******************************************************************************
- * Copyright 2013-2014 Espressif Systems (Wuxi)
+/*
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
  *
  * FileName: user_main.c
  *
- * Description: entry file of user application
+ * Description: This demo  show you how to control a led through the cloud.
+ *                   We will creat a led node and push it to server,then subscribe the led node ,
+ *                      so you can change led's value in the server to control the led's status.
+ *                    
+ *           
+ * Usage: 
+ *          1¡¢Change TEST_URL to your own url in user_config.h:
+ *                  like coap://<your appid>.wilddogio.com/TEST_LED, <your appid>
+ *                  is the appid of the app you created, and TEST_LED is the path(
+ *                  node path) in the app. if the tree like this, <1> is your 
+ *                  appid, led-demo is the path.
+ *                  
+ *                  after runing that demo your data tree in cloud would like that:
  *
- * Modification history:
- *     2014/1/1, v1.0 create this file.
-*******************************************************************************/
+ *                  1.wilddogio.com
+ *                  |
+ *                  + led-demo
+ *                      |
+ *                      +led:"1"
+ *          2¡¢Modification SSID and PASSWORD to the SSID you want to connect
+ *                      in user_config.h:
+ *          3¡¢If you define DEF_LED_HARDWARE to 1, then you could control a real led(there is 
+ *                  a example which use GPIO14 in the code, so you should configure  the led gpio function yourself);
+ *                  or you could see the data and the print information.
+ *          
+ *
+***************************************************************************/
+ 
 #include "ets_sys.h"
 #include "osapi.h"
 #include "user_interface.h"
@@ -29,14 +52,14 @@ struct espconn socket;
 
 
 
- /******************************************************************************
-  * FunctionName : user_udp_recv_cb
-  * Description  : Processing the received udp packet
-  * Parameters   : arg -- Additional argument to pass to the callback function
-  *                pusrdata -- The received data (or NULL when the connection has been closed!)
-  *                length -- The length of received data
-  * Returns      : none
- *******************************************************************************/
+/******************************************************************************
+* FunctionName : user_udp_recv_cb
+* Description  : Processing the received udp packet
+* Parameters   : arg -- Additional argument to pass to the callback function
+*                pusrdata -- The received data (or NULL when the connection has been closed!)
+*                length -- The length of received data
+* Returns      : none
+*******************************************************************************/
 STATIC void WD_SYSTEM
 user_udp_recv_cb(void *arg, char *pusrdata, unsigned short length)
 {   
