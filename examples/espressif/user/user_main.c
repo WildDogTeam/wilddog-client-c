@@ -45,7 +45,7 @@ struct CTX
  *******************************************************************************/
 STATIC void WD_SYSTEM
 user_udp_recv_cb(void *arg, char *pusrdata, unsigned short length)
-{
+{   
     os_printf("recv udp data: %s\n", pusrdata);
 }
 
@@ -65,78 +65,19 @@ test_setValueFunc(void* arg, Wilddog_Return_T err)
     return;
 }
 
- 
 
-void WD_SYSTEM
-fake_sync(void *arg)
+
+void FAR
+fake_main(void)
 {
-    struct CTX *ctx = ((struct CTX *)arg);
-
-    if(*(ctx->isFinish)== TRUE)
+    if(!dns_flag)
     {
-        wilddog_debug("finish!!!\n");
-        os_timer_disarm(&test_timer1);
-        wilddog_destroy(ctx->wilddog);
-        wfree(ctx->isFinish);
-        wfree(ctx->wilddog);
-        wfree(ctx);
+        gethost();		
     }
     else
     {
-        wilddog_trySync();	
-        os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_sync, arg);
-        os_timer_arm(&test_timer1, 1000, 0);
+        test_buildtreeFunc(TEST_URL);
     }
-}
-
-
-
-void WD_SYSTEM
-fake_main(void)
-{
-	if(!dns_flag)
-	{
-		gethost();		
-	}
-	else
-	{
-		BOOL *isFinish;
-		isFinish = wmalloc(sizeof(BOOL));
-		*isFinish= FALSE;
-		 Wilddog_T *wilddog;
-		 wilddog = wmalloc(sizeof(Wilddog_T));
-		 *wilddog= 0;
-		 Wilddog_Node_T * p_node = NULL, *p_head = NULL;
-		 p_head = wilddog_node_createObject(NULL);
-		 struct CTX *_ctx = wmalloc(sizeof(struct CTX));
-		 _ctx->isFinish = isFinish;
-		 _ctx->wilddog = wilddog;
-		  
-
-		 os_timer_disarm(&test_timer1);
-
-		 /* create a new child to "wilddog" , key is "1", value is "123456" */
-		 p_node = wilddog_node_createUString((Wilddog_Str_T *)"1",(Wilddog_Str_T *)"123456");
-		 
-		 wilddog_node_addChild(p_head, p_node);
-		 wilddog_debug_printnode(p_head);
-		 //wilddog_increaseTime(100);
-		 
-		 *wilddog = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
-		
-		if(0 == *wilddog)
-		{
-			wilddog_debug("new wilddog error");
-			return;
-		}
-
-		wilddog_setValue(*wilddog,p_head,test_setValueFunc,(void*)isFinish);
-    	wilddog_node_delete(p_head);
-
-		os_timer_disarm(&test_timer1);
-		os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_sync, (void*)_ctx);
-		os_timer_arm(&test_timer1, 1000, 0);    	
-	}
 }
 
 
@@ -151,13 +92,14 @@ user_check_ip(void)
 {
     struct ip_info ipconfig;
 
-    //disarm timer first
+   //disarm timer first
     os_timer_disarm(&client_timer);
 
-    //get ip info of ESP8266 station
+   //get ip info of ESP8266 station
     wifi_get_ip_info(STATION_IF, &ipconfig);
 
-    if (wifi_station_get_connect_status() == STATION_GOT_IP && ipconfig.ip.addr != 0) 
+    if (wifi_station_get_connect_status() == STATION_GOT_IP &&  \
+            ipconfig.ip.addr != 0) 
     {
         os_printf("got ip !!! \r\n");
 
@@ -179,7 +121,8 @@ user_check_ip(void)
         else 
         {
             //re-arm timer to check ip
-            os_timer_setfn(&client_timer, (os_timer_func_t *)user_check_ip, NULL);
+            os_timer_setfn(&client_timer, \
+                (os_timer_func_t *)user_check_ip, NULL);
             os_timer_arm(&client_timer, 100, 0);
         }
     }
