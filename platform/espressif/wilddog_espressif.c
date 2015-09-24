@@ -84,14 +84,15 @@ recv_cb(void *arg, char *buf, unsigned short len)
 	struct recv_buf_node *node;
 
 	int i;
+    #if 0
 	printf("recv_cb buf\n");
 	for(i = 0; i < len; i++)
 	{
 		printf("0x%x  ", *(buf+i));
 	}
 	printf("\n\n");
-
-    wilddog_debug("recv_cb\n");
+    #endif
+    
 	wilddog_debug("recv len:%d\n", len);
 	if(head->next == NULL && head->len == 0)
 	{
@@ -128,15 +129,12 @@ void WD_SYSTEM dns_found(const char *name, ip_addr_t *ipaddr, void *arg)
 			*((uint8 *)&ipaddr->addr), *((uint8 *)&ipaddr->addr + 1),
 			*((uint8 *)&ipaddr->addr + 2), *((uint8 *)&ipaddr->addr + 3));
 
-		wilddog_debug("add:  0x%x\n", ipaddr);
 		memcpy(&(address.addr), &ipaddr->addr, 4);
 		dns_flag = TRUE;
 	}
-
 	
     espconn_regist_recvcb(pespconn, recv_cb);
     espconn_regist_sentcb(pespconn, send_cb);
-	os_printf("dns found end\n");
 }
 
 
@@ -144,22 +142,14 @@ int WD_SYSTEM gethost()
 {
     int ret;	
 
-	wilddog_debug("add:  0x%x\n", &address);
 	ret = espconn_gethostbyname(&socket, "s-dal5-coap-1.wilddogio.com", &address, dns_found);
-	os_printf("gethost end\n");
 	os_timer_arm(&test_timer1, 1000, 0);
-
+    return ret;
 }
 
 int WD_SYSTEM wilddog_gethostbyname( Wilddog_Address_T* addr, char* host )
 {
-	int ret;	
-
-	wilddog_debug("wilddog_gethostbyname");
-	wilddog_debug("addr: %d %d %d %d\n", *((uint8 *)&(address.addr)), *((uint8 *)&(address.addr) + 1),
-			*((uint8 *)&(address.addr) + 2), *((uint8 *)&(address.addr) + 3));
 	memcpy(addr->ip, &(address.addr), 4);
-	wilddog_debug("ip:%d %d %d %d\n", addr->ip[0], addr->ip[1], addr->ip[2], addr->ip[3]);
 	if(addr->ip[0] != 0 && addr->ip[1] != 0 && addr->ip[2] != 0 && addr->ip[3] != 0)
 	{
 		wilddog_debug("get host by name had succuss\n");
@@ -174,17 +164,15 @@ int WD_SYSTEM wilddog_gethostbyname( Wilddog_Address_T* addr, char* host )
 
 int WD_SYSTEM wilddog_openSocket( int* socketId )
 {
-	socket.type = ESPCONN_UDP;
+    socket.type = ESPCONN_UDP;
     socket.proto.udp = (esp_udp *)wmalloc(sizeof(esp_udp));
     socket.proto.udp->local_port = espconn_port();   
-	socket.proto.udp->remote_port = 5683;
+    socket.proto.udp->remote_port = WILDDOG_PORT;
 
 	recv_list_init();
-	//socket.proto.udp = &udp;
+    
 	socket.type = ESPCONN_UDP;
 	socket.state = ESPCONN_NONE;
-
-    //espconn_regist_recvcb(&socket, recv_cb);
 	
 	if(espconn_create(&socket) != 0)
 	{
@@ -194,9 +182,7 @@ int WD_SYSTEM wilddog_openSocket( int* socketId )
 	}
 	
      *socketId = (int) (&socket);
-	printf("open socket success\n");
     return 0;
-
 }
 
 int WD_SYSTEM wilddog_closeSocket( int socketId )
@@ -224,14 +210,15 @@ int WD_SYSTEM wilddog_send
 
 	wilddog_debug("remote ip:%d %d %d %d\n", addr_in->ip[0], addr_in->ip[1], addr_in->ip[2], addr_in->ip[3]);
 	memcpy(socket->proto.udp->remote_ip, addr_in->ip, 4);
-	wilddog_debug("length:%d\n", tosendLength);
 	int i;
+    #if 0
 	for(i = 0; i < tosendLength; i++)
 	{
 		printf("0x%x  ", *((char *)tosend+i));
 	}
 	printf("\n\n");
-	
+	#endif
+    
 	ret = espconn_sent(socket, tosend, tosendLength);
     
     if(ret == 0)
@@ -264,7 +251,6 @@ int WD_SYSTEM wilddog_receive
 			len = head->len;
 			if(head->next != NULL)
 			{
-				wilddog_debug("recv the head len:%d\n", head->len);
 			 	memcpy(buf, head->buf, head->len);
 				
 				head = head->next;
@@ -273,7 +259,6 @@ int WD_SYSTEM wilddog_receive
 			}
 			else
 			{
-				wilddog_debug("2recv the head len:%d\n", head->len);
 				memcpy(buf, head->buf, head->len);
 				wfree(head->buf);
 				head->buf = NULL;
