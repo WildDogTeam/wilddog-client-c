@@ -40,7 +40,6 @@ extern void stab_test_cycle(void);
 STATIC void WD_SYSTEM 
 user_udp_recv_cb(void *arg, char *pusrdata, unsigned short length)
 {   
-    os_printf("recv udp data: %s\n", pusrdata);
 }
 
  

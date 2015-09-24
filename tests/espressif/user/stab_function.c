@@ -377,7 +377,6 @@ void WD_SYSTEM stab_sync(void)
     }
     else
     {   
-        wilddog_debug("try sync");
         stab_trysync();
     
         os_timer_setfn(&test_timer2, (os_timer_func_t *)stab_sync, NULL);
@@ -390,26 +389,16 @@ void WD_SYSTEM stab_sync(void)
 
 void WD_SYSTEM stab_test_cycle(void)
 {
-    wilddog_debug();
     cmd = STABTEST_CMD_ON;
 
 	/* mark star time*/
 	stab_set_runtime();
     /*Init a wilddog client*/
     client = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
-    wilddog_debug();
-	
 	stab_get_requestRes(stabtest_request(cmd,client,p_finish));
-    wilddog_debug();
 
-    
     os_timer_setfn(&test_timer2, (os_timer_func_t *)stab_sync, NULL);
-        
     os_timer_arm(&test_timer2, 1000, 0);        
-
-   
-    //os_timer_setfn(&test_timer1, (os_timer_func_t *)stab_test_cycle, NULL);
-    //os_timer_arm(&test_timer1, 1000, 0); 
 }
 STATIC	void WD_SYSTEM stab_settest_dataInit(u8 idx)
 {
