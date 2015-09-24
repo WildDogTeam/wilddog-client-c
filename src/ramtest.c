@@ -315,7 +315,6 @@ int WD_SYSTEM ramtest_handle( const u8 *p_url,u32 tree_num, u8 request_num)
         else
             d_ramtest.d_sendfalt++;
     }
-    wilddog_debug();
     ramtest_caculate_requestQueueRam();
 
 

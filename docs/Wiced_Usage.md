@@ -1,3 +1,6 @@
+####把SDK拷贝到WICED平台
+首先将wilddog\_client\_coap拷贝到`WICED-SDK-x.x.x\WICED-SDK\apps`目录下.
+
 #### 配置wifi和URL
 
 打开`examples/wiced/wifi_config_dct.h`填写热点名称和密码：
@@ -27,4 +30,4 @@
 
 让你的wiced开发板通过USB连接电脑，USB驱动在`WICED-SDK-3.1.2\WICED-SDK\tools\drivers`中。
 
-双击Make Target窗口刚刚建立的Target：`wilddog_client_coap.project.wiced-<yourboard> download run`，编译完成后会自动烧录到开发板中运行。
+双击Make Target窗口刚刚建立的Target：`wilddog_client_coap.project.wiced-<yourboard> download run`，编译完成后会自动烧录到开发板中运行。(注意：对于750其Target:`wilddog_client_coap.project.wiced-WSDB750 JTAG=ftdi_swd download_apps download run`)

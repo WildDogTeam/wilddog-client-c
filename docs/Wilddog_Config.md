@@ -4,7 +4,7 @@
 
 编译选项是指在编译阶段需要设置的参数，这里特指已经支持的平台。
 
-linux平台的编译选项在make时指定，wiced平台的编译选项在project/wiced/wiced.mk中。
+linux和espressif平台的编译选项在make时指定，wiced平台的编译选项在project/wiced/wiced.mk中。
 
 编译选项目前有以下几种：
 

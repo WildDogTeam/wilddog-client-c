@@ -10,7 +10,7 @@
 #include "test_lib.h"
 #include "test_config.h"
 
-#define TESTURL_NUM		(32)
+#define TESTURL_NUM		(128)
 #define TESTURL_HARD	"coap://"
 #define TESTURL_TAIL	".wilddogio.com"
 

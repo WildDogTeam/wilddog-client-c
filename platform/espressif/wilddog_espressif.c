@@ -73,8 +73,6 @@ STATIC void WD_SYSTEM
 send_cb(void *arg)
 {
     struct espconn *pespconn = arg;
-
-    wilddog_debug("send_cb\n");
 }
 
 STATIC void WD_SYSTEM
@@ -93,17 +91,14 @@ recv_cb(void *arg, char *buf, unsigned short len)
 	printf("\n\n");
     #endif
     
-	wilddog_debug("recv len:%d\n", len);
 	if(head->next == NULL && head->len == 0)
 	{
-		wilddog_debug("first recv node\n");
 		head->buf = wmalloc(len);
 		head->len = len;
 		memcpy(head->buf, buf, len);
 	}
 	else
 	{
-		wilddog_debug("add recv node\n");
 		node = wmalloc(sizeof(struct recv_buf_node));
 		node->len = len;
 		node->buf = wmalloc(len);
@@ -125,10 +120,6 @@ void WD_SYSTEM dns_found(const char *name, ip_addr_t *ipaddr, void *arg)
 
 	if (ipaddr != NULL)
 	{
-		os_printf("user_esp_platform_dns_found %d.%d.%d.%d\n",
-			*((uint8 *)&ipaddr->addr), *((uint8 *)&ipaddr->addr + 1),
-			*((uint8 *)&ipaddr->addr + 2), *((uint8 *)&ipaddr->addr + 3));
-
 		memcpy(&(address.addr), &ipaddr->addr, 4);
 		dns_flag = TRUE;
 	}
@@ -152,12 +143,10 @@ int WD_SYSTEM wilddog_gethostbyname( Wilddog_Address_T* addr, char* host )
 	memcpy(addr->ip, &(address.addr), 4);
 	if(addr->ip[0] != 0 && addr->ip[1] != 0 && addr->ip[2] != 0 && addr->ip[3] != 0)
 	{
-		wilddog_debug("get host by name had succuss\n");
 		return 0;
 	}
 	else
 	{
-		wilddog_debug("get host by name had failed\n");
 		return -1;
 	}
 }
@@ -206,7 +195,6 @@ int WD_SYSTEM wilddog_send
 	int ret;
 	struct espconn *socket = (struct espconn*) socketId;
 
-	wilddog_debug("remote ip:%d %d %d %d\n", addr_in->ip[0], addr_in->ip[1], addr_in->ip[2], addr_in->ip[3]);
 	memcpy(socket->proto.udp->remote_ip, addr_in->ip, 4);
 	int i;
     #if 0

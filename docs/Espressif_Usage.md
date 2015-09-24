@@ -50,10 +50,14 @@
  	
 它自动将生成的libwilddog.a拷贝到esp\_iot\_sdk\_v1.2.0下的lib目录中.
 
-接着在app目录下编译示例程序:
+接着将Wilddog SDK的示例程序拷贝到esp平台下，在app目录下编译示例程序:
 
 	$ cd app/
 	$ cp ../wilddog_client_coap/examples/espressif/* . -rf
 	$ ./gen_misc.sh
 
 生成的bin文件在bin目录下，烧录方法请参见esp\_iot\_sdk\_v1.2.0下的文档。
+
+#### 建立自己的Demo程序
+
+请参考wilddog\_client\_coap/examples/espressif的目录结构和Makefile写法。如果有多个子目录，请在Makefile中修改SUBDIRS变量。另外，请注意Makefile中的INCLUDES变量，需要添加wilddog\_client\_coap下的路径。

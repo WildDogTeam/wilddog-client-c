@@ -1,3 +1,15 @@
+0.5.1 2015.09.24
+修复：
+修复espressif平台下内存泄露的bug；
+修复espressif平台下部分头文件引用不到的bug；
+修复大小端接口不统一的bug；
+新增：
+增加espressif平台下的稳定性测试用例；
+增加espressif平台下的patch，修复编译错误；
+增加对不同平台下example和test的使用说明；
+改进：
+对wiced平台和espressif平台的用例进行优化，更具实用性。
+
 0.5.0 2015.09.18
 修复：
 修复malloc传入大小为0，在某些平台下可能出错的bug；

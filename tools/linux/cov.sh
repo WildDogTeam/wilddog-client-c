@@ -1,8 +1,8 @@
 #!/bin/sh
 export TOPDIR=$(pwd)/../../
-if [ $1 -e  ]
+if [ ! -n  "$1" ]
 then
-	echo "please use like: autotest.sh nosec | tinydtls | dtls "
+	echo "please use like: cov.sh nosec | tinydtls | dtls "
 	exit
 fi
 export APP_SEC_TYPE=$1

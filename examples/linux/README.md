@@ -1,6 +1,3 @@
-##Wilddog Demo 使用说明
-
-
 ####第一步 编译Demo,编译后的可执行文件在bin目录下
 	$ cd wilddog_client_coap
 	$ make example
@@ -80,5 +77,3 @@
 举例：
 
 	./bin/demo setValue -l coap://imba.wilddogio.com --key a --value 124
-
-
