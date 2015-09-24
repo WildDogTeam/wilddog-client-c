@@ -1,3 +1,6 @@
+####把SDK拷贝到WICED平台
+首先将wilddog\_client\_coap拷贝到`WICED-SDK-x.x.x\WICED-SDK\apps`目录下.
+
 #### 配置wifi和URL
 
 打开`examples/wiced/wifi_config_dct.h`填写热点名称和密码：
