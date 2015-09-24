@@ -27,4 +27,4 @@
 
 让你的wiced开发板通过USB连接电脑，USB驱动在`WICED-SDK-3.1.2\WICED-SDK\tools\drivers`中。
 
-双击Make Target窗口刚刚建立的Target：`wilddog_client_coap.project.wiced-<yourboard> download run`，编译完成后会自动烧录到开发板中运行。
+双击Make Target窗口刚刚建立的Target：`wilddog_client_coap.project.wiced-<yourboard> download run`，编译完成后会自动烧录到开发板中运行。(注意：对于750其Target:`wilddog_client_coap.project.wiced-WSDB750 JTAG=ftdi_swd download_apps download run`)
