@@ -44,7 +44,7 @@ struct recv_buf_node
 struct recv_buf_node *head;
 
 
-STATIC void FAR
+STATIC void WD_SYSTEM
 recv_list_init(void)
 {
 	head = wmalloc(sizeof(struct recv_buf_node));
@@ -54,7 +54,7 @@ recv_list_init(void)
 
 }
 
-STATIC void FAR
+STATIC void WD_SYSTEM
 recv_list_deinit(void)
 {
     struct recv_buf_node *tmp = head;
@@ -69,7 +69,7 @@ recv_list_deinit(void)
 }
 
 
-STATIC void FAR
+STATIC void WD_SYSTEM
 send_cb(void *arg)
 {
     struct espconn *pespconn = arg;
@@ -77,7 +77,7 @@ send_cb(void *arg)
     wilddog_debug("send_cb\n");
 }
 
-STATIC void FAR
+STATIC void WD_SYSTEM
 recv_cb(void *arg, char *buf, unsigned short len)
 {
     struct espconn *pespconn = arg;
@@ -114,7 +114,7 @@ recv_cb(void *arg, char *buf, unsigned short len)
 }
 
 
-void FAR dns_found(const char *name, ip_addr_t *ipaddr, void *arg)
+void WD_SYSTEM dns_found(const char *name, ip_addr_t *ipaddr, void *arg)
 {
 	struct espconn *pespconn = (struct espconn *)arg;
 	if(ipaddr == NULL)
@@ -140,7 +140,7 @@ void FAR dns_found(const char *name, ip_addr_t *ipaddr, void *arg)
 }
 
 
-int FAR gethost()
+int WD_SYSTEM gethost()
 {
     int ret;	
 
@@ -151,7 +151,7 @@ int FAR gethost()
 
 }
 
-int FAR wilddog_gethostbyname( Wilddog_Address_T* addr, char* host )
+int WD_SYSTEM wilddog_gethostbyname( Wilddog_Address_T* addr, char* host )
 {
 	int ret;	
 
@@ -172,7 +172,7 @@ int FAR wilddog_gethostbyname( Wilddog_Address_T* addr, char* host )
 	}
 }
 
-int FAR wilddog_openSocket( int* socketId )
+int WD_SYSTEM wilddog_openSocket( int* socketId )
 {
 	socket.type = ESPCONN_UDP;
     socket.proto.udp = (esp_udp *)wmalloc(sizeof(esp_udp));
@@ -199,7 +199,7 @@ int FAR wilddog_openSocket( int* socketId )
 
 }
 
-int FAR wilddog_closeSocket( int socketId )
+int WD_SYSTEM wilddog_closeSocket( int socketId )
 {
     espconn_delete( (struct espconn*) socketId );	
     if ( socketId )
@@ -211,7 +211,7 @@ int FAR wilddog_closeSocket( int socketId )
     return 0;
 }
 
-int FAR wilddog_send
+int WD_SYSTEM wilddog_send
     ( 
     int socketId, 
     Wilddog_Address_T* addr_in, 
@@ -239,7 +239,7 @@ int FAR wilddog_send
     else
         return -1;
 }
-int FAR wilddog_receive
+int WD_SYSTEM wilddog_receive
     ( 
     int socketId, 
     Wilddog_Address_T* addr_in, 

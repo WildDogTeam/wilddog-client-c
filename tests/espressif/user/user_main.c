@@ -161,7 +161,7 @@ user_set_station_config(void)
 }
 
 
-void FAR user_rf_pre_init(void)
+void WD_SYSTEM user_rf_pre_init(void)
 {
 }
 
@@ -173,7 +173,7 @@ void FAR user_rf_pre_init(void)
  * Parameters   : none
  * Returns      : none
 *******************************************************************************/
-void FAR user_init(void)
+void WD_SYSTEM user_init(void)
 {
     os_printf("SDK version:%s\n", system_get_sdk_version());
    
