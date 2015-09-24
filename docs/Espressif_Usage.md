@@ -50,7 +50,7 @@
  	
 它自动将生成的libwilddog.a拷贝到esp\_iot\_sdk\_v1.2.0下的lib目录中.
 
-接着在app目录下编译示例程序:
+接着将Wilddog SDK的示例程序拷贝到esp平台下，在app目录下编译示例程序:
 
 	$ cd app/
 	$ cp ../wilddog_client_coap/examples/espressif/* . -rf
