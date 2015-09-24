@@ -139,7 +139,6 @@ int WD_SYSTEM  test_buildtreeFunc(const char *p_userUrl)
 	for(m = 0; m < 2; m++)
 	{
 		snprintf((char*)key, 20 , "%s%d", "L1",m);
-	    wilddog_debug("key:%s", key);
 		L1[m] = wilddog_node_createUString( key,(u8*)"L1L");
 	}
 
