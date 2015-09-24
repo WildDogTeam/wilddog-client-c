@@ -1,7 +1,6 @@
 ﻿#!/bin/sh
 
-echo $(pwd)
-if [ $1 -e  ]
+if [ ! -n  "$1" ]
 then
 	echo "please use like: autotest.sh nosec | tinydtls | dtls "
 	exit
@@ -59,7 +58,7 @@ then
 else
 	echo "wilddog node test pass!"
 fi
-if [ ${WD_MULTIPLEHOST} -ne 0 ]
+if [ "${WD_MULTIPLEHOST}" -ne "0" ]
 then
 	echo "wilddog test_multipleHost test failed, please run test_multipleHost to find more information!"
 else
