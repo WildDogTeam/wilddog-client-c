@@ -67,8 +67,8 @@ typedef struct STAB_SETDATA_T
 	Wilddog_T client;
 }Stab_Setdata_T;
 STATIC u32 stab_runtime;
-STATIC u32 stab_rquests;
-STATIC u32 stab_rquestFault;
+STATIC u32 stab_requests;
+STATIC u32 stab_requestFault;
 STATIC u32 stab_recvFault;
 STATIC u32 stab_recvSucc;
 STATIC u32 stab_pushSuccess;
@@ -98,7 +98,7 @@ STATIC void stab_get_requestRes(Wilddog_Return_T res)
 	if(res < 0 )
 	{
 		printf("\tin %lu; send %lu requestErr= %d\n",stab_runtime,stab_cmd,res);
-		stab_rquestFault++;
+		stab_requestFault++;
 	}
 	else
 	{
@@ -108,7 +108,7 @@ STATIC void stab_get_requestRes(Wilddog_Return_T res)
 			stab_recvSucc++;
 			}
 	}
-	stab_rquests++;	
+	stab_requests++;	
 }
 STATIC void stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
 {
@@ -308,8 +308,8 @@ void stab_resultPrint(void)
 	memset(successRatio,0,20);
 	memset(settest_succRatio,0,20);
 
-	sprintf(unlaunchRatio,"%lu/%lu",stab_rquestFault,stab_rquests);
-	sprintf(lossRatio,"%lu/%lu",stab_recvFault,stab_rquests);	
+	sprintf(unlaunchRatio,"%lu/%lu",stab_requestFault,stab_requests);
+	sprintf(lossRatio,"%lu/%lu",stab_recvFault,stab_requests);	
 	//sprintf(successRatio,"%lu/%lu",stab_pushSuccess,stab_changetime);
 	
 	printf("\t%lu",++run_cnt);		

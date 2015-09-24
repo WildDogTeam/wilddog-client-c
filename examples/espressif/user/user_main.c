@@ -1,158 +1,105 @@
-/******************************************************************************
- * Copyright 2013-2014 Espressif Systems (Wuxi)
+/*
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
  *
  * FileName: user_main.c
  *
- * Description: entry file of user application
+ * Description: This demo  show you how to control a led through the cloud.
+ *                   We will creat a led node and push it to server,then subscribe 
+ *                   the led node ,so you can change led's value in the server to 
+ *                   control the led's status.
+ *                      
+ *                    
+ *           
+ * Usage: 
+ *          1¡¢Change TEST_URL to your own url in user_config.h:
+ *                  like coap://<your appid>.wilddogio.com/TEST_LED, <your appid>
+ *                  is the appid of the app you created, and TEST_LED is the path(
+ *                  node path) in the app. if the tree like this, <1> is your 
+ *                  appid, led-demo is the path.
+ *                  
+ *                  after runing that demo your data tree in cloud would like that:
  *
- * Modification history:
- *     2014/1/1, v1.0 create this file.
-*******************************************************************************/
+ *                  1.wilddogio.com
+ *                  |
+ *                  + led-demo
+ *                      |
+ *                      +led:"1"
+ *
+ *          2¡¢Modification SSID and PASSWORD to the SSID you want to 
+ *                  connect in user_config.h:
+ *                      
+ *          3¡¢If you define DEF_LED_HARDWARE to 1, then you could control
+ *                  a real led(there is a example which use GPIO14 in the code, 
+ *                  so you should configure  the led gpio function yourself); or you
+ *                   could see the data and the print information.
+ *          
+ *
+************************************************************/
+
+ 
 #include "ets_sys.h"
 #include "osapi.h"
-
 #include "user_interface.h"
+#include "user_config.h"
 #include "espconn.h"
-
-/******************************************************************************
-     * Copyright 2013-2014 Espressif Systems
-     *
-*******************************************************************************/
-#include "ets_sys.h"
 #include "os_type.h"
-#include "osapi.h"
 #include "mem.h"
-#include "user_interface.h"
     
-#include "espconn.h"
-
 #include "wilddog.h"
+
+
 
 BOOL dns_flag = FALSE;
 os_timer_t test_timer1;
+os_timer_t test_timer2;
+os_timer_t client_timer;
 
 
-extern os_timer_t client_timer;
-
-struct espconn socket;
-
-struct CTX
-{
-	BOOL *isFinish;
-	Wilddog_T *wilddog;
-};
 
 
- /******************************************************************************
-  * FunctionName : user_udp_recv_cb
-  * Description  : Processing the received udp packet
-  * Parameters   : arg -- Additional argument to pass to the callback function
-  *                pusrdata -- The received data (or NULL when the connection has been closed!)
-  *                length -- The length of received data
-  * Returns      : none
- *******************************************************************************/
- STATIC void FAR
- user_udp_recv_cb(void *arg, char *pusrdata, unsigned short length)
- {
-      
-     os_printf("recv udp data: %s\n", pusrdata);
-
- }
+/******************************************************************************
+* FunctionName : user_udp_recv_cb
+* Description  : Processing the received udp packet
+* Parameters   : arg -- Additional argument to pass to the callback function
+*                pusrdata -- The received data (or NULL when the connection has been closed!)
+*                length -- The length of received data
+* Returns      : none
+*******************************************************************************/
+STATIC void WD_SYSTEM
+user_udp_recv_cb(void *arg, char *pusrdata, unsigned short length)
+{   
+    os_printf("recv udp data: %s\n", pusrdata);
+}
 
  
 
- STATIC void test_setValueFunc(void* arg, Wilddog_Return_T err)
- {
-						 
-	 if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
-	 {
-		 wilddog_debug("setValue error!");
-		 return;
-	 }
-	 wilddog_debug("setValue success!");
-	 *(BOOL*)arg = TRUE;
-	 return;
- }
-
- 
-
-void FAR
-fake_sync(void *arg)
+STATIC void WD_SYSTEM 
+test_setValueFunc(void* arg, Wilddog_Return_T err)
 {
-	printf("fake sync\n");
-	//BOOL isFinish = *((BOOL*)arg);
-	struct CTX *ctx = ((struct CTX *)arg);
-
-	if(*(ctx->isFinish)== TRUE)
-	//if(isFinish == TRUE)
-	{
-		printf("finish!!!\n");
-		os_timer_disarm(&test_timer1);
-		wilddog_destroy(ctx->wilddog);
-		wfree(ctx->isFinish);
-		wfree(ctx->wilddog);
-		wfree(ctx);
-	}
-	else
-	{
-		wilddog_debug("try sync\n");
-		wilddog_trySync();	
-		//os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_sync, (void*)&ctx);
-		os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_sync, arg);
-		os_timer_arm(&test_timer1, 1000, 0);
-	}
-
+					 
+    if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+    {
+        wilddog_debug("setValue error!");
+        return;
+    }
+    wilddog_debug("setValue success!");
+    *(BOOL*)arg = TRUE;
+    return;
 }
 
 
 
-void FAR
+void WD_SYSTEM
 fake_main(void)
 {
-	if(!dns_flag)
-	{
-		gethost();		
-	}
-	else
-	{
-		BOOL *isFinish;
-		isFinish = wmalloc(sizeof(BOOL));
-		*isFinish= FALSE;
-		 Wilddog_T *wilddog;
-		 wilddog = wmalloc(sizeof(Wilddog_T));
-		 *wilddog= 0;
-		 Wilddog_Node_T * p_node = NULL, *p_head = NULL;
-		 p_head = wilddog_node_createObject(NULL);
-		 struct CTX *_ctx = wmalloc(sizeof(struct CTX));
-		 _ctx->isFinish = isFinish;
-		 _ctx->wilddog = wilddog;
-		  
-
-		 os_timer_disarm(&test_timer1);
-
-		 /* create a new child to "wilddog" , key is "1", value is "123456" */
-		 p_node = wilddog_node_createUString((Wilddog_Str_T *)"1",(Wilddog_Str_T *)"123456");
-		 
-		 wilddog_node_addChild(p_head, p_node);
-		 wilddog_debug_printnode(p_head);
-		 //wilddog_increaseTime(100);
-		 
-		 *wilddog = wilddog_initWithUrl((Wilddog_Str_T *)"coap://sky.wilddogio.com");
-		
-		if(0 == *wilddog)
-		{
-			wilddog_debug("new wilddog error");
-			return;
-		}
-
-		wilddog_setValue(*wilddog,p_head,test_setValueFunc,(void*)isFinish);
-    	wilddog_node_delete(p_head);
-
-		os_timer_disarm(&test_timer1);
-		os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_sync, (void*)_ctx);
-		//os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_sync, (void*)isFinish);
-		os_timer_arm(&test_timer1, 1000, 0);    	
-	}
+    if(!dns_flag)
+    {
+        gethost();		
+    }
+    else
+    {
+        test_buildtreeFunc(TEST_URL);
+    }
 }
 
 
@@ -162,7 +109,7 @@ fake_main(void)
  * Parameters   : none
  * Returns      : none
 *******************************************************************************/
-void FAR
+void WD_SYSTEM
 user_check_ip(void)
 {
     struct ip_info ipconfig;
@@ -173,32 +120,28 @@ user_check_ip(void)
    //get ip info of ESP8266 station
     wifi_get_ip_info(STATION_IF, &ipconfig);
 
-    if (wifi_station_get_connect_status() == STATION_GOT_IP && ipconfig.ip.addr != 0) 
-   {
-      os_printf("got ip !!! \r\n");
+    if (wifi_station_get_connect_status() == STATION_GOT_IP &&  \
+            ipconfig.ip.addr != 0) 
+    {
+        os_printf("got ip !!! \r\n");
 
-       socket.type = ESPCONN_UDP;
-      socket.state = ESPCONN_NONE;
-
-	  Wilddog_Address_T addr;
-      int sk;
-	  os_timer_disarm(&test_timer1);
-	  os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_main, NULL);
-	  os_timer_arm(&test_timer1, 1000, 0);
-
+        os_timer_disarm(&test_timer1);
+        os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_main, NULL);
+        os_timer_arm(&test_timer1, 1000, 0);
     } 
-   else 
-   {
+    else 
+    {
         if ((wifi_station_get_connect_status() == STATION_WRONG_PASSWORD ||
-                wifi_station_get_connect_status() == STATION_NO_AP_FOUND ||
-                wifi_station_get_connect_status() == STATION_CONNECT_FAIL)) 
+            wifi_station_get_connect_status() == STATION_NO_AP_FOUND ||
+            wifi_station_get_connect_status() == STATION_CONNECT_FAIL)) 
         {
-         os_printf("connect fail !!! \r\n");
+            os_printf("connect fail !!! \r\n");
         } 
-      else 
-      {
-           //re-arm timer to check ip
-            os_timer_setfn(&client_timer, (os_timer_func_t *)user_check_ip, NULL);
+        else 
+        {
+            //re-arm timer to check ip
+            os_timer_setfn(&client_timer, \
+                (os_timer_func_t *)user_check_ip, NULL);
             os_timer_arm(&client_timer, 100, 0);
         }
     }
@@ -211,25 +154,25 @@ user_check_ip(void)
  * Parameters   : none
  * Returns      : none
 *******************************************************************************/
-void FAR
+void WD_SYSTEM
 user_set_station_config(void)
 {
-   // Wifi configuration 
-	char ssid[32] = "wilddog";
-	char password[64] = "orangeline";
+    // Wifi configuration 
+    char ssid[32] = SSID;
+    char password[64] = PASSWORD;
 
-   struct station_config stationConf; 
+    struct station_config stationConf; 
 
-   //need not mac address
-   stationConf.bssid_set = 0; 
+    //need not mac address
+    stationConf.bssid_set = 0; 
    
-   //Set ap settings 
-   os_memcpy(&stationConf.ssid, ssid, 32); 
-   os_memcpy(&stationConf.password, password, 64); 
-   wifi_station_set_config(&stationConf); 
+    //Set ap settings 
+    os_memcpy(&stationConf.ssid, ssid, 32); 
+    os_memcpy(&stationConf.password, password, 64); 
+    wifi_station_set_config(&stationConf); 
 
-   //set a timer to check whether got ip from router succeed or not.
-   os_timer_disarm(&client_timer);
+    //set a timer to check whether got ip from router succeed or not.
+    os_timer_disarm(&client_timer);
     os_timer_setfn(&client_timer, (os_timer_func_t *)user_check_ip, NULL);
     os_timer_arm(&client_timer, 100, 0);
 
@@ -252,11 +195,11 @@ void user_init(void)
 {
     os_printf("SDK version:%s\n", system_get_sdk_version());
    
-   //Set softAP + station mode 
-   wifi_set_opmode(STATIONAP_MODE); 
+    //Set station mode 
+    wifi_set_opmode(STATION_MODE); 
 
-   //ESP8266 connect to router
-   user_set_station_config();
+    //ESP8266 connect to router
+    user_set_station_config();
 }
 
 

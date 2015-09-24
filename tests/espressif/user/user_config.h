@@ -12,8 +12,8 @@
  *
  */
 
-#ifndef _WILDDOG_TEST_CONFIG_
-#define _WILDDOG_TEST_CONFIG_
+#ifndef __USER_CONFIG_H__
+#define __USER_CONFIG_H__
 
 #ifdef WILDDOG_SELFTEST
  
@@ -52,19 +52,9 @@
 #define TEST_URL_LEN		(127)	
 
 #define TREE_SN       0
-#define REQ_NUMBER    8
+#define REQ_NUMBER    1
 #define DELAY_TIME_MS  50
 
-#define TEST_RAM_URL			"coap://<AppId>.wilddogio.com/ramtest"
-#define TEST_PERFORM_URL		"coap://<AppId>.wilddogio.com/performtest"
-#define TEST_STAB_CYCLE_URL		"coap://<AppId>.wilddogio.com/stab_cycle"
-#define TEST_STAB_SETTEST_URL	"coap://<AppId>.wilddogio.com/set_test"
-#define TEST_STEP_URL			"coap://<AppId>.wilddogio.com/step"
-#define TEST_MTS_URL			"coap://<AppId>.wilddogio.com/MTS"
-
-#define TEST_MULTIHOST_URL1		"coap://<AppId>.wilddogio.com/"
-#define TEST_MULTIHOST_URL2		"coap://<AppId>.wilddogio.com/"
-#define TEST_MULTIHOST_URL3		"coap://<AppId>.wilddogio.com/"
 
 
 #endif /* #ifdef WILDDOG_SELFTEST */ 

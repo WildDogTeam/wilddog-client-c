@@ -1,3 +1,41 @@
+/*
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
+ *
+ * FileName: removeValue.c
+ *
+ * Description: Wilddog demo file for removeValue.
+ *
+ * Usage: removeValue <-h|-l url>
+ * 
+ *          -h: help
+ *          -l: note that a url followed
+ *          url:
+ *                  like coap://<your appid>.wilddogio.com/[path], <your appid>
+ *                  is the appid of the app you created, and path is the path(
+ *                  node path) in the app. if the tree like this, <1> is your 
+ *                  appid, <a> and <a/b> are both path.
+ *                  
+ *                  your data tree in cloud:
+ *
+ *                  1.wilddogio.com
+ *                  |
+ *                  + a
+ *                    |
+ *                    + b: 1234
+ *
+ *      example: if we input :
+ *                  removeValue -l coap://1.wilddogio.com/a
+ *               we will remove a node in the cloud, result as follow:.
+ *
+ *                  1.wilddogio.com
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.3        Baikal.Hu       2015-07-16  Create file.
+ * 0.5.1        Jimmy.Pan       2015-09-22  Add notes.
+ *
+ */
 
 #include <unistd.h>
 #include <stdio.h>

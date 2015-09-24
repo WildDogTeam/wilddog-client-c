@@ -229,62 +229,6 @@ STATIC void WD_SYSTEM test_onQueryFunc(
     return;
 }
 
-#ifdef WILDDOG_PORT_TYPE_ESP
-void WD_SYSTEM ram_sync(void)
-{
-    if(count == 0)
-    {
-        os_timer_disarm(&test_timer2);
-        ramtest_printf(&d_ramtest);
-    }
-    else
-    {
-    
-        ramtest_getAveragesize();
-        wilddog_trySync();
-        os_timer_setfn(&test_timer2, (os_timer_func_t *)ram_sync, NULL);
-        
-        os_timer_arm(&test_timer2, 1000, 0);            
-    }
-}
-
-int WD_SYSTEM ramtest_handle( const u8 *p_url,u32 tree_num, u8 request_num)
-{
-    u8 m = 0;
-    Wilddog_T wilddog = 0;
-    
-    wilddog_debug("handle");
-    ramtest_init(tree_num,request_num);
-    
-    wilddog = wilddog_initWithUrl((Wilddog_Str_T*)p_url);
-        
-    if(0 == wilddog)
-    {
-        return -1;
-    }
-    count = 0;
-    for(m=0; m < request_num; m++)
-    {
-        wilddog_debug("request_num: %d", request_num);
-        int res = wilddog_getValue(wilddog, test_onQueryFunc, NULL);
-        if(0 == res)
-            count++;
-        else
-            d_ramtest.d_sendfalt++;
-    }
-    wilddog_debug();
-    ramtest_caculate_requestQueueRam();
-
-
-    os_timer_disarm(&test_timer2);
-    os_timer_setfn(&test_timer2, (os_timer_func_t *)ram_sync, NULL);
-    os_timer_arm(&test_timer2, 1000, 0); 
-
-    return 0;
-}
-
-
-#endif
 
 #ifndef WILDDOG_PORT_TYPE_ESP
 
@@ -354,7 +298,6 @@ int WD_SYSTEM ramtest_handle( const u8 *p_url,u32 tree_num, u8 request_num)
     u8 m = 0;
     Wilddog_T wilddog = 0;
 	
-    wilddog_debug("handle");
     ramtest_init(tree_num,request_num);
 	
     wilddog = wilddog_initWithUrl((Wilddog_Str_T*)p_url);
@@ -366,14 +309,12 @@ int WD_SYSTEM ramtest_handle( const u8 *p_url,u32 tree_num, u8 request_num)
     count = 0;
     for(m=0; m < request_num; m++)
     {
-        wilddog_debug("request_num: %d", request_num);
         int res = wilddog_getValue(wilddog, test_onQueryFunc, NULL);
         if(0 == res)
             count++;
         else
             d_ramtest.d_sendfalt++;
     }
-    wilddog_debug();
     ramtest_caculate_requestQueueRam();
 
 

@@ -1,28 +1,28 @@
 #tools/linux
-##1.�ļ��ṹ��˵��
+##1.文件结构和说明
 
 	
-    	������ autotest.sh
-    	������ cov.sh
-    	������ uncov.sh
+    	├── autotest.sh
+    	├── cov.sh
+    	└── uncov.sh
     
 
-*	`autotest.sh` : �Զ����Խű���ʹ�÷�ʽ: `autotest.sh nosec|tinydtls|dtls`��nosec|tinydtls|dtls��ѡһ
-*	`cov.sh` : �����ʲ��Խű���ʹ�÷�ʽ: `cov.sh nosec|tinydtls|dtls`��nosec|tinydtls|dtls��ѡһ
-*	`uncov.sh`�������ʲ��������ű���ʹ�÷�ʽ: `cov.sh nosec|tinydtls|dtls`��nosec|tinydtls|dtls��ѡһ
+*	`autotest.sh` : 自动测试脚本，使用方式: `autotest.sh nosec|tinydtls|dtls`，nosec|tinydtls|dtls三选一
+*	`cov.sh` : 覆盖率测试脚本，使用方式: `cov.sh nosec|tinydtls|dtls`，nosec|tinydtls|dtls三选一
+*	`uncov.sh`：覆盖率测试清理脚本，使用方式: `cov.sh nosec|tinydtls|dtls`，nosec|tinydtls|dtls三选一
 
-##2.����˵��
-ÿ�����������Ҫ���ƶ˽��������޸Ĳ���ȡ�Բ�����׼ȷ�Ժ��ȶ��ԡ��û������޸�`test_config.h`���ò���ʹ�õ�URL��
+##2.配置说明
+每个测试项均需要在云端建立树，修改并获取以测试其准确性和稳定性。用户可以修改`test_config.h`配置测试使用的URL：
 
-- `TEST_URL` �� ����ʱʹ�õ�URL��
-- `TEST_URL2` �� ���ƶ˲�������һ��URL��
-- `TEST_URL3` �� ���ƶ˲�������һ��URL��
-- `TEST_AUTH` �� ��`TEST_URL`�����Ự��Auth��
+- `TEST_URL` ： 测试时使用的URL。
+- `TEST_URL2` ： 多云端测试其中一个URL。
+- `TEST_URL3` ： 多云端测试其中一个URL。
+- `TEST_AUTH` ： 与`TEST_URL`建立会话的Auth。
 
-##3.ʹ�ò���
-1. ����`test_config.h`��ȷ������ʱʹ�õ��ƶ�URL��
-2. ����SDK�Ķ���Ŀ¼���޸�`tests/linux/test_config.h`,ִ�в��Խű���
+##3.使用步骤
+1. 配置`test_config.h`，确定测试时使用的云端URL。
+2. 进入SDK的顶层目录，修改`tests/linux/test_config.h`,执行测试脚本，例如：
     $ cd tools/linux
 	$ ./xxxx.sh nosec
 
-3. �ȴ��������ն˿������Խ����
+3. 等待，会在终端看到测试结果。

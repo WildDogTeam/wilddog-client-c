@@ -78,6 +78,7 @@ int wilddog_openSocket(int* socketId)
 */
 int wilddog_closeSocket(int socketId)
 {
+    
     return close(socketId);
 }
 

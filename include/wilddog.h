@@ -172,7 +172,8 @@ typedef enum WILDDOG_RETURN_T
 /*                             response code                                 */
 /*****************************************************************************/
 
-typedef struct {
+typedef struct
+{
     u8 len;
     u8 ip[16];
     u16 port;

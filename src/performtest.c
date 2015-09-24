@@ -29,8 +29,10 @@
 #include "wiced.h"
 #endif
 
-#ifdef WILDDOG_PORT_TYPE_ESP
+#if defined (WILDDOG_PORT_TYPE_ESP) && (defined WILDDOG_SELFTEST)
 #include "user_interface.h"
+extern os_timer_t test_timer2;
+extern Wilddog_T wilddog;
 #endif
 
 #ifdef WILDDOG_SELFTEST
@@ -403,20 +405,17 @@ void WD_SYSTEM performtest_handle
 #endif
 
 
-#ifdef WILDDOG_PORT_TYPE_ESP
+#if defined (WILDDOG_PORT_TYPE_ESP) && (defined WILDDOG_SELFTEST)
 
 void WD_SYSTEM perform_sync2(void)
 {
     if(perform_count == 0)
     {
-        //printf("break\n");
         performtest_printf(&g_performtest);
         os_timer_disarm(&test_timer2);
     }
     else
     {
-        wilddog_debug("sync2");
-        wilddog_debug("perform_count:%d", perform_count);
         os_delay_us(1000 * g_performtest.d_tm_trysync_delay);
 
         wilddog_increaseTime(g_performtest.d_tm_trysync_delay);
@@ -460,7 +459,6 @@ void WD_SYSTEM perform_sync(void)
     }
     else
     {
-        wilddog_debug("sync1");
         wilddog_trySync();
         os_timer_setfn(&test_timer2, (os_timer_func_t *)perform_sync, NULL);        
         os_timer_arm(&test_timer2, 1000, 0);            

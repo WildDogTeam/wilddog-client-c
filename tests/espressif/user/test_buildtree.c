@@ -6,8 +6,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "wilddog.h"
-#include "test_lib.h"
-#include "test_config.h"
+#include "user_config.h"
 
 #include "ets_sys.h"
 #include "os_type.h"
@@ -20,11 +19,13 @@
 
 
 #ifdef WILDDOG_SELFTEST
-extern void  sync(void);
 extern os_timer_t test_timer1;
 extern os_timer_t test_timer2;
+Wilddog_T wilddog = 0;
+
 
 #define TEST_BUILDTREE_ERROR	(-1)
+#define TEST_TREE_ITEMS (4)
 
 char *p_performtree_url[TEST_TREE_ITEMS] = 
 					{
@@ -54,11 +55,10 @@ BOOL isFinished = FALSE;
 int l_res = 0;
 
 
-void FAR sync(void)
+void WD_SYSTEM  sync(void)
 {
 	if(l_res == 4)
     {   
-        printf("\n\ttest_buildtree finished\n");    
         os_timer_disarm(&test_timer2);
 
         wilddog_destroy(&tree_wilddog[0]);
@@ -68,7 +68,6 @@ void FAR sync(void)
     #if TEST_TYPE == TEST_RAM
         u8 url[sizeof(TEST_URL)];
         u8 tree_m=0, n=0;
-		printf("\n\ttest_buildtree finished\n");    
         os_timer_disarm(&test_timer2);
         ramtest_titile_printf();
 			
@@ -91,8 +90,6 @@ void FAR sync(void)
     }
 	else
     {   
-		printf("build tree not completed !!\n");
-        wilddog_debug("try sync\n");
         wilddog_trySync();  
 
         os_timer_setfn(&test_timer2, (os_timer_func_t *)sync, NULL);
@@ -104,7 +101,7 @@ void FAR sync(void)
 
 
 
-STATIC void FAR test_setValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void WD_SYSTEM  test_setValueFunc(void* arg, Wilddog_Return_T err)
 {
 
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
@@ -120,7 +117,7 @@ STATIC void FAR test_setValueFunc(void* arg, Wilddog_Return_T err)
 
 
 /*************************************build complete binary tree**************************************************************************/
-int FAR test_buildtreeFunc(const char *p_userUrl)
+int WD_SYSTEM  test_buildtreeFunc(const char *p_userUrl)
 {
 	int m = 0;
 	u8 url[strlen(TEST_URL)+20];
@@ -142,7 +139,6 @@ int FAR test_buildtreeFunc(const char *p_userUrl)
 	for(m = 0; m < 2; m++)
 	{
 		snprintf((char*)key, 20 , "%s%d", "L1",m);
-	    wilddog_debug("key:%s", key);
 		L1[m] = wilddog_node_createUString( key,(u8*)"L1L");
 	}
 
@@ -223,7 +219,6 @@ int FAR test_buildtreeFunc(const char *p_userUrl)
 	memset((void*)url,0,sizeof(url));
 	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_127);
 
-    wilddog_debug("url:%s\n", url);
     tree_wilddog[0] = 0;
 	tree_wilddog[0] = wilddog_initWithUrl(url);
 	if(0 == tree_wilddog[0])

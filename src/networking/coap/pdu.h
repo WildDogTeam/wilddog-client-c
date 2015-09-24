@@ -8,6 +8,9 @@
 
 #ifndef _PDU_H_
 #define _PDU_H_
+
+#include "wilddog.h"
+
 #ifndef WILDDOG_PORT_TYPE_ESP
 #include <stdio.h>
 #endif
@@ -135,6 +138,15 @@ typedef int coap_tid_t;
 /* #  undef WORDS_BIGENDIAN */
 # endif
 #endif
+
+#undef WORDS_BIGENDIAN
+
+#if WILDDOG_LITTLE_ENDIAN == 1
+//#undef WORDS_BIGENDIAN
+#else
+#define WORDS_BIGENDIAN
+#endif
+
 #ifdef WORDS_BIGENDIAN
 typedef struct {
   unsigned int version:2;   /* protocol version */

@@ -447,20 +447,6 @@ STATIC void WD_SYSTEM _wilddog_conn_coap_sendReObserver
         _wilddog_conn_coap_updateReObserverTm();
 }
 
-/*
- * Function:    _wilddog_conn_coap_mesageMatch
- * Description: Check whether the message is matched
- * Input:       p_node: The pointer of coap pdu struct
- *              p_resp: The pointer of the responsed coap pdu struct
- * Output:      N/A
- * Return:      If it matched, return 0; if it not matched, return 1
-*/
-STATIC INLINE int WD_SYSTEM _wilddog_conn_coap_mesageMatch
-    (coap_pdu_t* p_node,coap_pdu_t* p_resp)
-{
-    return (p_node->hdr->id != p_resp->hdr->id);
-}
-
 /*@  there no Termination err , option  illegality just ignore it . 
  * coap_add_option() destroys the PDU's data, so
  * coap_add_data() must be called after all options have been added.
@@ -560,6 +546,20 @@ STATIC int WD_SYSTEM _wilddog_conn_coap_countPacktSize
     /* add had and observer*/
     len += 8+8;
     return len;
+}
+
+/*
+ * Function:    _wilddog_conn_coap_mesageMatch
+ * Description: Check whether the message is matched
+ * Input:       p_node: The pointer of coap pdu struct
+ *              p_resp: The pointer of the responsed coap pdu struct
+ * Output:      N/A
+ * Return:      If it matched, return 0; if it not matched, return 1
+*/
+STATIC INLINE int WD_SYSTEM _wilddog_conn_coap_mesageMatch
+    (coap_pdu_t* p_node,coap_pdu_t* p_resp)
+{
+    return (p_node->hdr->id != p_resp->hdr->id);
 }
 
 /*

@@ -12,7 +12,9 @@
  *
  */
 
+#ifndef WILDDOG_PORT_TYPE_ESP   
 #include <stdio.h>
+#endif
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
@@ -26,8 +28,14 @@
 #include "wilddog_url_parser.h"
 #include "wilddog_api.h"
 #include "wilddog_ct.h"
-#include "test_lib.h"
-#include "test_config.h"
+#include "user_config.h"
+
+
+#ifdef WILDDOG_PORT_TYPE_ESP   
+#include "os_type.h"
+extern os_timer_t test_timer1;
+extern os_timer_t test_timer2;
+#endif
 
 
 #ifdef WILDDOG_SELFTEST
@@ -80,7 +88,7 @@ STATIC u8 serialgetsend_cnt;
 
 
 
-STATIC void stab_set_runtime(void)
+STATIC void WD_SYSTEM stab_set_runtime(void)
 {
 #if defined(WILDDOG_PORT_TYPE_WICED)
 	static u32 stab_startime =0;
@@ -96,7 +104,7 @@ STATIC void stab_set_runtime(void)
 #endif
 }
 
-STATIC void stab_get_requestRes(Wilddog_Return_T res)
+STATIC void WD_SYSTEM stab_get_requestRes(Wilddog_Return_T res)
 {
 	if(res < 0 )
 	{
@@ -112,7 +120,7 @@ STATIC void stab_get_requestRes(Wilddog_Return_T res)
 		}
 
 }
-STATIC void stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
+STATIC void WD_SYSTEM stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
 {
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 	{
@@ -124,7 +132,7 @@ STATIC void stab_get_recvErr(Wilddog_Return_T err,u32 methtype)
 		stab_recvSucc++;
 }
 
-STATIC void stab_getValueFunc
+STATIC void WD_SYSTEM stab_getValueFunc
     (
     const Wilddog_Node_T* p_snapshot, 
     void* arg, 
@@ -137,14 +145,14 @@ STATIC void stab_getValueFunc
     return;
 }
 
-STATIC void stab_removeValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void WD_SYSTEM stab_removeValueFunc(void* arg, Wilddog_Return_T err)
 {
 	stab_get_recvErr(err,STABTEST_CMD_DELE);
     *(BOOL*)arg = TRUE;
 
     return;
 }
-STATIC void stab_setValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void WD_SYSTEM stab_setValueFunc(void* arg, Wilddog_Return_T err)
 {
                         
 	stab_get_recvErr(err,STABTEST_CMD_SET);
@@ -153,7 +161,7 @@ STATIC void stab_setValueFunc(void* arg, Wilddog_Return_T err)
     return;
 }
 
-STATIC void stab_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
+STATIC void WD_SYSTEM stab_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
 {
                         
 	stab_get_recvErr(err,STABTEST_CMD_PUSH);
@@ -162,7 +170,7 @@ STATIC void stab_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
     return;
 }
 
-STATIC void stab_addObserverFunc
+STATIC void WD_SYSTEM stab_addObserverFunc
     (
     const Wilddog_Node_T* p_snapshot, 
     void* arg,
@@ -175,7 +183,7 @@ STATIC void stab_addObserverFunc
 
     return;
 }
-int stabtest_request(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
+int WD_SYSTEM stabtest_request(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
 {
 
 	Wilddog_Node_T *p_head = NULL,*p_node = NULL;
@@ -224,71 +232,7 @@ int stabtest_request(STABTEST_CMD_TYPE type,Wilddog_T client,BOOL *p_finishFlag)
     wilddog_node_delete(p_head);
     return res;
 }
-STATIC void stab_trysync(void)
-{
-	stab_set_runtime();
-	
-	ramtest_getAveragesize();
-	/*Handle the event and callback function, it must be called in a special frequency*/
-	wilddog_trySync();
-
-}
-
-int stab_oneCrcuRequest(void) 
-{
-	int res = 0;
-	BOOL otherFinish = FALSE,onFinish = FALSE;
-	BOOL *p_finish = &onFinish;
-    Wilddog_T client = 0;
-    STABTEST_CMD_TYPE cmd = STABTEST_CMD_ON;
-
-	/* mark star time*/
-	stab_set_runtime();
-    /*Init a wilddog client*/
-    client = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
-	
-	stab_get_requestRes(stabtest_request(cmd,client,p_finish));
-
-    while(1)
-    {
-        if(TRUE == *p_finish)
-        {
-        	if(STABTEST_ONREQUEST(cmd))
-        		p_finish = &otherFinish;
-
-        	onFinish = FALSE;
-        	otherFinish = FALSE;
-			STABTEST_NEXTREQUEST(cmd);
-			stab_get_requestRes(stabtest_request(cmd,client,p_finish));
-			
-			if(STABTEST_OFFREQUEST(cmd))
-			{
-				break;
-			}	
-        }
-        stab_trysync();
-    }
-    /*Destroy the wilddog clent and release the memory*/
-    res = wilddog_destroy(&client);
-
-    return res;
-}
-
-void stab_titlePrint(void)
-{
-	printf("\t>----------------------------------------------------<\n");
-	printf("\tcount\truntime\tram\tUnlaunchRatio\tLostRatio\tSuccessRatio\t");
-	if(TEST_TYPE == TEST_STAB_FULLLOAD)
-	    printf("SuccessSetS");
-
-	printf("\n");
-}
-void stab_endPrint(void)
-{
-	printf("\t>----------------------------------------------------<\n");
-}
-
-void stab_resultPrint(void)
+void WD_SYSTEM stab_resultPrint(void)
 {
 	char unlaunchRatio[20];
 	char lossRatio[20];	
@@ -320,20 +264,143 @@ void stab_resultPrint(void)
 	printf("\n");
 	return;
 }
-void stab_test_cycle(void)
+
+STATIC void WD_SYSTEM stab_trysync(void)
 {
+	stab_set_runtime();
 	
-	ramtest_init(1,1);
-	stab_titlePrint();
-	printf("%s\n",TEST_URL);
-	while(1)
-	{
-		stab_oneCrcuRequest();
-		stab_resultPrint();
-		}
-	stab_endPrint();
+	ramtest_getAveragesize();
+	/*Handle the event and callback function, it must be called in a special frequency*/
+	wilddog_trySync();
+
 }
-STATIC	void stab_settest_dataInit(u8 idx)
+
+int WD_SYSTEM stab_oneCrcuRequest(void) 
+{
+	int res = 0;
+	BOOL otherFinish = FALSE,onFinish = FALSE;
+	BOOL *p_finish = &onFinish;
+    Wilddog_T client = 0;
+    STABTEST_CMD_TYPE cmd = STABTEST_CMD_ON;
+
+	/* mark star time*/
+	stab_set_runtime();
+    /*Init a wilddog client*/
+    client = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
+    wilddog_debug();
+	
+	stab_get_requestRes(stabtest_request(cmd,client,p_finish));
+    wilddog_debug();
+
+    if(TRUE == *p_finish)
+    {  
+        
+        wilddog_debug();
+        if(STABTEST_ONREQUEST(cmd))
+            p_finish = &otherFinish;
+        
+        onFinish = FALSE;
+        otherFinish = FALSE;
+        STABTEST_NEXTREQUEST(cmd);
+        stab_get_requestRes(stabtest_request(cmd,client,p_finish));
+        
+        if(STABTEST_OFFREQUEST(cmd))
+        {
+            os_timer_disarm(&test_timer2);
+            stab_resultPrint();
+        }   
+    }
+    else
+    {   
+        wilddog_debug("try sync");
+        stab_trysync();
+    
+        os_timer_setfn(&test_timer2, (os_timer_func_t *)stab_oneCrcuRequest, NULL);
+        
+        os_timer_arm(&test_timer2, 1000, 0);        
+    }
+    
+}
+
+void WD_SYSTEM stab_titlePrint(void)
+{
+	printf("\t>----------------------------------------------------<\n");
+	printf("\tcount\truntime\tram\tUnlaunchRatio\tLostRatio\tSuccessRatio\t");
+	if(TEST_TYPE == TEST_STAB_FULLLOAD)
+	    printf("SuccessSetS");
+
+	printf("\n");
+}
+void WD_SYSTEM stab_endPrint(void)
+{
+	printf("\t>----------------------------------------------------<\n");
+}
+
+BOOL otherFinish = FALSE,onFinish = FALSE;
+BOOL *p_finish = &onFinish;
+Wilddog_T client = 0;
+STABTEST_CMD_TYPE cmd = STABTEST_CMD_ON;
+
+extern void stab_test_cycle(void);
+
+void WD_SYSTEM stab_sync(void)
+{
+    if(TRUE == *p_finish)
+    {  
+        
+        wilddog_debug();
+        if(STABTEST_ONREQUEST(cmd))
+            p_finish = &otherFinish;
+        
+        onFinish = FALSE;
+        otherFinish = FALSE;
+        STABTEST_NEXTREQUEST(cmd);
+        stab_get_requestRes(stabtest_request(cmd,client,p_finish));
+        
+        if(STABTEST_OFFREQUEST(cmd))
+        {
+            os_timer_disarm(&test_timer2);
+            stab_resultPrint();
+            wilddog_debug();
+            wilddog_destroy(&client);
+            os_timer_disarm(&test_timer1);
+            wilddog_debug();
+            os_timer_setfn(&test_timer1, (os_timer_func_t *)stab_test_cycle, NULL);
+            os_timer_arm(&test_timer1, 1000, 0); 
+        }
+        else
+        {
+            os_timer_setfn(&test_timer2, (os_timer_func_t *)stab_sync, NULL);
+            
+            os_timer_arm(&test_timer2, 1000, 0);        
+        }
+    }
+    else
+    {   
+        stab_trysync();
+    
+        os_timer_setfn(&test_timer2, (os_timer_func_t *)stab_sync, NULL);
+        
+        os_timer_arm(&test_timer2, 1000, 0);        
+    }
+
+}
+
+
+void WD_SYSTEM stab_test_cycle(void)
+{
+    cmd = STABTEST_CMD_ON;
+
+	/* mark star time*/
+	stab_set_runtime();
+    /*Init a wilddog client*/
+    client = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
+	stab_get_requestRes(stabtest_request(cmd,client,p_finish));
+
+    os_timer_setfn(&test_timer2, (os_timer_func_t *)stab_sync, NULL);
+    os_timer_arm(&test_timer2, 1000, 0);        
+}
+STATIC	void WD_SYSTEM stab_settest_dataInit(u8 idx)
 {
 	int i;
     char temp_url[strlen(TEST_URL)+20];
@@ -363,7 +430,7 @@ STATIC	void stab_settest_dataInit(u8 idx)
 	}
 
 }
-STATIC void stab_settest_dataDeInit(void)
+STATIC void WD_SYSTEM stab_settest_dataDeInit(void)
 {
 	int i;
 	for(i=0;i<10;i++)
@@ -382,7 +449,7 @@ STATIC void stab_settest_dataDeInit(void)
 	}
 }
 
-STATIC void stab_settest_serialSetValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void WD_SYSTEM stab_settest_serialSetValueFunc(void* arg, Wilddog_Return_T err)
 {
                         
 	stab_get_recvErr(err,STABTEST_CMD_SET);
@@ -403,7 +470,7 @@ STATIC void stab_settest_serialSetValueFunc(void* arg, Wilddog_Return_T err)
 		
     return;
 }
-STATIC void stab_settest_serialSet_send(void)
+STATIC void WD_SYSTEM stab_settest_serialSet_send(void)
 {
 	int i,res;
 	stab_settest_setsuccess = 0;
@@ -429,7 +496,7 @@ STATIC void stab_settest_serialSet_send(void)
 		stab_trysync();
 	}
 }
-STATIC void stab_settest_judge(Wilddog_Node_T* p_snapshot,void* arg)
+STATIC void WD_SYSTEM stab_settest_judge(Wilddog_Node_T* p_snapshot,void* arg)
 {
     int len;
     
@@ -455,7 +522,7 @@ STATIC void stab_settest_judge(Wilddog_Node_T* p_snapshot,void* arg)
 
 	return ;
 }
-STATIC void stab_settest_serialGetValueFunc
+STATIC void WD_SYSTEM stab_settest_serialGetValueFunc
     (
     const Wilddog_Node_T* p_snapshot, 
     void* arg, 
@@ -472,7 +539,7 @@ STATIC void stab_settest_serialGetValueFunc
     return;
 }
 
-STATIC void stab_settest_serialGet_send(void)
+STATIC void WD_SYSTEM stab_settest_serialGet_send(void)
 {
 	Wilddog_Return_T res = 0;
 	int i;
@@ -498,7 +565,7 @@ STATIC void stab_settest_serialGet_send(void)
 
 	}
 }
-void stab_test_fullLoad(void)
+void WD_SYSTEM stab_test_fullLoad(void)
 {
 	int i;
 	

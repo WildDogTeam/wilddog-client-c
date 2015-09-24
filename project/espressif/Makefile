@@ -31,7 +31,7 @@ wdlib:$(WD_OBJS_BUILD)
 	@$(AR) libwilddog.a $(TOPDIR)/lib/*.o; \
 	rm -rf $(TOPDIR)/lib/*.o; \
 	cp libwilddog.a $(TOPDIR)/lib;
-	mv libwilddog.a $(TOPDIR)/../lib;
+	cp libwilddog.a $(TOPDIR)/../lib;
 
 common_build:
 	@echo "Building common files"

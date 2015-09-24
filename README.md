@@ -1,5 +1,5 @@
 #Wilddog SDK说明
-
+Wilddog C/嵌入式SDK是Wilddog云在C/嵌入式场景下的客户端，使用者调用api接口即可实现和云端的通信、消息订阅功能。如有什么意见、建议或合作意向，可访问`www.wilddog.com`，或联系`jimmy.pan@wilddog.com`。
 ##1. 目录结构
 
 	├── docs
@@ -48,7 +48,7 @@ demo例子的工程目录。
 
 ##2. 移植说明
 
-目前SDK已经成功移植到Wiced平台上，我们以此为例，说明如何移植SDK。
+目前SDK已经成功移植到Wiced等平台上，我们以WICED为例，说明如何移植SDK，其他平台的可参见docs目录下的说明。
 
 ### 将SDK拷贝到目标位置
 
@@ -103,3 +103,5 @@ Wiced平台需要用户完成Makefile，格式有严格要求，Makefile文件�
 SDK 文档: https://z.wilddog.com/device/quickstart
 
 Wiced 文档和sdk获取:http://www.broadcom.com/products/wiced/wifi/
+
+espressif sdk获取: http://espressif.com/zh-hans/%E6%9C%80%E6%96%B0sdk%E5%8F%91%E5%B8%83/

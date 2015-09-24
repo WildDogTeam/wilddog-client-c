@@ -1,7 +1,40 @@
 /*
-*   get test file
-*
-*/
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
+ *
+ * FileName: getValue.c
+ *
+ * Description: Wilddog demo file for get.
+ *
+ * Usage: getValue <-h|-l url>
+ * 
+ *          -h: help
+ *          -l: note that a url followed
+ *          url:
+ *                  like coap://<your appid>.wilddogio.com/[path], <your appid>
+ *                  is the appid of the app you created, and path is the path(
+ *                  node path) in the app. if the tree like this, <1> is your 
+ *                  appid, <a> and <a/b> are both path.
+ *                  
+ *                  your data tree in cloud:
+ *
+ *                  1.wilddogio.com
+ *                  |
+ *                  + a
+ *                    |
+ *                    + b: 1234
+ *
+ *      example: if we input :
+ *                  getValue -l coap://1.wilddogio.com/a
+ *               we can get value of a, which is a node of app <1>.
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.3        Baikal.Hu       2015-07-16  Create file.
+ * 0.5.1        Jimmy.Pan       2015-09-22  Add notes.
+ *
+ */
+
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,6 +58,7 @@ STATIC void test_getValueFunc(
     if(p_snapshot)
     {
         wilddog_debug_printnode(p_snapshot);
+        /*copy the node from callback, but in this demo the node are not used*/
         *(Wilddog_Node_T**)arg = wilddog_node_clone(p_snapshot);
         printf("\ngetValue success!\n");
     }
