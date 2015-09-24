@@ -23,7 +23,6 @@ BOOL dns_flag = FALSE;
 os_timer_t test_timer1;
 os_timer_t test_timer2;
 os_timer_t client_timer;
-struct espconn socket;
 extern void stab_test_cycle(void);
 
 
@@ -103,9 +102,6 @@ void WD_SYSTEM user_check_ip(void)
             ipconfig.ip.addr != 0) 
     {
         os_printf("got ip !!! \r\n");
-
-        socket.type = ESPCONN_UDP;
-        socket.state = ESPCONN_NONE;
 
         os_timer_disarm(&test_timer1);
         os_timer_setfn(&test_timer1, (os_timer_func_t *)fake_main, NULL);

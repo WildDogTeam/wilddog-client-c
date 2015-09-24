@@ -26,7 +26,7 @@
 #include "mem.h"
 
 
-extern struct espconn socket;
+struct espconn socket;
 extern os_timer_t test_timer1;
 extern int dns_flag;
 
@@ -168,12 +168,10 @@ int WD_SYSTEM wilddog_openSocket( int* socketId )
     socket.proto.udp = (esp_udp *)wmalloc(sizeof(esp_udp));
     socket.proto.udp->local_port = espconn_port();   
     socket.proto.udp->remote_port = WILDDOG_PORT;
-
-	recv_list_init();
-    
 	socket.type = ESPCONN_UDP;
 	socket.state = ESPCONN_NONE;
 	
+	recv_list_init();
 	if(espconn_create(&socket) != 0)
 	{
 	    wfree(socket.proto.udp);
