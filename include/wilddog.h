@@ -228,7 +228,7 @@ extern void *wrealloc(void *ptr, size_t oldSize, size_t newSize);
 
 #include "wilddog_api.h"
 #include "wilddog_debug.h"
-
+//#include "wilddog_endian.h"
 #ifdef __cplusplus
 }
 #endif
