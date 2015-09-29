@@ -10,19 +10,19 @@
  *          operations:
  *                  getValue:       get value of the url.
  *                  setValue:       create a new node in the url, need 
- *                                  [--key=<arg1>] and [--value=<arg2>] followed
- *                                  ,arg1 means the node's key which will add to 
- *                                  url, arg2 is arg1's value.
- *                  push:           push a new node in the url, usage similar to 
- *                                  <setValue>, but a little different is:
+ *                                  [--key=<arg1>] and [--value=<arg2>] 
+ *                                  followed, arg1 means the node's key which 
+ *                                  will add to url, arg2 is arg1's value.
+ *                  push:           push a new node in the url, usage similar
+ *                                  to <setValue>, but a little different is:
  *                                  <push> will automatically create a node by
  *                                  the server.
  *                  removeValue:    remove the value(and it's children) of the
  *                                  url.
- *                  addObserver:    subscribe the url, any change will be pushed
- *                                  to the client.
- *                  setAuth:        send the auth token to the server, and get 
- *                                  the permission to operate, if you set the 
+ *                  addObserver:    subscribe the url, any change will be 
+ *                                  pushed to the client.
+ *                  setAuth:        send the auth token to the server, and get
+ *                                  the permission to operate, if you set the
  *                                  control rules in the cloud. 
  *                                  need [--value=<token>] followed.
  *          -h: help
@@ -43,13 +43,13 @@
  *
  *      example: if you input :
  *                  demo setValue -l coap://1.wilddogio.com/a --key=b --value=1
- *               you can find the app <1> has a node which key is b, value is 1.
+ *               you can find the app <1> has a node which key is b,value is 1.
  *               and then if you input :
  *                  demo addObserver -l coap://1.wilddogio.com/a/b
  *               when you change node <b>'s value to 2, the client will receive
  *               the change, and print in the console( and then quit because of
- *               our setting, we set the var <cntmax> in main() to 0, so it will
- *               forced to break, you can remove this judge.)
+ *               our setting, we set the var <cntmax> in main() to 10, so it 
+ *               will break after 10 times, you can remove this setting.)
  *
  * History:
  * Version      Author          Date        Description
@@ -77,14 +77,14 @@ typedef enum _TEST_CMD_TYPE
     TEST_CMD_SETAUTH,
 }TEST_CMD_TYPE;
 
-STATIC void test_gethost(char *p_host,const char *url)
+STATIC void getHostFromAppid(char *p_host,const char *url)
 {
-	char *star_p = NULL,*end_p = NULL;
-	star_p =  strchr(url,'/')+2;
-	end_p = strchr(star_p,'.');
-	memcpy(p_host,star_p,end_p - star_p);	
+    char *star_p = NULL,*end_p = NULL;
+    star_p =  strchr(url,'/')+2;
+    end_p = strchr(star_p,'.');
+    memcpy(p_host,star_p,end_p - star_p);   
 }
-STATIC void test_getValueFunc
+STATIC void getValue_callback
     (
     const Wilddog_Node_T* p_snapshot, 
     void* arg, 
@@ -105,7 +105,7 @@ STATIC void test_getValueFunc
     return;
 }
 
-STATIC void test_removeValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void removeValue_callback(void* arg, Wilddog_Return_T err)
 {
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
     {
@@ -116,7 +116,7 @@ STATIC void test_removeValueFunc(void* arg, Wilddog_Return_T err)
     *(BOOL*)arg = TRUE;
     return;
 }
-STATIC void test_setValueFunc(void* arg, Wilddog_Return_T err)
+STATIC void setValue_callback(void* arg, Wilddog_Return_T err)
 {
                         
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
@@ -129,7 +129,7 @@ STATIC void test_setValueFunc(void* arg, Wilddog_Return_T err)
     return;
 }
 
-STATIC void test_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
+STATIC void push_callback(u8 *p_path,void* arg, Wilddog_Return_T err)
 {
                         
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
@@ -142,38 +142,37 @@ STATIC void test_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
     return;
 }
 
-STATIC void test_addObserverFunc
+STATIC void addObserver_callback
     (
     const Wilddog_Node_T* p_snapshot, 
     void* arg,
     Wilddog_Return_T err
     )
 {
-    
     *(BOOL*)arg = TRUE;
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
     {
         wilddog_debug("addObserver failed!");
         return;
     }
+    wilddog_debug("Observe new data!");
     wilddog_debug_printnode(p_snapshot);
-        wilddog_debug("addObserver data!");
-    
+    printf("\n");
+
     return;
 }
-STATIC void test_authFunc
-	(
-	    void* arg,
-   	 	Wilddog_Return_T err
+STATIC void auth_callback
+    (
+        void* arg,
+        Wilddog_Return_T err
     )
 {
-	*(BOOL*)arg = TRUE;
-	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+    *(BOOL*)arg = TRUE;
+    if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
     {
         wilddog_debug("auth failed!;error =%d \n",err);
         return;
     }
-
 }
 
 int main(int argc, char **argv) 
@@ -181,20 +180,18 @@ int main(int argc, char **argv)
     char url[1024];
     char value[1024];
     char keys[256];
-	char host[512];
-    char *p_inputtype = NULL;
+    char host[512];
     memset(url,0,sizeof(url));  
     memset(value,0,sizeof(value));
     memset(keys,0,sizeof(keys));
-	memset(host,0,sizeof(host));
-	
-	int type = 0;
+    memset(host,0,sizeof(host));
+    
+    int type = 0;
     int opt,i,res = 0,cnt=0,cntmax=0;
     int option_index = 0;
     BOOL isFinish = FALSE;
     Wilddog_T wilddog = 0;
     Wilddog_Node_T * p_node = NULL,*p_head = NULL;
-
 
     static struct option long_options[] = 
     {
@@ -203,7 +200,7 @@ int main(int argc, char **argv)
         {0,         0,                 0,  0 }
     };
 
-    while ((opt = getopt_long(argc, argv, "hl:",long_options, &option_index)) != -1) 
+    while((opt=getopt_long(argc,argv,"hl:",long_options,&option_index)) != -1)
     {
         switch (opt) 
         {
@@ -219,76 +216,77 @@ int main(int argc, char **argv)
             break;
 
         case 'h':
-            fprintf(stderr, "Usage: %s getValue|setValue|push|removeValue|addObserver -l coap://yourappid.wilddogio.com/ --key a --value 124\n",
-                   argv[0]);
+            fprintf(stderr, \
+                    "Usage: %s setAuth|getValue|setValue|push|removeValue|"
+                    "addObserver -l coap://<your appid>.wilddogio.com/ "
+                    "[--key=<key> --value=<value>]\n", 
+                    argv[0]);
             return 0;
         case 'l':
             strcpy(url, (const char*)optarg);
-			test_gethost(host,url);
-			sprintf(&host[strlen(host)],".wilddogio.com");
+            getHostFromAppid(host,url);
+            sprintf(&host[strlen(host)],".wilddogio.com");
             break;          
         default: /* '?' */
-            fprintf(stderr, "Usage: %s getValue|setValue|push|removeValue|addObserver -l coap://yourappid.wilddogio.com/ --key a --value 124\n",
-                   argv[0]);
+            fprintf(stderr, \
+                    "Usage: %s setAuth|getValue|setValue|push|removeValue|"
+                    "addObserver -l coap://<your appid>.wilddogio.com/ "
+                    "[--key=<key> --value=<value>]\n", 
+                    argv[0]);
             return 0;
         }
     }
 
     for (i = 0; optind < argc; i++, optind++) 
     {
-        if(i==0)
+        if(i == 0)
         {
             if(strcmp(argv[optind],"getValue")==0)
             {
-                p_inputtype = argv[optind];
                 type= TEST_CMD_GET;
-                cntmax =0;
+                cntmax = 0;
             }
             else if(strcmp(argv[optind],"setValue")==0)
             {
-                p_inputtype = argv[optind];
                 type= TEST_CMD_SET;
-                cntmax =0;
+                cntmax = 0;
             }
             else if(strcmp(argv[optind],"push")==0)
             {
-                p_inputtype = argv[optind];
                 type=TEST_CMD_PUSH;
-                cntmax =0;
+                cntmax = 0;
             }
             else if(strcmp(argv[optind],"removeValue")==0)
             {
-                p_inputtype = argv[optind];
                 type=TEST_CMD_DELE;
                 cnt =0;
             }
             else if(strcmp(argv[optind],"addObserver")==0)
             {
-                p_inputtype = argv[optind];
                 type= TEST_CMD_ON;
+                cntmax = 10;
             }
-			else if(strcmp(argv[optind],"setAuth")==0)
+            else if(strcmp(argv[optind],"setAuth")==0)
             {
-                p_inputtype = argv[optind];
                 type= TEST_CMD_SETAUTH;
             }
         }
     }
     if( !type)
     {
-        printf("Usage: %s setAuth|getValue|setValue|push|removeValue|addObserver -l coap://yourappid.wilddogio.com/ --key a --value 124\n", argv[0]);
+        printf("Usage: %s setAuth|getValue|setValue|push|removeValue|addObser"
+               "ver -l coap://<your appid>.wilddogio.com/ [--key=<key> "
+               "--value=<value>]\n", 
+               argv[0]);
         return 0;
     }
 
-
-    /*Init wilddog SDK*/
-    
-    
     /*Create an node which type is an object*/
     p_head = wilddog_node_createObject(NULL);
     
     /*Create an node which type is UTF-8 Sring*/
-    p_node = wilddog_node_createUString((Wilddog_Str_T *)keys,(Wilddog_Str_T *)value);
+    p_node = wilddog_node_createUString((Wilddog_Str_T *)keys, \
+                                        (Wilddog_Str_T *)value);
     
     /*Add p_node to p_head, then p_node is the p_head's child node*/
     wilddog_node_addChild(p_head, p_node);
@@ -299,30 +297,36 @@ int main(int argc, char **argv)
     {
         case TEST_CMD_GET:
             /*Send the query method*/
-            res = wilddog_getValue(wilddog, (onQueryFunc)test_getValueFunc,(void*)&isFinish);
+            res = wilddog_getValue(wilddog, (onQueryFunc)getValue_callback, \
+                                   (void*)&isFinish);
             break;
         case TEST_CMD_SET:  
             /*Send the set method*/
-            res = wilddog_setValue(wilddog,p_head,test_setValueFunc,(void*)&isFinish);
+            res = wilddog_setValue(wilddog,p_head,setValue_callback, \
+                                   (void*)&isFinish);
             break;
         case TEST_CMD_PUSH:
             /*Send the push method*/
-            res = wilddog_push(wilddog, p_head, test_pushFunc, (void *)&isFinish);  
+            res = wilddog_push(wilddog, p_head, push_callback, \
+                               (void *)&isFinish);  
             break;
         case TEST_CMD_DELE:
             /*Send the remove method*/
-            res = wilddog_removeValue(wilddog, test_removeValueFunc,(void*)&isFinish);
+            res = wilddog_removeValue(wilddog, removeValue_callback, \
+                                      (void*)&isFinish);
             break;
         case TEST_CMD_ON:
             /*Observe on*/
             res = wilddog_addObserver(wilddog, WD_ET_VALUECHANGE,\
-            		test_addObserverFunc, (void*)&isFinish);
+                                      addObserver_callback, \
+                                      (void*)&isFinish);
             break;
-		case TEST_CMD_SETAUTH:
-			wilddog_debug("TEST_CMD_SETAUTH token = %s",value);
-			res = wilddog_auth((u8*)host,(u8*)value,strlen((const char *)value),\
-				test_authFunc,(void*)&isFinish);
-			break;
+        case TEST_CMD_SETAUTH:
+            wilddog_debug("TEST_CMD_SETAUTH token = %s",value);
+            res = wilddog_auth((u8*)host,(u8*)value, \
+                               strlen((const char *)value),
+                               auth_callback,(void*)&isFinish);
+            break;
     }
     /*Delete the node*/
     wilddog_node_delete(p_head);
@@ -330,11 +334,13 @@ int main(int argc, char **argv)
     {
         if(TRUE == isFinish)
         {
-            wilddog_debug("get new data %d times!", cnt++);
+            if(type ==  TEST_CMD_ON)
+                wilddog_debug("get new data %d times! after %d times, will " \
+                              "remove Observer.", cnt, cntmax);
+            cnt++;
             isFinish = FALSE;
             if(cnt > cntmax)/*force break when received new data.*/
             {
-                printf("event :%s success\n",p_inputtype);
                 if(type ==  TEST_CMD_ON)
                 {
                     wilddog_debug("off the data!");
@@ -344,7 +350,10 @@ int main(int argc, char **argv)
                 break;
             }
         }
-        /*Handle the event and callback function, it must be called in a special frequency*/
+        /*
+         * Handle the event and callback function, it must be called in a 
+         * special frequency
+        */
         wilddog_trySync();
     }
     /*Destroy the wilddog clent and release the memory*/
@@ -352,3 +361,4 @@ int main(int argc, char **argv)
 
     return res;
 }
+
