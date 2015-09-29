@@ -59,6 +59,7 @@ typedef struct WILDDOG_CONN_NODE_T
     void  *p_cn_pkt;    
     Wilddog_Func_T f_cn_callback;
     u8 *p_cn_path;
+    u8* p_cn_key;
     void* p_cn_cb_arg;
     u8 d_cmd;
     u8 d_observe_flag;  

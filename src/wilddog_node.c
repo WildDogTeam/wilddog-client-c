@@ -437,7 +437,7 @@ Wilddog_Node_T * WD_SYSTEM wilddog_node_createObject
     return p_head;
 }
 /*
- * Function:    wilddog_node_setKey
+ * Function:    _wilddog_node_setKey
  * Description: Set a node's key.
  * Input:       node:   The pointer to the node.
  *              key:    The pointer to the node's new key.
@@ -445,7 +445,7 @@ Wilddog_Node_T * WD_SYSTEM wilddog_node_createObject
  * Return:      0 means succeed, negative number means failed.
  * Others:      N/A
 */
-STATIC Wilddog_Return_T WD_SYSTEM wilddog_node_setKey
+Wilddog_Return_T WD_SYSTEM _wilddog_node_setKey
     (
     Wilddog_Node_T *node, 
     Wilddog_Str_T *key
@@ -956,7 +956,7 @@ Wilddog_Return_T WD_SYSTEM wilddog_node_delete( Wilddog_Node_T *p_node)
         {
             /*set it's parent as null node*/
             wilddog_node_setType(p_head->p_wn_parent, WILDDOG_NODE_TYPE_NULL);
-            wilddog_node_setKey(p_head->p_wn_parent ,NULL);
+            _wilddog_node_setKey(p_head->p_wn_parent ,NULL);
             wilddog_node_setValue(p_head->p_wn_parent,NULL, 0);
             p_head->p_wn_parent->p_wn_child = NULL;
         }

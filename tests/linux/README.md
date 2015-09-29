@@ -40,8 +40,10 @@
 ##3.使用步骤
 1. 配置`test_config.h`，确定测试时使用的云端URL。
 2. 进入SDK的顶层目录，修改`tests/linux/test_config.h`,执行 `make test`编译并在`bin`目录下生成测试的可执行文件：
-    $ make test
-	$ ls bin/
-    test_buildtree  test_limit  test_mts  test_multipleHost  test_node  test_perform  test_ram  test_stab_cycle  test_stab_fullload  test_step  test_wdProperty
+
+	
+	    $ make test
+		$ ls bin/
+	    test_buildtree  test_limit  test_mts  test_multipleHost  test_node  test_perform  test_ram  test_stab_cycle  test_stab_fullload  test_step  test_wdProperty
 
 3. 直接执行对应的可执行文件，会在终端看到测试结果。

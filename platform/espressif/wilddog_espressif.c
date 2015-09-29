@@ -26,12 +26,11 @@
 #include "mem.h"
 
 
-struct espconn socket;
 extern os_timer_t test_timer1;
 extern int dns_flag;
 
-
-ip_addr_t address;
+STATIC struct espconn socket;
+STATIC ip_addr_t address;
 
 
 struct recv_buf_node

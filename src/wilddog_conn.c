@@ -617,7 +617,7 @@ STATIC int WD_SYSTEM _wilddog_conn_node_add
     p_conn->d_recentSendTime = _wilddog_getTime();
     (*pp_conn_node)->d_cmd = cmd;
     (*pp_conn_node)->p_cn_pkt = NULL;
-    
+    (*pp_conn_node)->p_cn_key = _wilddog_url_getKey(p_arg->p_url->p_url_path);
     (*pp_conn_node)->f_cn_callback = p_arg->p_complete;
     (*pp_conn_node)->p_cn_cb_arg = p_arg->p_completeArg;
     
@@ -650,15 +650,17 @@ void WD_SYSTEM _wilddog_conn_node_remove
             wfree((*pp_conn_node)->p_cn_path);
             (*pp_conn_node)->p_cn_path = NULL;
         }
-        
+        if((*pp_conn_node)->p_cn_key)
+        {
+            wfree((*pp_conn_node)->p_cn_key);
+            (*pp_conn_node)->p_cn_key = NULL;
+        }
         wilddog_debug_level(WD_DEBUG_WARN,\
             "conn remove node =%p\n",*pp_conn_node);
-#if 1
         if( (*pp_conn_node)->p_cn_pkt )
         {
             _wilddog_conn_pkt_free(&((*pp_conn_node)->p_cn_pkt));
-        }
-#endif          
+        }       
         wfree(*pp_conn_node);
         *pp_conn_node = NULL;
     }
@@ -1152,7 +1154,11 @@ STATIC void WD_SYSTEM _wilddog_conn_cb_push
     if(p_cn_node->f_cn_callback)
         p_cn_node->f_cn_callback(p_respbuf,p_cn_node->p_cn_cb_arg,err);
 }
-
+extern Wilddog_Return_T WD_SYSTEM _wilddog_node_setKey
+    (
+    Wilddog_Node_T *node, 
+    Wilddog_Str_T *key
+    );
 /*
  * Function:    _wilddog_conn_cb_get
  * Description: conn layer get callback function
@@ -1187,7 +1193,10 @@ STATIC void WD_SYSTEM _wilddog_conn_cb_get
 #endif
 
         p_snapshot = _wilddog_payload2Node((Wilddog_Payload_T*)&recvData);
-
+        if((p_cn_node)->p_cn_key)
+        {
+            _wilddog_node_setKey(p_snapshot, (p_cn_node)->p_cn_key);
+        }
 #ifdef WILDDOG_SELFTEST        
         ramtest_caculate_nodeRam();
 #endif
