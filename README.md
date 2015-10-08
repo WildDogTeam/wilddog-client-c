@@ -1,7 +1,12 @@
 #WildDog SDK说明
 WildDog C/嵌入式SDK是Wilddog云在C/嵌入式场景下的客户端，使用者调用api接口即可实现和云端的通信、消息订阅功能。如有什么意见、建议或合作意向，可访问`www.wilddog.com`，或联系`jimmy.pan@wilddog.com`。
 
-WildDog C/嵌入式的SDK 使用的是CoAP UDP + DTLS技术，比传统TCP更加省电，更加轻量。
+WildDog C/嵌入式的SDK 使用的是CoAP UDP + DTLS + COBR技术。
+
+在物联网环境下，由IETF主导的CoAP协议要比MQTT等协议要更加适用和更有针对性。只使用UDP协议可以使得ROM大小变小(无需TCP协议栈)；由于无需保持TCP状态，所以比传统TCP更加省电，更加轻量；适合在Thread和Zigbee上传输；满足在未来受限网络和受限设备的网络场景。
+
+CoAP是唯一的国际物联网应用层标准，我们对选择何种协议并没有太多兴趣，但是我们认为CoAP更能解决问题。
+
 
 ##1. 目录结构
 
