@@ -1,5 +1,5 @@
 ####把SDK拷贝到WICED平台
-首先将wilddog\-client\-c改名为wilddog\_client\_c(Wiced平台不支持'-'),然后拷贝到`WICED-SDK-x.x.x\WICED-SDK\apps`目录下.
+首先将wilddog\-client\-c改名为wilddog\_client\_c(Wiced平台下的路径不支持'-'字符),然后拷贝到`WICED-SDK-x.x.x\WICED-SDK\apps`目录下.
 
 #### 配置wifi和URL
 
