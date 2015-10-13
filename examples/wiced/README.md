@@ -23,6 +23,6 @@
 
 ##3.使用步骤
 1. 配置`wilddog_demo_config.h`，确定用例wifi热点和云端URL。
-2. 在WICED-IDE上建立Target-`wilddog_client_coap.tests.wiced-<yourplatform> download run`。
+2. 在WICED-IDE上建立Target-`wilddog_client_c.tests.wiced-<yourplatform> download run`。
 3. 双击Target，编译并下载运行，同时打开串口工具，波特率设置为115200-8-n-1，查看运行的log输出。
 4. 在浏览器端输入你的URL，登录云端，把节点`led1:1`修改为`led1:0`，留意GPIO口输出电平和串口输出。

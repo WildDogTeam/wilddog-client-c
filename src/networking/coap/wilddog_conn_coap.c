@@ -288,7 +288,7 @@ STATIC int WD_SYSTEM _wilddog_conn_coap_cmd2Typecode
             **pp_observe = 1;
             break;
         case WILDDOG_CONN_CMD_PING:
-            *p_type = COAP_MESSAGE_RST;
+            *p_type = COAP_MESSAGE_CON;
             *p_code = 0;
             **pp_observe = 0;
             break;
