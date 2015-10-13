@@ -7,6 +7,9 @@ WildDog C/嵌入式的SDK 使用的是CoAP UDP + DTLS + COBR技术。
 
 CoAP是唯一的国际物联网应用层标准，我们对选择何种协议并没有太多兴趣，但是我们认为CoAP更能解决问题。
 
+**NEWS**：
+
+我们在Linux平台下采用C/嵌入式SDK实现了一个远程调用shell脚本的工具，欢迎大家使用，路径：`https://github.com/WildDogTeam/liveshell`
 
 ##1. 目录结构
 
@@ -60,7 +63,9 @@ demo例子的工程目录。
 
 ### 将SDK拷贝到目标位置
 
-首先，我们将SDK解压，并拷贝到`WICED-SDK-3.1.2\WICED-SDK\apps`中，即SDK位于`WICED-SDK-3.1.2\WICED-SDK\apps\wilddog_client_c\`。
+首先，我们将SDK解压，并拷贝到`WICED-SDK-3.1.2\WICED-SDK\apps`中，即SDK位于`WICED-SDK-3.1.2\WICED-SDK\apps\wilddog-client-c\`。
+
+WICED平台中，`-`有特殊含义，因此我们将目录名字从`wilddog-client-c`改成`wilddog_client_c`。
 
 Wiced平台采用WICED IDE，打开WICED IDE，能够在工程下的`apps`目录下找到我们的SDK。
 
@@ -104,6 +109,42 @@ Wiced平台需要用户完成Makefile，格式有严格要求，Makefile文件�
 		s32 toreceiveLength, 
 		s32 timeout
 		);
+
+----
+### 运行示例
+
+移植完成后，你可以运行示例确认是否移植成功，下面以Wiced平台为例：
+
+#### 配置wifi和URL
+
+打开`examples/wiced/wilddog_demo_config.h`填写热点名称和密码：
+
+	/* This is the default AP the device will connect to (as a client)*/
+
+	#define CLIENT_AP_SSID       "your ssid"
+
+	#define CLIENT_AP_PASSPHRASE "your ap password"
+
+
+配置URL，用户在Wilddog云端申请的URL：
+
+	#define TEST_URL "coaps://<appId>.wilddogio.com/"
+
+#### 建立Target
+
+在Make Target 窗口新建编译目标
+
+`wilddog_client_c.project.wiced-<yourboard> download run`
+
+其中`<yourboard>`为你的开发板型号，我们测试使用的wiced开发板是BCM943362WCD4，因而Target name 是 
+
+`wilddog_client_c.project.wiced-BCM943362WCD4 download run`
+
+#### 编译烧录运行
+
+将wiced开发板通过USB连接电脑，USB驱动在`WICED-SDK-3.1.2\WICED-SDK\tools\drivers`中。
+
+双击Make Target窗口刚刚建立的Target：`wilddog_client_c.project.wiced-<yourboard> download run`，编译完成后会自动烧录到开发板中运行。
 
 ----
 ##其他参考
