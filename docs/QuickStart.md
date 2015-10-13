@@ -14,7 +14,7 @@
 
 编译SDK，编译后的库文件在lib目录下
 
-	$ cd wilddog_client_coap
+	$ cd wilddog-client-c
 	$ make 
 
 编译示例，编译后的可执行文件在bin目录下

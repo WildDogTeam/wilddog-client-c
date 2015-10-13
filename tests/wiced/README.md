@@ -40,6 +40,6 @@
 
 ##3.使用步骤
 1. 配置`test_config.h`，确定测试时使用的云端URL。
-2. 在WICED-IDE上建立Target-`wilddog_client_coap.tests.wiced-<yourplatform> download run`。
+2. 在WICED-IDE上建立Target-`wilddog_client_c.tests.wiced-<yourplatform> download run`。
 3. 配置`wifi_config_dct.h`确定需要连接的SSID和密码，以及测试的项。
 2. 双击Target，编译并下载运行，同时打开串口工具，波特率设置为115200-8-n-1，查看测试结果。

@@ -1,5 +1,5 @@
 ####第一步 编译Demo,编译后的可执行文件在bin目录下
-	$ cd wilddog_client_coap
+	$ cd wilddog-client-c
 	$ make example
 
  生成可执行程序：
