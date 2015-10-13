@@ -12,8 +12,8 @@
  *
  * Usage: 
  *          1. Copy SDK to wiced IDE's <apps> folder, probable path may be 
- *                  <WICED-SDK\apps\wilddog_client_coap>.
- *          2. In <wilddog_client_coap\examples\wiced\wilddog_demo_config.h>:
+ *                  <WICED-SDK\apps\wilddog_client_c>.
+ *          2. In <wilddog_client_c\examples\wiced\wilddog_demo_config.h>:
  *
  *                  default TEST_URL is coap://<your appid>.wilddogio.com/[path]
  *                  , change <your appid> to your <appid>, which is the appid 
@@ -38,7 +38,7 @@
  *
  *          5. Create a target in <Make Target>(may be in the right corner) like
  *              this:
- *              wilddog_client_coap.project.wiced-<yourboard> download run
+ *              wilddog_client_c.project.wiced-<yourboard> download run
  *              
  *              <yourboard> is the board type, like BCM943362WCD4, etc.
  *
