@@ -880,7 +880,6 @@ int WD_SYSTEM _wilddog_conn_coap_send
     coap_pdu_t *p_coap
     )
 {
-    int res =-1;
     
     if( p_coap == NULL)
         return WILDDOG_ERR_INVALID;
@@ -889,13 +888,8 @@ int WD_SYSTEM _wilddog_conn_coap_send
         coap_show_pdu(p_coap);
 #endif
     _wilddog_conn_coap_auth_update(p_auth,p_coap);
-    res = _wilddog_sec_send(p_coap->hdr, p_coap->length);
-    if (res < 0) 
-    {
-        coap_delete_pdu(p_coap);
-        return WILDDOG_ERR_SENDERR;
-    }
-    return res;
+    return _wilddog_sec_send(p_coap->hdr, p_coap->length);
+
 }
 
 /*
