@@ -98,9 +98,9 @@ GLOBAL_DEFINES += WILDDOG_PORT=5684
 GLOBAL_DEFINES += DTLS_CHECK_CONTENTTYPE
 GLOBAL_DEFINES += DTLSv12
 GLOBAL_DEFINES += WITH_SHA256
-$(NAME)_SOURCES += $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/ccm.c \
+$(NAME)_SOURCES += $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/tiny_ccm.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/crypto.c \
-$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/debug.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/tiny_debug.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/dtls.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/dtls_time.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/ecc.c \
