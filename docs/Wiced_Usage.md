@@ -3,7 +3,7 @@
 
 #### 配置wifi和URL
 
-打开`examples/wiced/wifi_config_dct.h`填写热点名称和密码：
+打开`examples/wiced/wilddog_demo_config.h`填写热点名称和密码：
 
 	/* This is the default AP the device will connect to (as a client)*/
 
