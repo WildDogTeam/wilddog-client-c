@@ -311,7 +311,7 @@ Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
     /* OPTIONAL is usually a bad choice for security, but makes interop easier
      * in this simplified example, in which the ca chain is hardcoded.
      * Production code should set a proper ca chain and use REQUIRED. */
-    mbedtls_ssl_conf_authmode( &conf, MBEDTLS_SSL_VERIFY_OPTIONAL );
+    mbedtls_ssl_conf_authmode( &conf, MBEDTLS_SSL_VERIFY_REQUIRED );
     mbedtls_ssl_conf_ca_chain( &conf, &cacert, NULL );
     mbedtls_ssl_conf_rng( &conf, mbedtls_ctr_drbg_random, &ctr_drbg );
     mbedtls_ssl_conf_dbg( &conf, _wilddog_dtls_debug, stdout );
