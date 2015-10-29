@@ -36,18 +36,18 @@ extern "C"
 #else
     
 #ifndef wilddog_htonl
-#define wilddog_htonl(val)  
+#define wilddog_htonl(val) (val) 
 #endif /* htonl */
 #ifndef wilddog_ntohl
-#define wilddog_ntohl(val)  
+#define wilddog_ntohl(val)  (val)
 #endif /* htonl */
 
 #ifndef wilddog_htons
-#define wilddog_htons(val)  
+#define wilddog_htons(val)  (val)
 #endif /*htons */
 
 #ifndef wilddog_ntohs
-#define wilddog_ntohs(val)  
+#define wilddog_ntohs(val)  (val)
 #endif /*htons */
 
 #endif

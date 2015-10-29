@@ -57,97 +57,36 @@ demo例子的工程目录。
 
 各个平台使用的一些工具。
 
-##2. 移植说明
+----
+##2. 快速入门
 
-目前SDK已经成功移植到Wiced等平台上，我们以WICED为例，说明如何移植SDK，其他平台的可参见docs目录下的说明。
+编译SDK，编译后的库文件在lib目录下
 
-### 将SDK拷贝到目标位置
+	$ cd wilddog-client-c
+	$ make 
 
-首先，我们将SDK解压，并拷贝到`WICED-SDK-3.1.2\WICED-SDK\apps`中，即SDK位于`WICED-SDK-3.1.2\WICED-SDK\apps\wilddog-client-c\`。
+编译示例，编译后的可执行文件在bin目录下
 
-WICED平台中，`-`有特殊含义，因此我们将目录名字从`wilddog-client-c`改成`wilddog_client_c`。
+	$ make example
 
-Wiced平台采用WICED IDE，打开WICED IDE，能够在工程下的`apps`目录下找到我们的SDK。
+向应用URL存储一个key-value结构的数据
+
+	$ ./bin/demo setValue -l <应用URL> --key a --value 1 
+获取应用URL的数据
+
+	$ ./bin/demo getValue -l <应用URL>
+执行结果：
+
+	"/":{"a":"1"}
+
 
 ----
+##3. 移植说明
 
-### 移植条件编译选项
-
-Wiced平台需要用户完成Makefile，格式有严格要求，Makefile文件名称的前缀必须与目录名相同.
-
-在`project/wiced/wiced.mk`中添加编译选项，并补完Makefile，详见`wiced.mk`文件。
-
-注意：如果你的平台不支持自定义Makefile，那么请根据条件编译选项，仅将你所需的文件拷贝到平台下，避免出现重定义。需要选择拷贝的路径有：
-
-*	`APP_PROTO_TYPE` : src/networking目录下，根据编译选项拷贝文件夹；
-
-*	`APP_SEC_TYPE` ： src/secure目录下，根据编译选项拷贝文件夹；
-
-*	`PORT_TYPE` ： platform目录下，根据编译选项拷贝文件夹，如果你的平台不属于`linux`或`wiced`等已支持平台，那么你需要自己实现平台相关的函数接口。
+SDK已经在WICED、ESP8266、树莓派、arduino yun、openwrt中成功移植，可参考docs目录。
 
 ----
-
-### 实现平台相关代码
-
-需要实现的平台相关函数接口位于include/wilddog_port.h，如下：
-
-	int wilddog_gethostbyname(Wilddog_Address_T* addr,char* host);
-	int wilddog_openSocket(int* socketId);
-	int wilddog_closeSocket(int socketId);
-	int wilddog_send
-		(
-		int socketId,
-		Wilddog_Address_T*,
-		void* tosend,
-		s32 tosendLength
-		);
-	int wilddog_receive
-		(
-		int socketId,
-		Wilddog_Address_T*,
-		void* toreceive,
-		s32 toreceiveLength, 
-		s32 timeout
-		);
-
-----
-### 运行示例
-
-移植完成后，你可以运行示例确认是否移植成功，下面以Wiced平台为例：
-
-#### 配置wifi和URL
-
-打开`examples/wiced/wilddog_demo_config.h`填写热点名称和密码：
-
-	/* This is the default AP the device will connect to (as a client)*/
-
-	#define CLIENT_AP_SSID       "your ssid"
-
-	#define CLIENT_AP_PASSPHRASE "your ap password"
-
-
-配置URL，用户在Wilddog云端申请的URL：
-
-	#define TEST_URL "coaps://<appId>.wilddogio.com/"
-
-#### 建立Target
-
-在Make Target 窗口新建编译目标
-
-`wilddog_client_c.project.wiced-<yourboard> download run`
-
-其中`<yourboard>`为你的开发板型号，我们测试使用的wiced开发板是BCM943362WCD4，因而Target name 是 
-
-`wilddog_client_c.project.wiced-BCM943362WCD4 download run`
-
-#### 编译烧录运行
-
-将wiced开发板通过USB连接电脑，USB驱动在`WICED-SDK-3.1.2\WICED-SDK\tools\drivers`中。
-
-双击Make Target窗口刚刚建立的Target：`wilddog_client_c.project.wiced-<yourboard> download run`，编译完成后会自动烧录到开发板中运行。
-
-----
-##其他参考
+##4. 其他参考
 
 SDK 文档: https://z.wilddog.com/device/quickstart
 
