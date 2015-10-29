@@ -96,7 +96,6 @@ int wilddog_closeSocket(int socketId)
 int wilddog_send(int socketId,Wilddog_Address_T* addr_in,void* tosend,s32 tosendLength)
 {
     int ret;
-    
     struct sockaddr_in servaddr;    /* server address */
     /* fill in the server's address and data */
     memset((char*)&servaddr, 0, sizeof(servaddr));

@@ -89,7 +89,13 @@ $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/ssl_tls.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/timing.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/wilddog_dtls.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/x509.c \
-$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/x509_crt.c
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/x509_crt.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/sha512.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/padlock.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/gcm.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/des.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/camellia.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/arc4.c
 
 $(NAME)_INCLUDES += $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/inc/
 else

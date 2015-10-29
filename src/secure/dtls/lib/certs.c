@@ -1,68 +1,52 @@
 /*
  *  X.509 test certificates
  *
- *  Copyright (C) 2006-2014, ARM Limited, All Rights Reserved
+ *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+ *  SPDX-License-Identifier: Apache-2.0
  *
- *  This file is part of mbed TLS (https://polarssl.org)
+ *  Licensed under the Apache License, Version 2.0 (the "License"); you may
+ *  not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  *
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *  This file is part of mbed TLS (https://tls.mbed.org)
  */
 
-#if !defined(POLARSSL_CONFIG_FILE)
-#include "polarssl/config.h"
+#if !defined(MBEDTLS_CONFIG_FILE)
+#include "mbedtls/config.h"
 #else
-#include POLARSSL_CONFIG_FILE
+#include MBEDTLS_CONFIG_FILE
 #endif
 
-#if defined(POLARSSL_CERTS_C)
+#include "mbedtls/certs.h"
 
-#if defined(POLARSSL_ECDSA_C)
+#if defined(MBEDTLS_CERTS_C)
+
+#if defined(MBEDTLS_ECDSA_C)
 #define TEST_CA_CRT_EC                                                  \
-"-----BEGIN CERTIFICATE-----\r\n"						\
-"MIICBzCCAa0CCQDXfpb3rypMSDAKBggqhkjOPQQDAjCBijELMAkGA1UEBhMCQ04x\r\n"	\
-"EDAOBgNVBAgMB0JlaWppbmcxEDAOBgNVBAcMB0YuSC5TLkQxFDASBgNVBAoMC3dp\r\n"	\
-"bGRkb2cuY29tMRAwDgYDVQQLDAd3aWxkZG9nMRAwDgYDVQQDDAd3aWxkZG9nMR0w\r\n"	\
-"GwYJKoZIhvcNAQkBFg53ZEB3aWxkZG9nLmNvbTAeFw0xNTA1MjYwODQ2NTFaFw0y\r\n"	\
-"NTA1MjMwODQ2NTFaMIGLMQswCQYDVQQGEwJDTjEQMA4GA1UECAwHQmVpamluZzEQ\r\n"	\
-"MA4GA1UEBwwHRi5ILlMuRDEZMBcGA1UECgwQY29hcC53aWxkZG9nLmNvbTENMAsG\r\n"	\
-"A1UECwwEY29hcDENMAsGA1UEAwwEY29hcDEfMB0GCSqGSIb3DQEJARYQY29hcEB3\r\n"	\
-"aWxkZG9nLmNvbTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABG4iMxpuyegRHO2J\r\n"	\
-"G6WRTwZtCX05Tf0HWgHpBrC6Hte4LGBD5AkIyxJI/sB9YoMMU9K3l0eL2fJsIq+U\r\n"	\
-"HbEdE9MwCgYIKoZIzj0EAwIDSAAwRQIgRxSCS5W+kWfyKacgO/uyeO0LL9Ze6KrU\r\n"	\
-"hAZ+WLLbt8cCIQDy+cQHNg6DPrRbOlxyjnq9bwqQJ20PNaurN6gVsTtI3w==\r\n"	\
-"-----END CERTIFICATE-----\r\n"		
-/*
-"-----BEGIN CERTIFICATE-----\r\n"                                       \
-"MIICUjCCAdegAwIBAgIJAMFD4n5iQ8zoMAoGCCqGSM49BAMCMD4xCzAJBgNVBAYT\r\n"  \
-"Ak5MMREwDwYDVQQKEwhQb2xhclNTTDEcMBoGA1UEAxMTUG9sYXJzc2wgVGVzdCBF\r\n"  \
-"QyBDQTAeFw0xMzA5MjQxNTQ5NDhaFw0yMzA5MjIxNTQ5NDhaMD4xCzAJBgNVBAYT\r\n"  \
-"Ak5MMREwDwYDVQQKEwhQb2xhclNTTDEcMBoGA1UEAxMTUG9sYXJzc2wgVGVzdCBF\r\n"  \
-"QyBDQTB2MBAGByqGSM49AgEGBSuBBAAiA2IABMPaKzRBN1gvh1b+/Im6KUNLTuBu\r\n"  \
-"ww5XUzM5WNRStJGVOQsj318XJGJI/BqVKc4sLYfCiFKAr9ZqqyHduNMcbli4yuiy\r\n"  \
-"aY7zQa0pw7RfdadHb9UZKVVpmlM7ILRmFmAzHqOBoDCBnTAdBgNVHQ4EFgQUnW0g\r\n"  \
-"JEkBPyvLeLUZvH4kydv7NnwwbgYDVR0jBGcwZYAUnW0gJEkBPyvLeLUZvH4kydv7\r\n"  \
-"NnyhQqRAMD4xCzAJBgNVBAYTAk5MMREwDwYDVQQKEwhQb2xhclNTTDEcMBoGA1UE\r\n"  \
-"AxMTUG9sYXJzc2wgVGVzdCBFQyBDQYIJAMFD4n5iQ8zoMAwGA1UdEwQFMAMBAf8w\r\n"  \
-"CgYIKoZIzj0EAwIDaQAwZgIxAMO0YnNWKJUAfXgSJtJxexn4ipg+kv4znuR50v56\r\n"  \
-"t4d0PCu412mUC6Nnd7izvtE2MgIxAP1nnJQjZ8BWukszFQDG48wxCCyci9qpdSMv\r\n"  \
-"uCjn8pwUOkABXK8Mss90fzCfCEOtIA==\r\n"                                  \
-"-----END CERTIFICATE-----\r\n"
-*/
-const char test_ca_crt_ec[] = TEST_CA_CRT_EC;
+"-----BEGIN CERTIFICATE-----\r\n"                       \
+"MIICBzCCAa0CCQDXfpb3rypMSDAKBggqhkjOPQQDAjCBijELMAkGA1UEBhMCQ04x\r\n"  \
+"EDAOBgNVBAgMB0JlaWppbmcxEDAOBgNVBAcMB0YuSC5TLkQxFDASBgNVBAoMC3dp\r\n"  \
+"bGRkb2cuY29tMRAwDgYDVQQLDAd3aWxkZG9nMRAwDgYDVQQDDAd3aWxkZG9nMR0w\r\n"  \
+"GwYJKoZIhvcNAQkBFg53ZEB3aWxkZG9nLmNvbTAeFw0xNTA1MjYwODQ2NTFaFw0y\r\n"  \
+"NTA1MjMwODQ2NTFaMIGLMQswCQYDVQQGEwJDTjEQMA4GA1UECAwHQmVpamluZzEQ\r\n"  \
+"MA4GA1UEBwwHRi5ILlMuRDEZMBcGA1UECgwQY29hcC53aWxkZG9nLmNvbTENMAsG\r\n"  \
+"A1UECwwEY29hcDENMAsGA1UEAwwEY29hcDEfMB0GCSqGSIb3DQEJARYQY29hcEB3\r\n"  \
+"aWxkZG9nLmNvbTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABG4iMxpuyegRHO2J\r\n"  \
+"G6WRTwZtCX05Tf0HWgHpBrC6Hte4LGBD5AkIyxJI/sB9YoMMU9K3l0eL2fJsIq+U\r\n"  \
+"HbEdE9MwCgYIKoZIzj0EAwIDSAAwRQIgRxSCS5W+kWfyKacgO/uyeO0LL9Ze6KrU\r\n"  \
+"hAZ+WLLbt8cCIQDy+cQHNg6DPrRbOlxyjnq9bwqQJ20PNaurN6gVsTtI3w==\r\n"  \
+"-----END CERTIFICATE-----\r\n"     
+const char mbedtls_test_ca_crt_ec[] = TEST_CA_CRT_EC;
 
-const char test_ca_key_ec[] =
+const char mbedtls_test_ca_key_ec[] =
 "-----BEGIN EC PRIVATE KEY-----\r\n"
 "Proc-Type: 4,ENCRYPTED\r\n"
 "DEK-Info: DES-EDE3-CBC,307EAB469933D64E\r\n"
@@ -73,9 +57,9 @@ const char test_ca_key_ec[] =
 "a77x/sY1Bvii8S9/XhDTb6pTMx06wzrm\r\n"
 "-----END EC PRIVATE KEY-----\r\n";
 
-const char test_ca_pwd_ec[] = "PolarSSLTest";
+const char mbedtls_test_ca_pwd_ec[] = "PolarSSLTest";
 
-const char test_srv_crt_ec[] =
+const char mbedtls_test_srv_crt_ec[] =
 "-----BEGIN CERTIFICATE-----\r\n"
 "MIICHzCCAaWgAwIBAgIBCTAKBggqhkjOPQQDAjA+MQswCQYDVQQGEwJOTDERMA8G\r\n"
 "A1UEChMIUG9sYXJTU0wxHDAaBgNVBAMTE1BvbGFyc3NsIFRlc3QgRUMgQ0EwHhcN\r\n"
@@ -91,14 +75,14 @@ const char test_srv_crt_ec[] =
 "fGa5kHvHARBPc8YAIVIqDvHH1Q==\r\n"
 "-----END CERTIFICATE-----\r\n";
 
-const char test_srv_key_ec[] =
+const char mbedtls_test_srv_key_ec[] =
 "-----BEGIN EC PRIVATE KEY-----\r\n"
 "MHcCAQEEIPEqEyB2AnCoPL/9U/YDHvdqXYbIogTywwyp6/UfDw6noAoGCCqGSM49\r\n"
 "AwEHoUQDQgAEN8xW2XYJHlpyPsdZLf8gbu58+QaRdNCtFLX3aCJZYpJO5QDYIxH/\r\n"
 "6i/SNF1dFr2KiMJrdw1VzYoqDvoByLTt/w==\r\n"
 "-----END EC PRIVATE KEY-----\r\n";
 
-const char test_cli_crt_ec[] =
+const char mbedtls_test_cli_crt_ec[] =
 "-----BEGIN CERTIFICATE-----\r\n"
 "MIICLDCCAbKgAwIBAgIBDTAKBggqhkjOPQQDAjA+MQswCQYDVQQGEwJOTDERMA8G\r\n"
 "A1UEChMIUG9sYXJTU0wxHDAaBgNVBAMTE1BvbGFyc3NsIFRlc3QgRUMgQ0EwHhcN\r\n"
@@ -114,61 +98,44 @@ const char test_cli_crt_ec[] =
 "LwjQje5PDGHfd3h9tP38Qknu5bJqws0md2KOKHyeV0U=\r\n"
 "-----END CERTIFICATE-----\r\n";
 
-const char test_cli_key_ec[] =
+const char mbedtls_test_cli_key_ec[] =
 "-----BEGIN EC PRIVATE KEY-----\r\n"
 "MHcCAQEEIPb3hmTxZ3/mZI3vyk7p3U3wBf+WIop6hDhkFzJhmLcqoAoGCCqGSM49\r\n"
 "AwEHoUQDQgAEV+WusXPf06y7k7iB/xKu7uZTrM5VU/Y0Dswu42MlC9+Y4vNcYDaW\r\n"
 "wNUYFHDlf5/VS0UY5bBs1Vz4lo+HcKPkxw==\r\n"
 "-----END EC PRIVATE KEY-----\r\n";
+
+const size_t mbedtls_test_ca_crt_ec_len  = sizeof( mbedtls_test_ca_crt_ec );
+const size_t mbedtls_test_ca_key_ec_len  = sizeof( mbedtls_test_ca_key_ec );
+const size_t mbedtls_test_ca_pwd_ec_len  = sizeof( mbedtls_test_ca_pwd_ec ) - 1;
+const size_t mbedtls_test_srv_crt_ec_len = sizeof( mbedtls_test_srv_crt_ec );
+const size_t mbedtls_test_srv_key_ec_len = sizeof( mbedtls_test_srv_key_ec );
+const size_t mbedtls_test_cli_crt_ec_len = sizeof( mbedtls_test_cli_crt_ec );
+const size_t mbedtls_test_cli_key_ec_len = sizeof( mbedtls_test_cli_key_ec );
 #else
 #define TEST_CA_CRT_EC
-#endif /* POLARSSL_ECDSA_C */
+#endif /* MBEDTLS_ECDSA_C */
 
-#if defined(POLARSSL_RSA_C)						
+#if defined(MBEDTLS_RSA_C)
 #define TEST_CA_CRT_RSA                                                 \
-"-----BEGIN CERTIFICATE-----\r\n"						\
-"MIICXTCCAgOgAwIBAgIJANAENcPt69acMAoGCCqGSM49BAMCMIGKMQswCQYDVQQG\r\n"	\
-"EwJDTjEQMA4GA1UECAwHQmVpamluZzEQMA4GA1UEBwwHRi5ILlMuRDEUMBIGA1UE\r\n"	\
-"CgwLd2lsZGRvZy5jb20xEDAOBgNVBAsMB3dpbGRkb2cxEDAOBgNVBAMMB3dpbGRk\r\n"	\
-"b2cxHTAbBgkqhkiG9w0BCQEWDndkQHdpbGRkb2cuY29tMB4XDTE1MDUyNjA3MjAx\r\n"	\
-"NVoXDTI1MDUyMzA3MjAxNVowgYoxCzAJBgNVBAYTAkNOMRAwDgYDVQQIDAdCZWlq\r\n"	\
-"aW5nMRAwDgYDVQQHDAdGLkguUy5EMRQwEgYDVQQKDAt3aWxkZG9nLmNvbTEQMA4G\r\n"	\
-"A1UECwwHd2lsZGRvZzEQMA4GA1UEAwwHd2lsZGRvZzEdMBsGCSqGSIb3DQEJARYO\r\n"	\
-"d2RAd2lsZGRvZy5jb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAT4zHm2zhVG\r\n"	\
-"RRf0cTRWY6O36ztF3NEzv7yxcnUKW3KtsH3dbdHQraxl84G4v7t7BxmZvZKe4XR0\r\n"	\
-"2l5dj7ZmhKPFo1AwTjAdBgNVHQ4EFgQUIDTWOt928ui2A1oUrEZOTa+uoS4wHwYD\r\n"	\
-"VR0jBBgwFoAUIDTWOt928ui2A1oUrEZOTa+uoS4wDAYDVR0TBAUwAwEB/zAKBggq\r\n"	\
-"hkjOPQQDAgNIADBFAiEA97RP/Zi96ic8yhfruxwoJi5NmZ5DNHlewHYeB2SV8L4C\r\n"	\
-"IFYOGe/9pzFkzfVc2YFkpingI9Fl01pY2pwFGT/PyCxc\r\n"	\
+"-----BEGIN CERTIFICATE-----\r\n"                       \
+"MIICXTCCAgOgAwIBAgIJANAENcPt69acMAoGCCqGSM49BAMCMIGKMQswCQYDVQQG\r\n"  \
+"EwJDTjEQMA4GA1UECAwHQmVpamluZzEQMA4GA1UEBwwHRi5ILlMuRDEUMBIGA1UE\r\n"  \
+"CgwLd2lsZGRvZy5jb20xEDAOBgNVBAsMB3dpbGRkb2cxEDAOBgNVBAMMB3dpbGRk\r\n"  \
+"b2cxHTAbBgkqhkiG9w0BCQEWDndkQHdpbGRkb2cuY29tMB4XDTE1MDUyNjA3MjAx\r\n"  \
+"NVoXDTI1MDUyMzA3MjAxNVowgYoxCzAJBgNVBAYTAkNOMRAwDgYDVQQIDAdCZWlq\r\n"  \
+"aW5nMRAwDgYDVQQHDAdGLkguUy5EMRQwEgYDVQQKDAt3aWxkZG9nLmNvbTEQMA4G\r\n"  \
+"A1UECwwHd2lsZGRvZzEQMA4GA1UEAwwHd2lsZGRvZzEdMBsGCSqGSIb3DQEJARYO\r\n"  \
+"d2RAd2lsZGRvZy5jb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAT4zHm2zhVG\r\n"  \
+"RRf0cTRWY6O36ztF3NEzv7yxcnUKW3KtsH3dbdHQraxl84G4v7t7BxmZvZKe4XR0\r\n"  \
+"2l5dj7ZmhKPFo1AwTjAdBgNVHQ4EFgQUIDTWOt928ui2A1oUrEZOTa+uoS4wHwYD\r\n"  \
+"VR0jBBgwFoAUIDTWOt928ui2A1oUrEZOTa+uoS4wDAYDVR0TBAUwAwEB/zAKBggq\r\n"  \
+"hkjOPQQDAgNIADBFAiEA97RP/Zi96ic8yhfruxwoJi5NmZ5DNHlewHYeB2SV8L4C\r\n"  \
+"IFYOGe/9pzFkzfVc2YFkpingI9Fl01pY2pwFGT/PyCxc\r\n"  \
 "-----END CERTIFICATE-----\r\n"
+const char mbedtls_test_ca_crt_rsa[] = TEST_CA_CRT_RSA;
 
-/*
-#define TEST_CA_CRT_RSA                                                 \
-"-----BEGIN CERTIFICATE-----\r\n"                                       \
-"MIIDhzCCAm+gAwIBAgIBADANBgkqhkiG9w0BAQUFADA7MQswCQYDVQQGEwJOTDER\r\n"  \
-"MA8GA1UEChMIUG9sYXJTU0wxGTAXBgNVBAMTEFBvbGFyU1NMIFRlc3QgQ0EwHhcN\r\n"  \
-"MTEwMjEyMTQ0NDAwWhcNMjEwMjEyMTQ0NDAwWjA7MQswCQYDVQQGEwJOTDERMA8G\r\n"  \
-"A1UEChMIUG9sYXJTU0wxGTAXBgNVBAMTEFBvbGFyU1NMIFRlc3QgQ0EwggEiMA0G\r\n"  \
-"CSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDA3zf8F7vglp0/ht6WMn1EpRagzSHx\r\n"  \
-"mdTs6st8GFgIlKXsm8WL3xoemTiZhx57wI053zhdcHgH057Zk+i5clHFzqMwUqny\r\n"  \
-"50BwFMtEonILwuVA+T7lpg6z+exKY8C4KQB0nFc7qKUEkHHxvYPZP9al4jwqj+8n\r\n"  \
-"YMPGn8u67GB9t+aEMr5P+1gmIgNb1LTV+/Xjli5wwOQuvfwu7uJBVcA0Ln0kcmnL\r\n"  \
-"R7EUQIN9Z/SG9jGr8XmksrUuEvmEF/Bibyc+E1ixVA0hmnM3oTDPb5Lc9un8rNsu\r\n"  \
-"KNF+AksjoBXyOGVkCeoMbo4bF6BxyLObyavpw/LPh5aPgAIynplYb6LVAgMBAAGj\r\n"  \
-"gZUwgZIwDAYDVR0TBAUwAwEB/zAdBgNVHQ4EFgQUtFrkpbPe0lL2udWmlQ/rPrzH\r\n"  \
-"/f8wYwYDVR0jBFwwWoAUtFrkpbPe0lL2udWmlQ/rPrzH/f+hP6Q9MDsxCzAJBgNV\r\n"  \
-"BAYTAk5MMREwDwYDVQQKEwhQb2xhclNTTDEZMBcGA1UEAxMQUG9sYXJTU0wgVGVz\r\n"  \
-"dCBDQYIBADANBgkqhkiG9w0BAQUFAAOCAQEAuP1U2ABUkIslsCfdlc2i94QHHYeJ\r\n"  \
-"SsR4EdgHtdciUI5I62J6Mom+Y0dT/7a+8S6MVMCZP6C5NyNyXw1GWY/YR82XTJ8H\r\n"  \
-"DBJiCTok5DbZ6SzaONBzdWHXwWwmi5vg1dxn7YxrM9d0IjxM27WNKs4sDQhZBQkF\r\n"  \
-"pjmfs2cb4oPl4Y9T9meTx/lvdkRYEug61Jfn6cA+qHpyPYdTH+UshITnmp5/Ztkf\r\n"  \
-"m/UTSLBNFNHesiTZeH31NcxYGdHSme9Nc/gfidRa0FLOCfWxRlFqAI47zG9jAQCZ\r\n"  \
-"7Z2mCGDNMhjQc+BYcdnl0lPXjdDK6V0qCg1dVewhUBcW5gZKzV7e9+DpVA==\r\n"      \
-"-----END CERTIFICATE-----\r\n"
-*/
-const char test_ca_crt_rsa[] = TEST_CA_CRT_RSA;
-
-const char test_ca_key_rsa[] =
+const char mbedtls_test_ca_key_rsa[] =
 "-----BEGIN RSA PRIVATE KEY-----\r\n"
 "Proc-Type: 4,ENCRYPTED\r\n"
 "DEK-Info: DES-EDE3-CBC,A8A95B05D5B7206B\r\n"
@@ -200,9 +167,9 @@ const char test_ca_key_rsa[] =
 "P/eQiddSf0brnpiLJRh7qZrl9XuqYdpUqnoEdMAfotDOID8OtV7gt8a48ad8VPW2\r\n"
 "-----END RSA PRIVATE KEY-----\r\n";
 
-const char test_ca_pwd_rsa[] = "PolarSSLTest";
+const char mbedtls_test_ca_pwd_rsa[] = "PolarSSLTest";
 
-const char test_srv_crt_rsa[] =
+const char mbedtls_test_srv_crt_rsa[] =
 "-----BEGIN CERTIFICATE-----\r\n"
 "MIIDNzCCAh+gAwIBAgIBAjANBgkqhkiG9w0BAQUFADA7MQswCQYDVQQGEwJOTDER\r\n"
 "MA8GA1UEChMIUG9sYXJTU0wxGTAXBgNVBAMTEFBvbGFyU1NMIFRlc3QgQ0EwHhcN\r\n"
@@ -224,7 +191,7 @@ const char test_srv_crt_rsa[] =
 "zhuYwjVuX6JHG0c=\r\n"
 "-----END CERTIFICATE-----\r\n";
 
-const char test_srv_key_rsa[] =
+const char mbedtls_test_srv_key_rsa[] =
 "-----BEGIN RSA PRIVATE KEY-----\r\n"
 "MIIEpAIBAAKCAQEAwU2j3efNHdEE10lyuJmsDnjkOjxKzzoTFtBa5M2jAIin7h5r\r\n"
 "lqdStJDvLXJ6PiSa/LY0rCT1d+AmZIycsCh9odrqjObJHJa8/sEEUrM21KP64bF2\r\n"
@@ -253,8 +220,7 @@ const char test_srv_key_rsa[] =
 "TB6l9VGoxJL4fyHnZb8L5gGvnB1bbD8cL6YPaDiOhcRseC9vBiEuVg==\r\n"
 "-----END RSA PRIVATE KEY-----\r\n";
 
-
-const char test_cli_crt_rsa[] =
+const char mbedtls_test_cli_crt_rsa[] =
 "-----BEGIN CERTIFICATE-----\r\n"
 "MIIDPzCCAiegAwIBAgIBBDANBgkqhkiG9w0BAQUFADA7MQswCQYDVQQGEwJOTDER\r\n"
 "MA8GA1UEChMIUG9sYXJTU0wxGTAXBgNVBAMTEFBvbGFyU1NMIFRlc3QgQ0EwHhcN\r\n"
@@ -276,7 +242,7 @@ const char test_cli_crt_rsa[] =
 "D+stpAKiQLAWaAusIWKYEyw9MQ==\r\n"
 "-----END CERTIFICATE-----\r\n";
 
-const char test_cli_key_rsa[] =
+const char mbedtls_test_cli_key_rsa[] =
 "-----BEGIN RSA PRIVATE KEY-----\r\n"
 "MIIEpAIBAAKCAQEAyHTEzLn5tXnpRdkUYLB9u5Pyax6fM60Nj4o8VmXl3ETZzGaF\r\n"
 "B9X4J7BKNdBjngpuG7fa8H6r7gwQk4ZJGDTzqCrSV/Uu1C93KYRhTYJQj6eVSHD1\r\n"
@@ -304,38 +270,74 @@ const char test_cli_key_rsa[] =
 "bHFVW2r0dBTqegP2/KTOxKzaHfC1qf0RGDsUoJCNJrd1cwoCLG8P2EF4w3OBrKqv\r\n"
 "8u4ytY0F+Vlanj5lm3TaoHSVF1+NWPyOTiwevIECGKwSxvlki4fDAA==\r\n"
 "-----END RSA PRIVATE KEY-----\r\n";
+
+const size_t mbedtls_test_ca_crt_rsa_len  = sizeof( mbedtls_test_ca_crt_rsa );
+const size_t mbedtls_test_ca_key_rsa_len  = sizeof( mbedtls_test_ca_key_rsa );
+const size_t mbedtls_test_ca_pwd_rsa_len  = sizeof( mbedtls_test_ca_pwd_rsa ) - 1;
+const size_t mbedtls_test_srv_crt_rsa_len = sizeof( mbedtls_test_srv_crt_rsa );
+const size_t mbedtls_test_srv_key_rsa_len = sizeof( mbedtls_test_srv_key_rsa );
+const size_t mbedtls_test_cli_crt_rsa_len = sizeof( mbedtls_test_cli_crt_rsa );
+const size_t mbedtls_test_cli_key_rsa_len = sizeof( mbedtls_test_cli_key_rsa );
 #else
 #define TEST_CA_CRT_RSA
-#endif /* POLARSSL_RSA_C */
+#endif /* MBEDTLS_RSA_C */
 
-#if defined(POLARSSL_DHM_C)
-const char test_dhm_params[] =
-"-----BEGIN DH PARAMETERS-----\r\n"
-"MIGHAoGBAJ419DBEOgmQTzo5qXl5fQcN9TN455wkOL7052HzxxRVMyhYmwQcgJvh\r\n"
-"1sa18fyfR9OiVEMYglOpkqVoGLN7qd5aQNNi5W7/C+VBdHTBJcGZJyyP5B3qcz32\r\n"
-"9mLJKudlVudV0Qxk5qUJaPZ/xupz0NyoVpviuiBOI1gNi8ovSXWzAgEC\r\n"
-"-----END DH PARAMETERS-----\r\n";
+#if defined(MBEDTLS_PEM_PARSE_C)
+/* Concatenation of all available CA certificates */
+const char mbedtls_test_cas_pem[] = TEST_CA_CRT_RSA TEST_CA_CRT_EC;
+const size_t mbedtls_test_cas_pem_len = sizeof( mbedtls_test_cas_pem );
 #endif
 
-/* Concatenation of all available CA certificates */
-const char test_ca_list[] = TEST_CA_CRT_RSA TEST_CA_CRT_EC;
+/* List of all available CA certificates */
+const char * mbedtls_test_cas[] = {
+#if defined(MBEDTLS_RSA_C)
+    mbedtls_test_ca_crt_rsa,
+#endif
+#if defined(MBEDTLS_ECDSA_C)
+    mbedtls_test_ca_crt_ec,
+#endif
+    NULL
+};
+const size_t mbedtls_test_cas_len[] = {
+#if defined(MBEDTLS_RSA_C)
+    sizeof( mbedtls_test_ca_crt_rsa ),
+#endif
+#if defined(MBEDTLS_ECDSA_C)
+    sizeof( mbedtls_test_ca_crt_ec ),
+#endif
+    0
+};
 
-#if defined(POLARSSL_RSA_C)
-const char *test_ca_crt = test_ca_crt_rsa;
-const char *test_ca_key = test_ca_key_rsa;
-const char *test_ca_pwd = test_ca_pwd_rsa;
-const char *test_srv_crt = test_srv_crt_rsa;
-const char *test_srv_key = test_srv_key_rsa;
-const char *test_cli_crt = test_cli_crt_rsa;
-const char *test_cli_key = test_cli_key_rsa;
-#else /* ! POLARSSL_RSA_C, so POLARSSL_ECDSA_C */
-const char *test_ca_crt = test_ca_crt_ec;
-const char *test_ca_key = test_ca_key_ec;
-const char *test_ca_pwd = test_ca_pwd_ec;
-const char *test_srv_crt = test_srv_crt_ec;
-const char *test_srv_key = test_srv_key_ec;
-const char *test_cli_crt = test_cli_crt_ec;
-const char *test_cli_key = test_cli_key_ec;
-#endif /* POLARSSL_RSA_C */
+#if defined(MBEDTLS_RSA_C)
+const char *mbedtls_test_ca_crt  = mbedtls_test_ca_crt_rsa;
+const char *mbedtls_test_ca_key  = mbedtls_test_ca_key_rsa;
+const char *mbedtls_test_ca_pwd  = mbedtls_test_ca_pwd_rsa;
+const char *mbedtls_test_srv_crt = mbedtls_test_srv_crt_rsa;
+const char *mbedtls_test_srv_key = mbedtls_test_srv_key_rsa;
+const char *mbedtls_test_cli_crt = mbedtls_test_cli_crt_rsa;
+const char *mbedtls_test_cli_key = mbedtls_test_cli_key_rsa;
+const size_t mbedtls_test_ca_crt_len  = sizeof( mbedtls_test_ca_crt_rsa );
+const size_t mbedtls_test_ca_key_len  = sizeof( mbedtls_test_ca_key_rsa );
+const size_t mbedtls_test_ca_pwd_len  = sizeof( mbedtls_test_ca_pwd_rsa ) - 1;
+const size_t mbedtls_test_srv_crt_len = sizeof( mbedtls_test_srv_crt_rsa );
+const size_t mbedtls_test_srv_key_len = sizeof( mbedtls_test_srv_key_rsa );
+const size_t mbedtls_test_cli_crt_len = sizeof( mbedtls_test_cli_crt_rsa );
+const size_t mbedtls_test_cli_key_len = sizeof( mbedtls_test_cli_key_rsa );
+#else /* ! MBEDTLS_RSA_C, so MBEDTLS_ECDSA_C */
+const char *mbedtls_test_ca_crt  = mbedtls_test_ca_crt_ec;
+const char *mbedtls_test_ca_key  = mbedtls_test_ca_key_ec;
+const char *mbedtls_test_ca_pwd  = mbedtls_test_ca_pwd_ec;
+const char *mbedtls_test_srv_crt = mbedtls_test_srv_crt_ec;
+const char *mbedtls_test_srv_key = mbedtls_test_srv_key_ec;
+const char *mbedtls_test_cli_crt = mbedtls_test_cli_crt_ec;
+const char *mbedtls_test_cli_key = mbedtls_test_cli_key_ec;
+const size_t mbedtls_test_ca_crt_len  = sizeof( mbedtls_test_ca_crt_ec );
+const size_t mbedtls_test_ca_key_len  = sizeof( mbedtls_test_ca_key_ec );
+const size_t mbedtls_test_ca_pwd_len  = sizeof( mbedtls_test_ca_pwd_ec ) - 1;
+const size_t mbedtls_test_srv_crt_len = sizeof( mbedtls_test_srv_crt_ec );
+const size_t mbedtls_test_srv_key_len = sizeof( mbedtls_test_srv_key_ec );
+const size_t mbedtls_test_cli_crt_len = sizeof( mbedtls_test_cli_crt_ec );
+const size_t mbedtls_test_cli_key_len = sizeof( mbedtls_test_cli_key_ec );
+#endif /* MBEDTLS_RSA_C */
 
-#endif /* POLARSSL_CERTS_C */
+#endif /* MBEDTLS_CERTS_C */
