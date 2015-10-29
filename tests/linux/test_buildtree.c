@@ -270,7 +270,14 @@ int test_buildtreeFunc(const char *p_userUrl)
 		wilddog_trySync();
 	}
 	wilddog_destroy(&wilddog);
-
+	wfree(key);
+	wilddog_node_delete(p_head);
+	if(l_res < 0)
+		printf("build tree error !!\n");
+	else
+		printf("\n\ttest_buildtree finished\n");
+	return l_res;
+#if 0
 /*8*/
 	if(TEST_TREE_ITEMS < 6)
 		return 0;
@@ -301,11 +308,14 @@ int test_buildtreeFunc(const char *p_userUrl)
 		wilddog_trySync();
 	}
 	wilddog_destroy(&wilddog);
+	wfree(key);
+	wilddog_node_delete(p_head);
 	if(l_res < 0)
 		printf("build tree error !!\n");
 	else
 		printf("\n\ttest_buildtree finished\n");
 	return l_res;
+#endif
 
 }
 int main(int argc, char **argv)

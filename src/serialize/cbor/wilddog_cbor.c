@@ -862,11 +862,11 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeUint
     /*uint data max use length*/
     int maxExpectLen = WILDDOG_CBOR_HEAD_LEN + sizeof(s32);
     
-    if(p_data->d_dt_pos + maxExpectLen + 1 > p_data->d_dt_len )
+    if(p_data->d_dt_pos + maxExpectLen + 2 > p_data->d_dt_len )
     {
         ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
-                                        p_data->d_dt_pos + maxExpectLen + 1);
-        p_data->d_dt_len = p_data->d_dt_pos + maxExpectLen + 1;
+                                        p_data->d_dt_pos + maxExpectLen + 2);
+        p_data->d_dt_len = p_data->d_dt_pos + maxExpectLen + 2;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");
@@ -927,11 +927,11 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeNegint
     /*negint data max use length*/
     int maxExpectLen = WILDDOG_CBOR_HEAD_LEN + sizeof(s32);
 
-    if(p_data->d_dt_pos + maxExpectLen + 1 > p_data->d_dt_len )
+    if(p_data->d_dt_pos + maxExpectLen + 2 > p_data->d_dt_len )
     {
         ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
-                                        p_data->d_dt_pos + maxExpectLen + 1);
-        p_data->d_dt_len = p_data->d_dt_pos + maxExpectLen + 1;
+                                        p_data->d_dt_pos + maxExpectLen + 2);
+        p_data->d_dt_len = p_data->d_dt_pos + maxExpectLen + 2;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");
@@ -994,11 +994,11 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeSpecial
     /*special data max use length*/
     int maxExpectLen = WILDDOG_CBOR_HEAD_LEN;
 
-    if(p_data->d_dt_pos + maxExpectLen + 1 > p_data->d_dt_len )
+    if(p_data->d_dt_pos + maxExpectLen + 2 > p_data->d_dt_len )
     {
         ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
-                                        p_data->d_dt_pos + maxExpectLen + 1);
-        p_data->d_dt_len = p_data->d_dt_pos + maxExpectLen + 1;
+                                        p_data->d_dt_pos + maxExpectLen + 2);
+        p_data->d_dt_len = p_data->d_dt_pos + maxExpectLen + 2;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");
@@ -1043,12 +1043,12 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeFloat
     /*float data max use length*/
     int maxExpectLen = WILDDOG_CBOR_HEAD_LEN + sizeof(wFloat);
 
-    if(p_data->d_dt_pos + 1 + maxExpectLen > p_data->d_dt_len )
+    if(p_data->d_dt_pos + 2 + maxExpectLen > p_data->d_dt_len )
     {
         
         ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
-                                        p_data->d_dt_pos + 1 + maxExpectLen);
-        p_data->d_dt_len = p_data->d_dt_pos + 1 + maxExpectLen;
+                                        p_data->d_dt_pos + 2 + maxExpectLen);
+        p_data->d_dt_len = p_data->d_dt_pos + 2 + maxExpectLen;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");
@@ -1102,11 +1102,11 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeString
     int maxExpectLen = WILDDOG_CBOR_HEAD_LEN + p_node->d_wn_len + \
                        WILDDOG_CBOR_FOLLOW_4BYTE_LEN;
 
-    if(p_data->d_dt_pos + 1 + maxExpectLen > p_data->d_dt_len )
+    if(p_data->d_dt_pos + 2 + maxExpectLen > p_data->d_dt_len )
     {
         ptr = (Wilddog_Str_T*)wrealloc(p_data->p_dt_data, p_data->d_dt_len, \
-                                       p_data->d_dt_pos + 1 + maxExpectLen);
-        p_data->d_dt_len = p_data->d_dt_pos + 1 + maxExpectLen;
+                                       p_data->d_dt_pos + 2 + maxExpectLen);
+        p_data->d_dt_len = p_data->d_dt_pos + 2 + maxExpectLen;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");
@@ -1208,11 +1208,11 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeMap
     /*map data max use length*/
     int maxExpectLen = WILDDOG_CBOR_HEAD_LEN;
 
-    if((p_data->d_dt_pos + maxExpectLen + 1) > p_data->d_dt_len )
+    if((p_data->d_dt_pos + maxExpectLen + 2) > p_data->d_dt_len )
     {
         ptr = (Wilddog_Str_T*)wrealloc( p_data->p_dt_data, p_data->d_dt_len, \
-                                        p_data->d_dt_pos + maxExpectLen + 1);
-        p_data->d_dt_len = p_data->d_dt_pos + maxExpectLen + 1;
+                                        p_data->d_dt_pos + maxExpectLen + 2);
+        p_data->d_dt_len = p_data->d_dt_pos + maxExpectLen + 2;
         if(ptr == NULL)
         {
             wilddog_debug_level(WD_DEBUG_ERROR, "n2c cannot realloc buf!");
