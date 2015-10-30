@@ -8,7 +8,7 @@
 
 获得 SDK，你可以从gitHub中下载。
 
-我们的SDK已经在Linux平台和Wiced平台、espressif平台上成功移植，在此仅以Linux为例，Wiced平台请查看 [开发向导中的移植SDK](https://z.wilddog.com/device/guide/8)。
+我们的SDK已经在Linux平台和Wiced平台、espressif平台上成功移植，在此仅以Linux为例，其他平台请查看对应的Wilddog-Porting-xxx-User-Manual.md。
 
 ####第三步 编译SDK
 
@@ -25,10 +25,12 @@
 
 向应用URL存储一个key-value结构的数据
 
-$ ./bin/demo setValue -l <应用URL> --key a --value 1 
+	$ ./bin/demo setValue -l <应用URL> --key a --value 1 
+
 获取应用URL的数据
 
-$ ./bin/demo getValue -l <应用URL>
+	$ ./bin/demo getValue -l <应用URL>
+	
 执行结果：
 
-"/":{"a":"1"}
+	"/":{"a":"1"}
