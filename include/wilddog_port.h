@@ -27,7 +27,7 @@ int wilddog_send
     );
 
 /*
- * return <0 have not receive anything >=0 the length
+ * return <0 have not receive anything >=0 the length，it is a blocked function.
  */
 
 int wilddog_receive
