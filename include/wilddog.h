@@ -27,6 +27,32 @@ extern "C"
 
 #include "wilddog_config.h"
 
+/* if do not need debug log, undefine it to cost down ROM space. */
+#define WILDDOG_DEBUG
+
+#define WD_DEBUG_ALL    0
+#define WD_DEBUG_LOG    1
+#define WD_DEBUG_WARN   2
+#define WD_DEBUG_ERROR  3
+#define WD_DEBUG_NODBG  4
+
+#ifdef WILDDOG_PORT_TYPE_ESP	
+#include "wilddog_espressif.h"
+#define FAR ICACHE_FLASH_ATTR
+#define WD_SYSTEM FAR
+#elif defined WILDDOG_PORT_TYPE_QUCETEL
+#include "wilddog_quectel.h"
+#elif defined(WILDDOG_PORT_TYPE_MXCHIP)
+#include "wilddog_mxchip.h"
+#else
+typedef unsigned char u8 ;
+typedef unsigned short u16 ;
+typedef unsigned long u32 ;
+typedef signed char s8 ;
+typedef signed short s16 ;
+typedef signed long s32 ;
+#endif
+
 #ifndef STATIC
 #define STATIC static
 #endif
@@ -39,31 +65,6 @@ extern "C"
 #define VOLATILE volatile
 #endif
 
-/* if do not need debug log, undefine it to cost down ROM space. */
-#define WILDDOG_DEBUG
-
-#define WD_DEBUG_ALL    0
-#define WD_DEBUG_LOG    1
-#define WD_DEBUG_WARN   2
-#define WD_DEBUG_ERROR  3
-#define WD_DEBUG_NODBG  4
-
-
-#ifdef WILDDOG_PORT_TYPE_ESP	
-#include "wilddog_espressif.h"
-#define FAR ICACHE_FLASH_ATTR
-#define WD_SYSTEM FAR
-#elif defined WILDDOG_PORT_TYPE_QUCETEL
-#include "wilddog_quectel.h"
-#else
-typedef unsigned char u8 ;
-typedef unsigned short u16 ;
-typedef unsigned long u32 ;
-typedef signed char s8 ;
-typedef signed short s16 ;
-typedef signed long s32 ;
-#endif
-
 #ifndef WD_SYSTEM
 #define WD_SYSTEM
 #endif
@@ -73,6 +74,7 @@ typedef signed long s32 ;
 #ifndef FALSE
 #define FALSE (1==0)
 #endif
+
 #ifdef WILDDOG_DEBUG
 #define DEBUG_LEVEL WD_DEBUG_ERROR
 

@@ -36,6 +36,9 @@
 #include "Ql_time.h"
 #endif
 #endif
+#ifdef WILDDOG_PORT_TYPE_MXCHIP
+#include "MicoDriverRtc.h"
+#endif
 #include "tinydtls.h"
 #include "dtls_config.h"
 #include "dtls_time.h"
@@ -96,12 +99,26 @@ static int wd_gettimeofday(struct timeval*tv, struct timezone *tz)
     return 0;
 }
 
+#else
+#if defined(WILDDOG_PORT_TYPE_MXCHIP)
+static int wd_gettimeofday(struct timeval*tv, struct timezone *tz)
+{
+    mico_rtc_time_t time;
+    MicoRtcGetTime(&time);
+
+    tv->tv_sec = time.sec;
+    tv->tv_usec = 0;
+
+    return 0;
+}
+
+#endif
 #endif
 #endif
 void dtls_ticks(dtls_tick_t *t) {
 #ifdef HAVE_SYS_TIME_H
   struct timeval tv;
-#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL) || defined(WILDDOG_PORT_TYPE_MXCHIP)
   wd_gettimeofday(&tv, NULL);
 #else
   gettimeofday(&tv, NULL);

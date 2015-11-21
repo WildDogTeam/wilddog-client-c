@@ -26,7 +26,9 @@
 #ifndef _DTLS_HMAC_H_
 #define _DTLS_HMAC_H_
 
+#ifndef WILDDOG_PORT_TYPE_MXCHIP
 #include <sys/types.h>
+#endif
 
 #include "global.h"
 

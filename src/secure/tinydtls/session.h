@@ -34,7 +34,7 @@
 #include "tinydtls.h"
 #include "global.h"
 
-#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL) || defined(WILDDOG_PORT_TYPE_MXCHIP)
 #include "wilddog.h"
 typedef struct {
   size_t size;       /**< size of addr */

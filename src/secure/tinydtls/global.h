@@ -27,7 +27,9 @@
 #define _DTLS_GLOBAL_H_
 
 #include <stdlib.h>
+#ifndef WILDDOG_PORT_TYPE_MXCHIP
 #include <sys/types.h>
+#endif
 
 #include "tinydtls.h"
 

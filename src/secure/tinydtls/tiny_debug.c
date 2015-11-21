@@ -35,7 +35,9 @@
 #include <stdio.h>
 
 #if HAVE_ARPA_INET_H
+#ifndef WILDDOG_PORT_TYPE_MXCHIP
 #include <arpa/inet.h>
+#endif
 #endif
 #ifdef WILDDOG_PORT_TYPE_WICED
 #include "wiced.h"
@@ -46,6 +48,10 @@
 #endif
 #ifdef HAVE_TIME_H
 #include <time.h>
+#endif
+
+#ifdef WILDDOG_PORT_TYPE_MXCHIP
+#include "dtls_time.h"
 #endif
 
 #include "global.h"
@@ -86,7 +92,7 @@ print_timestamp(char *s, size_t len, time_t t) {
 }
 
 #else /* alternative implementation: just print the timestamp */
-#if defined(WILDDOG_PORT_TYPE_WICED)|| defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if defined(WILDDOG_PORT_TYPE_WICED)|| defined(WILDDOG_PORT_TYPE_QUCETEL) || !defined(WILDDOG_PORT_TYPE_MXCHIP)
 static inline size_t
 print_timestamp(char *s, size_t len, time_t t)
 {
@@ -216,7 +222,7 @@ dsrv_print_addr(const session_t *addr, char *buf, size_t len) {
 #endif
 }
 
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL) && !defined(WILDDOG_PORT_TYPE_MXCHIP)
 void 
 dsrv_log(log_t level, char *format, ...) {
   static char timebuf[32];
@@ -351,7 +357,7 @@ dtls_dsrv_hexdump_log(log_t level, const char *name, const unsigned char *buf, s
   if (maxlog < level)
     return;
 
-#if !defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if !defined(WILDDOG_PORT_TYPE_QUCETEL) && !defined(WILDDOG_PORT_TYPE_MXCHIP)
   if (print_timestamp(timebuf,sizeof(timebuf), clock_time()))
     PRINTF("%s ", timebuf);
 #endif

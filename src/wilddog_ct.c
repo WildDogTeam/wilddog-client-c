@@ -489,7 +489,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_destoryRepo
 
     _wilddog_url_freeParsedUrl(p_repo->p_rp_url);
     p_repo->p_rp_url = NULL;
-    LL_DELETE(*p_repoHead, p_repo);
+    LL_DELETE((*p_repoHead), p_repo);
 
     wfree(p_repo);
     p_repo = NULL;

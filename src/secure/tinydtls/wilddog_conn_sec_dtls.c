@@ -26,9 +26,11 @@
 #include <string.h>
 #endif
 
+#ifndef WILDDOG_PORT_TYPE_MXCHIP
 #include <unistd.h>
+#endif
 #include <ctype.h>
-#if !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL) && !defined(WILDDOG_PORT_TYPE_MXCHIP)
 #include <netinet/in.h>
 #endif
 
@@ -103,7 +105,7 @@ STATIC const unsigned char ecdsa_pub_key_y[] =
 };
 
 #ifdef DTLS_PSK
-#if !defined(WILDDOG_PORT_TYPE_QUCETEL) 
+#if !defined(WILDDOG_PORT_TYPE_QUCETEL) && !defined(WILDDOG_PORT_TYPE_MXCHIP)
 ssize_t read_from_file(char *arg, unsigned char *buf, size_t max_buf_len)
 {
   FILE *f;
@@ -276,7 +278,7 @@ STATIC int send_to_peer
     Wilddog_Address_T addr_inSend;
 
     addr_inSend.len = session->size;
-#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL) || defined(WILDDOG_PORT_TYPE_MXCHIP)
     addr_inSend.len = session->addr.len;
     addr_inSend.port = session->addr.port;
     memcpy(addr_inSend.ip,&session->addr.ip,session->size);
@@ -301,7 +303,7 @@ STATIC int dtls_handle_read(struct dtls_context_t *ctx)
     fd = *(int *)dtls_get_app_data(ctx);
     if (!fd)
         return -1;
-#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL) || defined(WILDDOG_PORT_TYPE_MXCHIP)
     addr_in.len = d_conn_sec_dtls.dst.addr.len;
     addr_in.port = d_conn_sec_dtls.dst.addr.port;
     memcpy(addr_in.ip,&d_conn_sec_dtls.dst.addr.ip,d_conn_sec_dtls.dst.addr.len);
@@ -367,7 +369,7 @@ STATIC dtls_handler_t cb =
 STATIC int _wilddog_sec_setSession(int fd, Wilddog_Address_T * addr_in)
 {
     d_conn_sec_dtls.d_fd = fd;
-#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL) || defined(WILDDOG_PORT_TYPE_MXCHIP)
     memcpy(&d_conn_sec_dtls.dst.addr.ip,addr_in->ip,addr_in->len);
     d_conn_sec_dtls.dst.size = addr_in->len;
     d_conn_sec_dtls.dst.addr.len = addr_in->len;

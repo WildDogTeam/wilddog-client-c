@@ -31,7 +31,9 @@
 #ifndef _DTLS_STATE_H_
 #define _DTLS_STATE_H_
 
+#ifndef WILDDOG_PORT_TYPE_MXCHIP
 #include <sys/types.h>
+#endif
 #include <stdint.h>
 
 #include "global.h"

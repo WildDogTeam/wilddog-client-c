@@ -350,6 +350,9 @@ do {                                                                            
     }                                                                                          \
   }                                                                                            \
 } while (0)
+#ifdef WILDDOG_PORT_TYPE_MXCHIP
+#define NO_DECLTYPE
+#endif
 #ifdef NO_DECLTYPE
 #undef LL_APPEND
 #define LL_APPEND LL_APPEND_VS2008
