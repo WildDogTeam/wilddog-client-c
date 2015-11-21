@@ -34,7 +34,7 @@
 #include "tinydtls.h"
 
 #ifndef WITH_CONTIKI
-#if !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL) && !defined(WILDDOG_PORT_TYPE_MXCHIP)
 #include "uthash.h"
 #endif
 #include "utlist.h"
@@ -103,7 +103,7 @@ static inline void
 list_remove(list_t list, void *item) {
   if(*(struct list **)list)
   {
-      LL_DELETE(*(struct list **)list, (struct list *)item);
+      LL_DELETE((*(struct list **)list), (struct list *)item);
   }
 }
 

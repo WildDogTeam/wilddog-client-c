@@ -35,7 +35,7 @@
 #include "tinydtls.h"
 #include "dtls_config.h"
 /* memcpy()/memset() or bcopy()/bzero() */
-#if defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if defined(WILDDOG_PORT_TYPE_QUCETEL) || defined(WILDDOG_PORT_TYPE_MXCHIP)
 #include "wilddog.h"
 #else
 #include <string.h>

@@ -17,8 +17,11 @@
 #endif
 #include <stdlib.h>
 #include <string.h>
+#ifndef WILDDOG_PORT_TYPE_MXCHIP
 #include <unistd.h>
 #include <malloc.h>
+#endif
+
 
 #include "wilddog.h"
 #include "wilddog_url_parser.h"
@@ -31,6 +34,10 @@
 #include "os_type.h"
 #define   ESP_HEAP_SIZE   (40*1024)
 extern os_timer_t test_timer2;
+#endif
+
+#ifdef WILDDOG_PORT_TYPE_MXCHIP
+#define MXCHIP_HEAP_SIZE    (0x14A00)
 #endif
 
 #define MAXINDXS    12
@@ -61,12 +68,16 @@ int WD_SYSTEM ramtest_getSysmallocSize(Ramtest_T *p)
 {
     int res;
     
-#ifndef WILDDOG_PORT_TYPE_ESP   
+#if !defined(WILDDOG_PORT_TYPE_ESP) && !defined(WILDDOG_PORT_TYPE_MXCHIP)   
     struct mallinfo info;
     info = mallinfo();
     res = info.uordblks - p->d_mallocblks_init;
 #else
+#if defined(WILDDOG_PORT_TYPE_ESP)
     res = ESP_HEAP_SIZE - system_get_free_heap_size() - p->d_mallocblks_init;
+#else
+    res = MXCHIP_HEAP_SIZE - p->d_mallocblks_init;
+#endif
 #endif
     return res;
 }
@@ -76,7 +87,7 @@ int WD_SYSTEM ramtest_getSysStackSize(Ramtest_T *p)
 }
 int WD_SYSTEM ramtest_printfmallocState(void)
 {
-#ifndef WILDDOG_PORT_TYPE_ESP   
+#if !defined(WILDDOG_PORT_TYPE_ESP) && !defined(WILDDOG_PORT_TYPE_MXCHIP)   
     struct mallinfo info;
     info = mallinfo();
     printf("arena=%d;uordblks=%d,ordblks =%d;fordblks=%d\n",
@@ -88,15 +99,20 @@ int WD_SYSTEM ramtest_printfmallocState(void)
 int WD_SYSTEM ramtest_getLastMallocSize(Ramtest_T *p)
 {
     int res;
-#ifndef WILDDOG_PORT_TYPE_ESP   
+#if !defined(WILDDOG_PORT_TYPE_ESP) && !defined(WILDDOG_PORT_TYPE_MXCHIP)   
     struct mallinfo info;
     info = mallinfo();
     res = info.uordblks - p->mallocblks;
     p->mallocblks = info.uordblks;
 
-#else
+#else 
+#if defined(WILDDOG_PORT_TYPE_ESP)
     res = ESP_HEAP_SIZE - system_get_free_heap_size() - p->mallocblks;
     p->mallocblks = ESP_HEAP_SIZE - system_get_free_heap_size();
+#else
+    res = MXCHIP_HEAP_SIZE  - p->mallocblks;
+    p->mallocblks = MXCHIP_HEAP_SIZE ;
+#endif
 #endif
     return res;
 }

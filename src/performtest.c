@@ -17,13 +17,20 @@
 #endif
 #include <stdlib.h>
 #include <string.h>
+#ifndef WILDDOG_PORT_TYPE_MXCHIP
 #include <unistd.h>
 #include <malloc.h>
+#endif
 #include "wilddog.h"
 #include "wilddog_url_parser.h"
 #include "wilddog_api.h"
 #include "wilddog_ct.h"
 #include "test_lib.h"
+
+#ifdef WILDDOG_PORT_TYPE_MXCHIP
+#include "MicoDriverRtc.h"
+#endif
+
 
 #ifdef WILDDOG_PORT_TYPE_WICED
 #include "wiced.h"
@@ -57,8 +64,7 @@ typedef enum{
     SYS_APPLICATIONRECVDONE,
 }Sys_State;
 
-#ifndef WILDDOG_PORT_TYPE_WICED
-
+#if !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_MXCHIP)
 #include <sys/time.h>
 #endif
 
@@ -99,7 +105,8 @@ static int perform_count = 0;
 
 #if !defined(WILDDOG_PORT_TYPE_WICED) && \
     !defined(WILDDOG_PORT_TYPE_QUCETEL) && \
-    !defined(WILDDOG_PORT_TYPE_ESP)
+    !defined(WILDDOG_PORT_TYPE_ESP) && \
+    !defined(WILDDOG_PORT_TYPE_MXCHIP)
 u32 WD_SYSTEM performtest_getSystime(void)
 {
 
@@ -129,6 +136,17 @@ u32 WD_SYSTEM performtest_getSystime(void)
     seconds = Ql_Mktime(&time);
     return seconds * 1000000;
 }
+#endif
+
+#ifdef WILDDOG_PORT_TYPE_MXCHIP
+u32 WD_SYSTEM performtest_getSystime(void)
+{
+    mico_rtc_time_t time;
+    MicoRtcGetTime(&time);
+    return time.sec  * 1000000;
+}
+
+
 #endif
 #ifdef WILDDOG_PORT_TYPE_WICED
 

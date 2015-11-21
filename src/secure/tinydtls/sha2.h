@@ -45,8 +45,10 @@ extern "C" {
  * may need to change this, or define these things yourself in this
  * file.
  */
+#ifndef WILDDOG_PORT_TYPE_MXCHIP
 #include <sys/types.h>
-#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
+#endif
+#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL) || defined(WILDDOG_PORT_TYPE_MXCHIP)
 #include "wilddog.h"
 
 typedef u8 u_int8_t;     /* 1-byte  (8-bits)  */

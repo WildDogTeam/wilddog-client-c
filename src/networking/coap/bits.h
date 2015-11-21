@@ -15,7 +15,9 @@
 #ifndef _BITS_H_
 #define _BITS_H_
 
+#ifndef WILDDOG_PORT_TYPE_MXCHIP
 #include <sys/types.h>
+#endif
 
 #ifndef WILDDOG_PORT_TYPE_ESP
 #include <stdint.h>

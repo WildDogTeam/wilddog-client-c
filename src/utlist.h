@@ -26,6 +26,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define UTLIST_VERSION 1.9.1
 
+#ifdef WILDDOG_PORT_TYPE_MXCHIP
+#define NO_DECLTYPE
+#endif
+
+
 /* 
  * This file contains macros to manipulate singly and doubly-linked lists.
  *

@@ -45,7 +45,7 @@
 #include "prng.h"
 #include "netq.h"
 
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL) && !defined(WILDDOG_PORT_TYPE_MXCHIP)
 #include <pthread.h>
 #endif
 
@@ -53,13 +53,13 @@
   if (Seed) dtls_hmac_update(Context, (Seed), (Length))
 
 static struct dtls_cipher_context_t cipher_context;
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL) && !defined(WILDDOG_PORT_TYPE_MXCHIP)
 static pthread_mutex_t cipher_context_mutex = PTHREAD_MUTEX_INITIALIZER;
 #endif
 
 static struct dtls_cipher_context_t *dtls_cipher_context_get(void)
 {
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL) && !defined(WILDDOG_PORT_TYPE_MXCHIP)
   pthread_mutex_lock(&cipher_context_mutex);
 #endif
   return &cipher_context;
@@ -67,12 +67,12 @@ static struct dtls_cipher_context_t *dtls_cipher_context_get(void)
 
 static void dtls_cipher_context_release(void)
 {
-#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if !defined(WITH_CONTIKI) && !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL) && !defined(WILDDOG_PORT_TYPE_MXCHIP)
   pthread_mutex_unlock(&cipher_context_mutex);
 #endif
 }
 
-#if !defined(WITH_CONTIKI) || defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if !defined(WITH_CONTIKI) || defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL) && !defined(WILDDOG_PORT_TYPE_MXCHIP)
 void crypto_init()
 {
 }

@@ -31,7 +31,7 @@
 #ifndef _DTLS_DTLS_TIME_H_
 #define _DTLS_DTLS_TIME_H_
 
-#if defined(WILDDOG_PORT_TYPE_QUCETEL)
+#if defined(WILDDOG_PORT_TYPE_QUCETEL) || defined(WILDDOG_PORT_TYPE_MXCHIP)
 struct  timeval
 {
     long  tv_sec;

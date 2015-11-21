@@ -159,7 +159,13 @@ static int fieldSub(const uint32_t *x, const uint32_t *y, const uint32_t *modulu
 //finite Field multiplication
 //32bit * 32bit = 64bit
 static int fieldMult(const uint32_t *x, const uint32_t *y, uint32_t *result, uint8_t length){
+#ifdef WILDDOG_PORT_TYPE_MXCHIP
+#define MAX_U8 (256)
+	uint32_t temp[MAX_U8*2];
+#undef MAX_U8
+#else
 	uint32_t temp[length * 2];
+#endif
 	setZero(temp, length * 2);
 	setZero(result, length * 2);
 	uint8_t k, n;
