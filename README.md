@@ -83,7 +83,7 @@ demo例子的工程目录。
 ----
 ##3. 移植说明
 
-SDK已经在WICED、ESP8266、树莓派、arduino yun、openwrt中成功移植，可参考docs目录。
+SDK已经在WICED、ESP8266、庆科MICO、树莓派、arduino yun、openwrt中成功移植，可参考docs目录。
 
 ----
 ##4. 其他参考
