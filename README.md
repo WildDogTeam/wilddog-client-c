@@ -83,7 +83,7 @@ demo例子的工程目录。
 ----
 ##3. 移植说明
 
-SDK已经在WICED、ESP8266、树莓派、arduino yun、openwrt中成功移植，可参考docs目录。
+SDK已经在WICED、ESP8266、庆科MICO、树莓派、arduino yun、openwrt中成功移植，可参考docs目录。
 
 ----
 ##4. 其他参考
@@ -93,3 +93,5 @@ SDK 文档: https://z.wilddog.com/device/quickstart
 Wiced 文档和sdk获取:http://www.broadcom.com/products/wiced/wifi/
 
 espressif sdk获取: http://espressif.com/zh-hans/%E6%9C%80%E6%96%B0sdk%E5%8F%91%E5%B8%83/
+
+庆科 SDK获取：http://mico.io/wiki/doku.php
