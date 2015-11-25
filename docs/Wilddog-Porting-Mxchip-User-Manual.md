@@ -32,4 +32,5 @@
 
 ####占用统计
 未加密时，SDK占用flash存储空间为：22956 Bytes
+
 tinydtls加密时，SDK占用flash存储空间为：53092 Bytes
