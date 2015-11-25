@@ -30,3 +30,6 @@
 
 使用IAR7.3打开`wilddog\-client\-c/project/mxchip`下的工程，点击IAR中的Make和Download按钮，即可进行编译烧录运行。
 
+####占用统计
+未加密时，SDK占用flash存储空间为：22956 Bytes
+tinydtls加密时，SDK占用flash存储空间为：53092 Bytes
