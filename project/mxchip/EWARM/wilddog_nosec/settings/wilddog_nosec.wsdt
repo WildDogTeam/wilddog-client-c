@@ -17,7 +17,7 @@
     <Build><ColumnWidth0>20</ColumnWidth0><ColumnWidth1>884</ColumnWidth1><ColumnWidth2>235</ColumnWidth2><ColumnWidth3>58</ColumnWidth3></Build><TerminalIO/></Static>
     <Windows>
       
-    <Wnd0>
+    <Wnd1>
         <Tabs>
           <Tab>
             <Identity>TabID-3582-17759</Identity>
@@ -29,20 +29,20 @@
           </Tab>
         </Tabs>
         
-      <SelectedTab>0</SelectedTab></Wnd0><Wnd1><Tabs><Tab><Identity>TabID-8455-22170</Identity><TabName>Build</TabName><Factory>Build</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd1></Windows>
+      <SelectedTab>0</SelectedTab></Wnd1><Wnd4><Tabs><Tab><Identity>TabID-8455-22170</Identity><TabName>Build</TabName><Factory>Build</Factory><Session/></Tab></Tabs><SelectedTab>0</SelectedTab></Wnd4></Windows>
     <Editor>
       
       
       
       
-    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\..\Platform\Cortex-M3\CMSIS\core_cm3.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>1491</YPos2><SelStart2>95413</SelStart2><SelEnd2>95413</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\..\libraries\utilities\json_c\debug.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>47</YPos2><SelStart2>1296</SelStart2><SelEnd2>1296</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\examples\mxchip\demo.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>69</YPos2><SelStart2>2720</SelStart2><SelEnd2>2720</SelEnd2></Tab><ActiveTab>2</ActiveTab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\..\Board\MiCOKit-3162\platform.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>0</SelStart2><SelEnd2>0</SelEnd2></Tab><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\..\include\MICO.h</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>0</YPos2><SelStart2>0</SelStart2><SelEnd2>0</SelEnd2></Tab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
+    <Pane><Tab><Factory>TextEditor</Factory><Filename>$WS_DIR$\..\..\..\..\examples\mxchip\demo.c</Filename><XPos>0</XPos><YPos>0</YPos><SelStart>0</SelStart><SelEnd>0</SelEnd><XPos2>0</XPos2><YPos2>69</YPos2><SelStart2>2720</SelStart2><SelEnd2>2720</SelEnd2></Tab><ActiveTab>0</ActiveTab></Pane><ActivePane>0</ActivePane><Sizes><Pane><X>1000000</X><Y>1000000</Y></Pane></Sizes><SplitMode>1</SplitMode></Editor>
     <Positions>
       
       
       
       
       
-    <Top><Row0><Sizes><Toolbar-02914F98><key>iaridepm.enu1</key></Toolbar-02914F98></Sizes></Row0></Top><Left><Row0><Sizes><Wnd0><Rect><Top>-2</Top><Left>-2</Left><Bottom>595</Bottom><Right>245</Right><x>-2</x><y>-2</y><xscreen>129</xscreen><yscreen>139</yscreen><sizeHorzCX>104200</sizeHorzCX><sizeHorzCY>178893</sizeHorzCY><sizeVertCX>199515</sizeVertCX><sizeVertCY>768340</sizeVertCY></Rect></Wnd0></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>137</Bottom><Right>1240</Right><x>-2</x><y>-2</y><xscreen>1242</xscreen><yscreen>139</yscreen><sizeHorzCX>1003231</sizeHorzCX><sizeHorzCY>178893</sizeHorzCY><sizeVertCX>104200</sizeVertCX><sizeVertCY>178893</sizeVertCY></Rect></Wnd1></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
+    <Top><Row0><Sizes><Toolbar-00F15018><key>iaridepm.enu1</key></Toolbar-00F15018></Sizes></Row0></Top><Left><Row0><Sizes><Wnd1><Rect><Top>-2</Top><Left>-2</Left><Bottom>595</Bottom><Right>245</Right><x>-2</x><y>-2</y><xscreen>129</xscreen><yscreen>139</yscreen><sizeHorzCX>104200</sizeHorzCX><sizeHorzCY>178893</sizeHorzCY><sizeVertCX>199515</sizeVertCX><sizeVertCY>768340</sizeVertCY></Rect></Wnd1></Sizes></Row0></Left><Right><Row0><Sizes/></Row0></Right><Bottom><Row0><Sizes><Wnd4><Rect><Top>-2</Top><Left>-2</Left><Bottom>137</Bottom><Right>1240</Right><x>-2</x><y>-2</y><xscreen>1242</xscreen><yscreen>139</yscreen><sizeHorzCX>1003231</sizeHorzCX><sizeHorzCY>178893</sizeHorzCY><sizeVertCX>104200</sizeVertCX><sizeVertCY>178893</sizeVertCY></Rect></Wnd4></Sizes></Row0></Bottom><Float><Sizes/></Float></Positions>
   </Desktop>
 </Workspace>
 
