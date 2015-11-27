@@ -325,10 +325,10 @@
           <state>$PROJ_DIR$\..\..\..\..\..\MICO\system\command_console</state>
           <state>$PROJ_DIR$\..\..\..\..\..\MICO\system</state>
           <state>$PROJ_DIR$\..\..\..\..\..\include\MicoDrivers</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\wilddog-client-c\include</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\wilddog-client-c\src</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\wilddog-client-c\src\networking\coap</state>
-          <state>$PROJ_DIR$\..\..\..\..\..\wilddog-client-c\platform\mxchip</state>
+          <state>$PROJ_DIR$\..\..\..\..\include</state>
+          <state>$PROJ_DIR$\..\..\..\..\src</state>
+          <state>$PROJ_DIR$\..\..\..\..\src\networking\coap</state>
+          <state>$PROJ_DIR$\..\..\..\..\platform\mxchip</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
