@@ -35,12 +35,16 @@
 #define COAP_TOKENLEN   4
 #define DIFF(a,b)   ((a>b)?(a-b):(b-a))
 #define GETMAX(a,b) (((a)>(b))?(a):(b))
-#define WILDDOG_CONN_COAP_RESPON_IGNORE 10  /* Recv repeated respond*/
 
 #define MS  1000
 
 STATIC VOLATILE u32 l_coap_systm = 0;/*sys time since power up . unit : second*/
 
+typedef enum {
+    _COAP_REQUEST_NOERROR,
+    _COAP_REQUEST_ERROR,
+    _COAP_RESPON_IGNORE     /* Recv repeated respond*/
+}_COAP_DISAPTCH_RETURN;
 typedef enum{
     WILDDOG_CONN_COAP_RESP_MATCH,
     WILDDOG_CONN_COAP_RESP_NOMATCH,
@@ -1103,7 +1107,7 @@ STATIC int WD_SYSTEM _wilddog_conn_coap_recv_respCheck
  *              p_resp: The pointer of the coap pdu 
  * Output:      N/A
  * Return:      if there's a separation response, return 
- *              WILDDOG_CONN_COAP_RESPON_IGNORE, else return WILDDOG_ERR_NOERR.
+ *              _COAP_RESPON_IGNORE, else return WILDDOG_ERR_NOERR.
 */
 STATIC int WD_SYSTEM 
 _wilddog_conn_coap_recv_separationRespCheck
@@ -1118,7 +1122,7 @@ _wilddog_conn_coap_recv_separationRespCheck
         if(p_resp->hdr->code == 0 )
         {
             p_node->d_separate_flag = WILDDOG_CONN_COAPPKT_IS_SEPARATE;
-            return WILDDOG_CONN_COAP_RESPON_IGNORE;
+            return _COAP_RESPON_IGNORE;
         }
     }
 
@@ -1177,7 +1181,7 @@ STATIC void WD_SYSTEM _wilddog_conn_coap_recv_updateMaxAge
  * Output:      N/A
  * Return:      if there's a notify return WILDDOG_ERR_NOERR,if the nodify index
  *              was less then expect index return 
- *              WILDDOG_CONN_COAP_RESPON_IGNORE.
+ *              _COAP_RESPON_IGNORE.
 */
 STATIC int WD_SYSTEM _wilddog_conn_coap_recv_observeCheck
     (
@@ -1217,7 +1221,7 @@ STATIC int WD_SYSTEM _wilddog_conn_coap_recv_observeCheck
                 return WILDDOG_ERR_NOERR;
             }
             else
-                return WILDDOG_CONN_COAP_RESPON_IGNORE;    
+                return _COAP_RESPON_IGNORE;    
         }
     }
     else 
@@ -1250,7 +1254,7 @@ STATIC int WD_SYSTEM _wilddog_conn_coap_recvDispatch
     u8 *p_buftemp = NULL;
     size_t tmplen =0;
     if(!p_pcb->P_hd)
-        return WILDDOG_ERR_INVALID;
+        return _COAP_REQUEST_ERROR;
 
     LL_FOREACH_SAFE((p_pcb->P_hd),curr,tmp)
     {
@@ -1262,15 +1266,19 @@ STATIC int WD_SYSTEM _wilddog_conn_coap_recvDispatch
         /*@ get observer indx */
         res = _wilddog_conn_coap_recv_observeCheck(curr,p_resp);
         
-        if(res == WILDDOG_CONN_COAP_RESPON_IGNORE)
-            goto RECV_DISPATCH_NOERR;
+        if(res == _COAP_RESPON_IGNORE)
+        {
+            return _COAP_RESPON_IGNORE;
+        }
         else if(res == WILDDOG_ERR_OBSERVEERR)
-            return WILDDOG_ERR_OBSERVEERR;
+            return _COAP_REQUEST_ERROR;
             
         /*@ Separation of reply  do not remove */
         if( _wilddog_conn_coap_recv_separationRespCheck(curr,p_resp) \
-            == WILDDOG_CONN_COAP_RESPON_IGNORE )
-            goto RECV_DISPATCH_NOERR;
+            == _COAP_RESPON_IGNORE )
+        {
+            return _COAP_RESPON_IGNORE;
+        }
         /*
         **@ get payload
         */
@@ -1288,12 +1296,10 @@ STATIC int WD_SYSTEM _wilddog_conn_coap_recvDispatch
         /* get error code */
         p_cpk_recv->d_RecvErr = _wilddog_conn_coap_code2Http( \
                                 _wilddog_conn_coap_code2int(p_resp->hdr->code));
-RECV_DISPATCH_NOERR:
         *P_node_respon = curr;
-  
-        return WILDDOG_ERR_NOERR;
+        return _COAP_REQUEST_NOERROR;
     }
-    return WILDDOG_ERR_NULL;
+    return _COAP_REQUEST_ERROR;
 }
 
 /*
@@ -1351,21 +1357,32 @@ Wilddog_Return_T WD_SYSTEM _wilddog_conn_pkt_recv
     res = _wilddog_conn_coap_recvDispatch(p_coap_pcb,p_pdu, \
         p_cpk_recv,&p_node_respond);
 
-    if(res < 0)
-        res = _wilddog_conn_coap_ack(WILDDOG_CONN_COAP_RESP_NOMATCH,p_pdu);
-    else    
-        res = _wilddog_conn_coap_ack(WILDDOG_CONN_COAP_RESP_MATCH,p_pdu);
-
-    /*free pdu and callback */
-    coap_delete_pdu(p_pdu);
-
-    /*@ dele pkt node */
-    /* call back*/
-    if(p_node_respond && p_node_respond->f_cn_cb)
+    switch(res)
     {
-        p_node_respond->f_cn_cb( p_node_respond->p_conn, \
-            p_node_respond->p_cn_node,p_cpk_recv);
+        case _COAP_RESPON_IGNORE:
+             res = _wilddog_conn_coap_ack(WILDDOG_CONN_COAP_RESP_MATCH,p_pdu);
+             coap_delete_pdu(p_pdu);
+             break;
+
+        case _COAP_REQUEST_NOERROR:
+                res = _wilddog_conn_coap_ack(WILDDOG_CONN_COAP_RESP_MATCH,p_pdu); 
+                /*free pdu and callback */
+                coap_delete_pdu(p_pdu);
+                /* call back*/
+                if(p_node_respond && p_node_respond->f_cn_cb)
+                {
+                    p_node_respond->f_cn_cb( p_node_respond->p_conn, \
+                        p_node_respond->p_cn_node,p_cpk_recv);
+                }
+                break;
+                
+      case _COAP_REQUEST_ERROR:
+             res = _wilddog_conn_coap_ack(WILDDOG_CONN_COAP_RESP_NOMATCH,p_pdu);
+             coap_delete_pdu(p_pdu);
+             break;
+       
     }
+
 
     return res;
 }

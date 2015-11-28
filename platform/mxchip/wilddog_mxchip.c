@@ -61,9 +61,6 @@ int wilddog_openSocket( int* socketId )
         printf("cannot create socket");
         return -1;
     }
-    addr.s_ip = INADDR_ANY;/*local ip address*/
-    addr.s_port = 20000;/*20000*/
-    ret = bind( fd, &addr, sizeof(addr) );
 
     *socketId = fd + SOCKET_NUMBER;
     return 0;
@@ -148,19 +145,9 @@ int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s
 
         char ip_address[16];
         int recvlen=0;
-        struct timeval_t tv;
-        struct timeval_t tv1;
-        tv1.tv_sec=1;
-        tv1.tv_usec=10000;
             
-        tv.tv_sec = 0;
-        tv.tv_usec = timeout*1000;
         int time;
         time = timeout;
-        int time1=0;
-
-        socklen_t len;
-
 
         fd=socketId - SOCKET_NUMBER;
         ret = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&time,sizeof(struct timeval_t));
@@ -171,7 +158,17 @@ int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s
         {
             return -1;
         }
-               
+        
+        if( (remaddr.s_ip & 0xff == addr->ip[3]) || \
+          ((remaddr.s_ip >> 8) & 0xff == addr->ip[2] ) || \
+          ((remaddr.s_ip >> 16) & 0xff == addr->ip[1]) || \
+          ((remaddr.s_ip >> 24) & 0xff == addr->ip[0])|| \
+          (remaddr.s_port) != addr->port)
+       {
+           wilddog_debug("ip or port not match!");
+            return -1;
+       }
+        
         return recvlen;
 }
 
