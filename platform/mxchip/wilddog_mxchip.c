@@ -145,19 +145,9 @@ int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s
 
         char ip_address[16];
         int recvlen=0;
-        struct timeval_t tv;
-        struct timeval_t tv1;
-        tv1.tv_sec=1;
-        tv1.tv_usec=10000;
             
-        tv.tv_sec = 0;
-        tv.tv_usec = timeout*1000;
         int time;
         time = timeout;
-        int time1=0;
-
-        socklen_t len;
-
 
         fd=socketId - SOCKET_NUMBER;
         ret = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&time,sizeof(struct timeval_t));
