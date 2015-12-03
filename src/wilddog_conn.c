@@ -426,7 +426,7 @@ STATIC int WD_SYSTEM _wilddog_conn_pong_cb
     Wilddog_Payload_T recvData;
     Wilddog_Node_T* p_snapshot = NULL;
 
-    if(  p_cn_recvData->d_recvlen >0 && p_cn_recvData->p_Recvdata)
+    if(  p_cn_recvData->d_recvlen >=0 && p_cn_recvData->p_Recvdata)
     {
         u8 pongIdx;
         int len;
@@ -455,6 +455,12 @@ STATIC int WD_SYSTEM _wilddog_conn_pong_cb
         if(p_snapshot)
             wilddog_node_delete(p_snapshot);
     }
+	else
+   {
+	   
+	   _wilddog_conn_pongstatus_set(p_conn,WILDDOG_CONN_OFFLINE);
+   }
+
     return 0;
 }
 
@@ -1102,7 +1108,9 @@ STATIC int WD_SYSTEM _wilddog_conn_send
     if(_wilddog_getTime() >= p_conn_node->d_cn_registerTime )
     {
         res = _wilddog_conn_sendWithAuth(cmd,p_conn_node->p_cn_pkt,p_conn);
-        if( res < 0 )
+        
+        if( cmd != WILDDOG_CONN_CMD_PONG &&
+        	res < 0 )
         {   
             _wilddog_conn_node_remove(p_conn,&p_conn_node);         
            return res;
@@ -1553,6 +1561,7 @@ STATIC int WD_SYSTEM _wilddog_conn_reObserver
         
     if( _wilddog_conn_getReObserverFlag(p_conn) == TRUE)
     {
+        _wilddog_conn_sessionInit(p_conn->p_conn_repo);
         LL_FOREACH_SAFE(p_conn->p_conn_node_hd,cur,tmp)
         {
             if(_wilddog_conn_isObserver(cur))
@@ -1596,8 +1605,9 @@ STATIC int WD_SYSTEM _wilddog_conn_retransmit(Wilddog_Conn_T *p_conn)
                 continue;
             wilddog_debug_level(WD_DEBUG_WARN,"@@ < ><>< > Retransmit!!");
             res = _wilddog_conn_sendWithAuth(cur->d_cmd,cur->p_cn_pkt,p_conn);
-            if(res >=0 )
-                cur->d_cn_nextsendTime = curtm + \
+            /* if your device off net it will retransmit all the time.*/
+            //if(res >=0 )
+            cur->d_cn_nextsendTime = curtm + \
                         (FIRSTRTRANSMIT_INV << (cur->d_cn_retansmitCnt++));    
         }
     }
