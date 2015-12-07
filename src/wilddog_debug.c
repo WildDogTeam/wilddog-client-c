@@ -479,7 +479,7 @@ static const char *WD_SYSTEM parse_string(Wilddog_Node_T *item,const char *str)
 	return ptr;
 }
 
-static double pow(double x, double y)
+static double WD_SYSTEM pow(double x, double y)
 {
 	int i = 0;	
 	double z = x;

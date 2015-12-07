@@ -5,7 +5,7 @@ LIB_PATH = $(TOPDIR)/lib
 
 CFLAGS = $(INCLUDE_PATH)
 
-LDFLAGS = -L$(LIB_PATH) -lwilddog -lpthread 
+LDFLAGS = -L$(LIB_PATH) -lwilddog -lpthread
 ifeq ($(COVER), 1)
 LDFLAGS+= -lgcov
 endif
