@@ -122,6 +122,7 @@
 #define SHA2_BIG_ENDIAN 4321
 #endif
 */
+#undef BYTE_ORDER
 #ifndef BYTE_ORDER
 #  if defined(SHA2_BIG_ENDIAN) || (defined(AC_APPLE_UNIVERSAL_BUILD) && defined(__BIG_ENDIAN__))
 #    define BYTE_ORDER SHA2_BIG_ENDIAN
