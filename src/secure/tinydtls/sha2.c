@@ -123,9 +123,9 @@
 #endif
 */
 #ifndef BYTE_ORDER
-#  if defined(WORDS_BIGENDIAN) || (defined(AC_APPLE_UNIVERSAL_BUILD) && defined(__BIG_ENDIAN__))
+#  if defined(SHA2_BIG_ENDIAN) || (defined(AC_APPLE_UNIVERSAL_BUILD) && defined(__BIG_ENDIAN__))
 #    define BYTE_ORDER SHA2_BIG_ENDIAN
-#  else /* WORDS_BIGENDIAN */
+#  else /* SHA2_BIG_ENDIAN */
 #    define BYTE_ORDER SHA2_LITTLE_ENDIAN
 #  endif
 #endif

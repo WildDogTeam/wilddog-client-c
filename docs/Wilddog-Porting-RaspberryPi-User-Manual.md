@@ -1,0 +1,1 @@
+树莓派根据操作系统有所不同，raspberry和linux操作系统采用linux sdk，openwrt操作系统请参考https://github.com/WildDogTeam/wilddog-client-openwrt

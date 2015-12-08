@@ -1,0 +1,1 @@
+请参考https://github.com/WildDogTeam/wilddog-client-openwrt
