@@ -479,7 +479,7 @@ static const char *WD_SYSTEM parse_string(Wilddog_Node_T *item,const char *str)
 	return ptr;
 }
 
-static double WD_SYSTEM pow(double x, double y)
+static double WD_SYSTEM wd_pow(double x, double y)
 {
 	int i = 0;	
 	double z = x;
@@ -512,7 +512,7 @@ static const char * WD_SYSTEM parse_number(Wilddog_Node_T *item,const char *num)
 		while (*num>='0' && *num<='9') subscale=(subscale*10)+(*num++ - '0');	/* Number? */
 	}
 
-	n=sign*n*pow(10.0,(scale+subscale*signsubscale));	/* number = +/- number.fraction * 10^+/- exponent */
+	n=sign*n*wd_pow(10.0,(scale+subscale*signsubscale));	/* number = +/- number.fraction * 10^+/- exponent */
 	
 	if((n-(int)n/1) == 0)
 	{
