@@ -12,7 +12,7 @@
 # Precompiled Headers
 *.gch
 *.pch
-
+autom4te.cache/
 # Libraries
 *.lib
 *.a
@@ -33,3 +33,5 @@
 *.x86_64
 *.hex
 Debug/*
+# Debug files
+*.dSYM/
