@@ -575,7 +575,9 @@ void SHA256_Transform(TINY_SHA256_CTX* context, const sha2_word32* data) {
 
 void SHA256_Update(TINY_SHA256_CTX* context, const sha2_byte *data, size_t len) {
 	unsigned int	freespace, usedspace;
-
+	sha2_byte *tmpData = NULL;
+	sha2_byte *tmpPtr = NULL;
+	
 	if (len == 0) {
 		/* Calling with no data is valid - we do nothing */
 		return;
@@ -605,19 +607,37 @@ void SHA256_Update(TINY_SHA256_CTX* context, const sha2_byte *data, size_t len) 
 			return;
 		}
 	}
+    /*fix bug, data may be not in 4 bytes order, can cause bus error*/
+	if((len >= SHA256_BLOCK_LENGTH) && ((size_t)data & (sizeof(sha2_word32) - 1)))
+	{
+		tmpData = (sha2_byte*)wmalloc(len);
+		if(tmpData)
+		{
+			MEMCPY_BCOPY(tmpData, data, len);
+			tmpPtr = tmpData;
+		}
+	}
+	else
+		tmpPtr = (sha2_byte*)data;
 	while (len >= SHA256_BLOCK_LENGTH) {
 		/* Process as many complete blocks as we can */
-		SHA256_Transform(context, (sha2_word32*)data);
+		SHA256_Transform(context, (sha2_word32*)tmpPtr);
 		context->bitcount += SHA256_BLOCK_LENGTH << 3;
 		len -= SHA256_BLOCK_LENGTH;
-		data += SHA256_BLOCK_LENGTH;
+		tmpPtr += SHA256_BLOCK_LENGTH;
+		if(tmpData)
+			data += SHA256_BLOCK_LENGTH;
 	}
 	if (len > 0) {
 		/* There's left-overs, so save 'em */
-		MEMCPY_BCOPY(context->buffer, data, len);
+		MEMCPY_BCOPY(context->buffer, tmpPtr, len);
 		context->bitcount += len << 3;
 	}
 	/* Clean up: */
+	/*fix bug, data may be not in 4 bytes order, can cause bus error*/
+	if(tmpData)
+		wfree(tmpData);
+	tmpData = tmpPtr = NULL;
 	usedspace = freespace = 0;
 }
 
