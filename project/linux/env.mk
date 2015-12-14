@@ -17,8 +17,12 @@ MAKE += --no-print-directory
 endif
 CFLAGS+=-Wall -O2
 
+ifeq ($(APP_SEC_TYPE), tinydtls)
+CFLAGS += -pthread
+endif
+
 ifeq ($(COVER), 1)
-CFLAGS+= -fprofile-arcs -ftest-coverage
+CFLAGS += -fprofile-arcs -ftest-coverage
 endif
 
 ifeq ($(WILDDOG_SELFTEST), yes)
