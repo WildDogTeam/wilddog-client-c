@@ -57,6 +57,9 @@ typedef struct WILDDOG_CONN_SEC_T{
     u8 *p_recvbuf;
     u32 d_recvlen;
     u8 d_recvFig;
+    u8 reserved1;
+    u8 reserved2;
+    u8 reserved3;
 }Wilddog_Conn_Sec_T;
 
 STATIC  Wilddog_Conn_Sec_T d_conn_sec_dtls;
