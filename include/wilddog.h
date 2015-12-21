@@ -221,6 +221,7 @@ typedef void (*onPushFunc)
 typedef onSetFunc onRemoveFunc;
 typedef onSetFunc onAuthFunc;
 typedef onQueryFunc onEventFunc;
+typedef onSetFunc onDisConnectFunc;
 
 typedef size_t Wilddog_T;
 

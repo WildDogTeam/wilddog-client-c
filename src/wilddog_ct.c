@@ -29,7 +29,7 @@
 #include "wilddog_conn.h"
 
 /*store the head of all repos.*/
-STATIC Wilddog_Repo_Con_T l_wilddog_containTable;
+STATIC Wilddog_Repo_Con_T l_wilddog_containTable = {NULL};
 /*store the wilddog init status.*/
 STATIC BOOL l_isStarted = FALSE;
 
@@ -765,7 +765,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_off
  * Input:       p_args: the pointer of the ref struct
  *              flag: the flag, not used
  * Output:      N/A
- * Return:      if failed, return WILDDOG_ERR_INVALID
+ * Return:      if failed, return NULL
 */
 STATIC Wilddog_Str_T* WD_SYSTEM _wilddog_ct_url_getKey
     (
@@ -778,6 +778,87 @@ STATIC Wilddog_Str_T* WD_SYSTEM _wilddog_ct_url_getKey
     wilddog_assert(p_ref, NULL);
 
     return _wilddog_url_getKey(p_ref->p_ref_url->p_url_path);
+}
+
+/*
+ * Function:    _wilddog_ct_getHost
+ * Description: get host of the wilddog client 
+ * Input:       p_args: the pointer of the ref struct
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return NULL
+*/
+STATIC Wilddog_Str_T* WD_SYSTEM _wilddog_ct_getHost
+    (
+    void* p_args, 
+    int flag
+    )
+{
+    Wilddog_Ref_T * p_ref = (Wilddog_Ref_T*)p_args;
+    Wilddog_Str_T* p_host = NULL;
+    wilddog_assert(p_ref, NULL);
+    wilddog_assert(p_ref->p_ref_url, NULL);
+    if(p_ref->p_ref_url->p_url_host)
+    {
+        p_host = (Wilddog_Str_T*)wmalloc(\
+                            strlen((const char*)p_ref->p_ref_url->p_url_host));
+        if(p_host)
+            strcpy((char*)p_host, (char*)p_ref->p_ref_url->p_url_host);
+    }
+    return p_host;
+}
+
+/*
+ * Function:    _wilddog_ct_getPath
+ * Description: get path of the wilddog client 
+ * Input:       p_args: the pointer of the ref struct
+ *              flag: the flag, not used
+ * Output:      N/A
+ * Return:      if failed, return NULL
+*/
+STATIC Wilddog_Str_T* WD_SYSTEM _wilddog_ct_getPath
+    (
+    void* p_args, 
+    int flag
+    )
+{
+    Wilddog_Ref_T * p_ref = (Wilddog_Ref_T*)p_args;
+    Wilddog_Str_T* p_path = NULL;
+    
+    wilddog_assert(p_ref, NULL);
+    wilddog_assert(p_ref->p_ref_url, NULL);
+    if(p_ref->p_ref_url->p_url_path)
+    {
+        p_path = (Wilddog_Str_T*)wmalloc(\
+                            strlen((const char*)p_ref->p_ref_url->p_url_path));
+        if(p_path)
+            strcpy((char*)p_path, (char*)p_ref->p_ref_url->p_url_path);
+    }
+    return p_path;
+}
+Wilddog_Return_T _wilddog_ct_setClientId()
+{
+    return WILDDOG_ERR_NOERR;
+}
+Wilddog_Return_T _wilddog_ct_store_disConnSet()
+{
+    return WILDDOG_ERR_NOERR;
+}
+Wilddog_Return_T _wilddog_ct_store_disConnPush()
+{
+    return WILDDOG_ERR_NOERR;
+}
+Wilddog_Return_T _wilddog_ct_store_disConnRmv()
+{
+    return WILDDOG_ERR_NOERR;
+}
+Wilddog_Return_T _wilddog_ct_conn_goOffline()
+{
+    return WILDDOG_ERR_NOERR;
+}
+Wilddog_Return_T _wilddog_ct_conn_goOnline()
+{
+    return WILDDOG_ERR_NOERR;
 }
 
 /*
@@ -828,6 +909,14 @@ Wilddog_Func_T Wilddog_ApiCmd_FuncTable[WILDDOG_APICMD_MAXCMD + 1] =
     (Wilddog_Func_T)_wilddog_ct_store_on,
     (Wilddog_Func_T)_wilddog_ct_store_off,
     (Wilddog_Func_T)_wilddog_ct_url_getKey,
+    (Wilddog_Func_T)_wilddog_ct_getHost,
+    (Wilddog_Func_T)_wilddog_ct_getPath,
+    (Wilddog_Func_T)_wilddog_ct_setClientId,
+    (Wilddog_Func_T)_wilddog_ct_store_disConnSet,
+    (Wilddog_Func_T)_wilddog_ct_store_disConnPush,
+    (Wilddog_Func_T)_wilddog_ct_store_disConnRmv,
+    (Wilddog_Func_T)_wilddog_ct_conn_goOffline,
+    (Wilddog_Func_T)_wilddog_ct_conn_goOnline,
     (Wilddog_Func_T)_wilddog_ct_conn_sync,
     NULL
 };
