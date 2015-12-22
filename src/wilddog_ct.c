@@ -29,7 +29,7 @@
 #include "wilddog_conn.h"
 
 /*store the head of all repos.*/
-STATIC Wilddog_Repo_Con_T l_wilddog_containTable = {NULL};
+STATIC Wilddog_Repo_Con_T l_wilddog_containTable = {NULL, NULL, 0};
 /*store the wilddog init status.*/
 STATIC BOOL l_isStarted = FALSE;
 
@@ -81,8 +81,53 @@ STATIC Wilddog_Return_T _wilddog_ct_store_off(void* p_args, int flag);
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_init(void* args, int flag)
 {
     l_wilddog_containTable.p_rc_head = NULL;
+    l_wilddog_containTable.p_rc_cid = NULL;
+    l_wilddog_containTable.d_rc_online = FALSE;
     return WILDDOG_ERR_NOERR;
 }
+
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_deinit(void)
+{
+    if(l_wilddog_containTable.p_rc_cid)
+        wfree(l_wilddog_containTable.p_rc_cid);
+    
+    l_wilddog_containTable.p_rc_cid = NULL;
+    l_wilddog_containTable.d_rc_online = FALSE;
+    return WILDDOG_ERR_NOERR;
+}
+
+u32 WD_SYSTEM _wilddog_ct_getOnlineStatus(void)
+{
+    return l_wilddog_containTable.d_rc_online;
+}
+
+Wilddog_Return_T WD_SYSTEM _wilddog_ct_setOnlineStatus(u32 s)
+{
+    l_wilddog_containTable.d_rc_online = s;
+    return WILDDOG_ERR_NOERR;
+}
+
+STATIC Wilddog_Str_T * WD_SYSTEM _wilddog_ct_getCid(void)
+{
+    return l_wilddog_containTable.p_rc_cid;
+}
+
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_setcid(Wilddog_Str_T* str)
+{
+    int len;
+    wilddog_assert(str, WILDDOG_ERR_NULL);
+
+    len = strlen(const char*)str);
+    if(l_wilddog_containTable.p_rc_cid)
+        wfree(l_wilddog_containTable.p_rc_cid);
+
+     l_wilddog_containTable.p_rc_cid = (Wilddog_Str_T*)wmalloc(len);
+
+    memcpy(l_wilddog_containTable.p_rc_cid, str, len);
+
+    return WILDDOG_ERR_NOERR;
+}
+
 /*
  * Function:    _wilddog_ct_getRepoHead
  * Description: Get the head of the repo.
@@ -90,7 +135,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_init(void* args, int flag)
  * Output:      N/A
  * Return:      Pointer to the head.
 */
-STATIC Wilddog_Repo_T** WD_SYSTEM _wilddog_ct_getRepoHead(void)
+Wilddog_Repo_T** WD_SYSTEM _wilddog_ct_getRepoHead(void)
 {
     return &(l_wilddog_containTable.p_rc_head);
 }
@@ -496,6 +541,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_destoryRepo
     if(!(*p_repoHead))
     {
         l_isStarted = FALSE;
+        _wilddog_ct_deinit();
     }
     return WILDDOG_ERR_NOERR;
 }
@@ -836,9 +882,9 @@ STATIC Wilddog_Str_T* WD_SYSTEM _wilddog_ct_getPath
     }
     return p_path;
 }
-Wilddog_Return_T _wilddog_ct_setClientId()
-{
-    return WILDDOG_ERR_NOERR;
+Wilddog_Return_T _wilddog_ct_setClientId(void *p_args, int flag)
+{    
+    return _wilddog_ct_setcid((Wilddog_Str_T*)p_args);
 }
 Wilddog_Return_T _wilddog_ct_store_disConnSet()
 {

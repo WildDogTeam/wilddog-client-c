@@ -112,6 +112,8 @@ typedef struct WILDDOG_REPO_T
 typedef struct WILDDOG_REPO_CONTAINER_T
 {
     Wilddog_Repo_T *p_rc_head;
+    Wilddog_Str_T *p_rc_cid;
+    u32 d_rc_online;
 }Wilddog_Repo_Con_T;
 
 extern size_t _wilddog_ct_ioctl
@@ -122,7 +124,9 @@ extern size_t _wilddog_ct_ioctl
     );
 extern Wilddog_Repo_T *_wilddog_ct_findRepo(Wilddog_Str_T * p_host);
 extern u8 _wilddog_ct_getRepoNum(void);
-
+extern u32 _wilddog_ct_getOnlineStatus(void);
+extern Wilddog_Return_T _wilddog_ct_setOnlineStatus(u32 s);
+extern Wilddog_Repo_T** _wilddog_ct_getRepoHead(void);
 #ifdef __cplusplus
 }
 #endif
