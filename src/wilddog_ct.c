@@ -33,7 +33,7 @@ STATIC Wilddog_Repo_Con_T l_wilddog_containTable = {NULL, NULL, 0};
 /*store the wilddog init status.*/
 STATIC BOOL l_isStarted = FALSE;
 
-STATIC Wilddog_Repo_T** _wilddog_ct_getRepoHead(void);
+Wilddog_Repo_T** _wilddog_ct_getRepoHead(void);
 STATIC Wilddog_T _wilddog_ct_createRef(void *args, int flag);
 STATIC Wilddog_Return_T _wilddog_ct_destroyRef(void *args, int flag);
 STATIC Wilddog_Ref_T *_wilddog_ct_findRef
@@ -106,18 +106,18 @@ Wilddog_Return_T WD_SYSTEM _wilddog_ct_setOnlineStatus(u32 s)
     l_wilddog_containTable.d_rc_online = s;
     return WILDDOG_ERR_NOERR;
 }
-
+/*
 STATIC Wilddog_Str_T * WD_SYSTEM _wilddog_ct_getCid(void)
 {
     return l_wilddog_containTable.p_rc_cid;
 }
-
+*/
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_setcid(Wilddog_Str_T* str)
 {
     int len;
     wilddog_assert(str, WILDDOG_ERR_NULL);
 
-    len = strlen(const char*)str);
+    len = strlen((const char*)str);
     if(l_wilddog_containTable.p_rc_cid)
         wfree(l_wilddog_containTable.p_rc_cid);
 
