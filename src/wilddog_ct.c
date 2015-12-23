@@ -29,7 +29,7 @@
 #include "wilddog_conn.h"
 
 /*store the head of all repos.*/
-STATIC Wilddog_Repo_Con_T l_wilddog_containTable = {NULL, NULL, 0};
+STATIC Wilddog_Repo_Con_T l_wilddog_containTable = {NULL, 0};
 /*store the wilddog init status.*/
 STATIC BOOL l_isStarted = FALSE;
 
@@ -81,17 +81,12 @@ STATIC Wilddog_Return_T _wilddog_ct_store_off(void* p_args, int flag);
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_init(void* args, int flag)
 {
     l_wilddog_containTable.p_rc_head = NULL;
-    l_wilddog_containTable.p_rc_cid = NULL;
     l_wilddog_containTable.d_rc_online = FALSE;
     return WILDDOG_ERR_NOERR;
 }
 
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_deinit(void)
 {
-    if(l_wilddog_containTable.p_rc_cid)
-        wfree(l_wilddog_containTable.p_rc_cid);
-    
-    l_wilddog_containTable.p_rc_cid = NULL;
     l_wilddog_containTable.d_rc_online = FALSE;
     return WILDDOG_ERR_NOERR;
 }
@@ -104,27 +99,6 @@ u32 WD_SYSTEM _wilddog_ct_getOnlineStatus(void)
 Wilddog_Return_T WD_SYSTEM _wilddog_ct_setOnlineStatus(u32 s)
 {
     l_wilddog_containTable.d_rc_online = s;
-    return WILDDOG_ERR_NOERR;
-}
-/*
-STATIC Wilddog_Str_T * WD_SYSTEM _wilddog_ct_getCid(void)
-{
-    return l_wilddog_containTable.p_rc_cid;
-}
-*/
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_setcid(Wilddog_Str_T* str)
-{
-    int len;
-    wilddog_assert(str, WILDDOG_ERR_NULL);
-
-    len = strlen((const char*)str);
-    if(l_wilddog_containTable.p_rc_cid)
-        wfree(l_wilddog_containTable.p_rc_cid);
-
-     l_wilddog_containTable.p_rc_cid = (Wilddog_Str_T*)wmalloc(len);
-
-    memcpy(l_wilddog_containTable.p_rc_cid, str, len);
-
     return WILDDOG_ERR_NOERR;
 }
 
@@ -844,12 +818,14 @@ STATIC Wilddog_Str_T* WD_SYSTEM _wilddog_ct_getHost
     Wilddog_Str_T* p_host = NULL;
     wilddog_assert(p_ref, NULL);
     wilddog_assert(p_ref->p_ref_url, NULL);
+    
     if(p_ref->p_ref_url->p_url_host)
     {
-        p_host = (Wilddog_Str_T*)wmalloc(\
-                            strlen((const char*)p_ref->p_ref_url->p_url_host));
+        int len = strlen((const char*)p_ref->p_ref_url->p_url_host);
+
+        p_host = (Wilddog_Str_T*)wmalloc(len + 1);
         if(p_host)
-            strcpy((char*)p_host, (char*)p_ref->p_ref_url->p_url_host);
+            memcpy((char*)p_host, (char*)p_ref->p_ref_url->p_url_host, len);
     }
     return p_host;
 }
@@ -875,17 +851,15 @@ STATIC Wilddog_Str_T* WD_SYSTEM _wilddog_ct_getPath
     wilddog_assert(p_ref->p_ref_url, NULL);
     if(p_ref->p_ref_url->p_url_path)
     {
-        p_path = (Wilddog_Str_T*)wmalloc(\
-                            strlen((const char*)p_ref->p_ref_url->p_url_path));
+        int len = strlen((const char*)p_ref->p_ref_url->p_url_path);
+        
+        p_path = (Wilddog_Str_T*)wmalloc(len + 1);
         if(p_path)
-            strcpy((char*)p_path, (char*)p_ref->p_ref_url->p_url_path);
+            memcpy((char*)p_path, (char*)p_ref->p_ref_url->p_url_path, len);
     }
     return p_path;
 }
-Wilddog_Return_T _wilddog_ct_setClientId(void *p_args, int flag)
-{    
-    return _wilddog_ct_setcid((Wilddog_Str_T*)p_args);
-}
+
 Wilddog_Return_T _wilddog_ct_store_disConnSet()
 {
     return WILDDOG_ERR_NOERR;
@@ -957,7 +931,6 @@ Wilddog_Func_T Wilddog_ApiCmd_FuncTable[WILDDOG_APICMD_MAXCMD + 1] =
     (Wilddog_Func_T)_wilddog_ct_url_getKey,
     (Wilddog_Func_T)_wilddog_ct_getHost,
     (Wilddog_Func_T)_wilddog_ct_getPath,
-    (Wilddog_Func_T)_wilddog_ct_setClientId,
     (Wilddog_Func_T)_wilddog_ct_store_disConnSet,
     (Wilddog_Func_T)_wilddog_ct_store_disConnPush,
     (Wilddog_Func_T)_wilddog_ct_store_disConnRmv,

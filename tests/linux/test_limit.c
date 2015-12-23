@@ -6,9 +6,9 @@
 struct test_reult_t
 {
 	char* name;
-	int result;
+	Wilddog_Func_T func;
+    int result;
 };
-struct test_reult_t test_results[32];
 
 STATIC const char* UNUSED_URL="coap://coap.wilddogio.com/unused";
 
@@ -373,14 +373,98 @@ int test_getKey()
 	return 0;
 }
 
+/*wilddog_getHost*/
+int test_getHost()
+{
+	Wilddog_Str_T *key = NULL;
+	Wilddog_T wilddog, root;
+	
+
+	/* Invalid */
+	key = wilddog_getHost(0);
+
+	if(key)
+	{
+		wfree(key);
+		return -1;
+	}
+    
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
+
+	/* valid */
+	key = wilddog_getHost(wilddog);
+	if(!key)
+	{
+		return -1;
+	}
+    wilddog_debug("host = %s\n", key);
+	wfree(key);
+
+	root = wilddog_getRoot(wilddog);
+
+	/* valid */
+	key = wilddog_getHost(root);
+	if(!key)
+	{
+		return -1;
+	}
+    wilddog_debug("host2 = %s\n", key);
+	wfree(key);
+
+	wilddog_destroy(&wilddog);
+	wilddog_destroy(&root);
+	return 0;
+}
+/*wilddog_getPath*/
+int test_getPath()
+{
+	Wilddog_Str_T *key = NULL;
+	Wilddog_T wilddog, root;
+	
+
+	/* Invalid */
+	key = wilddog_getPath(0);
+
+	if(key)
+	{
+		wfree(key);
+		return -1;
+	}
+
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
+
+	/* valid */
+	key = wilddog_getPath(wilddog);
+	if(!key)
+	{
+		return -1;
+	}
+    wilddog_debug("path = %s\n", key);
+	wfree(key);
+
+	root = wilddog_getRoot(wilddog);
+
+	/* valid */
+	key = wilddog_getPath(root);
+	if(!key)
+	{
+		return -1;
+	}
+    wilddog_debug("path = %s\n", key);
+	wfree(key);
+
+	wilddog_destroy(&wilddog);
+	wilddog_destroy(&root);
+	return 0;
+
+}
+
 /*wilddog_getValue*/
 
 int test_query()
 {
 	Wilddog_T wilddog;
 
-	
-	
 	/*Invalid*/
 	if(WILDDOG_ERR_NOERR == wilddog_getValue(0, NULL, NULL))
 		return -1;
@@ -495,7 +579,6 @@ int test_push()
 	wilddog_node_delete(p_node);
 	wilddog_destroy(&wilddog);
 	return 0;
-
 }
 
 /* wilddog_removeValue */
@@ -529,7 +612,6 @@ int test_remove()
 	wilddog_destroy(&wilddog);
 	
 	return 0;
-
 }
 /*wilddog_addObserver*/
 int test_on()
@@ -621,20 +703,203 @@ int test_off()
 	return 0;
 
 }
-void test_initialize()
+/*wilddog_goOnline*/
+int test_goOnline()
 {
-	int i;
-	for(i = 0; i < sizeof(test_results)/ sizeof(struct test_reult_t); i++)
-	{
-		memset(&(test_results[i]), 0, sizeof(struct test_reult_t));
-		test_results[i].result = FALSE;
-	}
+    wilddog_goOnline();
+    return 0;
 }
+
+/*wilddog_goOffline*/
+int test_goOffline()
+{
+    wilddog_goOffline();
+    return 0;
+}
+
+/*wilddog_onDisconnectSetValue*/
+int test_disconn_set()
+{
+	Wilddog_T wilddog = 0;
+	Wilddog_Node_T * p_node;
+	
+
+	/* Invalid */
+	if(WILDDOG_ERR_NOERR == wilddog_onDisconnectSetValue(wilddog, NULL, NULL, NULL))
+	{
+		return -1;
+	}
+
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
+
+	/* valid */
+	if(WILDDOG_ERR_NOERR != wilddog_onDisconnectSetValue(wilddog, NULL, NULL, NULL))
+	{
+		wilddog_destroy(&wilddog);
+		return -1;
+	}
+	p_node= wilddog_node_createTrue(NULL);
+
+	/* valid */
+	if(WILDDOG_ERR_NOERR != wilddog_onDisconnectSetValue(wilddog, p_node, NULL, NULL))
+	{
+		wilddog_node_delete(p_node);
+		wilddog_destroy(&wilddog);
+		return -1;
+	}
+
+	/* valid */
+	if(WILDDOG_ERR_NOERR != wilddog_onDisconnectSetValue(wilddog, p_node, onCallback, NULL))
+	{
+		wilddog_node_delete(p_node);
+		wilddog_destroy(&wilddog);
+		return -1;
+	}
+
+	wilddog_node_delete(p_node);
+	wilddog_destroy(&wilddog);
+	return 0;
+
+}
+int test_disconn_push()
+{
+	Wilddog_T wilddog = 0;
+	Wilddog_Node_T * p_node;
+	
+
+	/* Invalid */
+	if(WILDDOG_ERR_NOERR == wilddog_onDisconnectPush(wilddog, NULL, NULL, NULL))
+	{
+		return -1;
+	}
+
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
+
+	/* valid */
+	if(WILDDOG_ERR_NOERR != wilddog_onDisconnectPush(wilddog, NULL, NULL, NULL))
+	{
+		wilddog_destroy(&wilddog);
+		return -1;
+	}
+	p_node= wilddog_node_createTrue(NULL);
+
+	/* valid */
+	if(WILDDOG_ERR_NOERR != wilddog_onDisconnectPush(wilddog, p_node, NULL, NULL))
+	{
+		wilddog_node_delete(p_node);
+		wilddog_destroy(&wilddog);
+		return -1;
+	}
+
+	/* valid */
+	if(WILDDOG_ERR_NOERR != wilddog_onDisconnectPush(wilddog, p_node, onCallback, NULL))
+	{
+		wilddog_node_delete(p_node);
+		wilddog_destroy(&wilddog);
+		return -1;
+	}
+
+	wilddog_node_delete(p_node);
+	wilddog_destroy(&wilddog);
+	return 0;
+
+}
+
+int test_disconn_rmv()
+{
+	Wilddog_T wilddog;
+
+	/*Invalid*/
+	if(WILDDOG_ERR_NOERR == wilddog_onDisconnectRemoveValue(0, NULL, NULL))
+		return -1;
+
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
+
+	/*Invalid*/
+	if(WILDDOG_ERR_NOERR == wilddog_onDisconnectRemoveValue(0, NULL, NULL))
+		return -1;
+
+	/*valid*/
+	if(WILDDOG_ERR_NOERR != wilddog_onDisconnectRemoveValue(wilddog, NULL, NULL))
+		return -1;
+
+	/*valid*/
+	if(WILDDOG_ERR_NOERR != wilddog_onDisconnectRemoveValue(wilddog, onCallback, NULL))
+		return -1;
+
+	/*valid*/
+	if(WILDDOG_ERR_NOERR != wilddog_onDisconnectRemoveValue(wilddog, onCallback, (void*)0))
+		return -1;
+	wilddog_destroy(&wilddog);
+	
+	return 0;
+}
+
+int test_disconn_cancel()
+{
+	Wilddog_T wilddog;
+
+	/*Invalid*/
+	if(WILDDOG_ERR_NOERR == wilddog_cancelDisconnectOperations(0, NULL, NULL))
+		return -1;
+
+	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
+
+	/*Invalid*/
+	if(WILDDOG_ERR_NOERR == wilddog_cancelDisconnectOperations(0, NULL, NULL))
+		return -1;
+
+	/*valid*/
+	if(WILDDOG_ERR_NOERR != wilddog_cancelDisconnectOperations(wilddog, NULL, NULL))
+		return -1;
+
+	/*valid*/
+	if(WILDDOG_ERR_NOERR != wilddog_cancelDisconnectOperations(wilddog, (onDisConnectFunc)onCallback, NULL))
+		return -1;
+
+	/*valid*/
+	if(WILDDOG_ERR_NOERR != wilddog_cancelDisconnectOperations(wilddog, (onDisConnectFunc)onCallback, (void*)0))
+		return -1;
+	wilddog_destroy(&wilddog);
+	
+	return 0;
+
+}
+struct test_reult_t test_results[] = 
+{
+    {"wilddog_initWithUrl",             test_new,                   0},
+    {"wilddog_destroy",                 test_destroy,               0},
+    {"wilddog_auth",                    test_auth,                  0},
+    {"wilddog_getParent",               test_getParent,             0},
+    {"wilddog_getRoot",                 test_getRoot,               0},
+    {"wilddog_getChild",                test_getChild,              0},
+    {"wilddog_getKey",                  test_getKey,                0},
+    {"wilddog_getHost",                 test_getHost,               0},
+    {"wilddog_getPath",                 test_getPath,               0},
+    {"wilddog_goOnline",                test_goOnline,              0},
+    {"wilddog_goOffline",               test_goOffline,             0},
+    {"wilddog_getValue",                test_query,                 0},
+    {"wilddog_setValue",                test_set,                   0},
+    {"wilddog_push",                    test_push,                  0},
+    {"wilddog_removeValue",             test_remove,                0},
+    {"wilddog_addObserver",             test_on,                    0},
+    {"wilddog_removeObserver",          test_off,                   0},
+    {"wilddog_onDisconnectSetValue",    test_disconn_set,           0},
+    {"wilddog_onDisconnectPush",        test_disconn_push,          0},
+    {"wilddog_onDisconnectRemoveValue", test_disconn_rmv,           0},
+    {"wilddog_cancelDisconnectOperations",  test_disconn_cancel,    0},
+    {NULL, NULL, -1},
+};
 
 int test_printResult()
 {
 	int i;
 	printf("\n\nTest results:\n\n");
+    for(i = 0; i < sizeof(test_results)/ sizeof(struct test_reult_t); i++)
+    {
+        if(test_results[i].name != NULL)
+            test_results[i].result = test_results[i].func();
+    }
 	for(i = 0; i < sizeof(test_results)/ sizeof(struct test_reult_t); i++)
 	{
 		if(test_results[i].name != NULL)
@@ -653,35 +918,6 @@ int test_printResult()
 
 int main(void)
 {
-	test_initialize();
-
-	test_results[0].name = "wilddog_initWithUrl";
-	test_results[0].result = test_new();
-	test_results[1].name = "wilddog_destroy";
-	test_results[1].result = test_destroy();
-	test_results[2].name = "wilddog_auth";
-	test_results[2].result = test_auth();
-	test_results[3].name = "wilddog_getParent";
-	test_results[3].result = test_getParent();
-	test_results[4].name = "wilddog_getRoot";
-	test_results[4].result = test_getRoot();
-	test_results[5].name = "wilddog_getChild";
-	test_results[5].result = test_getChild();
-	test_results[6].name = "wilddog_getKey";
-	test_results[6].result = test_getKey();
-	test_results[7].name = "wilddog_getValue";
-	test_results[7].result = test_query();
-	test_results[8].name = "wilddog_setValue";
-	test_results[8].result = test_set();
-	test_results[9].name = "wilddog_push";
-	test_results[9].result = test_push();
-	test_results[10].name = "wilddog_removeValue";
-	test_results[10].result = test_remove();
-	test_results[11].name = "wilddog_addObserver";
-	test_results[11].result = test_on();
-	test_results[12].name = "wilddog_removeObserver";
-	test_results[12].result = test_off();
-
 	return test_printResult();
 }
 

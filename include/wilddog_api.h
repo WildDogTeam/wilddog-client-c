@@ -98,6 +98,26 @@ extern Wilddog_T wilddog_getChild
  * Others:      N/A
 */
 extern Wilddog_Str_T *wilddog_getKey(Wilddog_T wilddog);
+/*
+ * Function:    wilddog_getHost
+ * Description: Get the client's host.
+ * Input:       wilddog: Id of the client.
+ * Output:      N/A
+ * Return:      a pointer point to a host string(should be freed by user),
+ *              like "aaa.wilddogio.com" .
+ * Others:      N/A
+*/
+extern Wilddog_Str_T *wilddog_getHost(Wilddog_T wilddog);
+/*
+ * Function:    wilddog_getPath
+ * Description: Get the client's path.
+ * Input:       wilddog: Id of the client.
+ * Output:      N/A
+ * Return:      a pointer point to a path string(should be freed by user),
+ *              like "/a/b/c" .
+ * Others:      N/A
+*/
+extern Wilddog_Str_T *wilddog_getPath(Wilddog_T wilddog);
 
 /*
  * Function:    wilddog_getValue
@@ -202,6 +222,105 @@ extern Wilddog_Return_T wilddog_removeObserver
     Wilddog_T wilddog,
     Wilddog_EventType_T event
     );
+/*
+ * Function:    wilddog_onDisconnectSetValue
+ * Description: Set the device's disconnect action to cloud, when the device is 
+ *              offline, the value will be set to the cloud.
+ * Input:       wilddog: the client id.
+ *              p_node: a point to node(Wilddog_Node_T structure), you can
+ *                      create a node tree by call node APIs, can free after
+ *                      this function.
+ *              callback: the callback function called when the server returns 
+ *                      or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
+
+extern Wilddog_Return_T wilddog_onDisconnectSetValue
+    (
+    Wilddog_T wilddog, 
+    Wilddog_Node_T *p_node, 
+    onDisConnectFunc callback, 
+    void* arg
+    );
+/*
+ * Function:    wilddog_onDisconnectPush
+ * Description: Set the device's disconnect action to cloud, when the device is 
+ *              offline, the value will be push to the cloud.
+ * Input:       wilddog: the client id.
+ *              p_node: a point to node(Wilddog_Node_T structure), you can
+ *                      create a node tree by call node APIs, can free after
+ *                      this function.
+ *              callback: the callback function called when the server returns 
+ *                        or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
+extern Wilddog_Return_T wilddog_onDisconnectPush
+    (
+    Wilddog_T wilddog, 
+    Wilddog_Node_T *p_node, 
+    onDisConnectFunc callback, 
+    void* arg
+    );
+/*
+ * Function:    wilddog_onDisconnectRemoveValue
+ * Description: Set the device's disconnect action to cloud, when the device is 
+ *              offline, the value will be push to the cloud.
+ * Input:       wilddog:  Id of the client.
+ *              callback: the callback function called when the server returns 
+ *                        or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
+extern Wilddog_Return_T wilddog_onDisconnectRemoveValue
+    (
+    Wilddog_T wilddog, 
+    onDisConnectFunc callback, 
+    void* arg
+    );
+/*
+ * Function:    wilddog_cancelDisconnectOperations
+ * Description: Cancel the wilddog client's disconnect actions.
+ * Input:       wilddog:  Id of the client.
+ *              callback: the callback function called when the server returns 
+ *                        or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
+extern Wilddog_Return_T wilddog_cancelDisconnectOperations
+    (
+    Wilddog_T wilddog, 
+    onDisConnectFunc callback, 
+    void* arg
+    );
+/*
+ * Function:    wilddog_goOffline
+ * Description: let the device offline.
+ * Input:       N/A
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
+extern Wilddog_Return_T wilddog_goOffline(void);
+/*
+ * Function:    wilddog_goOnline
+ * Description: let the device online.
+ * Input:       N/A
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
+extern Wilddog_Return_T wilddog_goOnline(void);
+
 /*
  * Function:    wilddog_auth
  * Description: Set the auth data to a host(such as aaa.wilddogio.com).

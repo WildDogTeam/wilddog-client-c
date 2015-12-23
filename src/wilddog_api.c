@@ -435,21 +435,6 @@ Wilddog_Str_T *wilddog_getPath(Wilddog_T wilddog)
     return (Wilddog_Str_T *)_wilddog_ct_ioctl(WILDDOG_APICMD_GETPATH, \
                                               (void*)wilddog, 0);
 }
-/*
- * Function:    wilddog_setClientId
- * Description: Set the device's specific id, to increase the observe efficiency.
- * Input:       id: the specific id.
- * Output:      N/A
- * Return:      0 means success , others fail.
- * Others:      N/A
-*/
-Wilddog_Return_T wilddog_setClientId(char* id)
-{
-    wilddog_assert(id, WILDDOG_ERR_NULL);
-
-    return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_SETCID, \
-                                               (void *)id, 0);
-}
 
 /*
  * Function:    wilddog_onDisconnectSetValue
@@ -583,12 +568,26 @@ Wilddog_Return_T wilddog_cancelDisconnectOperations
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_DISCONN_CANCEL, \
                                                &args,0);
 }
-
+/*
+ * Function:    wilddog_goOffline
+ * Description: let the device offline.
+ * Input:       N/A
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
 Wilddog_Return_T wilddog_goOffline(void)
 {
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_GOOFFLINE, NULL,0);      
 }
-
+/*
+ * Function:    wilddog_goOnline
+ * Description: let the device online.
+ * Input:       N/A
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
 Wilddog_Return_T wilddog_goOnline(void)
 {
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_GOONLINE, NULL,0);      

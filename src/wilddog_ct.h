@@ -29,8 +29,6 @@ typedef enum WILDDOG_API_CMDS
     WILDDOG_APICMD_GETKEY,
     WILDDOG_APICMD_GETHOST,
     WILDDOG_APICMD_GETPATH,
-
-    WILDDOG_APICMD_SETCID,
     
     WILDDOG_APICMD_DISCONN_SET,
     WILDDOG_APICMD_DISCONN_PUSH,
@@ -112,7 +110,6 @@ typedef struct WILDDOG_REPO_T
 typedef struct WILDDOG_REPO_CONTAINER_T
 {
     Wilddog_Repo_T *p_rc_head;
-    Wilddog_Str_T *p_rc_cid;
     u32 d_rc_online;
 }Wilddog_Repo_Con_T;
 
