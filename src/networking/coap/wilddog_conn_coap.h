@@ -45,7 +45,6 @@ typedef struct PROTOCOL_ARGINIT_T{
 }Protocol_ArgInit_T;
 
 typedef struct PROTOCOL_PKG_CREATARG{
-    Wilddog_Conn_Cmd_T cmd;
     u16 d_index;
     u16 d_packageLen;
     u32 d_token;
@@ -69,7 +68,6 @@ typedef struct PROTOCOL_PKG_AUTHARG_T{
 
 typedef struct PROTOCOL_ARG_SEND_T{
     
-    Wilddog_Conn_Cmd_T cmd;
     Wilddog_Url_T *p_url;
 
 	u32 d_token;

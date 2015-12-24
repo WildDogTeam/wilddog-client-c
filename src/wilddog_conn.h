@@ -26,9 +26,6 @@ extern "C"
 
 typedef enum WILDDOG_CONN_CMD_TYPE
 {
-    WILDDOG_CONN_CMD_INIT,
-    WILDDOG_CONN_CMD_DEINIT,
-    
     WILDDOG_CONN_CMD_GET,
     WILDDOG_CONN_CMD_SET,
     WILDDOG_CONN_CMD_PUSH,
@@ -53,27 +50,14 @@ typedef enum WILDDOG_CONN_CMD_TYPE
 
 typedef struct WILDDOG_CONN_T
 {
-    Wilddog_Repo_T *p_conn_repo;
-    
+    Wilddog_Repo_T *p_conn_repo;   
     Wilddog_Func_T f_conn_ioctl;
-    
-    
+
 }Wilddog_Conn_T;
 
 typedef struct WILDDOG_CONN_CMD_ARG
-{
-    
-    Wilddog_Repo_T *p_repo,
-    Wilddog_Url_T * p_url;
-    Wilddog_Node_T * p_data;
-    Wilddog_Func_T p_complete;
-    void* p_completeArg;
-}Wilddog_ConnCmd_Arg_T;
-
-typedef struct WILDDOG_CONN_CMD_ARG
-{
-    
-    Wilddog_Repo_T *p_repo,
+{    
+    Wilddog_Repo_T *p_repo;
     Wilddog_Url_T * p_url;
     Wilddog_Node_T * p_data;
     Wilddog_Func_T p_complete;

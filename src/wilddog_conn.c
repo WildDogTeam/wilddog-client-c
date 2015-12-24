@@ -30,39 +30,13 @@
 
 #include "wilddog_conn_coap.h"
 
-#include "wilddog_conn_manage.h"
+//#include "wilddog_conn_manage.h"
 #include "wilddog_port.h"
 #include "wilddog_url_parser.h"
 #include "wilddog_payload.h"
 #include "wilddog_api.h"
 #include "test_lib.h"
 
-
-/* send interface */
-Wilddog_Func_T _wilddog_conn_funcTable[WILDDOG_CONN_CMD_MAX + 1] = 
-{
-    (Wilddog_Func_T)_wilddog_conn_init,
-    (Wilddog_Func_T)_wilddog_conn_deinit,
-
-    (Wilddog_Func_T)_wilddog_conn_get,
-    (Wilddog_Func_T)_wilddog_conn_set,
-    (Wilddog_Func_T)_wilddog_conn_push,
-    (Wilddog_Func_T)_wilddog_conn_remove,
-    (Wilddog_Func_T)_wilddog_conn_on,
-    (Wilddog_Func_T)_wilddog_conn_off,
-    (Wilddog_Func_T)_wilddog_conn_auth,
-    
-    (Wilddog_Func_T)_wilddog_conn_onDisSet,
-    (Wilddog_Func_T)_wilddog_conn_onDisPush,
-    (Wilddog_Func_T)_wilddog_conn_onDisRemove,
-    
-    (Wilddog_Func_T)_wilddog_conn_cancelDis,
-    (Wilddog_Func_T)_wilddog_conn_offLine,
-    (Wilddog_Func_T)_wilddog_conn_onLine,
-    (Wilddog_Func_T)_wilddog_conn_trysync,
-
-    NULL
-};
 #if 0
 /* call back  interface */
 Wilddog_Func_T _wilddog_connCallBack_funcTable[WILDDOG_CONN_CMD_MAX + 1] = 
@@ -303,7 +277,7 @@ STATIC int WD_SYSTEM _wilddog_conn_send
 #endif
 STATIC int _wilddog_conn_get(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-   
+   return WILDDOG_ERR_NOERR;
 }
 STATIC int _wilddog_conn_set(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
@@ -311,54 +285,55 @@ STATIC int _wilddog_conn_set(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
     /*todo add list. */
 
     /* todo send to */   
+    return WILDDOG_ERR_NOERR;
 }
 STATIC int _wilddog_conn_push(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-    
+    return WILDDOG_ERR_NOERR;
 }
 STATIC int _wilddog_conn_remove(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-    
+    return WILDDOG_ERR_NOERR;
 }
 STATIC int _wilddog_conn_on(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-    
+    return WILDDOG_ERR_NOERR;
 }
 STATIC int _wilddog_conn_off(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-    
+    return WILDDOG_ERR_NOERR;
 }
 STATIC int _wilddog_conn_auth(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-    
+    return WILDDOG_ERR_NOERR;
 }
 
 STATIC int _wilddog_conn_onDisSet(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-    
+    return WILDDOG_ERR_NOERR;
 }
 STATIC int _wilddog_conn_onDisPush(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-    
+    return WILDDOG_ERR_NOERR;
 }
 
 STATIC int _wilddog_conn_onDisRemove(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-    
+    return WILDDOG_ERR_NOERR;
 }
 
 STATIC int _wilddog_conn_cancelDis(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-    
+    return WILDDOG_ERR_NOERR;
 }
 
 STATIC int _wilddog_conn_offLine(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-    
+    return WILDDOG_ERR_NOERR;
 }
 STATIC int _wilddog_conn_onLine(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-    
+    return WILDDOG_ERR_NOERR;
 }
 /*
  * Function:    _wilddog_conn_trySync
@@ -370,24 +345,45 @@ STATIC int _wilddog_conn_onLine(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 */
 STATIC int _wilddog_conn_trysync(Wilddog_Conn_T *p_conn,int flags)
 {
-    
+    return WILDDOG_ERR_NOERR;
 }
+
+/* send interface */
+Wilddog_Func_T _wilddog_conn_funcTable[WILDDOG_CONN_CMD_MAX + 1] = 
+{
+    (Wilddog_Func_T)_wilddog_conn_get,
+    (Wilddog_Func_T)_wilddog_conn_set,
+    (Wilddog_Func_T)_wilddog_conn_push,
+    (Wilddog_Func_T)_wilddog_conn_remove,
+    (Wilddog_Func_T)_wilddog_conn_on,
+    (Wilddog_Func_T)_wilddog_conn_off,
+    (Wilddog_Func_T)_wilddog_conn_auth,
+    
+    (Wilddog_Func_T)_wilddog_conn_onDisSet,
+    (Wilddog_Func_T)_wilddog_conn_onDisPush,
+    (Wilddog_Func_T)_wilddog_conn_onDisRemove,
+    
+    (Wilddog_Func_T)_wilddog_conn_cancelDis,
+    (Wilddog_Func_T)_wilddog_conn_offLine,
+    (Wilddog_Func_T)_wilddog_conn_onLine,
+    (Wilddog_Func_T)_wilddog_conn_trysync,
+
+    NULL
+};
 
 STATIC int WD_SYSTEM _wilddog_conn_ioctl
     (
-    Protocol_cmd_t cmd,
-    void *p_args,
-    int flags
+    Wilddog_Conn_Cmd_T cmd,
+    Wilddog_ConnCmd_Arg_T *p_args,
+    int flag
     )
 {
-    if( cmd >= Protocol_cmd_t ||
+    if( cmd >= WILDDOG_CONN_CMD_MAX ||
         cmd < 0)
         return WILDDOG_ERR_INVALID;
 
-    return (_wilddog_conn_funcTable[cmd])(p_args,flags);
+    return (_wilddog_conn_funcTable[cmd])(p_args,flag);
 }
-
-
 
 /*
  * Function:    _wilddog_conn_init
@@ -397,7 +393,7 @@ STATIC int WD_SYSTEM _wilddog_conn_ioctl
  * Output:      N/A
  * Return:      the result
 */
-Wilddog_Conn_T * WD_SYSTEM _wilddog_conn_init(Wilddog_Repo_T* p_repo,int flag)
+Wilddog_Conn_T * WD_SYSTEM _wilddog_conn_init(Wilddog_Repo_T* p_repo)
 {
     if(!p_repo)
         return NULL;
@@ -424,7 +420,7 @@ Wilddog_Conn_T * WD_SYSTEM _wilddog_conn_init(Wilddog_Repo_T* p_repo,int flag)
  * Output:      N/A
  * Return:      the pointer of the conn struct
 */
-Wilddog_Conn_T* WD_SYSTEM _wilddog_conn_deinit(Wilddog_Repo_T*p_repo,int flag)
+Wilddog_Conn_T* WD_SYSTEM _wilddog_conn_deinit(Wilddog_Repo_T* p_repo)
 {
     if( !p_repo || !p_repo->p_rp_conn )
         return NULL;

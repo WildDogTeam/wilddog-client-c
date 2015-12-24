@@ -28,6 +28,9 @@
 #include "utlist.h"
 #include "wilddog_conn.h"
 
+#define WD_CMD_NORMAL 0
+#define WD_CMD_ONDIS  1
+
 /*store the head of all repos.*/
 STATIC Wilddog_Repo_Con_T l_wilddog_containTable = {NULL, 0};
 /*store the wilddog init status.*/
@@ -609,6 +612,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_query
     Wilddog_ConnCmd_Arg_T connCmd;
     Wilddog_Store_T * p_rp_store = NULL;
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T *)(arg->p_ref);
+    connCmd.p_repo = p_ref->p_ref_repo;
     connCmd.p_url = p_ref->p_ref_url;
     connCmd.p_complete = arg->p_callback;
     connCmd.p_completeArg = arg->arg;
@@ -639,6 +643,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_set
     Wilddog_ConnCmd_Arg_T connCmd;
     Wilddog_Store_T * p_rp_store = NULL;
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T *)(arg->p_ref);
+    Wilddog_Store_Cmd_T cmd = WILDDOG_STORE_CMD_SENDSET;
+
+    cmd = (flag == WD_CMD_NORMAL)? \
+                   (WILDDOG_STORE_CMD_SENDSET): (WILDDOG_STORE_CMD_ONDISSET);
+    connCmd.p_repo = p_ref->p_ref_repo;
     connCmd.p_url = p_ref->p_ref_url;
     connCmd.p_data = arg->p_node;
     connCmd.p_complete = arg->p_callback;
@@ -648,7 +657,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_set
     
     if(p_rp_store && p_rp_store->p_se_callback)
         return (p_rp_store->p_se_callback)(p_rp_store, \
-                                    WILDDOG_STORE_CMD_SENDSET, &connCmd, 0);
+                                    cmd, &connCmd, 0);
     else
         return WILDDOG_ERR_INVALID;
 }
@@ -671,6 +680,12 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_push
     Wilddog_ConnCmd_Arg_T connCmd;
     Wilddog_Store_T * p_rp_store = NULL;
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T *)(arg->p_ref);
+    Wilddog_Store_Cmd_T cmd = WILDDOG_STORE_CMD_SENDSET;
+
+    cmd = (flag == WD_CMD_NORMAL)? \
+                   (WILDDOG_STORE_CMD_SENDPUSH): (WILDDOG_STORE_CMD_ONDISPUSH);
+
+    connCmd.p_repo = p_ref->p_ref_repo;
     connCmd.p_url = p_ref->p_ref_url;
     connCmd.p_data = arg->p_node;
     connCmd.p_complete = arg->p_callback;
@@ -679,7 +694,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_push
     p_rp_store = p_ref->p_ref_repo->p_rp_store;
     if(p_rp_store && p_rp_store->p_se_callback)
         return (p_rp_store->p_se_callback)(p_rp_store, \
-                                    WILDDOG_STORE_CMD_SENDPUSH, &connCmd, 0);
+                                    cmd, &connCmd, 0);
     else
         return WILDDOG_ERR_INVALID;
 }
@@ -702,6 +717,12 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_remove
     Wilddog_ConnCmd_Arg_T connCmd;
     Wilddog_Store_T * p_rp_store = NULL;
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T *)(arg->p_ref);
+    Wilddog_Store_Cmd_T cmd = WILDDOG_STORE_CMD_SENDSET;
+
+    cmd = (flag == WD_CMD_NORMAL)? \
+                   (WILDDOG_STORE_CMD_SENDREMOVE): (WILDDOG_STORE_CMD_ONDISRMV);
+
+    connCmd.p_repo = p_ref->p_ref_repo;
     connCmd.p_url = p_ref->p_ref_url;
     connCmd.p_complete = arg->p_callback;
     connCmd.p_completeArg = arg->arg;
@@ -709,7 +730,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_remove
     p_rp_store = p_ref->p_ref_repo->p_rp_store;
     if(p_rp_store && p_rp_store->p_se_callback)
         return (p_rp_store->p_se_callback)(p_rp_store, \
-                                    WILDDOG_STORE_CMD_SENDREMOVE, &connCmd, 0);
+                                    cmd, &connCmd, 0);
     else
         return WILDDOG_ERR_INVALID;
 }
@@ -733,6 +754,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_on
     Wilddog_Store_T * p_rp_store = NULL;
     Wilddo_Store_EventArg_T eventArg;
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T *)(arg->p_ref);
+
+    connCmd.p_repo = p_ref->p_ref_repo;
     connCmd.p_url = p_ref->p_ref_url;
     connCmd.p_complete = arg->p_onData;
     connCmd.p_completeArg = arg->p_dataArg;
@@ -767,6 +790,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_off
     Wilddog_Store_T * p_rp_store = NULL;
     Wilddo_Store_EventArg_T eventArg;
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T *)(arg->p_ref);
+
+    connCmd.p_repo = p_ref->p_ref_repo;
     connCmd.p_url = p_ref->p_ref_url;
     connCmd.p_data = NULL;
     eventArg.d_event = arg->d_event;
@@ -779,6 +804,56 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_off
         return WILDDOG_ERR_INVALID;
 }
 
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_disConnSet
+    (
+    void *p_args, 
+    int flag
+    )
+{
+    return _wilddog_ct_store_set(p_args, WD_CMD_ONDIS);
+}
+
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_disConnPush
+    (
+    void *p_args, 
+    int flag
+    )
+{
+    return _wilddog_ct_store_push(p_args, WD_CMD_ONDIS);;
+}
+
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_disConnRmv
+    (
+    void *p_args, 
+    int flag
+    )
+{
+    return _wilddog_ct_store_remove(p_args, WD_CMD_ONDIS);
+}
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_disCancel
+    (
+    void *p_args, 
+    int flag
+    )
+{
+    Wilddog_Arg_Remove_T *arg = (Wilddog_Arg_Remove_T*)p_args;
+    Wilddog_ConnCmd_Arg_T connCmd;
+    Wilddog_Store_T * p_rp_store = NULL;
+    Wilddog_Ref_T * p_ref = (Wilddog_Ref_T *)(arg->p_ref);
+
+    connCmd.p_repo = p_ref->p_ref_repo;
+    connCmd.p_url = p_ref->p_ref_url;
+    connCmd.p_complete = arg->p_callback;
+    connCmd.p_completeArg = arg->arg;
+    connCmd.p_data = NULL;
+    p_rp_store = p_ref->p_ref_repo->p_rp_store;
+    if(p_rp_store && p_rp_store->p_se_callback)
+        return (p_rp_store->p_se_callback)(p_rp_store, \
+                                    WILDDOG_STORE_CMD_ONDISCANCEL, &connCmd, 0);
+    else
+        return WILDDOG_ERR_INVALID;
+
+}
 /*
  * Function:    _wilddog_ct_url_getKey
  * Description: get key 
@@ -860,18 +935,7 @@ STATIC Wilddog_Str_T* WD_SYSTEM _wilddog_ct_getPath
     return p_path;
 }
 
-Wilddog_Return_T _wilddog_ct_store_disConnSet()
-{
-    return WILDDOG_ERR_NOERR;
-}
-Wilddog_Return_T _wilddog_ct_store_disConnPush()
-{
-    return WILDDOG_ERR_NOERR;
-}
-Wilddog_Return_T _wilddog_ct_store_disConnRmv()
-{
-    return WILDDOG_ERR_NOERR;
-}
+
 Wilddog_Return_T _wilddog_ct_conn_goOffline()
 {
     return WILDDOG_ERR_NOERR;
@@ -906,11 +970,12 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_conn_sync
     LL_FOREACH_SAFE(*p_head, p_curr, p_tmp)
     {
         p_conn = p_curr->p_rp_conn;
-        if(p_conn && p_conn->f_conn_trysync)
+        if(p_conn && p_conn->f_conn_ioctl)
         {
-            (p_conn->f_conn_trysync)(p_curr);
+            Wilddog_ConnCmd_Arg_T cmd = {NULL, NULL, NULL, NULL, NULL};
+            cmd.p_repo = p_curr;
+            (p_conn->f_conn_ioctl)(WILDDOG_CONN_CMD_TRYSYNC, &cmd, 0);
         }
-
     }
     return WILDDOG_ERR_NOERR;
 }
@@ -934,6 +999,7 @@ Wilddog_Func_T Wilddog_ApiCmd_FuncTable[WILDDOG_APICMD_MAXCMD + 1] =
     (Wilddog_Func_T)_wilddog_ct_store_disConnSet,
     (Wilddog_Func_T)_wilddog_ct_store_disConnPush,
     (Wilddog_Func_T)_wilddog_ct_store_disConnRmv,
+    (Wilddog_Func_T)_wilddog_ct_store_disCancel,
     (Wilddog_Func_T)_wilddog_ct_conn_goOffline,
     (Wilddog_Func_T)_wilddog_ct_conn_goOnline,
     (Wilddog_Func_T)_wilddog_ct_conn_sync,

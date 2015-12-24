@@ -26,7 +26,7 @@
 #include "wilddog_endian.h"
 #include "wilddog_conn_coap.h"
 #include "wilddog_debug.h"
-#include "Wilddog_sec.h"
+#include "wilddog_sec.h"
 #include "test_lib.h"
 
 #include "wilddog_conn_coap.h"
@@ -41,26 +41,6 @@ typedef struct _WILDDOG_RECV_STRUCT
     u8 data[WILDDOG_PROTO_MAXSIZE]; 
     u8 isused;
 }_wilddog_Recv_T;
-
-
-/* protocol :: coap  interface */
-Wilddog_Func_T _wilddog_protocolPackage_funcTable[_PROTOCOL_CMD_MAX + 1] = 
-{
-    (Wilddog_Func_T) _wilddog_coap_init,        
-    (Wilddog_Func_T) _wilddog_coap_deInit,
-    
-    (Wilddog_Func_T) _wilddog_coap_creat,
-    (Wilddog_Func_T) _wilddog_coap_destory,
-    (Wilddog_Func_T) _wilddog_coap_addHost,
-    (Wilddog_Func_T) _wilddog_coap_addPath,
-    (Wilddog_Func_T) _wilddog_coap_addQuery,
-    (Wilddog_Func_T) _wilddog_coap_addData,
-
-    (Wilddog_Func_T) _wilddog_coap_authUpdate,
-    (Wilddog_Func_T) _wilddog_coap_send,
-    (Wilddog_Func_T) _wilddog_coap_receive,
-    NULL
-};
 
 STATIC _wilddog_Recv_T l_recvData;
 
@@ -722,6 +702,25 @@ Wilddog_Return_T _wilddog_coap_deInit(void *p_arg,int flag)
     
     return _wilddog_sec_deinit();
 }
+
+/* protocol :: coap  interface */
+Wilddog_Func_T _wilddog_protocolPackage_funcTable[_PROTOCOL_CMD_MAX + 1] = 
+{
+    (Wilddog_Func_T) _wilddog_coap_init,        
+    (Wilddog_Func_T) _wilddog_coap_deInit,
+    
+    (Wilddog_Func_T) _wilddog_coap_creat,
+    (Wilddog_Func_T) _wilddog_coap_destory,
+    (Wilddog_Func_T) _wilddog_coap_addHost,
+    (Wilddog_Func_T) _wilddog_coap_addPath,
+    (Wilddog_Func_T) _wilddog_coap_addQuery,
+    (Wilddog_Func_T) _wilddog_coap_addData,
+
+    (Wilddog_Func_T) _wilddog_coap_authUpdate,
+    (Wilddog_Func_T) _wilddog_coap_send,
+    (Wilddog_Func_T) _wilddog_coap_receive,
+    NULL
+};
 
 /*
  * Function:    _wilddog_protocol_ioctl
