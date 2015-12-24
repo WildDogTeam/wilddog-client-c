@@ -35,7 +35,7 @@ typedef enum PROTOCOL_CMD_T{
     _PROTOCOL_CMD_AUTHUPDATA,
     _PROTOCOL_CMD_SEND,
     _PROTOCOL_CMD_RECV,
-    _PROTOCOL_CMD_MAX
+    _PROTOCOL_CMD_MAX 
 }Protocol_cmd_t;
 
 typedef struct PROTOCOL_ARGINIT_T{
