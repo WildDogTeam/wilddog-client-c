@@ -20,7 +20,6 @@ extern "C"
 {
 #endif
 
-#include "wilddog_conn_manage.h"
 #include "wilddog_config.h"
 #include "wilddog_ct.h"
 
@@ -42,9 +41,7 @@ typedef enum WILDDOG_CONN_CMD_TYPE
     WILDDOG_CONN_CMD_ONDISPUSH,
     WILDDOG_CONN_CMD_ONDISREMOVE,
 
-    WILDDOG_CONN_CMD_CANCELDISSET,
-    WILDDOG_CONN_CMD_CANCELDISPUSH,
-    WILDDOG_CONN_CMD_CANCELDISREMOVE,    
+    WILDDOG_CONN_CMD_CANCELDIS,   
 
     WILDDOG_CONN_CMD_OFFLINE,
     WILDDOG_CONN_CMD_ONLINE,
@@ -57,7 +54,6 @@ typedef enum WILDDOG_CONN_CMD_TYPE
 typedef struct WILDDOG_CONN_T
 {
     Wilddog_Repo_T *p_conn_repo;
-    WILDDOG_CM_NODE_T *p_cm_hd;
     
     Wilddog_Func_T f_conn_ioctl;
     

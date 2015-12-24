@@ -56,16 +56,14 @@ Wilddog_Func_T _wilddog_conn_funcTable[WILDDOG_CONN_CMD_MAX + 1] =
     (Wilddog_Func_T)_wilddog_conn_onDisPush,
     (Wilddog_Func_T)_wilddog_conn_onDisRemove,
     
-    (Wilddog_Func_T)_wilddog_conn_cancelDisSet,
-    (Wilddog_Func_T)_wilddog_conn_cancelDisPush,
-    (Wilddog_Func_T)_wilddog_conn_cancelDisRemove,
-    
+    (Wilddog_Func_T)_wilddog_conn_cancelDis,
     (Wilddog_Func_T)_wilddog_conn_offLine,
     (Wilddog_Func_T)_wilddog_conn_onLine,
     (Wilddog_Func_T)_wilddog_conn_trysync,
 
     NULL
 };
+#if 0
 /* call back  interface */
 Wilddog_Func_T _wilddog_connCallBack_funcTable[WILDDOG_CONN_CMD_MAX + 1] = 
 {
@@ -302,116 +300,14 @@ STATIC int WD_SYSTEM _wilddog_conn_send
     
     return res;
 }
-
+#endif
 STATIC int _wilddog_conn_get(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-    size_t packageIndex = 0;
-    int res = 0;
-    Protocol_Pkg_creatArg_T pkg_arg;
-    Protocol_Pkg_OptionArg_T pkg_option;
-    Protocol_Pkg_PayloadArg_T pkg_payload;
-    
-    if( p_arg == 0 ||
-        p_arg->p_url == 0 )
-        return WILDDOG_ERR_NULL;
-
-    memset(&pkg_arg,0,sizeof(Protocol_Pkg_creatArg_T));
-    memset(&pkg_option,0,sizeof(Protocol_Pkg_OptionArg_T));
-    memset(&pkg_payload,0,sizeof(Protocol_Pkg_PayloadArg_T));
-   /* init protocol package.*/
-   pkg_arg.cmd = WILDDOG_CONN_CMD_GET;
-
-   /* get messageid */
-   pkg_arg.d_index = (u16)_wilddog_cm_ioctl(CM_CMD_GET_INDEX,NULL,0);
-   pkg_arg.d_token = _wilddog_cm_ioctl(CM_CMD_GET_TOKEN,NULL,0);
-    
-   /*count package size */
-   pkg_arg.d_packageLen = PACKAGE_OPTION_HEADLEN * 6 + \
-                          PACKAGE_OPTION_PATHLEN * (_wilddog_countChar( p_arg->p_url->p_url_path )+1);
-
-   /* creat coap package.*/
-   packageIndex =  _wilddog_protocol_ioctl(_PROTOCOL_CMD_CREAT,&pkg_arg,0);
-   if( packageIndex == 0)
-        return WILDDOG_ERR_NULL;
-
-   /* add host */
-   pkg_option.p_pkg = (void*)packageIndex;
-   pkg_option.p_options = p_arg->p_url->p_url_host;
-   if( (res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_HOST,&pkg_option,0)) != WILDDOG_ERR_NOERR )
-        goto _CONN_GET_ERR;
-
-   /* add path*/
-   pkg_option.p_pkg = (void*)packageIndex;
-   pkg_option.p_options = p_arg->p_url->p_url_path;
-   if( (res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_PATH,&pkg_option,0)) != WILDDOG_ERR_NOERR )
-        goto _CONN_GET_ERR;
-
-   /* add query*/
-   pkg_option.p_pkg = (void*)packageIndex;
-   pkg_option.p_options = p_arg->p_url->p_url_query;
-   if( (res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&pkg_option,0)) != WILDDOG_ERR_NOERR )
-        goto _CONN_GET_ERR;
-
-   /*todo add list. */
-
-   /* todo send to */
    
-   return res;
-
-_CONN_GET_ERR:
-
-   _wilddog_protocol_ioctl(_PROTOCOL_CMD_DESTORY,(void*)packageIndex,0);
-   return res;
 }
 STATIC int _wilddog_conn_set(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
-    size_t packageIndex = 0;
-    int res = 0;
-    Protocol_Pkg_creatArg_T pkg_arg;
-    Protocol_Pkg_OptionArg_T pkg_option;
-    Protocol_Pkg_PayloadArg_T pkg_payload;
-
-    if( p_arg == 0 ||
-        p_arg->p_url == 0 )
-        return WILDDOG_ERR_NULL;
-
-    memset(&pkg_arg,0,sizeof(Protocol_Pkg_creatArg_T));
-    memset(&pkg_option,0,sizeof(Protocol_Pkg_OptionArg_T));
-    memset(&pkg_payload,0,sizeof(Protocol_Pkg_PayloadArg_T));
-    /* init protocol package.*/
-    pkg_arg.cmd = WILDDOG_CONN_CMD_GET;
-
-    /* get messageid */
-    pkg_arg.d_index = (u16)_wilddog_cm_ioctl(CM_CMD_GET_INDEX,NULL,0);
-    pkg_arg.d_token = _wilddog_cm_ioctl(CM_CMD_GET_TOKEN,NULL,0);
-
-    /*count package size */
-    pkg_arg.d_packageLen = PACKAGE_OPTION_HEADLEN * 6 + \
-                          PACKAGE_OPTION_PATHLEN * (_wilddog_countChar( p_arg->p_url->p_url_path )+1);
-
-    /* creat coap package.*/
-    packageIndex =  _wilddog_protocol_ioctl(_PROTOCOL_CMD_CREAT,&pkg_arg,0);
-    if( packageIndex == 0)
-        return WILDDOG_ERR_NULL;
-
-    /* add host */
-    pkg_option.p_pkg = (void*)packageIndex;
-    pkg_option.p_options = p_arg->p_url->p_url_host;
-    if( (res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_HOST,&pkg_option,0)) != WILDDOG_ERR_NOERR )
-        goto _CONN_GET_ERR;
-
-    /* add path*/
-    pkg_option.p_pkg = (void*)packageIndex;
-    pkg_option.p_options = p_arg->p_url->p_url_path;
-    if( (res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_PATH,&pkg_option,0)) != WILDDOG_ERR_NOERR )
-        goto _CONN_GET_ERR;
-
-    /* add query*/
-    pkg_option.p_pkg = (void*)packageIndex;
-    pkg_option.p_options = p_arg->p_url->p_url_query;
-    if( (res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&pkg_option,0)) != WILDDOG_ERR_NOERR )
-        goto _CONN_GET_ERR;
-
+  
     /*todo add list. */
 
     /* todo send to */   
@@ -451,16 +347,7 @@ STATIC int _wilddog_conn_onDisRemove(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
     
 }
 
-STATIC int _wilddog_conn_cancelDisSet(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
-{
-    
-}
-STATIC int _wilddog_conn_cancelDisPush(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
-{
-    
-}
-
-STATIC int _wilddog_conn_cancelDisRemove(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
+STATIC int _wilddog_conn_cancelDis(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 {
     
 }
