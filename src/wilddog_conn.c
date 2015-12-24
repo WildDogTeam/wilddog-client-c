@@ -486,6 +486,19 @@ STATIC int _wilddog_conn_trysync(Wilddog_Conn_T *p_conn,int flags)
     
 }
 
+STATIC int WD_SYSTEM _wilddog_conn_ioctl
+    (
+    Protocol_cmd_t cmd,
+    void *p_args,
+    int flags
+    )
+{
+    if( cmd >= Protocol_cmd_t ||
+        cmd < 0)
+        return WILDDOG_ERR_INVALID;
+
+    return (_wilddog_conn_funcTable[cmd])(p_args,flags);
+}
 
 
 
@@ -507,7 +520,8 @@ Wilddog_Conn_T * WD_SYSTEM _wilddog_conn_init(Wilddog_Repo_T* p_repo,int flag)
 
     p_repo_conn->p_conn_repo = p_repo;
     p_repo->p_rp_conn = p_repo_conn;
-
+    p_repo_conn->f_conn_ioctl = _wilddog_conn_ioctl;
+    
     /*todo init cm :: dns or creat node.*/
     //_wilddog_cm_init(p_repo_conn->p_cm_hd,p_repo_conn->p_conn_repo->p_rp_url,
     //        WILDDOG_PORT,_wilddog_conn_cb);
@@ -537,17 +551,5 @@ Wilddog_Conn_T* WD_SYSTEM _wilddog_conn_deinit(Wilddog_Repo_T*p_repo,int flag)
     
     return NULL;
 }
-int WD_SYSTEM _wilddog_conn_ioctl
-    (
-    Protocol_cmd_t cmd,
-    void *p_args,
-    int flags
-    )
-{
-    if( cmd >= Protocol_cmd_t ||
-        cmd < 0)
-        return WILDDOG_ERR_INVALID;
 
-    return (_wilddog_conn_funcTable[cmd])(p_args,flags);
-}
 
