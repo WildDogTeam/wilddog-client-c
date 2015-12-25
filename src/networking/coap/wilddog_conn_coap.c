@@ -26,6 +26,7 @@
 #include "wilddog_endian.h"
 #include "wilddog_conn_coap.h"
 #include "wilddog_debug.h"
+#include "wilddog_conn.h"
 #include "wilddog_sec.h"
 #include "test_lib.h"
 
@@ -175,12 +176,12 @@ STATIC int WD_SYSTEM _wilddog_coap_cmd2Typecode
             *p_type = COAP_MESSAGE_CON;
             *p_code = COAP_REQUEST_POST;
             break;
-            
+#if 0            
        case WILDDOG_CONN_CMD_PONG:
             *p_type = COAP_MESSAGE_CON;
             *p_code = COAP_REQUEST_GET;
             break;
-            
+ #endif           
         case WILDDOG_CONN_CMD_GET:
             *p_type = COAP_MESSAGE_CON;
             *p_code = COAP_REQUEST_GET;
@@ -206,10 +207,12 @@ STATIC int WD_SYSTEM _wilddog_coap_cmd2Typecode
             *p_type = COAP_MESSAGE_CON;
             *p_code = COAP_REQUEST_GET;
             break;
+#if 0
         case WILDDOG_CONN_CMD_PING:
             *p_type = COAP_MESSAGE_RST;//COAP_MESSAGE_CON;
             *p_code = 0;
             break;
+#endif
         default:
             res = WILDDOG_ERR_INVALID;
             break;
@@ -738,7 +741,7 @@ size_t WD_SYSTEM _wilddog_protocol_ioctl
     int flags
     )
 {
-    if( cmd >= Protocol_cmd_t ||
+    if( cmd >= _PROTOCOL_CMD_MAX ||
         cmd < 0)
         return WILDDOG_ERR_INVALID;
 

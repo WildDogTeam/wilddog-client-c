@@ -8,12 +8,18 @@
 #ifndef __WILDDOG_CONN_COAP_H_
 #define __WILDDOG_CONN_COAP_H_
 
-#include "wilddog.h"
 #include "pdu.h"
+#include "wilddog.h"
+
+#include "wilddog_url_parser.h"
 
 #define COAP_TOKENLEN   4
 #define PACKAGE_OPTION_HEADLEN  (20)
 #define PACKAGE_OPTION_PATHLEN  (4)
+
+#define AUTHR_PATH  "/.cs"
+#define AUTHR_QURES ".cs="
+#define AUTHR_LEN   (4)
 
 
 typedef enum _CM_RESPONSESTATE_T{
@@ -45,6 +51,7 @@ typedef struct PROTOCOL_ARGINIT_T{
 }Protocol_ArgInit_T;
 
 typedef struct PROTOCOL_PKG_CREATARG{
+    u8 cmd;
     u16 d_index;
     u16 d_packageLen;
     u32 d_token;
@@ -97,7 +104,7 @@ typedef struct PROTOCOL_RECVARG_T{
 }Protocol_SendArg_T;
 
 /* protocol application function */
-int WD_SYSTEM _wilddog_protocol_ioctl
+size_t WD_SYSTEM _wilddog_protocol_ioctl
     (
     Protocol_cmd_t cmd,
     void *p_args,
