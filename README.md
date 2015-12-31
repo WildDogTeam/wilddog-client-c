@@ -1,5 +1,5 @@
 #WildDog SDK说明
-WildDog C/嵌入式SDK是Wilddog云在C/嵌入式场景下的客户端，使用者调用api接口即可实现和云端的通信、消息订阅功能。如有什么意见、建议或合作意向，可访问`www.wilddog.com`，或联系`jimmy.pan@wilddog.com`。
+WildDog C/嵌入式SDK是Wilddog云在C/嵌入式场景下的客户端，使用者调用api接口即可实现和云端的通信、消息订阅功能。如有什么意见、建议或合作意向，可访问`www.wilddog.com`。
 
 WildDog C/嵌入式的SDK 使用的是CoAP UDP + DTLS + CBOR技术。
 
