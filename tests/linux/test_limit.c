@@ -11,6 +11,9 @@ struct test_reult_t
 };
 
 STATIC const char* UNUSED_URL="coap://coap.wilddogio.com/unused";
+STATIC const char* UNUSED_URL_HOST="coap.wilddogio.com";
+STATIC const char* UNUSED_URL_PATH="/unused";
+STATIC const char* UNUSED_URL_KEY="unused"; /*the url's key*/
 
 const char *test_diffHost_url[]=
 {
@@ -48,7 +51,6 @@ int test_new()
 {
 	Wilddog_T wilddog = 0, wilddog2 = 0;
 	int i;
-	
 
 	/*check invalid url*/
 	for(i = 1; i < sizeof(test_new_url) / sizeof(char*); i++)
@@ -165,13 +167,10 @@ int test_auth()
 int test_getParent()
 {
 	Wilddog_T wilddog = 0, parent,parent2;
-
+	Wilddog_Str_T *path = NULL;
 	parent = wilddog_getParent(wilddog);
 	if(parent)
 		return -1;
-
-	
-
 
 	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)"coap://coap.wilddogio.com/a/b/c");
 
@@ -183,6 +182,23 @@ int test_getParent()
 		wilddog_destroy(&wilddog);
 		return -1;
 	}
+	/*check path is /a/b?*/
+	path = wilddog_getPath(parent);
+	if(NULL == path)
+	{
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&parent);
+		return -1;
+	}
+	if(strcmp((const char *)path, "/a/b") != 0)
+	{
+		wfree(path);
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&parent);
+		return -1;
+	}
+	wfree(path);
+
 	/* should /a */
 	parent2 = wilddog_getParent(parent);
 	/*wilddog_debug_printUrl(parent2);*/
@@ -192,8 +208,25 @@ int test_getParent()
 		wilddog_destroy(&parent);
 		return -1;
 	}
-
 	wilddog_destroy(&parent);
+	
+	/*check path is /a?*/
+	path = wilddog_getPath(parent2);
+	if(NULL == path)
+	{
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&parent2);
+		return -1;
+	}
+	if(strcmp((const char *)path, "/a") != 0)
+	{
+		wfree(path);
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&parent2);
+		return -1;
+	}
+	wfree(path);
+	
 	/* should / */
 	parent = wilddog_getParent(parent2);
 	/*wilddog_debug_printUrl(parent);*/
@@ -205,6 +238,22 @@ int test_getParent()
 	}
 
 	wilddog_destroy(&parent2);
+	/*check path is /?*/
+	path = wilddog_getPath(parent);
+	if(NULL == path)
+	{
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&parent);
+		return -1;
+	}
+	if(strcmp((const char *)path, "/") != 0)
+	{
+		wfree(path);
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&parent);
+		return -1;
+	}
+	wfree(path);
 
 	/* should no parent */
 	parent2 = wilddog_getParent(parent);
@@ -227,9 +276,7 @@ int test_getParent()
 int test_getRoot()
 {
 	Wilddog_T wilddog = 0, root, root2;
-
-	
-
+	Wilddog_Str_T *path = NULL;
 	/* Invalid, should be 0 */
 	root = wilddog_getParent(wilddog);
 	if(root)
@@ -241,16 +288,31 @@ int test_getRoot()
 	root = wilddog_getRoot(wilddog);
 	if(!root)
 	{
-		wilddog_debug("");
+		wilddog_debug("test_getRoot fail");
 		wilddog_destroy(&wilddog);
 		return -1;
 	}
+	/*check path is /?*/
+	path = wilddog_getPath(root);
+	if(NULL == path)
+	{
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&root);
+		return -1;
+	}
+	if(strcmp((const char *)path, "/") != 0)
+	{
+		wfree(path);
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&root);
+		return -1;
+	}
+	wfree(path);
 	/* should be as same as root */
 	root2 = wilddog_getRoot(root);
 
 	if(root != root2)
 	{
-		wilddog_debug("");
 		wilddog_destroy(&wilddog);
 		wilddog_destroy(&root);
 		wilddog_destroy(&root2);
@@ -266,9 +328,9 @@ int test_getChild()
 {
 	int err = -1;
 	Wilddog_T wilddog = 0, child;
-
-	
-
+	Wilddog_Str_T *path = NULL;
+	Wilddog_Str_T *localkey = NULL;
+	Wilddog_Str_T currentKey[256] = {0};
 	/* not inited, should be 0 */
 	child = wilddog_getChild(wilddog, NULL);
 	if(child)
@@ -280,7 +342,8 @@ int test_getChild()
 		return -1;
 
 	wilddog = wilddog_initWithUrl((Wilddog_Str_T *)UNUSED_URL);
-
+	localkey = wilddog_getPath(wilddog);
+	
 	/* Invalid, should be 0 */
 	child = wilddog_getChild(wilddog, NULL);
 	if(child)
@@ -300,6 +363,22 @@ int test_getChild()
 	child = wilddog_getChild(wilddog, (Wilddog_Str_T *)"a");
 	if(!child)
 		goto GET_CHILD_END;
+	/*check path is valid */
+	path = wilddog_getPath(child);
+	if(NULL == path)
+	{
+		goto GET_CHILD_END;
+	}
+	memset(currentKey, 0 , 256);
+	
+	sprintf((char*)currentKey, "%s%s",localkey, "/a");
+	if(strcmp((const char *)path, (const char *)currentKey) != 0)
+	{
+		wilddog_debug("path = %s,currentKey = %s", path, currentKey);
+		wfree(path);
+		goto GET_CHILD_END;
+	}
+	wfree(path);
 	wilddog_destroy(&child);
 
 	/* Invalid, should be 0 */
@@ -315,6 +394,21 @@ int test_getChild()
 	{
 		goto GET_CHILD_END;
 	}
+	/*check path is valid */
+	path = wilddog_getPath(child);
+	if(NULL == path)
+	{
+		goto GET_CHILD_END;
+	}
+	memset(currentKey, 0 , 256);
+	sprintf((char*)currentKey, "%s%s",localkey, "/a/b");
+	if(strcmp((const char *)path, (const char *)currentKey) != 0)
+	{
+		wilddog_debug("path = %s,currentKey = %s", path, currentKey);
+		wfree(path);
+		goto GET_CHILD_END;
+	}
+	wfree(path);
 	wilddog_destroy(&child);
 	/* Invalid, should be 0 */
 	child = wilddog_getChild(wilddog, (Wilddog_Str_T *)"a//b");
@@ -326,6 +420,7 @@ int test_getChild()
 	err = 0;
 	
 GET_CHILD_END:
+	wfree(localkey);
 	wilddog_destroy(&wilddog);
 	wilddog_destroy(&child);
 	return err;
@@ -336,7 +431,6 @@ int test_getKey()
 {
 	Wilddog_Str_T *key = NULL;
 	Wilddog_T wilddog, root;
-	
 
 	/* Invalid */
 	key = wilddog_getKey(0);
@@ -355,7 +449,12 @@ int test_getKey()
 	{
 		return -1;
 	}
-
+	if(strcmp((const char*)key, UNUSED_URL_KEY) != 0)
+	{
+		wfree(key);
+		wilddog_destroy(&wilddog);
+		return -1;
+	}
 	wfree(key);
 
 	root = wilddog_getRoot(wilddog);
@@ -364,6 +463,15 @@ int test_getKey()
 	key = wilddog_getKey(root);
 	if(!key)
 	{
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&root);
+		return -1;
+	}
+	if(strcmp((const char*)key, "/") != 0)
+	{
+		wfree(key);
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&root);
 		return -1;
 	}
 	wfree(key);
@@ -378,7 +486,6 @@ int test_getHost()
 {
 	Wilddog_Str_T *key = NULL;
 	Wilddog_T wilddog, root;
-	
 
 	/* Invalid */
 	key = wilddog_getHost(0);
@@ -395,9 +502,17 @@ int test_getHost()
 	key = wilddog_getHost(wilddog);
 	if(!key)
 	{
+		wilddog_destroy(&wilddog);
 		return -1;
 	}
-    wilddog_debug("host = %s\n", key);
+    
+	if(strcmp(UNUSED_URL_HOST, (const char*)key) != 0)
+	{
+		wilddog_debug("gethost = %s, real host = %s\n", key, UNUSED_URL_HOST);
+		wfree(key);
+		wilddog_destroy(&wilddog);
+		return -1;
+	}
 	wfree(key);
 
 	root = wilddog_getRoot(wilddog);
@@ -406,9 +521,18 @@ int test_getHost()
 	key = wilddog_getHost(root);
 	if(!key)
 	{
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&root);
 		return -1;
 	}
-    wilddog_debug("host2 = %s\n", key);
+	
+	if(strcmp(UNUSED_URL_HOST, (const char*)key) != 0)
+	{
+		wilddog_debug("gethost = %s, real host = %s\n", key, UNUSED_URL_HOST);
+		wfree(key);
+		wilddog_destroy(&wilddog);
+		return -1;
+	}
 	wfree(key);
 
 	wilddog_destroy(&wilddog);
@@ -420,7 +544,6 @@ int test_getPath()
 {
 	Wilddog_Str_T *key = NULL;
 	Wilddog_T wilddog, root;
-	
 
 	/* Invalid */
 	key = wilddog_getPath(0);
@@ -437,9 +560,17 @@ int test_getPath()
 	key = wilddog_getPath(wilddog);
 	if(!key)
 	{
+		wilddog_destroy(&wilddog);
 		return -1;
 	}
-    wilddog_debug("path = %s\n", key);
+	if(strcmp(UNUSED_URL_PATH, (const char*)key) != 0)
+	{
+		wilddog_debug("gethost = %s, real host = %s\n", key, UNUSED_URL_PATH);
+		wfree(key);
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&root);
+		return -1;
+	}
 	wfree(key);
 
 	root = wilddog_getRoot(wilddog);
@@ -448,9 +579,18 @@ int test_getPath()
 	key = wilddog_getPath(root);
 	if(!key)
 	{
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&root);
 		return -1;
 	}
-    wilddog_debug("path = %s\n", key);
+	if(strcmp("/", (const char*)key) != 0)
+	{
+		wilddog_debug("gethost = %s, real host = %s\n", key, "/");
+		wfree(key);
+		wilddog_destroy(&wilddog);
+		wilddog_destroy(&root);
+		return -1;
+	}
 	wfree(key);
 
 	wilddog_destroy(&wilddog);
@@ -498,7 +638,6 @@ int test_set()
 	Wilddog_T wilddog = 0;
 	Wilddog_Node_T * p_node;
 	
-
 	/* Invalid */
 	if(WILDDOG_ERR_NOERR == wilddog_setValue(wilddog, NULL, NULL, NULL))
 	{
@@ -543,7 +682,6 @@ int test_push()
 	Wilddog_T wilddog = 0;
 	Wilddog_Node_T * p_node;
 	
-
 	/* Invalid */
 	if(WILDDOG_ERR_NOERR == wilddog_push(wilddog, NULL, NULL, NULL))
 	{
@@ -586,8 +724,6 @@ int test_remove()
 {
 	Wilddog_T wilddog;
 
-	
-	
 	/*Invalid*/
 	if(WILDDOG_ERR_NOERR == wilddog_removeValue(0, NULL, NULL))
 		return -1;
@@ -617,8 +753,6 @@ int test_remove()
 int test_on()
 {
 	Wilddog_T wilddog = 0;
-	
-	
 
 	/* Invalid */
 	if(WILDDOG_ERR_NOERR == wilddog_addObserver(wilddog, 0, NULL, NULL))
@@ -651,15 +785,12 @@ int test_on()
 
 	wilddog_destroy(&wilddog);
 	return 0;
-
 }
 /*wilddog_removeObserver*/
 int test_off()
 {
 	Wilddog_T wilddog;
 
-	
-	
 	/*Invalid*/
 	if(WILDDOG_ERR_NOERR == wilddog_removeObserver(0, 0))
 		return -1;
@@ -723,7 +854,6 @@ int test_disconn_set()
 	Wilddog_T wilddog = 0;
 	Wilddog_Node_T * p_node;
 	
-
 	/* Invalid */
 	if(WILDDOG_ERR_NOERR == wilddog_onDisconnectSetValue(wilddog, NULL, NULL, NULL))
 	{
@@ -759,8 +889,9 @@ int test_disconn_set()
 	wilddog_node_delete(p_node);
 	wilddog_destroy(&wilddog);
 	return 0;
-
 }
+
+/*wilddog_onDisconnectPush*/
 int test_disconn_push()
 {
 	Wilddog_T wilddog = 0;
@@ -805,6 +936,7 @@ int test_disconn_push()
 
 }
 
+/*wilddog_onDisconnectRemoveValue*/
 int test_disconn_rmv()
 {
 	Wilddog_T wilddog;
@@ -835,6 +967,7 @@ int test_disconn_rmv()
 	return 0;
 }
 
+/*wilddog_cancelDisconnectOperations*/
 int test_disconn_cancel()
 {
 	Wilddog_T wilddog;
@@ -863,8 +996,8 @@ int test_disconn_cancel()
 	wilddog_destroy(&wilddog);
 	
 	return 0;
-
 }
+
 struct test_reult_t test_results[] = 
 {
     {"wilddog_initWithUrl",             test_new,                   0},
