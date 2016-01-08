@@ -5,7 +5,6 @@
  
 #include "wilddog_debug.h"
 #include "wilddog.h"
-#include "test.h"
 
 #define TST_ERR	"TST_ERR"
 #define TST_STR 	"WILDDOG_STRING"
@@ -17,6 +16,15 @@
 #define TST_KEY_FLOAT	"FLOAT"
 #define TST_KEY_BOOL	"BOOL"
 
+#define ABORT_ERR	-1
+#define TEST_ERR	'N'
+#define TEST_OK		'Y'
+#define TESTFUNCNAME_TABLECASE	2	
+#define TEST_RESULT_PRINTF(p,inv,res ,err)	do{ \
+											printf("%-32s",(p)); \
+											if(err) printf("%c\t%d\n",(res),(err));\
+											else printf("%c\n",(res));}while(0)
+											
 typedef enum
 {
 	TST_DATATYPE_STR = 0,
@@ -29,10 +37,6 @@ typedef enum
 }Test_Data_Type;
 
 
-#define TST_STR 	"WILDDOG_STRING"
-//#define TST_SBSSRT	"1234567890"
-#define TST_INT		(123456)
-#define TST_FLOAT	(3.1412)
 u8 data_type[TST_DATATYPE_MAX][64];
 u8 key_str[TST_DATATYPE_MAX][64];
 static void test_datainit(void)

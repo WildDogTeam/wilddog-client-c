@@ -12,8 +12,7 @@
     	├── test_ram.c
     	├── test_stab_cycle.c
     	├── test_stab_fullload.c
-    	├── test_step.c
-    	└── test_wdProperty.c
+    	└── test_step.c
     
 
 *	`test_buildtree.c` : 向云端构建数据树
@@ -27,7 +26,6 @@
 *	`test_stab_cycle.c` : API稳定性测试
 *	`test_stab_fullload.c` : 满负荷运行稳定性测试
 *	`test_step.c` : API可用性测试
-*	`test_wdProperty.c` : wilddog的properties API测试
 
 ##2.配置说明
 每个测试项均需要在云端建立树，修改并获取以测试其准确性和稳定性。用户可以修改`test_config.h`配置测试使用的URL：
