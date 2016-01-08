@@ -10,7 +10,6 @@ export APP_SEC_TYPE=$1
 cd ${TOPDIR} ; make cover APP_SEC_TYPE=${APP_SEC_TYPE}
 ${TOPDIR}./bin/test_limit
 ${TOPDIR}./bin/test_node
-${TOPDIR}./bin/test_wdProperty
 
 cd ${TOPDIR}/example/linux; lcov -d ./ -c -o outputfile.info
 

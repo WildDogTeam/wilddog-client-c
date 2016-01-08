@@ -11,10 +11,6 @@ export APP_SEC_TYPE=$1
 
 make test APP_SEC_TYPE=${APP_SEC_TYPE}
 
-./bin/test_wdProperty
-
-WD_PROPERTY=$?
-
 ./bin/test_limit
 
 WD_LIMIT=$?

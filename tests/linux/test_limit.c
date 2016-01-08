@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2014-2016 Wilddog Technologies. All Rights Reserved. 
+ *
+ * FileName: test_limit.c
+ *
+ * Description: wilddog API boundary testing.
+ *
+ * History:
+ * Version      Author          Date        Description
+ *
+ * 0.4.0        Jimmy.Pan       2015-05-15  Create file.
+ * 0.8.0        Jimmy.Pan       2016-01-08  Add new API's tests.
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
