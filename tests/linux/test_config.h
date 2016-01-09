@@ -25,6 +25,7 @@
 /* used in test_multipleHost.c to Test performance while accessing  multiple url the same time.*/
 #define TEST_URL2         "coap://<your appid2>.wilddogio.com"
 #define TEST_URL3         "coap://<your appid3>.wilddogio.com"
+#define TEST_URL4         "coap://<your appid4>.wilddogio.com"
 
 /* Used in test_step.c to test set auth  */
 #define TEST_AUTH 	"yourauth"

@@ -2,10 +2,8 @@
 ##1.文件结构和说明
 
 	
-    	├── test_buildtree.c
     	├── test_config.h
     	├── test_limit.c
-    	├── test_mts.c
     	├── test_multipleHost.c
     	├── test_node.c
     	├── test_perform.c
@@ -15,13 +13,11 @@
     	└── test_step.c
     
 
-*	`test_buildtree.c` : 向云端构建数据树
 *	`test_config.h` : 配置运行测试的URL，需要用户自行配置
-*	`test_mts.c`：	多线程测试
 *	`test_multipleHost.c` : 连接多个云端URL（不同host）的测试
 *	`test_limit.c` : API边界条件测试
 *	`test_node.c` : node API操作测试
-*	`test_perform.c` : 性能测试
+*	`test_perform.c` : 性能测试，sdk内各个部分code执行时间
 *	`test_ram.c` : 内存占用测试
 *	`test_stab_cycle.c` : API稳定性测试
 *	`test_stab_fullload.c` : 满负荷运行稳定性测试

@@ -20,12 +20,14 @@ extern "C"
 {
 #endif
 
+#include "wilddog_conn_manage.h"
 #include "wilddog_config.h"
 #include "wilddog_ct.h"
 
 
 typedef enum WILDDOG_CONN_CMD_TYPE
 {
+
     WILDDOG_CONN_CMD_GET,
     WILDDOG_CONN_CMD_SET,
     WILDDOG_CONN_CMD_PUSH,
@@ -38,25 +40,57 @@ typedef enum WILDDOG_CONN_CMD_TYPE
     WILDDOG_CONN_CMD_ONDISPUSH,
     WILDDOG_CONN_CMD_ONDISREMOVE,
 
-    WILDDOG_CONN_CMD_CANCELDIS,   
+    WILDDOG_CONN_CMD_CANCELDIS,
 
     WILDDOG_CONN_CMD_OFFLINE,
     WILDDOG_CONN_CMD_ONLINE,
     WILDDOG_CONN_CMD_TRYSYNC,
 
+    WILDDOG_CONN_CMD_INIT,
+    WILDDOG_CONN_CMD_DEINIT,
+
+
     WILDDOG_CONN_CMD_MAX
     
 }Wilddog_Conn_Cmd_T;
+typedef enum WILDDOG_CONN_CBCMD_TYPE
+{
+
+    
+    WILDDOG_CONN_CBCMD_GET,
+    WILDDOG_CONN_CBCMD_SET,
+    WILDDOG_CONN_CBCMD_PUSH,
+    WILDDOG_CONN_CBCMD_REMOVE,
+    WILDDOG_CONN_CBCMD_ON,
+    WILDDOG_CONN_CBCMD_OFF,
+    WILDDOG_CONN_CBCMD_AUTH,
+    
+    WILDDOG_CONN_CBCMD_ONDISSET,
+    WILDDOG_CONN_CBCMD_ONDISPUSH,
+    WILDDOG_CONN_CBCMD_ONDISREMOVE,
+
+    WILDDOG_CONN_CBCMD_CANCELDIS,
+    WILDDOG_CONN_CBCMD_ONLINE,
+    WILDDOG_CONN_CBCMD_OFFLINE,
+
+    WILDDOG_CONN_CBCMD_MAX
+    
+}Wilddog_Conn_CBCmd_T;
 
 typedef struct WILDDOG_CONN_T
 {
-    Wilddog_Repo_T *p_conn_repo;   
+    Wilddog_Repo_T *p_conn_repo;
+    
+    Wilddog_Cm_List_T *p_cm_l;
+    
     Wilddog_Func_T f_conn_ioctl;
-
+    
+    
 }Wilddog_Conn_T;
 
 typedef struct WILDDOG_CONN_CMD_ARG
-{    
+{
+    
     Wilddog_Repo_T *p_repo;
     Wilddog_Url_T * p_url;
     Wilddog_Node_T * p_data;
@@ -64,8 +98,8 @@ typedef struct WILDDOG_CONN_CMD_ARG
     void* p_completeArg;
 }Wilddog_ConnCmd_Arg_T;
 
-Wilddog_Conn_T* _wilddog_conn_init(Wilddog_Repo_T* p_repo);
-Wilddog_Conn_T* _wilddog_conn_deinit(Wilddog_Repo_T*p_repo);
+extern Wilddog_Conn_T* _wilddog_conn_init(Wilddog_Repo_T* p_repo);
+extern Wilddog_Conn_T* _wilddog_conn_deinit(Wilddog_Repo_T*p_repo);
 
 #endif /*_WILDDOG_CONN_H_*/
 

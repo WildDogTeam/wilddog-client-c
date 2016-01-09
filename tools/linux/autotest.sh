@@ -12,29 +12,26 @@ export APP_SEC_TYPE=$1
 make test APP_SEC_TYPE=${APP_SEC_TYPE}
 
 ./bin/test_limit
-
 WD_LIMIT=$?
 
 ./bin/test_node
-
 WD_NODE=$?
 
 ./bin/test_multipleHost
-
 WD_MULTIPLEHOST=$?
 
 ./bin/test_mts
-
 WD_MTS=$?
 
 ./bin/test_step
-
 WD_STEP=$?
 
+./bin/test_disEvent
+WD_DISEVENT=$?
 make clean APP_SEC_TYPE=${APP_SEC_TYPE}
 echo "\n*************************************************************************\n"
 
-if [ ${WD_PROPERTY} -ne 0 ]
+if [ ${WD_DISEVENT} -ne 0 ]
 then
 	echo "wilddog property test failed, please run test_wdProperty to find more information!"
 else

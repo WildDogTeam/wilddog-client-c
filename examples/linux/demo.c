@@ -75,6 +75,12 @@ typedef enum _TEST_CMD_TYPE
     TEST_CMD_DELE,
     TEST_CMD_ON,
     TEST_CMD_SETAUTH,
+    TEST_CMD_ONDISSET,
+    TEST_CMD_ONDISPUSH,
+    TEST_CMD_ONDISREMOVE,
+    TEST_CMD_CANCELDIS,
+    TEST_CMD_OFFLINE,
+    TEST_CMD_ONLINE
 }TEST_CMD_TYPE;
 
 STATIC void getHostFromAppid(char *p_host,const char *url)
@@ -91,12 +97,14 @@ STATIC void getValue_callback
     Wilddog_Return_T err
     )
 {
+    *(BOOL*)arg = TRUE;
+
+    wilddog_debug("<><> get return code : %d",err);
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
     {
         wilddog_debug("getValue fail!");
         return;
     }
-    *(BOOL*)arg = TRUE;
 
     if(p_snapshot)
         wilddog_debug_printnode(p_snapshot);
@@ -131,8 +139,7 @@ STATIC void setValue_callback(void* arg, Wilddog_Return_T err)
 
 STATIC void push_callback(u8 *p_path,void* arg, Wilddog_Return_T err)
 {
-                        
-    if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+   if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
     {
         wilddog_debug("push failed");
         return;
@@ -173,6 +180,17 @@ STATIC void auth_callback
         wilddog_debug("auth failed!;error =%d \n",err);
         return;
     }
+}
+STATIC void onDis_callback(void* arg, Wilddog_Return_T err)
+{
+                        
+    if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+    {
+        wilddog_debug("push failed");
+        return;
+    }       
+    *(BOOL*)arg = TRUE;
+    return;
 }
 
 int main(int argc, char **argv) 
@@ -222,6 +240,7 @@ int main(int argc, char **argv)
                     "[--key=<key> --value=<value>]\n", 
                     argv[0]);
             return 0;
+        
         case 'l':
             strcpy(url, (const char*)optarg);
             getHostFromAppid(host,url);
@@ -269,13 +288,45 @@ int main(int argc, char **argv)
             else if(strcmp(argv[optind],"setAuth")==0)
             {
                 type= TEST_CMD_SETAUTH;
+                cntmax = 0;
+            }
+            else if(strcmp(argv[optind],"disSetValue")==0)
+            {
+                type= TEST_CMD_ONDISSET;
+                cntmax = 0;
+            }
+            else if(strcmp(argv[optind],"disPush")==0)
+            {
+                type= TEST_CMD_ONDISPUSH;
+                cntmax = 0;
+            }
+            else if(strcmp(argv[optind],"disRemove")==0)
+            {
+                type= TEST_CMD_ONDISREMOVE;
+                cntmax = 0;
+            }
+            else if(strcmp(argv[optind],"cacelDis")==0)
+            {
+                type= TEST_CMD_CANCELDIS;
+                cntmax = 0;
+            }
+            else if(strcmp(argv[optind],"offLine")==0)
+            {
+                type= TEST_CMD_OFFLINE;
+                cntmax = 0;
+            }
+            else if(strcmp(argv[optind],"onLine")==0)
+            {
+                type= TEST_CMD_ONLINE;
+                cntmax = 0;
             }
         }
     }
     if( !type)
     {
-        printf("Usage: %s setAuth|getValue|setValue|push|removeValue|addObser"
-               "ver -l coap://<your appid>.wilddogio.com/ [--key=<key> "
+        printf("Usage: %s setAuth|getValue|setValue|push|removeValue|addObser\n"
+                "\t|disSetValue|disPush|disRemove|cacelDis|offLine|onLine\n"
+               "\tver -l coap://<your appid>.wilddogio.com/ [--key=<key> "
                "--value=<value>]\n", 
                argv[0]);
         return 0;
@@ -326,6 +377,35 @@ int main(int argc, char **argv)
             res = wilddog_auth((u8*)host,(u8*)value, \
                                strlen((const char *)value),
                                auth_callback,(void*)&isFinish);
+        case TEST_CMD_ONDISSET:
+            /*Send the remove method*/
+            res = wilddog_onDisconnectSetValue(wilddog,p_head,onDis_callback, \
+                                      (void*)&isFinish);
+            break;
+        case TEST_CMD_ONDISPUSH:
+            /*Send the remove method*/
+            res = wilddog_onDisconnectPush(wilddog,p_head,onDis_callback, \
+                                      (void*)&isFinish);
+            break;
+
+       case TEST_CMD_ONDISREMOVE:
+            /*Send the remove method*/
+            res = wilddog_onDisconnectRemoveValue(wilddog, onDis_callback, \
+                                      (void*)&isFinish);
+            break;
+        case TEST_CMD_CANCELDIS:
+            /*Send the remove method*/
+            res = wilddog_cancelDisconnectOperations(wilddog, onDis_callback, \
+                                      (void*)&isFinish);
+            break;
+
+         case TEST_CMD_OFFLINE:
+            /*Send the remove method*/
+            res = wilddog_goOffline();
+            break;
+        case TEST_CMD_ONLINE:
+            /*Send the remove method*/
+            res = wilddog_goOnline();
             break;
     }
     /*Delete the node*/

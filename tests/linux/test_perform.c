@@ -46,6 +46,7 @@ STATIC void test_onSetFunc(void* arg, Wilddog_Return_T err)
 	return;
 }
 /*************************************build complete binary tree**************************************************************************/
+u8 key[20];
 STATIC int test_buildtreeFunc(void)
 {
 
@@ -62,10 +63,8 @@ STATIC int test_buildtreeFunc(void)
 	Wilddog_Node_T *L6[64];
 	Wilddog_Node_T *L7[128];
 
-	Wilddog_Str_T *key = NULL;
-	key = (Wilddog_Str_T*)wmalloc(20);
 
-
+    memset(key,0,20);
 	p_head = wilddog_node_createObject(NULL);
 	for(m = 0; m < 2; m++)
 	{
@@ -152,6 +151,7 @@ STATIC int test_buildtreeFunc(void)
 	if(0 == wilddog)
 	{
 		wilddog_debug("new wilddog error");
+        wilddog_node_delete(p_head);
 		return -1;
 	}
 
@@ -182,6 +182,7 @@ STATIC int test_buildtreeFunc(void)
 	if(0 == wilddog)
 	{
 		wilddog_debug("new wilddog error");
+        wilddog_node_delete(p_head);
 		return -1;
 	}
 
@@ -202,7 +203,10 @@ STATIC int test_buildtreeFunc(void)
 
 /*5*/
 	if(TEST_TREE_ITEMS < 3)
-		return 0;
+    {   
+        wilddog_node_delete(p_head);
+        return 0;
+    }
 
 	isFinished = FALSE;
 	memset((void*)url,0,sizeof(url));
@@ -212,7 +216,8 @@ STATIC int test_buildtreeFunc(void)
 	
 	if(0 == wilddog)
 	{
-		wilddog_debug("new wilddog error");
+		wilddog_debug("new wilddog error");        
+        wilddog_node_delete(p_head);
 		return -1;
 	}
 
@@ -232,7 +237,10 @@ STATIC int test_buildtreeFunc(void)
 	wilddog_destroy(&wilddog);
 /*6*/
 	if(TEST_TREE_ITEMS < 4)
-		return 0;
+    {   
+        wilddog_node_delete(p_head);
+        return 0;
+    }
 	isFinished = FALSE;
 	memset(url,0,sizeof(url));
 	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_810);
@@ -241,6 +249,7 @@ STATIC int test_buildtreeFunc(void)
 	if(0 == wilddog)
 	{
 		wilddog_debug("new wilddog error");
+        wilddog_node_delete(p_head);
 		return -1;
 	}
 
@@ -260,7 +269,10 @@ STATIC int test_buildtreeFunc(void)
 	wilddog_destroy(&wilddog);
 /*7*/
 	if(TEST_TREE_ITEMS < 5)
-		return 0;
+    {   
+        wilddog_node_delete(p_head);
+        return 0;
+    }
 	isFinished = FALSE;
 	memset((void*)url,0,sizeof(url));
 	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_1044);
@@ -290,8 +302,10 @@ STATIC int test_buildtreeFunc(void)
 
 /*8*/
 	if(TEST_TREE_ITEMS < 6)
+    {   
+	    wilddog_node_delete(p_head);
 		return 0;
-
+    }
 	isFinished = FALSE;
 	memset((void*)url,0,sizeof(url));
 	sprintf((char*)url,"%s%s",TEST_URL,TEST_TREE_T_1280);
@@ -300,14 +314,15 @@ STATIC int test_buildtreeFunc(void)
 	
 	if(0 == wilddog)
 	{
-		wilddog_debug("new wilddog error");
+		wilddog_debug("new wilddog error");        
+        wilddog_node_delete(p_head);
 		return -1;
 	}
 
 	
 	wilddog_setValue(wilddog,p_head,test_onSetFunc,(void*)TEST_TREE_T_1280);
 	
-	//wilddog_node_delete(p_head);
+	wilddog_node_delete(p_head);
 	while(1)
 	{
 		if(TRUE == isFinished)
@@ -329,7 +344,6 @@ STATIC int test_buildtreeFunc(void)
 /**
 **building test tree end 
 **/
-
 STATIC int test_perform(void)
 {
 

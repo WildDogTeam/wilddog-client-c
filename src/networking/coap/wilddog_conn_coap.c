@@ -26,22 +26,28 @@
 #include "wilddog_endian.h"
 #include "wilddog_conn_coap.h"
 #include "wilddog_debug.h"
-#include "wilddog_conn.h"
+#include "wilddog_common.h"
 #include "wilddog_sec.h"
 #include "test_lib.h"
 
+#include "wilddog_conn.h"
+#include "wilddog_conn_manage.h"
 #include "wilddog_conn_coap.h"
 
+#define AUTHR_LEN   (4)
 
 #define  _GET_COAP_CODE(code)   ((code >> 5) * 100 + (code & 0x1F))
 
-Wilddog_Func_T _wilddog_handle_coapRespond = NULL ;
+Wilddog_Func_T _wilddog_coap_findRespondNode = NULL ;
 
 typedef struct _WILDDOG_RECV_STRUCT
 {   
     u8 data[WILDDOG_PROTO_MAXSIZE]; 
     u8 isused;
 }_wilddog_Recv_T;
+
+
+
 
 STATIC _wilddog_Recv_T l_recvData;
 
@@ -131,7 +137,7 @@ STATIC void WD_SYSTEM _wilddog_coap_freeRecvBuffer(u8* ptr)
         l_recvData.isused = FALSE;  
     }   
     _wilddog_coap_recvBufUnlock();
-}                                
+}  
 /*
  * Function:    _wilddog_coap_code2Http
  * Description: Convert the coap code to http return code
@@ -139,7 +145,7 @@ STATIC void WD_SYSTEM _wilddog_coap_freeRecvBuffer(u8* ptr)
  * Output:      N/A
  * Return:      The http return code
 */
-int WD_SYSTEM _wilddog_coap_code2Http(int rec_code)
+unsigned int WD_SYSTEM _wilddog_coap_code2Http(unsigned int rec_code)
 {
     switch(rec_code)
     {
@@ -164,7 +170,7 @@ int WD_SYSTEM _wilddog_coap_code2Http(int rec_code)
 */
 STATIC int WD_SYSTEM _wilddog_coap_cmd2Typecode
     (
-    Wilddog_Conn_Cmd_T cmd,
+    u8 cmd,
     u8 *p_type,
     u8 *p_code
     )
@@ -175,13 +181,7 @@ STATIC int WD_SYSTEM _wilddog_coap_cmd2Typecode
         case WILDDOG_CONN_CMD_AUTH:
             *p_type = COAP_MESSAGE_CON;
             *p_code = COAP_REQUEST_POST;
-            break;
-#if 0            
-       case WILDDOG_CONN_CMD_PONG:
-            *p_type = COAP_MESSAGE_CON;
-            *p_code = COAP_REQUEST_GET;
-            break;
- #endif           
+            break;          
         case WILDDOG_CONN_CMD_GET:
             *p_type = COAP_MESSAGE_CON;
             *p_code = COAP_REQUEST_GET;
@@ -207,12 +207,36 @@ STATIC int WD_SYSTEM _wilddog_coap_cmd2Typecode
             *p_type = COAP_MESSAGE_CON;
             *p_code = COAP_REQUEST_GET;
             break;
-#if 0
-        case WILDDOG_CONN_CMD_PING:
-            *p_type = COAP_MESSAGE_RST;//COAP_MESSAGE_CON;
-            *p_code = 0;
+#if 1
+        case WILDDOG_CM_SYS_CMD_SHORTPING:
+            *p_type = COAP_MESSAGE_CON;
+            *p_code = COAP_REQUEST_GET;
+            break;
+        case WILDDOG_CM_SYS_CMD_LONGPING:
+            *p_type = COAP_MESSAGE_CON;
+            *p_code = COAP_REQUEST_POST;
             break;
 #endif
+        case WILDDOG_CONN_CMD_ONDISSET:
+            *p_type = COAP_MESSAGE_CON;
+            *p_code = COAP_REQUEST_PUT;
+            break;
+        case WILDDOG_CONN_CMD_ONDISPUSH:
+            *p_type = COAP_MESSAGE_CON;
+            *p_code = COAP_REQUEST_POST;
+            break;
+        case WILDDOG_CONN_CMD_ONDISREMOVE:
+            *p_type = COAP_MESSAGE_CON;
+            *p_code = COAP_REQUEST_DELETE;
+            break;
+        case WILDDOG_CONN_CMD_CANCELDIS:
+            *p_type = COAP_MESSAGE_CON;
+            *p_code = COAP_REQUEST_DELETE;
+            break;
+        case WILDDOG_CONN_CMD_OFFLINE:
+            *p_type = COAP_MESSAGE_CON;
+            *p_code = COAP_REQUEST_GET;
+            break;        
         default:
             res = WILDDOG_ERR_INVALID;
             break;
@@ -220,13 +244,78 @@ STATIC int WD_SYSTEM _wilddog_coap_cmd2Typecode
     return res;
 }
 /*
+ * Function:    _wilddog_coap_findChar
+ * Description: Find the number of  char 'c' exist in  the string buffer.
+ * Input:       c: The char.   
+ *              p_buf: The pointer of the string buffer.
+ * Output:      N/A
+ * Return:      The number.
+*/
+STATIC int WD_SYSTEM _wilddog_coap_findChar
+    (
+    const char c,
+    const unsigned char *p_buf
+    )
+{
+    int res = 0 ;
+    u32 i;
+    for(i=0;p_buf[i] != 0;i++)
+    {
+        if(p_buf[i] == c)
+            res++;
+    }
+    return res;
+}
+/*
+ * Function:    _wilddog_coap_countPacktSize.
+ * Description: Count the conn packet size.
+ *                    Count method:
+ *                    host : 4+ host len
+ *                    path : n*(4+ subpath)
+ *                    query: 4+2+query len
+ * Input:       p_cp_pkt: The pointer of conn packet
+ * Output:      N/A
+ * Return:      The number of the conn packet size
+*/
+STATIC int WD_SYSTEM _wilddog_coap_countPacktSize
+    (
+    Protocol_Arg_CountSize_T *p_arg
+    )
+{
+    int len = 0,n=0;
+    wilddog_assert(p_arg,0);
+    
+    /*option*/
+    if(p_arg->p_host)
+        len = 4+ strlen((const char *)p_arg->p_host);
+    
+    if(p_arg->p_query)
+        len += 6+ strlen((const char *)p_arg->p_query);
+    if(p_arg->p_path)
+    {
+        n = _wilddog_coap_findChar('/',p_arg->p_path);
+        len += 4*(n+1)+strlen((const char *)p_arg->p_path);
+        }
+    else
+        len += 5;
+    
+    /* payload add */
+    len += (p_arg->d_payloadLen + 4 );
+    
+    /* + had + token + observer*/
+    len += 8 + 14 + 8;
+    
+    return len;
+}
+
+/*
  * Function:    _wilddog_coap_creat
  * Description: creat an coap package with no option and payload.
  * Input:    p_arg: cmd/message/token/package len. 
  * Output:      N/A
  * Return:      coap pointer.
 */
-STATIC size_t WD_SYSTEM _wilddog_coap_creat(Protocol_Pkg_creatArg_T *p_arg,int flag)
+STATIC size_t WD_SYSTEM _wilddog_coap_creat(Protocol_Arg_Creat_T *p_arg,int flag)
 {
     coap_pdu_t *p_pdu = NULL;
     u8 type=0,code = 0;
@@ -237,18 +326,22 @@ STATIC size_t WD_SYSTEM _wilddog_coap_creat(Protocol_Pkg_creatArg_T *p_arg,int f
         return 0;
     /*creat an coap package.*/
     p_pdu = coap_pdu_init(type,code,p_arg->d_index,p_arg->d_packageLen);
+   //p_pdu = coap_pdu_init(type,code,messageId,WILDDOG_PROTO_MAXSIZE);
     if(p_pdu == NULL)
         return 0;
     /* add token option.*/
     coap_add_token(p_pdu, COAP_TOKENLEN, (u8*)&(p_arg->d_token));
-    
+
+    wilddog_debug_level(WD_DEBUG_LOG,"\tcc\tcreat coap pakge :%p :",p_pdu);
     return ( size_t )p_pdu;
 }
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_destory(void *p_coap, int flag)
 {
     if(p_coap == 0)
         return WILDDOG_ERR_INVALID;
+
     
+    wilddog_debug_level(WD_DEBUG_LOG,"\tcc\tdestory coap pakge :%p :",p_coap);
     coap_delete_pdu((coap_pdu_t*)p_coap);
 
     return WILDDOG_ERR_NOERR;
@@ -261,7 +354,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_destory(void *p_coap, int flag)
  * Return:   WILDDOG_ERR_NOERR or WILDDOG_ERR_NULL.
 */
 
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addHost(Protocol_Pkg_OptionArg_T *p_arg,int flag)
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addHost(Protocol_Arg_Option_T *p_arg,int flag)
 {
     if( p_arg == NULL || 
         p_arg->p_pkg == NULL ||
@@ -280,10 +373,10 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addHost(Protocol_Pkg_OptionArg_T
  * Output:  N/A
  * Return:   WILDDOG_ERR_NOERR or WILDDOG_ERR_NULL.
 */
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addPath(Protocol_Pkg_OptionArg_T *p_arg,int flag)
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addPath(Protocol_Arg_Option_T *p_arg,int flag)
 {
-    char *p_subpath_h = NULL;
-    char *p_subpath_end = NULL;
+    u8 *p_subpath_h = NULL;
+    u8 *p_subpath_end = NULL;
     
     if( p_arg == NULL || 
         p_arg->p_pkg == NULL ||
@@ -293,11 +386,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addPath(Protocol_Pkg_OptionArg_T
     /* @add path */
     for(p_subpath_h= p_arg->p_options;p_subpath_h;)
     {
-        p_subpath_h = (u8*)strstr(( char *)p_subpath_h,"/");
+        p_subpath_h = (u8*)_wilddog_strchar(( char *)p_subpath_h,'/');
         if(!p_subpath_h)
             break;
         p_subpath_h++;
-        p_subpath_end = (u8*)strstr((char *)p_subpath_h,"/");
+        p_subpath_end = (u8*)_wilddog_strchar((char *)p_subpath_h,'/');
         if( !p_subpath_end )
         {
             coap_add_option((coap_pdu_t*) p_arg->p_pkg,COAP_OPTION_URI_PATH, \
@@ -319,7 +412,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addPath(Protocol_Pkg_OptionArg_T
  * Output:  N/A
  * Return:   WILDDOG_ERR_NOERR or WILDDOG_ERR_NULL.
 */
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addQuery(Protocol_Pkg_OptionArg_T *p_arg,int flag)
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addQuery(Protocol_Arg_Option_T *p_arg,int flag)
 {
     if( p_arg == NULL || 
         p_arg->p_pkg == NULL ||
@@ -338,7 +431,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addQuery(Protocol_Pkg_OptionArg_
  * Output:  N/A
  * Return:   WILDDOG_ERR_NOERR or WILDDOG_ERR_NULL.
 */
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addData(Protocol_Pkg_PayloadArg_T *p_arg,int flag)
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addData(Protocol_Arg_Payload_T *p_arg,int flag)
 {
     if( p_arg == NULL || 
         p_arg->p_pkg == NULL ||
@@ -347,6 +440,29 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addData(Protocol_Pkg_PayloadArg_
     
    if( 0 == coap_add_data((coap_pdu_t*)p_arg->p_pkg,p_arg->d_payloadLen,p_arg->p_payload))
         return WILDDOG_ERR_NULL;
+
+    return WILDDOG_ERR_NOERR;
+}
+/*
+ * Function:    _wilddog_coap_addObserver
+ * Description: add query.
+ * Input:    p_arg: p_coap/p_options. 
+ * Output:  N/A
+ * Return:   WILDDOG_ERR_NOERR or WILDDOG_ERR_NULL.
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addObserver
+    (
+        Protocol_Arg_Option_T *p_arg,
+        int flag)
+{
+    if( p_arg == NULL || 
+        p_arg->p_pkg == NULL ||
+        p_arg->p_options == NULL)
+        return WILDDOG_ERR_NULL;
+
+    
+    coap_add_option((coap_pdu_t*)p_arg->p_pkg,\
+        COAP_OPTION_OBSERVE,1, p_arg->p_options);
 
     return WILDDOG_ERR_NOERR;
 }
@@ -359,35 +475,33 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addData(Protocol_Pkg_PayloadArg_
  * Output:     N/A
  * Return:     If success, return WILDDOG_ERR_NOERR
 */
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_authUpdate
+STATIC int WD_SYSTEM _wilddog_conn_coap_auth_update
     (
-    Protocol_Pkg_AuthArg_T *p_arg,
-    int flag
+    Protocol_Arg_Auth_T *p_arg,
+    int flag    
     )
 {
     coap_opt_iterator_t d_oi;
     coap_opt_t *p_op = NULL;
     u8 *p_opvalue = NULL;
 
-    if( p_arg == NULL ||
-        p_arg->p_pkg == NULL ||
-        p_arg->p_auth == NULL)
-        return WILDDOG_ERR_INVALID;
+    if( p_arg == NULL ||\
+        p_arg->p_pkg == NULL || \
+        p_arg->p_newAuth == NULL)
+            return WILDDOG_ERR_INVALID;
     /*   seek option*/
-    p_op = coap_check_option((coap_pdu_t*)p_arg->p_pkg,COAP_OPTION_URI_QUERY,&d_oi);
-    
-    if(p_op == NULL )
+    p_op = coap_check_option(p_arg->p_pkg,COAP_OPTION_URI_QUERY,&d_oi);
+    if(p_op == NULL)
         return WILDDOG_ERR_NOERR;
     /* pointer to option value*/
     p_opvalue = coap_opt_value(p_op);
-    
     if(p_opvalue == NULL)
-        return WILDDOG_ERR_NOERR;
-    if(memcmp(p_opvalue,AUTHR_QURES,strlen(AUTHR_QURES)) != 0)
-        return WILDDOG_ERR_NOERR;
+        return WILDDOG_ERR_INVALID;
+    
+    if(memcmp(p_opvalue,_CM_AUTHR_QURES,strlen(_CM_AUTHR_QURES)) != 0)
+        return WILDDOG_ERR_INVALID;
 
-    if(p_arg->p_auth)
-        _byte2bytestr(&p_opvalue[strlen(AUTHR_QURES)],p_arg->p_auth,AUTHR_LEN);
+    memcpy(p_opvalue,p_arg->p_newAuth,p_arg->d_newAuthLen);
 
     return WILDDOG_ERR_NOERR;
         
@@ -405,6 +519,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_send(void *p_arg,int flag)
 {
     coap_pdu_t *p_coap = (coap_pdu_t*)p_arg;
     
+    
     if( p_coap == NULL)
         return WILDDOG_ERR_INVALID;
     
@@ -412,7 +527,6 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_send(void *p_arg,int flag)
     if(DEBUG_LEVEL <= WD_DEBUG_LOG )
         coap_show_pdu(p_coap);
 #endif
-
    return _wilddog_sec_send(p_coap->hdr, p_coap->length);
 
 }
@@ -485,9 +599,11 @@ BOOL WD_SYSTEM _wilddog_recv_getOptionValue
 #else
             memcpy((u8*)p_dst,p_optionvalue,d_optionlen);
 #endif
-            wilddog_debug_level( WD_DEBUG_WARN, \
+#if 0
+    wilddog_debug_level( WD_DEBUG_WARN, \
                                  "option value address = %p ,option len = %d \n",\
                                  p_dst,d_optionlen);
+#endif
             return TRUE;
             }
  
@@ -508,16 +624,17 @@ BOOL WD_SYSTEM _wilddog_recv_getOptionValue
 Wilddog_Return_T WD_SYSTEM _wilddog_recv_dispatch
     (
     coap_pdu_t *p_recvPdu,
-    Protocol_SendArg_T *p_cm_recvArg
+    Protocol_recvArg_T *p_cm_recvArg
     )
 {
     
     size_t playloadLen =0;
     u8 *p_payload = NULL;
     /* get err*/
-    p_cm_recvArg->err = _wilddog_coap_code2Http(_GET_COAP_CODE(p_recvPdu->hdr->code));
+    wilddog_debug_level(WD_DEBUG_LOG," coap err : %d",p_recvPdu->hdr->code);
+    p_cm_recvArg->err = _wilddog_coap_code2Http((unsigned int)_GET_COAP_CODE(p_recvPdu->hdr->code));
     
-    wilddog_debug_level(WD_DEBUG_LOG,"error %d",p_cm_recvArg->err);
+    wilddog_debug_level(WD_DEBUG_LOG,"coap http error %ld",p_cm_recvArg->err);
 
     /* get token option.*/
     if(p_recvPdu->hdr->token_length != COAP_TOKENLEN)
@@ -525,8 +642,9 @@ Wilddog_Return_T WD_SYSTEM _wilddog_recv_dispatch
     
     memcpy(&p_cm_recvArg->d_token,p_recvPdu->hdr->token,COAP_TOKENLEN);
     /* get observer index.*/
-     p_cm_recvArg->d_isObserver = _wilddog_recv_getOptionValue(p_recvPdu,
+    p_cm_recvArg->d_isObserver = _wilddog_recv_getOptionValue(p_recvPdu,
         COAP_OPTION_OBSERVE,(u8*)&p_cm_recvArg->d_observerIndx,sizeof(p_cm_recvArg->d_observerIndx));
+    wilddog_debug_level(WD_DEBUG_LOG,"coap get observerIndex : %lu ",p_cm_recvArg->d_observerIndx);
     /* get maxage.*/
     _wilddog_recv_getOptionValue(p_recvPdu,
         COAP_OPTION_MAXAGE,(u8*)&(p_cm_recvArg->d_maxAge),sizeof( p_cm_recvArg->d_maxAge));
@@ -543,7 +661,9 @@ Wilddog_Return_T WD_SYSTEM _wilddog_recv_dispatch
         return WILDDOG_ERR_INVALID;
 
     memcpy( p_cm_recvArg->p_recvData,p_payload,playloadLen);
-    wilddog_debug_level(WD_DEBUG_LOG,"recv data :%s",p_cm_recvArg->p_recvData);
+    p_cm_recvArg->d_recvDataLen = playloadLen;
+    
+    wilddog_debug_level(WD_DEBUG_LOG,"coap recv data :%s",p_cm_recvArg->p_recvData);
     return WILDDOG_ERR_NOERR;
     
 }
@@ -602,14 +722,14 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_receive(void *p_arg,int flag)
 {
     int res =0;
     u32 recv_type = 0;
-    u32 ack_type = _CM_RESPONSES_ACK;
+    u32 ack_type = COAP_MESSAGE_ACK;
     u32 tmp_tokenLen = 0;
     u32 tmp_token = 0;
     u32 tmp_mid = 0;
-    Protocol_SendArg_T recvArg;
+    Protocol_recvArg_T recvArg;
     coap_pdu_t *p_pdu = NULL;
 
-    memset(&recvArg,0,sizeof(Protocol_SendArg_T));
+    memset(&recvArg,0,sizeof(Protocol_recvArg_T));
 
     recvArg.p_recvData = _wilddog_coap_mallocRecvBuffer();
     if( recvArg.p_recvData  == NULL)
@@ -628,7 +748,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_receive(void *p_arg,int flag)
     /* distinguish recv an coap packet. */
     p_pdu = _wilddog_recvCoap(recvArg.p_recvData,recvArg.d_recvDataLen);
     if(p_pdu == NULL)
-        goto _COAPRECV_ERR;
+        goto _COAPRECV_ERR; 
     
 #ifdef WILDDOG_SELFTEST                        
     ramtest_caculate_peakRam();             
@@ -653,11 +773,11 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_receive(void *p_arg,int flag)
    recv_type = p_pdu->hdr->type;
    tmp_tokenLen = p_pdu->hdr->token_length;
    memcpy(&tmp_token,p_pdu->hdr->token,p_pdu->hdr->token_length);
-   
+
    coap_delete_pdu(p_pdu);
    /* call back.*/
-   if( _wilddog_handle_coapRespond(&recvArg) != WILDDOG_ERR_NOERR)
-        ack_type = _CM_RESPONSES_REST;
+   if( _wilddog_coap_findRespondNode(&recvArg) != TRUE)
+        ack_type = COAP_MESSAGE_RST;
     /* ack */
    _wilddog_coap_ackSend(recv_type,ack_type,tmp_mid,tmp_tokenLen,tmp_token);
    _wilddog_coap_freeRecvBuffer( recvArg.p_recvData );
@@ -680,7 +800,7 @@ _COAPRECV_ERR:
 */
 Wilddog_Return_T WD_SYSTEM _wilddog_coap_init
     (
-    Protocol_ArgInit_T *p_arg,
+    Protocol_Arg_Init_T *p_arg,
     int flag
     )
 {
@@ -688,7 +808,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_init
         p_arg->p_host == NULL)
         return WILDDOG_ERR_INVALID;
 
-    _wilddog_handle_coapRespond = p_arg->f_handleRespond;
+    _wilddog_coap_findRespondNode = p_arg->f_handleRespond;
     
     return  _wilddog_sec_init(p_arg->p_host,p_arg->d_port);
 }
@@ -702,26 +822,30 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_init
 */
 Wilddog_Return_T _wilddog_coap_deInit(void *p_arg,int flag)
 {
-    
+
+    _wilddog_coap_findRespondNode = NULL;
     return _wilddog_sec_deinit();
 }
-
 /* protocol :: coap  interface */
 Wilddog_Func_T _wilddog_protocolPackage_funcTable[_PROTOCOL_CMD_MAX + 1] = 
 {
     (Wilddog_Func_T) _wilddog_coap_init,        
     (Wilddog_Func_T) _wilddog_coap_deInit,
-    
+
+    (Wilddog_Func_T) _wilddog_coap_countPacktSize,
     (Wilddog_Func_T) _wilddog_coap_creat,
     (Wilddog_Func_T) _wilddog_coap_destory,
     (Wilddog_Func_T) _wilddog_coap_addHost,
     (Wilddog_Func_T) _wilddog_coap_addPath,
     (Wilddog_Func_T) _wilddog_coap_addQuery,
+    (Wilddog_Func_T) _wilddog_coap_addObserver,
     (Wilddog_Func_T) _wilddog_coap_addData,
 
-    (Wilddog_Func_T) _wilddog_coap_authUpdate,
+    (Wilddog_Func_T) _wilddog_conn_coap_auth_update,
     (Wilddog_Func_T) _wilddog_coap_send,
     (Wilddog_Func_T) _wilddog_coap_receive,
+
+    
     NULL
 };
 
