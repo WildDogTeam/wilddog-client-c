@@ -356,7 +356,7 @@ int test_ram(void)
 #ifdef WILDDOG_SELFTEST
 		int res = 0;
 		u8 tree_m=0, n=0;
-		u8 request_num[4] = {1,16,32,64};
+		u8 request_num[4] = {1,WILDDOG_REQ_QUEUE_NUM/2,WILDDOG_REQ_QUEUE_NUM,WILDDOG_REQ_QUEUE_NUM * 2};
         u8 url[strlen(TEST_URL)+20];
 #if 0
 		if( (d_ramtree_num[TEST_TREE_ITEMS] + TEST_PROTO_COVER) > WILDDOG_PROTO_MAXSIZE )

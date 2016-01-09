@@ -22,7 +22,7 @@
 
 #include "utlist.h"
 #include "wilddog_config.h"
-#include "Wilddog_common.h"
+#include "wilddog_common.h"
 #include "wilddog_url_parser.h"
 #include "wilddog_ct.h"
 #include "wilddog.h"
