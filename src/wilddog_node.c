@@ -66,8 +66,8 @@ Wilddog_Node_T * WD_SYSTEM _wilddog_node_new(void)
 */
 STATIC BOOL WD_SYSTEM _isKeyValid(Wilddog_Str_T * key, BOOL isSpritValid)
 {
-    int len, i;
-    volatile u8 data;
+    int len = 0, i = 0;
+    volatile u8 data = 127;
 
     if(NULL == key)
         return TRUE;
@@ -527,7 +527,7 @@ STATIC const Wilddog_Str_T * WD_SYSTEM wilddog_node_getKey(Wilddog_Node_T *node)
 }
 #endif
 /*
- * Function:    wilddog_node_setType
+ * Function:    _wilddog_node_setType
  * Description: Set a node's type.
  * Input:       node:   The pointer to the node.
  *              type:   The new type of the node.
@@ -535,7 +535,7 @@ STATIC const Wilddog_Str_T * WD_SYSTEM wilddog_node_getKey(Wilddog_Node_T *node)
  * Return:      if success, returns 0, else return negative number.
  * Others:      N/A
 */
-STATIC Wilddog_Return_T WD_SYSTEM wilddog_node_setType
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_node_setType
     (
     Wilddog_Node_T *node,
     u8 type
@@ -553,6 +553,15 @@ STATIC Wilddog_Return_T WD_SYSTEM wilddog_node_setType
     {
         wilddog_node_deleteChildren(node);
     }
+	if(type < WILDDOG_NODE_TYPE_NUM)
+	{
+		/*changed to no value type, so if has value ,free it*/
+		if(node->p_wn_value)
+		{
+			wfree(node->p_wn_value);
+			node->p_wn_value = NULL;
+		}
+	}
     node->d_wn_type = type;
     return WILDDOG_ERR_NOERR;
 }
@@ -590,20 +599,16 @@ Wilddog_Return_T WD_SYSTEM wilddog_node_setValue
     int len
     )
 {
+    Wilddog_Str_T *newValue = NULL;
+    
     if(NULL == node)
         return WILDDOG_ERR_INVALID;
     
-    if(node->p_wn_value!= NULL)
-    {
-        wfree(node->p_wn_value);
-        node->p_wn_value = NULL;
-    }
     if(!value || !len)
     {
-        node->p_wn_value = NULL;
-        node->d_wn_len = 0;
-        return WILDDOG_ERR_NOERR;
+        return WILDDOG_ERR_NULL;
     }
+    
     if(WILDDOG_NODE_TYPE_NUM == node->d_wn_type)
     {
         len = sizeof(s32);
@@ -617,12 +622,17 @@ Wilddog_Return_T WD_SYSTEM wilddog_node_setValue
             WILDDOG_NODE_TYPE_OBJECT == node->d_wn_type
             )
     {
+        if(node->p_wn_value!= NULL)
+        {
+            wfree(node->p_wn_value);
+        }
         node->p_wn_value = NULL;
         node->d_wn_len = 0;
         return WILDDOG_ERR_NOERR;
     }
-    node->p_wn_value = wmalloc(len + 1);
-    if(node->p_wn_value== NULL)
+
+    newValue = wmalloc(len + 1);
+    if(newValue== NULL)
     {
         wilddog_debug_level( WD_DEBUG_ERROR, "setValue malloc error");
 
@@ -630,6 +640,11 @@ Wilddog_Return_T WD_SYSTEM wilddog_node_setValue
     }
     else
     {
+        if(node->p_wn_value!= NULL)
+        {
+            wfree(node->p_wn_value);
+        }
+        node->p_wn_value = newValue;
         memcpy(node->p_wn_value, value, len);
         node->d_wn_len = len;
     }
@@ -955,9 +970,9 @@ Wilddog_Return_T WD_SYSTEM wilddog_node_delete( Wilddog_Node_T *p_node)
         else if(NULL  == p_head->p_wn_next && NULL == p_head->p_wn_prev)
         {
             /*set it's parent as null node*/
-            wilddog_node_setType(p_head->p_wn_parent, WILDDOG_NODE_TYPE_NULL);
-            _wilddog_node_setKey(p_head->p_wn_parent ,NULL);
-            wilddog_node_setValue(p_head->p_wn_parent,NULL, 0);
+            _wilddog_node_setType(p_head->p_wn_parent, WILDDOG_NODE_TYPE_NULL);
+            //_wilddog_node_setKey(p_head->p_wn_parent ,NULL);
+            //wilddog_node_setValue(p_head->p_wn_parent,NULL, 0);
             p_head->p_wn_parent->p_wn_child = NULL;
         }
     }

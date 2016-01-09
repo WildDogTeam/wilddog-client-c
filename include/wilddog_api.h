@@ -383,7 +383,7 @@ extern void wilddog_trySync(void);
 */
 
 extern Wilddog_Node_T * wilddog_node_createObject(Wilddog_Str_T* key);
-/*utf-8 string, end with \0*/
+
 /*
  * Function:    wilddog_node_createUString
  * Description: Create a node, type is UTF-8 string.
@@ -391,14 +391,14 @@ extern Wilddog_Node_T * wilddog_node_createObject(Wilddog_Str_T* key);
  *              value:  pointer to the string.
  * Output:      N/A
  * Return:      if success, returns pointer points to the node, else return NULL.
- * Others:      N/A
+ * Others:      utf-8 string, end with \0
 */
 extern Wilddog_Node_T * wilddog_node_createUString
     (
     Wilddog_Str_T* key,
     Wilddog_Str_T *value
     );
-/*byte string, means a byte buffer, may not end with \0*/
+
 /*
  * Function:    wilddog_node_createBString
  * Description: Create a node, type is byte string(binary buffer).
@@ -407,7 +407,7 @@ extern Wilddog_Node_T * wilddog_node_createUString
  *              len:    The length of the string.
  * Output:      N/A
  * Return:      if success, returns pointer points to the node, else return NULL.
- * Others:      N/A
+ * Others:      byte string, means a byte buffer, may not end with \0
 */
 extern Wilddog_Node_T * wilddog_node_createBString
     (
