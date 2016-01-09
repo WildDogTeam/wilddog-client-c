@@ -568,11 +568,7 @@ Wilddog_Str_T * WD_SYSTEM _wilddog_url_getKey(Wilddog_Str_T * p_path)
     len = strlen((const char*)p_path);
     if(len == 1 && p_path[0] == '/')
     {
-        p_str = (Wilddog_Str_T*)wmalloc(len + 1);
-        if(NULL == p_str)
-            return NULL;
-        p_str[0] = '/';
-        return p_str;
+        return p_path;
     }
     for(i = len - 1; i >=0; i--)
     {
@@ -584,10 +580,12 @@ Wilddog_Str_T * WD_SYSTEM _wilddog_url_getKey(Wilddog_Str_T * p_path)
             break;
         }
     }
-    p_str = (Wilddog_Str_T*)wmalloc(len - pos);
+/*    p_str = (Wilddog_Str_T*)wmalloc(len - pos);
     if(NULL == p_str)
         return NULL;
     memcpy((char*)p_str, (char*)(p_path + pos + 1), len - pos);
+    return p_str;*/
+    p_str = (Wilddog_Str_T*)(p_path + pos + 1);
     return p_str;
 }
 

@@ -94,7 +94,7 @@ extern Wilddog_T wilddog_getChild
  * Description: Get the client's key(the node's name).
  * Input:       wilddog: Id of the client.
  * Output:      N/A
- * Return:      a pointer point to a name string(should be freed by user).
+ * Return:      a pointer point to a name string.
  * Others:      N/A
 */
 extern Wilddog_Str_T *wilddog_getKey(Wilddog_T wilddog);
@@ -103,8 +103,7 @@ extern Wilddog_Str_T *wilddog_getKey(Wilddog_T wilddog);
  * Description: Get the client's host.
  * Input:       wilddog: Id of the client.
  * Output:      N/A
- * Return:      a pointer point to a host string(should be freed by user),
- *              like "aaa.wilddogio.com" .
+ * Return:      a pointer point to a host string like "aaa.wilddogio.com" .
  * Others:      N/A
 */
 extern Wilddog_Str_T *wilddog_getHost(Wilddog_T wilddog);
@@ -113,8 +112,7 @@ extern Wilddog_Str_T *wilddog_getHost(Wilddog_T wilddog);
  * Description: Get the client's path.
  * Input:       wilddog: Id of the client.
  * Output:      N/A
- * Return:      a pointer point to a path string(should be freed by user),
- *              like "/a/b/c" .
+ * Return:      a pointer point to a path string like "/a/b/c" .
  * Others:      N/A
 */
 extern Wilddog_Str_T *wilddog_getPath(Wilddog_T wilddog);
@@ -508,7 +506,7 @@ Wilddog_Return_T wilddog_node_setValue
  *              child:  the pointer to the node.
  * Output:      N/A
  * Return:      0 means succeed, negative number means failed.
- * Others:      N/A
+ * Others:      head insert, so now parent->p_wn_child is child.
 */
 extern Wilddog_Return_T wilddog_node_addChild
     (

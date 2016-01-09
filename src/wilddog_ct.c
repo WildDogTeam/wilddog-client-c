@@ -892,11 +892,11 @@ STATIC Wilddog_Str_T* WD_SYSTEM _wilddog_ct_getHost
     )
 {
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T*)p_args;
-    Wilddog_Str_T* p_host = NULL;
+/*    Wilddog_Str_T* p_host = NULL;*/
     wilddog_assert(p_ref, NULL);
     wilddog_assert(p_ref->p_ref_url, NULL);
     
-    if(p_ref->p_ref_url->p_url_host)
+/*    if(p_ref->p_ref_url->p_url_host)
     {
         int len = strlen((const char*)p_ref->p_ref_url->p_url_host);
 
@@ -905,6 +905,8 @@ STATIC Wilddog_Str_T* WD_SYSTEM _wilddog_ct_getHost
             memcpy((char*)p_host, (char*)p_ref->p_ref_url->p_url_host, len);
     }
     return p_host;
+    */
+    return p_ref->p_ref_url->p_url_host;
 }
 
 /*
@@ -922,11 +924,11 @@ STATIC Wilddog_Str_T* WD_SYSTEM _wilddog_ct_getPath
     )
 {
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T*)p_args;
-    Wilddog_Str_T* p_path = NULL;
+/*    Wilddog_Str_T* p_path = NULL;*/
     
     wilddog_assert(p_ref, NULL);
     wilddog_assert(p_ref->p_ref_url, NULL);
-    if(p_ref->p_ref_url->p_url_path)
+/*    if(p_ref->p_ref_url->p_url_path)
     {
         int len = strlen((const char*)p_ref->p_ref_url->p_url_path);
         
@@ -934,7 +936,8 @@ STATIC Wilddog_Str_T* WD_SYSTEM _wilddog_ct_getPath
         if(p_path)
             memcpy((char*)p_path, (char*)p_ref->p_ref_url->p_url_path, len);
     }
-    return p_path;
+    return p_path;*/
+    return p_ref->p_ref_url->p_url_path;
 }
 
 

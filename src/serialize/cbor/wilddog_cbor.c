@@ -1084,6 +1084,7 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeFloat
  * Output:      p_data: output data type
  * Return:      Success:0 Faied:-1
 */
+extern BOOL WD_SYSTEM _isKeyValid(Wilddog_Str_T * key, BOOL isSpritValid);
 STATIC int WD_SYSTEM _wilddog_n2c_encodeString
     (
     Wilddog_Node_T *p_node, 
@@ -1098,6 +1099,23 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeString
     if(NULL == p_node->p_wn_key && TYPE_KEY == type)
         return WILDDOG_ERR_NOERR;
 
+    /*must be check*/
+    if(TYPE_KEY == type)
+    {
+        if(FALSE == _isKeyValid(p_node->p_wn_key, FALSE))
+        {
+            if(p_node->p_wn_key)
+            {
+                /*only header's key can be "/"*/
+                if(strlen((const char*)p_node->p_wn_key) != 1 || \
+                    p_node->p_wn_key[0] != '/' || \
+                    p_node->p_wn_parent != NULL)
+                    return WILDDOG_ERR_INVALID;
+            }
+            else
+                return WILDDOG_ERR_INVALID;
+        }
+    }
     /*string data max use length*/
     int maxExpectLen = WILDDOG_CBOR_HEAD_LEN + p_node->d_wn_len + \
                        WILDDOG_CBOR_FOLLOW_4BYTE_LEN;

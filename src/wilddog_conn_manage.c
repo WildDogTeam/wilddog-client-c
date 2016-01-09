@@ -37,7 +37,7 @@
 #include "test_lib.h"
 
 /*link config */
-#define TEST_LINK_LOG_EN    (1)    
+#define TEST_LINK_LOG_EN    (0)    
 
 #define _CM_TOKEN_SHORT 's'
 #define _CM_TOKEN_LONG 'l'
@@ -262,7 +262,13 @@ STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat(Wilddog_CM_UserArg_T 
     p_newNode->d_sendTm = _wilddog_getTime();
     
     if( p_arg->p_path )    
-        p_newNode->p_path = _wilddog_url_getKey( p_arg->p_path);// p_arg->p_path;
+    {
+        p_newNode->p_path = wmalloc(strlen((const char* )p_arg->p_path) + 1);
+        if(!p_newNode->p_path)
+            return NULL;
+        //p_newNode->p_path = _wilddog_url_getKey( p_arg->p_path);// p_arg->p_path;
+        strcpy((char*)p_newNode->p_path, (char*)p_arg->p_path);        
+    }
     /* node type subscription.*/
     if( p_arg->cmd == WILDDOG_CONN_CBCMD_ON)
     {

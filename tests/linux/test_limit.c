@@ -199,12 +199,10 @@ int test_getParent()
     }
     if(strcmp((const char *)path, "/a/b") != 0)
     {
-        wfree(path);
         wilddog_destroy(&wilddog);
         wilddog_destroy(&parent);
         return -1;
     }
-    wfree(path);
 
     /* should /a */
     parent2 = wilddog_getParent(parent);
@@ -227,12 +225,10 @@ int test_getParent()
     }
     if(strcmp((const char *)path, "/a") != 0)
     {
-        wfree(path);
         wilddog_destroy(&wilddog);
         wilddog_destroy(&parent2);
         return -1;
     }
-    wfree(path);
     
     /* should / */
     parent = wilddog_getParent(parent2);
@@ -255,12 +251,10 @@ int test_getParent()
     }
     if(strcmp((const char *)path, "/") != 0)
     {
-        wfree(path);
         wilddog_destroy(&wilddog);
         wilddog_destroy(&parent);
         return -1;
     }
-    wfree(path);
 
     /* should no parent */
     parent2 = wilddog_getParent(parent);
@@ -309,12 +303,10 @@ int test_getRoot()
     }
     if(strcmp((const char *)path, "/") != 0)
     {
-        wfree(path);
         wilddog_destroy(&wilddog);
         wilddog_destroy(&root);
         return -1;
     }
-    wfree(path);
     /* should be as same as root */
     root2 = wilddog_getRoot(root);
 
@@ -382,10 +374,8 @@ int test_getChild()
     if(strcmp((const char *)path, (const char *)currentKey) != 0)
     {
         wilddog_debug("path = %s,currentKey = %s", path, currentKey);
-        wfree(path);
         goto GET_CHILD_END;
     }
-    wfree(path);
     wilddog_destroy(&child);
 
     /* Invalid, should be 0 */
@@ -412,10 +402,8 @@ int test_getChild()
     if(strcmp((const char *)path, (const char *)currentKey) != 0)
     {
         wilddog_debug("path = %s,currentKey = %s", path, currentKey);
-        wfree(path);
         goto GET_CHILD_END;
     }
-    wfree(path);
     wilddog_destroy(&child);
     /* Invalid, should be 0 */
     child = wilddog_getChild(wilddog, (Wilddog_Str_T *)"a//b");
@@ -427,7 +415,6 @@ int test_getChild()
     err = 0;
     
 GET_CHILD_END:
-    wfree(localkey);
     wilddog_destroy(&wilddog);
     wilddog_destroy(&child);
     return err;
@@ -444,7 +431,6 @@ int test_getKey()
 
     if(key)
     {
-        wfree(key);
         return -1;
     }
 
@@ -458,11 +444,9 @@ int test_getKey()
     }
     if(strcmp((const char*)key, UNUSED_URL_KEY) != 0)
     {
-        wfree(key);
         wilddog_destroy(&wilddog);
         return -1;
     }
-    wfree(key);
 
     root = wilddog_getRoot(wilddog);
 
@@ -476,12 +460,10 @@ int test_getKey()
     }
     if(strcmp((const char*)key, "/") != 0)
     {
-        wfree(key);
         wilddog_destroy(&wilddog);
         wilddog_destroy(&root);
         return -1;
     }
-    wfree(key);
 
     wilddog_destroy(&wilddog);
     wilddog_destroy(&root);
@@ -499,7 +481,6 @@ int test_getHost()
 
     if(key)
     {
-        wfree(key);
         return -1;
     }
     
@@ -516,11 +497,9 @@ int test_getHost()
     if(strcmp(UNUSED_URL_HOST, (const char*)key) != 0)
     {
         wilddog_debug("gethost = %s, real host = %s\n", key, UNUSED_URL_HOST);
-        wfree(key);
         wilddog_destroy(&wilddog);
         return -1;
     }
-    wfree(key);
 
     root = wilddog_getRoot(wilddog);
 
@@ -536,11 +515,9 @@ int test_getHost()
     if(strcmp(UNUSED_URL_HOST, (const char*)key) != 0)
     {
         wilddog_debug("gethost = %s, real host = %s\n", key, UNUSED_URL_HOST);
-        wfree(key);
         wilddog_destroy(&wilddog);
         return -1;
     }
-    wfree(key);
 
     wilddog_destroy(&wilddog);
     wilddog_destroy(&root);
@@ -557,7 +534,6 @@ int test_getPath()
 
     if(key)
     {
-        wfree(key);
         return -1;
     }
 
@@ -573,12 +549,10 @@ int test_getPath()
     if(strcmp(UNUSED_URL_PATH, (const char*)key) != 0)
     {
         wilddog_debug("gethost = %s, real host = %s\n", key, UNUSED_URL_PATH);
-        wfree(key);
         wilddog_destroy(&wilddog);
         wilddog_destroy(&root);
         return -1;
     }
-    wfree(key);
 
     root = wilddog_getRoot(wilddog);
 
@@ -593,12 +567,10 @@ int test_getPath()
     if(strcmp("/", (const char*)key) != 0)
     {
         wilddog_debug("gethost = %s, real host = %s\n", key, "/");
-        wfree(key);
         wilddog_destroy(&wilddog);
         wilddog_destroy(&root);
         return -1;
     }
-    wfree(key);
 
     wilddog_destroy(&wilddog);
     wilddog_destroy(&root);
@@ -1049,7 +1021,7 @@ int test_node_createObj()
 	/*invalid input: key is not string*/
 	memset(data, 0, 10);
 	for(i = 0; i < 10; i++)
-		data[i] = 0xaa;
+		data[i] = 127;
 	node = wilddog_node_createObject(data);
 	if(node)
 	{
@@ -1175,6 +1147,7 @@ int test_node_createBstr()
 {
 	Wilddog_Node_T * node = NULL;
 	Wilddog_Str_T data[10] = {0};
+	int i ;
 	/*valid*/
 	node = wilddog_node_createBString(NULL, (Wilddog_Str_T*)"hello", strlen("hello"));
 	if(!node)
@@ -1184,11 +1157,17 @@ int test_node_createBstr()
 	wilddog_node_delete(node);
 	
 	/*valid*/
+	for(i = 0; i < 10; i++)
+	{
+		data[i] = i;
+	}
 	node = wilddog_node_createBString((Wilddog_Str_T*)"aaa", data, 10);
 	if(!node)
 	{
 		return -1;
 	}
+	
+	
 	
 	wilddog_node_delete(node);
 	
@@ -1345,8 +1324,7 @@ int test_node_getValue()
 int test_node_setValue()
 {
 	Wilddog_Node_T * node = NULL;
-	Wilddog_Str_T * value = NULL;
-	int len = 0;
+
 	int ret = -1;
 	
 	node = wilddog_node_createUString(NULL, (Wilddog_Str_T*)"hello");
@@ -1367,15 +1345,302 @@ int test_node_setValue()
 		goto N_SETVALUE_END;
 	}
 	
+	/*invalid*/
+	ret = wilddog_node_setValue(node, (Wilddog_Str_T*)"hello", 0);
+	if(0 == ret)
+	{
+		ret = -1;
+		goto N_SETVALUE_END;
+	}
+
+	/*valid*/
+	ret = wilddog_node_setValue(node, (Wilddog_Str_T*)"aaa", strlen("aaa"));
+	if(0 != ret)
+	{
+		ret = -1;
+		goto N_SETVALUE_END;
+	}
+	if(strcmp("aaa", (const char*)node->p_wn_value) != 0)
+	{
+		goto N_SETVALUE_END;
+	}
 	ret = 0;
 N_SETVALUE_END:
 	wilddog_node_delete(node);
 	return ret;
 }
+/*wilddog_node_addChild*/
+int test_node_addChild()
+{
+	int ret = -1;
+	Wilddog_Node_T *parent = NULL, *child = NULL, *child2 = NULL;
+	
+	parent = wilddog_node_createFalse(NULL);
+	child = wilddog_node_createNum(NULL, 1);
+	child2 = wilddog_node_createUString((Wilddog_Str_T*)"aaa", (Wilddog_Str_T*)"bbb");
+	/*invalid*/
+	ret = wilddog_node_addChild(NULL, NULL);
+	if(0 == ret)
+		goto N_ADDCHILD_END;
+
+	/*invalid*/
+	ret = wilddog_node_addChild(parent, NULL);
+	if(0 == ret)
+		goto N_ADDCHILD_END;
+	
+	/*invalid*/
+	ret = wilddog_node_addChild(NULL, child);
+	if(0 == ret)
+		goto N_ADDCHILD_END;
+	
+	/*valid*/
+	ret = wilddog_node_addChild(parent, child);
+	if(0 != ret)
+		goto N_ADDCHILD_END;
+	
+	if(parent->p_wn_child != child)
+	{
+		ret = -1;
+		goto N_ADDCHILD_END;
+	}
+	
+	/*valid*/
+	ret = wilddog_node_addChild(parent, child2);
+	if(0 != ret)
+		goto N_ADDCHILD_END;
+	
+	/*head insert, new node is head*/
+	if(parent->p_wn_child != child2)
+	{
+		wilddog_node_delete(parent);
+		wilddog_node_delete(child2);
+		return -1;
+	}
+	
+	/*if add succeed, child will be free when parent free*/
+	wilddog_node_delete(parent);
+	return 0;
+	
+N_ADDCHILD_END:
+	wilddog_node_delete(parent);
+	wilddog_node_delete(child);
+	wilddog_node_delete(child2);
+	return ret;
+}
+/*wilddog_node_delete*/
+int test_node_delete()
+{
+	int ret = -1;
+	Wilddog_Node_T *parent = NULL, *child = NULL, *child2 = NULL;
+	Wilddog_Node_T *clone = NULL;
+	
+	parent = wilddog_node_createFalse(NULL);
+	child = wilddog_node_createNum(NULL, 1);
+	child2 = wilddog_node_createUString((Wilddog_Str_T*)"aaa", (Wilddog_Str_T*)"bbb");
+	
+	wilddog_node_addChild(parent, child);
+	wilddog_node_addChild(parent, child2);
+	clone = wilddog_node_clone(child2);
+	wilddog_node_addChild(child, clone);
+	
+	/*invalid*/
+	ret = wilddog_node_delete(NULL);
+	if(0 == ret)
+	{
+		wilddog_node_delete(parent);
+		return -1;
+	}
+	
+	/*valid*/
+	ret = wilddog_node_delete(parent);
+	if(0 != ret)
+	{
+		return -1;
+	}
+
+	return 0;
+}
+/*wilddog_node_clone*/
+int test_node_clone()
+{
+	int ret = -1;
+	Wilddog_Node_T *parent = NULL, *child = NULL, *child2 = NULL;
+	Wilddog_Node_T *clone = NULL;
+	
+	parent = wilddog_node_createFalse((Wilddog_Str_T*)"head");
+	child = wilddog_node_createNum((Wilddog_Str_T*)"a", 1);
+	child2 = wilddog_node_createUString((Wilddog_Str_T*)"bbb", (Wilddog_Str_T*)"123");
+	
+	wilddog_node_addChild(parent, child);
+	wilddog_node_addChild(parent, child2);
+	/*head insert, so now parent->p_wn_child is child2*/
+	
+	/*invalid*/
+	clone = wilddog_node_clone(NULL);
+	if(clone)
+		goto N_CLONE_END;
+
+	/*valid*/
+	clone = wilddog_node_clone(child);
+	if(!clone)
+	{
+		goto N_CLONE_END;
+	}
+	if(
+	    strcmp((const char*)clone->p_wn_key, (const char*)child->p_wn_key) != 0 ||
+	    clone->d_wn_type != child->d_wn_type || \
+		clone->d_wn_len != child->d_wn_len || \
+		memcmp((const char*)clone->p_wn_value, (const char*)child->p_wn_value, child->d_wn_len) != 0
+		)
+	{
+		wilddog_node_delete(clone);
+		goto N_CLONE_END;
+	}
+	wilddog_node_delete(clone);
+	
+	/*valid*/
+	clone = wilddog_node_clone(parent);
+	if(!clone)
+	{
+		goto N_CLONE_END;
+	}
+	/*parent is ok?*/
+	if(
+	    strcmp((const char*)clone->p_wn_key, (const char*)parent->p_wn_key) != 0 ||
+	    clone->d_wn_type != parent->d_wn_type || \
+		clone->d_wn_len != parent->d_wn_len || \
+		memcmp((const char*)clone->p_wn_value, (const char*)parent->p_wn_value, parent->d_wn_len) != 0
+		)
+	{
+		wilddog_node_delete(clone);
+		goto N_CLONE_END;
+	}
+	/*children ok?*/
+	if(
+	    strcmp((const char*)clone->p_wn_child->p_wn_key, (const char*)child2->p_wn_key) != 0 ||
+	    clone->p_wn_child->d_wn_type != child2->d_wn_type || \
+		clone->p_wn_child->d_wn_len != child2->d_wn_len || \
+		memcmp((const char*)clone->p_wn_child->p_wn_value, (const char*)child2->p_wn_value, child2->d_wn_len) != 0
+		)
+	{
+		wilddog_node_delete(clone);
+		goto N_CLONE_END;
+	}
+	if(
+	    strcmp((const char*)clone->p_wn_child->p_wn_next->p_wn_key, (const char*)child->p_wn_key) != 0 ||
+	    clone->p_wn_child->p_wn_next->d_wn_type != child->d_wn_type || \
+		clone->p_wn_child->p_wn_next->d_wn_len != child->d_wn_len || \
+		memcmp((const char*)clone->p_wn_child->p_wn_next->p_wn_value, (const char*)child->p_wn_value, child->d_wn_len) != 0
+		)
+	{
+		wilddog_node_delete(clone);
+		goto N_CLONE_END;
+	}
+	wilddog_node_delete(clone);
+	
+	ret = 0;
+N_CLONE_END:
+	wilddog_node_delete(parent);
+	return ret;
+}
+/*wilddog_node_find*/
+int test_node_find()
+{
+	int ret = -1;
+	Wilddog_Node_T *parent = NULL, *child = NULL, *child2 = NULL, *grandson = NULL;
+	Wilddog_Node_T *clone = NULL;
+	
+	parent = wilddog_node_createFalse((Wilddog_Str_T*)"head");
+	child = wilddog_node_createNum((Wilddog_Str_T*)"a", 1);
+	child2 = wilddog_node_createUString((Wilddog_Str_T*)"bbb", (Wilddog_Str_T*)"123");
+	
+	wilddog_node_addChild(parent, child);
+	wilddog_node_addChild(parent, child2);
+	grandson = wilddog_node_clone(child2);
+	wilddog_node_addChild(child, grandson);
+	/*head insert, so now parent->p_wn_child is child2*/
+	
+	/*
+	 * now tree is:
+	 *				head
+	 *				/   \
+	 *			  bbb    a
+	 *             |     /
+	 *            123   bbb
+	 *					 |
+	 *					123
+	*/
+	
+	/*invalid*/
+	clone = wilddog_node_find(NULL, NULL);
+	if(clone)
+	{
+		goto N_FIND_END;
+	}
+	
+	/*invalid*/
+	clone = wilddog_node_find(parent, NULL);
+	if(clone)
+	{
+		goto N_FIND_END;
+	}
+	
+	/*valid*/
+	clone = wilddog_node_find(parent, "a");
+	if(!clone)
+	{
+		goto N_FIND_END;
+	}
+	if(clone != child)
+	{
+		wilddog_debug("error!");
+		goto N_FIND_END;
+	}
+	
+	/*valid*/
+	clone = wilddog_node_find(parent, "/a");
+	if(!clone)
+	{
+		goto N_FIND_END;
+	}
+	if(clone != child)
+	{
+		wilddog_debug("error!");
+		goto N_FIND_END;
+	}
+	
+	/*valid*/
+	clone = wilddog_node_find(parent, "a/bbb");
+	if(!clone)
+	{
+		goto N_FIND_END;
+	}
+	if(clone != grandson)
+	{
+		wilddog_debug("error!");
+		goto N_FIND_END;
+	}
+	
+	/*valid*/
+	clone = wilddog_node_find(parent, "/a/bbb");
+	if(!clone)
+	{
+		goto N_FIND_END;
+	}
+	if(clone != grandson)
+	{
+		wilddog_debug("error!");
+		goto N_FIND_END;
+	}
+	ret = 0;
+N_FIND_END:
+	wilddog_node_delete(parent);
+	return ret;
+}
 
 struct test_reult_t test_results[] = 
 {
-/*    {"wilddog_initWithUrl",                 test_new,               0},
+    {"wilddog_initWithUrl",                 test_new,               0},
     {"wilddog_destroy",                     test_destroy,           0},
     {"wilddog_auth",                        test_auth,              0},
     {"wilddog_getParent",                   test_getParent,         0},
@@ -1403,8 +1668,13 @@ struct test_reult_t test_results[] =
 	{"wilddog_node_createNum",				test_node_createNum,	0},
 	{"wilddog_node_createNull",				test_node_createNull,	0},
 	{"wilddog_node_createTrue",				test_node_createTrue,	0},
-	{"wilddog_node_createFalse",			test_node_createFalse,	0},*/
+	{"wilddog_node_createFalse",			test_node_createFalse,	0},
 	{"wilddog_node_getValue",				test_node_getValue,		0},
+	{"wilddog_node_setValue",				test_node_setValue,		0},
+	{"wilddog_node_addChild",				test_node_addChild,		0},
+	{"wilddog_node_delete",					test_node_delete,		0},
+	{"wilddog_node_clone",					test_node_clone,		0},
+	{"wilddog_node_find",					test_node_find,			0},
     {NULL, NULL, -1},
 };
 

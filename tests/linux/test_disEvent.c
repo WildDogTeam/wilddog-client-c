@@ -80,12 +80,13 @@ int dis_finish = 0;
 
 STATIC void dis_callback(void* arg, Wilddog_Return_T err)
 {
+	*(BOOL*)arg = TRUE;
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
     {
         wilddog_debug("removeValue failed error = %d!",err);
         return ;
     }
-    *(BOOL*)arg = TRUE;
+
     return;
 }
 

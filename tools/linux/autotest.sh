@@ -2,14 +2,29 @@
 
 if [ ! -n  "$1" ]
 then
-	echo "please use like: autotest.sh nosec | tinydtls | dtls "
+	echo "please use like: autotest.sh <-s nosec|tinydtls|dtls> "
+	echo "[-1 xxx] [-2 xxx] [-3 xxx] [-4 xxx] [-a xxx]"
 	exit
 fi
+
 cd ../../
 
-export APP_SEC_TYPE=$1
+while getopts ":s:1:2:3:4:a:" opt
+do
+        case $opt in
+                s ) export APP_SEC_TYPE=$OPTARG;;
+                1 ) export URL1=$OPTARG;;
+                2 ) export URL2=$OPTARG;;
+                3 ) export URL3=$OPTARG;;
+                4 ) export URL4=$OPTARG;;
+                a ) export AUTH=$OPTARG;;
+#                ? ) echo "error"
+#                    exit 1;;
+        esac
+done
+echo ${APP_SEC_TYPE}
 
-make test APP_SEC_TYPE=${APP_SEC_TYPE}
+make test APP_SEC_TYPE=${APP_SEC_TYPE} URL1=${URL1} URL2=${URL2} URL3=${URL3} URL4=${URL4} AUTH=${AUTH}
 
 ./bin/test_limit
 WD_LIMIT=$?
@@ -19,9 +34,6 @@ WD_NODE=$?
 
 ./bin/test_multipleHost
 WD_MULTIPLEHOST=$?
-
-./bin/test_mts
-WD_MTS=$?
 
 ./bin/test_step
 WD_STEP=$?
@@ -57,12 +69,7 @@ then
 else
 	echo "wilddog test_multipleHost test pass!"
 fi
-if [ ${WD_MTS} -ne 0 ]
-then
-	echo "wilddog test_mts test failed, please run test_mts to find more information!"
-else
-	echo "wilddog test_mts test pass!"
-fi
+
 if [ ${WD_STEP} -ne 0 ]
 then
 	echo "wilddog test_step test failed, please run test_step to find more information!"
