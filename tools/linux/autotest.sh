@@ -45,9 +45,9 @@ echo "\n************************************************************************
 
 if [ ${WD_DISEVENT} -ne 0 ]
 then
-	echo "wilddog property test failed, please run test_wdProperty to find more information!"
+	echo "wilddog dis event test failed, please run test_disEvent to find more information!"
 else
-	echo "wilddog property test pass!"
+	echo "wilddog dis event test pass!"
 fi
 
 if [ ${WD_LIMIT} -ne 0 ]
