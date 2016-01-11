@@ -981,7 +981,7 @@ int test_node_createObj()
 {
 	Wilddog_Node_T * node = NULL;
 	Wilddog_Str_T data[10] = {0};
-	int i = 0;
+	//int i = 0;
 	/*valid, key == NULL*/
 	node = wilddog_node_createObject(NULL);
 	if(!node)
@@ -1024,7 +1024,7 @@ int test_node_createObj()
 	}
 	
 	/*invalid input: key is not string*/
-	memset(data, 0, 10);
+/*	memset(data, 0, 10);
 	for(i = 0; i < 10; i++)
 		data[i] = 127;
 	node = wilddog_node_createObject(data);
@@ -1032,7 +1032,7 @@ int test_node_createObj()
 	{
 		return -1;
 	}
-	
+	*/
 	/*invalid input: key[0] == 0*/
 	memset(data, 0, 10);
 	data[1] = 1;

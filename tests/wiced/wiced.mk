@@ -135,6 +135,7 @@ $(WILDDOG_TOP_DIR)/src/ramtest.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_api.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_common.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_conn.c \
+$(WILDDOG_TOP_DIR)/src/wilddog_conn_manage.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_ct.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_debug.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_event.c \

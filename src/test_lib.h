@@ -61,7 +61,6 @@ typedef struct RAMTEST_T{
 #define TEST_TREE_ITEMS     5
 #define TEST_PROTO_COVER        100
 
-
 /* ram test_api*/
 extern void ramtest_init(u32 tree_num,u32 request_num);
 extern void ramtest_titile_printf(void);
