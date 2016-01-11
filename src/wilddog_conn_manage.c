@@ -224,7 +224,14 @@ STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat(Wilddog_CM_UserArg_T 
     p_newNode->d_sendTm = _wilddog_getTime();
     
     if( p_arg->p_path )    
-        p_newNode->p_path = _wilddog_url_getKey( p_arg->p_path);// p_arg->p_path;
+    {
+       int tmpLen = strlen((const char*)p_arg->p_path) +1;
+       p_newNode->p_path = wmalloc(tmpLen);
+       if(p_newNode->p_path == NULL)
+            return NULL;
+       memset(p_newNode->p_path,0,tmpLen);
+       memcpy(p_newNode->p_path,p_arg->p_path,(tmpLen-1));
+    }
     /* node type subscription.*/
     if( p_arg->cmd == WILDDOG_CONN_CBCMD_ON)
     {

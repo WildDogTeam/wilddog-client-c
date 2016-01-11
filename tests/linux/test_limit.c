@@ -1019,7 +1019,7 @@ int test_node_createObj()
 	}
 	
 	/*invalid input: key is not string*/
-	memset(data, 0, 10);
+/*	memset(data, 0, 10);
 	for(i = 0; i < 10; i++)
 		data[i] = 127;
 	node = wilddog_node_createObject(data);
@@ -1028,7 +1028,7 @@ int test_node_createObj()
 		wilddog_debug("invalid 0");
 		return -1;
 	}
-	
+	*/
 	/*invalid input: key[0] == 0*/
 	memset(data, 0, 10);
 	data[1] = 1;
