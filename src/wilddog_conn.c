@@ -110,7 +110,7 @@ STATIC void WD_SYSTEM _wilddog_conn_cb_get
         
         if( p_path )
             _wilddog_node_setKey(p_snapshot, p_path);
-        wilddog_debug("%s", p_path);
+   
 #ifdef WILDDOG_SELFTEST        
         ramtest_caculate_nodeRam();
 #endif
