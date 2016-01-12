@@ -981,7 +981,7 @@ int test_node_createObj()
 {
 	Wilddog_Node_T * node = NULL;
 	Wilddog_Str_T data[10] = {0};
-	int i = 0;
+	//int i = 0;
 	/*valid, key == NULL*/
 	node = wilddog_node_createObject(NULL);
 	if(!node)
@@ -1005,6 +1005,12 @@ int test_node_createObj()
 	{
 		return -1;
 	}
+    if(strcmp((const char*)node->p_wn_key, "a")!= 0 || \
+       strcmp((const char*)node->p_wn_child->p_wn_key, "b")!= 0)
+    {
+        wilddog_node_delete(node);
+        return -1;
+    }
 	wilddog_node_delete(node);
 	
 	/*invalid, key == "//"*/
@@ -1014,7 +1020,6 @@ int test_node_createObj()
 	node = wilddog_node_createObject(data);
 	if(node)
 	{
-		wilddog_debug("invalid 0");
 		return -1;
 	}
 	
@@ -1025,7 +1030,6 @@ int test_node_createObj()
 	node = wilddog_node_createObject(data);
 	if(node)
 	{
-		wilddog_debug("invalid 0");
 		return -1;
 	}
 	*/
@@ -1035,7 +1039,6 @@ int test_node_createObj()
 	node = wilddog_node_createObject(data);
 	if(node)
 	{
-		wilddog_debug("invalid 0");
 		return -1;
 	}
 
@@ -1046,7 +1049,6 @@ int test_node_createObj()
 	node = wilddog_node_createObject(data);
 	if(node)
 	{
-		wilddog_debug("invalid 0");
 		return -1;
 	}
 	
@@ -1057,7 +1059,6 @@ int test_node_createObj()
 	node = wilddog_node_createObject(data);
 	if(node)
 	{
-		wilddog_debug("invalid 0");
 		return -1;
 	}
 
@@ -1068,7 +1069,6 @@ int test_node_createObj()
 	node = wilddog_node_createObject(data);
 	if(node)
 	{
-		wilddog_debug("invalid 0");
 		return -1;
 	}
 	
@@ -1079,7 +1079,6 @@ int test_node_createObj()
 	node = wilddog_node_createObject(data);
 	if(node)
 	{
-		wilddog_debug("invalid 0");
 		return -1;
 	}
 	
@@ -1090,7 +1089,6 @@ int test_node_createObj()
 	node = wilddog_node_createObject(data);
 	if(node)
 	{
-		wilddog_debug("invalid 0");
 		return -1;
 	}
 	
@@ -1101,7 +1099,6 @@ int test_node_createObj()
 	node = wilddog_node_createObject(data);
 	if(node)
 	{
-		wilddog_debug("invalid 0");
 		return -1;
 	}
 	return 0;
@@ -1166,8 +1163,6 @@ int test_node_createBstr()
 	{
 		return -1;
 	}
-	
-	
 	
 	wilddog_node_delete(node);
 	
