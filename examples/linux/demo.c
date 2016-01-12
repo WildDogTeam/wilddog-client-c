@@ -262,7 +262,7 @@ int main(int argc, char **argv)
                  "Usage: %s setAuth|getValue|setValue|push|removeValue|addObser\n"
                 "\t|disSetValue|disPush|disRemove|cacelDis|offLine|onLine\n"
                 "\tver -l coap://<your appid>.wilddogio.com/ [ --auth=<auth data> "
-                "--key=<key>  --value=<value>]\n"
+                "--key=<key>  --value=<value>]\n",
                     argv[0]);
             return 0;
         
@@ -276,7 +276,7 @@ int main(int argc, char **argv)
                "Usage: %s setAuth|getValue|setValue|push|removeValue|addObser\n"
                "\t|disSetValue|disPush|disRemove|cacelDis|offLine|onLine\n"
                "\tver -l coap://<your appid>.wilddogio.com/ [ --auth=<auth data> "
-               "--key=<key>  --value=<value>]\n" 
+               "--key=<key>  --value=<value>]\n",
                     argv[0]);
             return 0;
         }
