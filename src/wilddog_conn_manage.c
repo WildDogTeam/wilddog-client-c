@@ -35,6 +35,7 @@
 #include "wilddog_conn_coap.h"
 
 #include "test_lib.h"
+int g_sendL = FALSE;
 
 /*link config */
 #define TEST_LINK_LOG_EN    (1)    
@@ -1290,6 +1291,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeStepIncrease
     }
 
     p_cmsys_n->d_pingType =  _CM_SYS_PINGTYPE_SHORT;
+    g_sendL = FALSE;
+    wilddog_debug("set false");
     /* step increase.*/    
     if(p_cmsys_n->d_intervalTm >= _CM_SYS_PING_INTERVAL_MAX_SEC)
     {
@@ -1342,6 +1345,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeSkip
  * Output:      N/A
  * Return:      Wilddog_Return_T type.
 */
+
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeReset
        (
         _CM_SYS_Node_T *p_cmsys_n
@@ -1356,7 +1360,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeReset
            }
     }
     p_cmsys_n->d_pingType = _CM_SYS_PINGTYPE_LONG;
-    
+    g_sendL = TRUE;
+    wilddog_debug("set true");
 #if TEST_LINK_LOG_EN
     ++(p_cmsys_n->d_long_pingCont);
 #endif

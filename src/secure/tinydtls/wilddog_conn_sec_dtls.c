@@ -50,8 +50,8 @@
 #endif /* __GNUC__ */
 
 typedef struct WILDDOG_CONN_SEC_T{
-    size_t d_fd;
     dtls_context_t *dtls_context;
+    size_t d_fd;
     session_t dst;
     unsigned short d_delstState;
     u8 *p_recvbuf;
@@ -60,6 +60,7 @@ typedef struct WILDDOG_CONN_SEC_T{
     u8 reserved1;
     u8 reserved2;
     u8 reserved3;
+    u8 sessionId[32];
 }Wilddog_Conn_Sec_T;
 
 STATIC  Wilddog_Conn_Sec_T d_conn_sec_dtls;
@@ -248,6 +249,7 @@ STATIC int verify_ecdsa_key
   return 0;
 }
 #endif /* DTLS_ECC */
+extern int g_sendL;
 STATIC int read_from_peer
     (
     struct dtls_context_t *ctx, 
@@ -256,6 +258,7 @@ STATIC int read_from_peer
     )
 {
     size_t i,readlen;
+    
     if(d_conn_sec_dtls.p_recvbuf == NULL)
         return 0;
     d_conn_sec_dtls.d_recvFig = 1;
@@ -265,6 +268,7 @@ STATIC int read_from_peer
         d_conn_sec_dtls.p_recvbuf[i] = data[i];
     }
     d_conn_sec_dtls.d_recvlen = readlen;
+
     return 0;
 }
 
@@ -446,6 +450,7 @@ int _wilddog_sec_recv
     )
 {
     int res = 0;
+    static int count = 0;
     _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
     d_conn_sec_dtls.p_recvbuf = p_data;
     d_conn_sec_dtls.d_recvlen = len;
@@ -455,7 +460,37 @@ int _wilddog_sec_recv
     res = dtls_handle_read(d_conn_sec_dtls.dtls_context);
     if( d_conn_sec_dtls.d_recvFig )
         res = d_conn_sec_dtls.d_recvlen;
-    
+    if(g_sendL == TRUE)
+    {
+        count++;
+        wilddog_debug("g_sendL is true");
+    }
+    else
+        count = 0;
+    if(count == 1)
+    {
+        dtls_peer_t *peer;
+        int sec_int_cnt = 0;
+        peer = dtls_get_peer(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst);
+        wilddog_debug("peer= %x", peer);
+        //dtls_connect_peer(d_conn_sec_dtls.dtls_context, peer);
+        res = dtls_connect(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst);
+        while(d_conn_sec_dtls.d_delstState != DTLS_EVENT_CONNECTED)
+        {
+            if(sec_int_cnt++ > 100)
+                break;
+        
+            /*dtls alert */
+            if( d_conn_sec_dtls.d_delstState < DTLS_EVENT_CONNECT)
+                    break;
+        
+            res = dtls_handle_read(d_conn_sec_dtls.dtls_context);
+            if(res < 0)
+                break;
+        }
+
+    }
+
     return res;
     
 }
