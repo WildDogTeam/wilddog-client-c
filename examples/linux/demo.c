@@ -5,7 +5,7 @@
  *
  * Description: Wilddog demo file.
  *
- * Usage: demo <operation> <-h|-l url> [--key=<arg1>] [--value=<arg2>]
+ * Usage: demo <operation> <-h|-l url> [--auth=<auth data>--key=<arg1>] [--value=<arg2>]
  *      
  *          operations:
  *                  getValue:       get value of the url.
@@ -25,6 +25,19 @@
  *                                  the permission to operate, if you set the
  *                                  control rules in the cloud. 
  *                                  need [--value=<token>] followed.
+ *                  disSetValue : Set the device's disconnect action to cloud, when the device is 
+ *                                       offline, the value will be set to the cloud.
+ *                  disPush : Set the device's disconnect action to cloud, when the device is 
+ *                                  offline, the value will be push to the cloud.
+ *                  disRemove :Set the device's disconnect action to cloud, when the device is 
+ *                                      offline, all data belong to that path will be remove in the cloud.
+ *                  cacelDis :  Cancel the wilddog client's disconnect actions.
+ *                  offLine : let the device offline. 
+ *                  onLine :let the device online.
+ *                  
+ *                  --auth=<auth data> : secret key,send the aut token to server first and get
+ *                                  the permission to operate, if you set the
+ *                                  control rules in the cloud. 
  *          -h: help
  *          -l: note that a url followed
  *          url:
@@ -198,21 +211,27 @@ int main(int argc, char **argv)
     char url[1024];
     char value[1024];
     char keys[256];
-    char host[512];
+    char host[512];    
+    char authData[512];
+    BOOL authFlag = FALSE;
+    
     memset(url,0,sizeof(url));  
     memset(value,0,sizeof(value));
     memset(keys,0,sizeof(keys));
     memset(host,0,sizeof(host));
+    memset(authData,0,sizeof(authData));
     
     int type = 0;
     int opt,i,res = 0,cnt=0,cntmax=0;
     int option_index = 0;
-    BOOL isFinish = FALSE;
+    BOOL isFinish = FALSE,authFinish;
     Wilddog_T wilddog = 0;
     Wilddog_Node_T * p_node = NULL,*p_head = NULL;
 
     static struct option long_options[] = 
     {
+    
+        {"auth",    required_argument, 0,  0 },
         {"value",   required_argument, 0,  0 },
         {"key",     required_argument, 0,  0 },
         {0,         0,                 0,  0 }
@@ -230,14 +249,20 @@ int main(int argc, char **argv)
                     memcpy(keys, optarg,strlen(optarg));
                 if(strcmp(long_options[option_index].name,"value")==0)
                     memcpy(value, optarg,strlen(optarg));
+                if(strcmp(long_options[option_index].name,"auth")==0)
+                {
+                    authFlag = TRUE;
+                    memcpy(authData, optarg,strlen(optarg));
+                 }
             }
             break;
 
         case 'h':
             fprintf(stderr, \
-                    "Usage: %s setAuth|getValue|setValue|push|removeValue|"
-                    "addObserver -l coap://<your appid>.wilddogio.com/ "
-                    "[--key=<key> --value=<value>]\n", 
+                 "Usage: %s setAuth|getValue|setValue|push|removeValue|addObser\n"
+                "\t|disSetValue|disPush|disRemove|cacelDis|offLine|onLine\n"
+                "\tver -l coap://<your appid>.wilddogio.com/ [ --auth=<auth data> "
+                "--key=<key>  --value=<value>]\n"
                     argv[0]);
             return 0;
         
@@ -248,9 +273,10 @@ int main(int argc, char **argv)
             break;          
         default: /* '?' */
             fprintf(stderr, \
-                    "Usage: %s setAuth|getValue|setValue|push|removeValue|"
-                    "addObserver -l coap://<your appid>.wilddogio.com/ "
-                    "[--key=<key> --value=<value>]\n", 
+               "Usage: %s setAuth|getValue|setValue|push|removeValue|addObser\n"
+               "\t|disSetValue|disPush|disRemove|cacelDis|offLine|onLine\n"
+               "\tver -l coap://<your appid>.wilddogio.com/ [ --auth=<auth data> "
+               "--key=<key>  --value=<value>]\n" 
                     argv[0]);
             return 0;
         }
@@ -326,8 +352,8 @@ int main(int argc, char **argv)
     {
         printf("Usage: %s setAuth|getValue|setValue|push|removeValue|addObser\n"
                 "\t|disSetValue|disPush|disRemove|cacelDis|offLine|onLine\n"
-               "\tver -l coap://<your appid>.wilddogio.com/ [--key=<key> "
-               "--value=<value>]\n", 
+               "\tver -l coap://<your appid>.wilddogio.com/ [ --auth=<auth data> "
+               "--key=<key>  --value=<value>]\n", 
                argv[0]);
         return 0;
     }
@@ -344,6 +370,10 @@ int main(int argc, char **argv)
 
     /*Init a wilddog client*/
     wilddog = wilddog_initWithUrl((Wilddog_Str_T *)url);
+    if(authFlag == TRUE)
+        res = wilddog_auth((u8*)host,(u8*)authData, \
+                               strlen((const char *)authData),
+                               auth_callback,(void*)&authFinish);
     switch(type)
     {
         case TEST_CMD_GET:

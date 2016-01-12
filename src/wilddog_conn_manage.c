@@ -66,7 +66,7 @@
 #define _CM_SYS_PING_LONGTOKEN_PATH   "/.rst"
 
 
-#define _CM_SYS_STEPINIT_SEC    ( 10 )
+#define _CM_SYS_STEP_SEC    ( 10 )
 #define _CM_SYS_INTERVALINIT_SEC (20 )   
 #define _CM_SYS_KEEPOFFLINE     (3)
 #define _CM_SYS_OFFLINE_PINGTM_SEC (3*60)
@@ -1186,7 +1186,7 @@ STATIC u8 WD_SYSTEM _wilddog_cm_sys_getOnlineState
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeInit(_CM_SYS_Node_T *p_cmsys_n)
 {
     p_cmsys_n->d_intervalTm = _CM_SYS_INTERVALINIT_SEC;
-    p_cmsys_n->d_stepTm = _CM_SYS_STEPINIT_SEC;
+    p_cmsys_n->d_stepTm = _CM_SYS_STEP_SEC;
 
     if( p_cmsys_n->d_pingType != _CM_SYS_PINGTYPE_SHORT)
     {
@@ -1279,7 +1279,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeStepIncrease
                 }
                 else
                 {   /*convergence and nat change*/
-                    p_cmsys_n->d_stepTm = _CM_SYS_STEPINIT_SEC;
+                    p_cmsys_n->d_stepTm = _CM_SYS_STEP_SEC;
                     p_cmsys_n->d_intervalTm -=  p_cmsys_n->d_stepTm;
                 }
            }
@@ -1376,7 +1376,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeReset
         
         p_cmsys_n->d_sendCnt = 0;
         p_cmsys_n->d_intervalTm = _CM_SYS_INTERVALINIT_SEC;
-        p_cmsys_n->d_stepTm = _CM_SYS_STEPINIT_SEC;
+        p_cmsys_n->d_stepTm = _CM_SYS_STEP_SEC;
         /* set offline.*/
         
         _wilddog_cm_sys_setOnLineState(p_cmsys_n->p_cm_l,CM_OFFLINE);
