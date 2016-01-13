@@ -32,10 +32,10 @@
 
 #include "wilddog_conn.h"
 #include "wilddog_conn_manage.h"
+#include "wilddog_sec.h"
 #include "wilddog_conn_coap.h"
 
 #include "test_lib.h"
-int g_sendL = FALSE;
 
 /*link config */
 #define TEST_LINK_LOG_EN    (1)    
@@ -65,7 +65,7 @@ int g_sendL = FALSE;
 
 #define _CM_SYS_PING_SHORTTOKEN_PATH   "/.ping"
 #define _CM_SYS_PING_LONGTOKEN_PATH   "/.rst"
-
+#define _CM_SYS_RECONNECT_TIME  (2)
 
 #define _CM_SYS_STEP_SEC    ( 10 )
 #define _CM_SYS_INTERVALINIT_SEC (20 )   
@@ -1291,8 +1291,6 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeStepIncrease
     }
 
     p_cmsys_n->d_pingType =  _CM_SYS_PINGTYPE_SHORT;
-    g_sendL = FALSE;
-    wilddog_debug("set false");
     /* step increase.*/    
     if(p_cmsys_n->d_intervalTm >= _CM_SYS_PING_INTERVAL_MAX_SEC)
     {
@@ -1340,7 +1338,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeSkip
 }
 /*
  * Function:    _wilddog_cm_sys_timeReset
- * Description: ping request lost or server have support.
+ * Description: ping request lost or server haven't support.
  * Input:       p_cmsys_n:  ping node pointer.
  * Output:      N/A
  * Return:      Wilddog_Return_T type.
@@ -1360,8 +1358,6 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeReset
            }
     }
     p_cmsys_n->d_pingType = _CM_SYS_PINGTYPE_LONG;
-    g_sendL = TRUE;
-    wilddog_debug("set true");
 #if TEST_LINK_LOG_EN
     ++(p_cmsys_n->d_long_pingCont);
 #endif
@@ -1371,7 +1367,6 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeReset
         p_cmsys_n->d_ping_registerTm = _wilddog_getTime();
         p_cmsys_n->d_ping_sendTm = _wilddog_getTime();
         p_cmsys_n->d_sendCnt = 0;
-
     }
     else
     {
@@ -1414,10 +1409,19 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_recvHandle
         if( p_recv->err == WILDDOG_HTTP_BAD_REQUEST &&
             p_cmsys_n->d_pingType == _CM_SYS_PINGTYPE_LONG)
         {   
-                p_cmsys_n->p_cm_l->d_authStatus = CM_SESSION_DOAUTH;     
-                /* reset ping time.*/
-                _wilddog_cm_sys_timeInit(p_cmsys_n);
-                return WILDDOG_ERR_NOERR;
+            p_cmsys_n->p_cm_l->d_authStatus = CM_SESSION_DOAUTH;     
+            /* reset ping time.*/
+            _wilddog_cm_sys_timeInit(p_cmsys_n);
+            return WILDDOG_ERR_NOERR;
+        }
+        /* package lost ,init session.*/
+        if(p_recv->err == WILDDOG_ERR_RECVTIMEOUT)
+        {
+#if TEST_LINK_LOG_EN 
+            
+            wilddog_debug("\t<><>\tre_connect\n");
+#endif
+            _wilddog_sec_reconnect(p_cmsys_n->p_cm_l->p_host,WILDDOG_PORT,_CM_SYS_RECONNECT_TIME);
         }
         /* err responds.*/
         _wilddog_cm_sys_timeReset(p_cmsys_n);

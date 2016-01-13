@@ -248,7 +248,6 @@ STATIC int verify_ecdsa_key
   return 0;
 }
 #endif /* DTLS_ECC */
-extern int g_sendL;
 STATIC int read_from_peer
     (
     struct dtls_context_t *ctx, 
@@ -425,18 +424,31 @@ Wilddog_Return_T _wilddog_sec_reconnect
     int retryNum
     )
 {
-    int res;
+    
+    int res = 0,tmp=0;
+    
+#if 0
     res = _wilddog_sec_reconnectInner(d_conn_sec_dtls.dtls_context, 
                                       &d_conn_sec_dtls.dst,
                                       WILDDOG_RETRANSMITE_TIME,
                                       retryNum);
     if(res < 0)
+#endif        
+    while(1)
     {
+        wilddog_debug("\t <><> sec deinit");
         wilddog_debug_level(WD_DEBUG_WARN, "reset!");
         _wilddog_sec_deinit();
-        return _wilddog_sec_init(p_host, d_port);
+        
+        res = _wilddog_sec_init(p_host, d_port);
+        if(res < 0 && tmp < retryNum)
+        {
+            tmp++;
+            continue;
+        }
+        break;
     }
-    return 0;
+    return res;
 }
 
 /* do not malloc session*/
@@ -525,11 +537,6 @@ int _wilddog_sec_recv
     res = dtls_handle_read(d_conn_sec_dtls.dtls_context);
     if( d_conn_sec_dtls.d_recvFig )
         res = d_conn_sec_dtls.d_recvlen;
-    if(g_sendL == TRUE)
-    {
-        //_wilddog_sec_reconnect("anyhost", WILDDOG_PORT, WD_DEAULT_RETRY_TIME);
-        g_sendL = FALSE;
-    }
 
     return res;
     
@@ -610,7 +617,7 @@ Wilddog_Return_T _wilddog_sec_deinit(void)
     dtls_free_context(d_conn_sec_dtls.dtls_context);
     if(l_tinyfd)
     	wilddog_closeSocket(l_tinyfd);
-
+    
     l_tinyfd = 0;
     memset(&l_tinyaddr_in,0,sizeof(l_tinyaddr_in));
     memset(&d_conn_sec_dtls, 0, sizeof(Wilddog_Conn_Sec_T));
