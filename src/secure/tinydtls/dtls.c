@@ -2974,7 +2974,10 @@ dtls_renegotiate(dtls_context_t *ctx, const session_t *dst)
   peer->handshake_params = dtls_handshake_new();
   if (!peer->handshake_params)
     return -1;
-
+  dtls_security_free(peer->security_params[0]);
+  dtls_security_free(peer->security_params[1]);
+  peer->security_params[0] = dtls_security_new();
+  peer->security_params[1] = dtls_security_new();
   peer->handshake_params->hs_state.mseq_r = 0;
   peer->handshake_params->hs_state.mseq_s = 0;
 

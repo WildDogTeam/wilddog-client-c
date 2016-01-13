@@ -152,9 +152,7 @@ int _net_recv_timeout
 /*
  * Function:    _wilddog_sec_send
  * Description: Dtls security send function
- * Input:       fd: socket id    
- *				addr_in: The address which contains ip and port
- *				p_data: The buffer which store the sending data
+ * Input:       p_data: The buffer which store the sending data
  *				len: The length of the wanting send data
  * Output:      N/A
  * Return:      Success:0
@@ -177,9 +175,7 @@ Wilddog_Return_T _wilddog_sec_send
 /*
  * Function:    _wilddog_sec_recv
  * Description: Dtls security recv function
- * Input:       fd: socket id    
- *				addr_in: The address which contains ip and port
- *				len: The length of the wanting receive data
+ * Input:       len: The length of the wanting receive data
  * Output:      p_data: The buffer which store the receiving data
  * Return:      The length of the actual receiving data
 */
@@ -202,8 +198,8 @@ int _wilddog_sec_recv
 /*
  * Function:    _wilddog_sec_init
  * Description: Initialize dtls security session
- * Input:       fd: socket id    
- 				addr_in: The address which contains ip and port
+ * Input:       p_host: url host string  
+ 				d_port: the port want to connect
  * Output:      N/A
  * Return:      Success: 0    Faied: <0
 */
@@ -388,8 +384,7 @@ Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
 /*
  * Function:    _wilddog_sec_deinit
  * Description: Destroy dtls security session
- * Input:       fd: socket id    
- *				addr_in: The address which contains ip and port
+ * Input:       N/A
  * Output:      N/A
  * Return:      Success: 0
 */
@@ -421,5 +416,32 @@ Wilddog_Return_T _wilddog_sec_deinit(void)
 
 
     return WILDDOG_ERR_NOERR;
+}
+/*
+ * Function:    _wilddog_sec_init
+ * Description: Initialize dtls security session
+ * Input:       p_host: url host string  
+ *              d_port: the port want to connect
+ *              retryNum: Max retry time
+ * Output:      N/A
+ * Return:      Success: 0    Faied: < 0
+*/
+Wilddog_Return_T _wilddog_sec_reconnect
+    (
+    Wilddog_Str_T *p_host,
+    u16 d_port,
+    int retryNum
+    )
+{
+    int i;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    for(i = 0; i < retryNum; i++)
+    {
+        _wilddog_sec_deinit();
+        ret = _wilddog_sec_init(p_host, d_port);
+        if(WILDDOG_ERR_NOERR == ret)
+            return ret;
+    }
+    return ret;
 }
 
