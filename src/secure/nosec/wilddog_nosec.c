@@ -88,4 +88,31 @@ Wilddog_Return_T WD_SYSTEM _wilddog_sec_deinit(void)
         wilddog_closeSocket(l_fd);
     return WILDDOG_ERR_NOERR;
 }
+/*
+ * Function:    _wilddog_sec_init
+ * Description: Initialize dtls security session
+ * Input:       p_host: url host string  
+ *              d_port: the port want to connect
+ *              retryNum: Max retry time
+ * Output:      N/A
+ * Return:      Success: 0    Faied: < 0
+*/
+Wilddog_Return_T _wilddog_sec_reconnect
+    (
+    Wilddog_Str_T *p_host,
+    u16 d_port,
+    int retryNum
+    )
+{
+    int i;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    for(i = 0; i < retryNum; i++)
+    {
+        _wilddog_sec_deinit();
+        ret = _wilddog_sec_init(p_host, d_port);
+        if(WILDDOG_ERR_NOERR == ret)
+            return ret;
+    }
+    return ret;
+}
 

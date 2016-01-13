@@ -15,7 +15,7 @@ else
 QUIET = @
 MAKE += --no-print-directory
 endif
-CFLAGS+=-Wall -g
+CFLAGS+=-Wall -O2
 
 ifeq ($(COVER), 1)
 CFLAGS+= -fprofile-arcs -ftest-coverage
