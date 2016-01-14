@@ -1421,7 +1421,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_recvHandle
             
             wilddog_debug("\t<><>\tre_connect\n");
 #endif
-            _wilddog_sec_reconnect(p_cmsys_n->p_cm_l->p_host,WILDDOG_PORT,_CM_SYS_RECONNECT_TIME);
+            _wilddog_sec_reconnect( p_cmsys_n->p_cm_l->p_host,
+                                    WILDDOG_PORT,_CM_SYS_RECONNECT_TIME);
         }
         /* err responds.*/
         _wilddog_cm_sys_timeReset(p_cmsys_n);
