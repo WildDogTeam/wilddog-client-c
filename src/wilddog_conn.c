@@ -351,12 +351,12 @@ STATIC int _wilddog_conn_set(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
    
    /*add payload*/
     pkg_cborPayload.p_pkg = p_pkg_index;
-    if( _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&pkg_cborPayload,0) < 0)
+    if( (int)_wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&pkg_cborPayload,0) < 0)
         goto _CONN_SET_ERR;
 
    wfree(pkg_cborPayload.p_payload);
    /* todo send to */ 
-   if( (res = _wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
+   if( (res = (int)_wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
         goto _CONN_SET_ERR;
    
    return res;
@@ -415,13 +415,13 @@ STATIC int _wilddog_conn_push(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
          goto _CONN_PUSH_ERR;
     /*add payload*/
      pkg_cborPayload.p_pkg = p_pkg_index;
-     if( _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&pkg_cborPayload,0) < 0)
+     if( (int)_wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&pkg_cborPayload,0) < 0)
          goto _CONN_PUSH_ERR;
     
     wfree(pkg_cborPayload.p_payload);
 
     /* todo send to */ 
-    if( (res = _wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
+    if( (res = (int)_wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
          goto _CONN_PUSH_ERR;
         
         return res;
@@ -471,7 +471,7 @@ STATIC int _wilddog_conn_remove(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
     if( (res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_QUERY,&pkg_option,0)) != WILDDOG_ERR_NOERR )
         goto _CONN_REMOVE_ERR;
     /* todo send to */ 
-    if( (res = _wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0 )
+    if( (res = (int)_wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0 )
         goto _CONN_REMOVE_ERR;
 
     return res;
@@ -613,7 +613,7 @@ STATIC int _wilddog_conn_off(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
     if( (res = _wilddog_cm_ioctl( CM_CMD_DELENODE_BYPATH,&deleNodeArg,0)) < 0 )
         goto _CONN_OFF_ERR;
     /* todo send to */ 
-    if( (res = _wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0 )
+    if( (res = (int)_wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0 )
         goto _CONN_OFF_ERR;
 
     return res;
@@ -677,7 +677,7 @@ STATIC int _wilddog_conn_auth(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
    if((res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&authData,0) ) < 0)
         goto _CONN_AUTH_ERR;
    /* todo send to */ 
-   if( (res = _wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
+   if( (res = (int)_wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
         goto _CONN_AUTH_ERR;
    
    return res;
@@ -740,13 +740,13 @@ STATIC int _wilddog_conn_onDisSet(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
 
    /*add payload*/
    pkg_cborPayload.p_pkg = p_pkg_index;
-   if( _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&pkg_cborPayload,0) < 0)
+   if( (int)_wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&pkg_cborPayload,0) < 0)
         goto _CONN_DISSET_ERR;
     
    wfree(pkg_cborPayload.p_payload);
 
    /* todo send to */ 
-   if( (res = _wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
+   if( (res = (int)_wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
         goto _CONN_DISSET_ERR;
    
    return res;
@@ -809,13 +809,13 @@ STATIC int _wilddog_conn_onDisPush(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
     
     /*add payload*/
     pkg_cborPayload.p_pkg = p_pkg_index;
-    if( _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&pkg_cborPayload,0) < 0)
+    if( (int)_wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&pkg_cborPayload,0) < 0)
          goto _CONN_DISPUSH_ERR;
      
     wfree(pkg_cborPayload.p_payload);
 
     /* todo send to */ 
-    if( (res = _wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
+    if( (res = (int)_wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
         goto _CONN_DISPUSH_ERR;
 
     return res;
@@ -878,7 +878,7 @@ STATIC int _wilddog_conn_onDisRemove(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
         goto _CONN_DISREMOVE_ERR;
 
     /* todo send to */ 
-    if( (res = _wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0 )
+    if( (res = (int)_wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0 )
         goto _CONN_DISREMOVE_ERR;
 
     return res;
@@ -935,7 +935,7 @@ STATIC int _wilddog_conn_cancelDis(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
         goto _CONN_CANCELDIS_ERR;
 
     /* todo send to */ 
-    if( (res = _wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
+    if( (res = (int)_wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
         goto _CONN_CANCELDIS_ERR;
 
     return res;
@@ -996,7 +996,7 @@ STATIC int _wilddog_conn_offLine( Wilddog_ConnCmd_Arg_T *p_arg,int flags)
          goto _CONN_OFFLINE_ERR;
 
     /* todo send to */ 
-    if( (res = _wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
+    if( (res = (int)_wilddog_conn_send(pkg_arg.cmd,(void*)p_pkg_index,pkg_arg.d_token,p_arg))< 0)
         goto _CONN_OFFLINE_ERR;
 
     /* todo set system offline .*/
@@ -1134,10 +1134,10 @@ Wilddog_Conn_T * WD_SYSTEM _wilddog_conn_init(Wilddog_Repo_T* p_repo)
     
     p_repo_conn->p_conn_repo = p_repo;
     p_repo->p_rp_conn = p_repo_conn;
-    p_repo_conn->f_conn_ioctl = _wilddog_conn_ioctl;
+    p_repo_conn->f_conn_ioctl = (Wilddog_Func_T)_wilddog_conn_ioctl;
 
     cm_initArg.p_repo= p_repo;
-    cm_initArg.f_conn_cb = _wilddog_conn_cb_ioctl; 
+    cm_initArg.f_conn_cb = (Wilddog_Func_T)_wilddog_conn_cb_ioctl; 
 
     p_repo_conn->p_cm_l = (void*)_wilddog_cm_ioctl( CM_CMD_INIT,&cm_initArg,0);
     if( p_repo_conn->p_cm_l == NULL )

@@ -550,6 +550,9 @@
         <name>$PROJ_DIR$\..\..\..\..\src\wilddog_conn.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\..\..\..\src\wilddog_conn_manage.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\..\..\..\src\wilddog_ct.c</name>
       </file>
       <file>

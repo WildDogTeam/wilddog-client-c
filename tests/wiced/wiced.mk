@@ -4,7 +4,7 @@ WILDDOG_TOP_DIR := ../../
 
 #app layer protocol, such as coap
 APP_PROTO_TYPE=coap
-#security method, such as dtls/nosec/tinydtls
+#security method, such as mbedtls/nosec/tinydtls
 APP_SEC_TYPE=nosec
 
 PORT_TYPE=wiced
@@ -43,7 +43,7 @@ ifeq ($(APP_SEC_TYPE),nosec)
 $(NAME)_SOURCES +=  $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/wilddog_nosec.c
 GLOBAL_DEFINES += WILDDOG_PORT=5683
 else
-ifeq ($(APP_SEC_TYPE),dtls)
+ifeq ($(APP_SEC_TYPE),mbedtls)
 GLOBAL_DEFINES += WILDDOG_PORT=5684
 #DTLS_C:=$(wildcard $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/*.c)
 $(NAME)_SOURCES += $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/aes.c \

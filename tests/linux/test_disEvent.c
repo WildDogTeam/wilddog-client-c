@@ -83,7 +83,7 @@ STATIC void dis_callback(void* arg, Wilddog_Return_T err)
 	*(BOOL*)arg = TRUE;
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
     {
-        wilddog_debug("removeValue failed error = %d!",err);
+        wilddog_debug("failed! error = %d",err);
         return ;
     }
 
@@ -191,7 +191,8 @@ int main(void)
     Wilddog_Node_T *p_set_n=NULL,*p_push_n = NULL,*p_rm_n = NULL,*p_cnc_n=NULL;
     BOOL setFinish = FALSE,pushFinish = FALSE,rmFinish = FALSE,cncFinish=FALSE;
     u8 p_setUrl[TEST_URL_LEN],p_pushUrl[TEST_URL_LEN],p_rmUrl[TEST_URL_LEN],p_cncUrl[TEST_URL_LEN];
-
+	char resultKey[2][10]= {{"Fail"}, {"Success"}};
+	
     memset(p_setUrl,0,TEST_URL_LEN);
     memset(p_pushUrl,0,TEST_URL_LEN);
     memset(p_rmUrl,0,TEST_URL_LEN);
@@ -203,11 +204,11 @@ int main(void)
     sprintf((char*)p_rmUrl,"%s%s",TEST_URL3,TEST_DIS_PATH);    
     sprintf((char*)p_cncUrl,"%s%s",TEST_URL4,TEST_DIS_PATH);
     
-    printf("\td is_event\\Offline\\Onlinetest\n");
-    printf("\t\tdis set url %s \n",p_setUrl);
-    printf("\t\tdis push url %s\n",p_pushUrl);    
-    printf("\t\tdis rm url %s\n",p_rmUrl);    
-    printf("\t\tcancel dis url %s\n",p_cncUrl);
+    printf("\n\tStart dis_event\\Offline\\Online test:\n\n");
+    printf("\tdis set url %s \n",p_setUrl);
+    printf("\tdis push url %s\n",p_pushUrl);    
+    printf("\tdis rm url %s\n",p_rmUrl);    
+    printf("\tcancel dis url %s\n",p_cncUrl);
 
     /* init.*/
     wd_set = wilddog_initWithUrl((Wilddog_Str_T *)p_setUrl);
@@ -323,30 +324,18 @@ int main(void)
     wilddog_destroy(&wd_cnc);
     
     /*printf result.*/
-    printf("\tdist result:\n");
-    printf("\t\tdis setValue on %s",p_setUrl);
-    if(disSet_OK == FALSE )
-        printf("\t\tXXX\tFALT!\n");
-    else
-        printf("\t\tSuccessfully!!\n");
+    printf("\n\tdistest result:\n\n");
+    printf("\tdis setValue on %s",p_setUrl);
+	printf(" %s\n", resultKey[disSet_OK]);
     
-    printf("\t\tdis PUSH on %s",p_pushUrl);
-    if(disPush_OK == FALSE)
-        printf("\t\tXXX\tFALT!\n");
-    else
-        printf("\t\tSuccessfully!!\n");
+    printf("\tdis push on %s",p_pushUrl);
+	printf(" %s\n", resultKey[disPush_OK]);
 
-    printf("\t\tdis remove Value on %s",p_rmUrl);
-    if(disRm_OK == FALSE)
-        printf("\t\tXXX\tFALT!\n");
-    else
-        printf("\t\tSuccessfully!!\n");
+    printf("\tdis removeValue on %s",p_rmUrl);
+	printf(" %s\n", resultKey[disRm_OK]);
 
-    printf("\t\tdis cancel dist on %s",p_cncUrl);
-    if(disCnc_OK == FALSE)
-        printf("\t\tXXX\tFALT!\n");
-    else
-        printf("\t\tSuccessfully!!\n");
+    printf("\tdis cancel on %s",p_cncUrl);
+	printf(" %s\n", resultKey[disCnc_OK]);
 
     if( disCnc_OK == TRUE && \
         disSet_OK == TRUE && \
@@ -354,14 +343,9 @@ int main(void)
         disRm_OK == TRUE )
             goOfflineOk = TRUE,goOnlineOk = TRUE;
 
+    printf("\tgoOffline %s, goOnLine", resultKey[goOfflineOk]);
+	printf(" %s\n\n", resultKey[goOfflineOk]);
     
-    printf("\t\tgoOfflineOk onLine ");
-    if(goOfflineOk == FALSE)
-        printf("\t\tXXX\tFALT!\n");
-    else
-        printf("\t\tSuccessfully!!\n");
-    
-
     if( goOfflineOk == FALSE)
             return -1;
     else

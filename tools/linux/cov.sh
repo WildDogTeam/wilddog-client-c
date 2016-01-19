@@ -2,7 +2,7 @@
 export TOPDIR=$(pwd)/../../
 if [ ! -n  "$1" ]
 then
-	echo "please use like: cov.sh nosec | tinydtls | dtls "
+	echo "please use like: cov.sh nosec | tinydtls | mbedtls "
 	exit
 fi
 export APP_SEC_TYPE=$1

@@ -139,7 +139,6 @@ STATIC s32 WD_SYSTEM _wilddog_c2n_getItemLen
         wilddog_debug_level(WD_DEBUG_ERROR, "cannot read header!\n");
         return 0;
     }
-    return 0;
 }
 
 
@@ -160,10 +159,10 @@ STATIC void WD_SYSTEM _wilddog_c2n_numHandler
     Wilddog_Str_T *p_num
     )
 {
-    if(dataLen == WILDDOG_CBOR_HEAD_LEN         || \
-       dataLen == WILDDOG_CBOR_FOLLOW_1BYTE_LEN || \
-       dataLen == WILDDOG_CBOR_FOLLOW_2BYTE_LEN || \
-       dataLen == WILDDOG_CBOR_FOLLOW_4BYTE_LEN)
+    if((dataLen == WILDDOG_CBOR_HEAD_LEN)         || \
+       (dataLen == WILDDOG_CBOR_FOLLOW_1BYTE_LEN) || \
+       (dataLen == WILDDOG_CBOR_FOLLOW_2BYTE_LEN) || \
+       (dataLen == WILDDOG_CBOR_FOLLOW_4BYTE_LEN))
     {
         if (WILDDOG_CBOR_NEGINT == type)
             num = -1 - num;
@@ -756,7 +755,7 @@ Wilddog_Node_T * WD_SYSTEM _wilddog_cbor2Node(Wilddog_Payload_T* p_data)
             }
             p_node->p_wn_value = p_value;
             p_node->d_wn_type = _wilddog_c2n_typeTranslate(type);
-            if(p_node->d_wn_type < 0)
+            if(p_node->d_wn_type == (u8)-1)
             {
                 wilddog_node_delete(p_node);
                 wfree(p_value);

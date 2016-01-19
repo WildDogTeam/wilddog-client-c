@@ -560,7 +560,6 @@ STATIC coap_pdu_t * WD_SYSTEM _wilddog_recvCoap
         coap_delete_pdu(p_resp);
         return NULL;
     }
-    return NULL;
 }
 /*
  * Function:    _wilddog_recv_getOptionValue.

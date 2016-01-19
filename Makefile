@@ -44,7 +44,7 @@ clean:
 	@echo "Clean end!"
 
 %::
-	@echo "\nUsage: make [option] [VERBOSE=0|1] [PORT_TYPE=linux|espressif] [APP_SEC_TYPE=nosec|tinydtls|dtls]\n"
+	@echo "\nUsage: make [option] [VERBOSE=0|1] [PORT_TYPE=linux|espressif] [APP_SEC_TYPE=nosec|tinydtls|mbedtls]\n"
 	@echo "target:\n"
 	@echo "\tall\t build wilddog lib by default, in espressif, we can only make this target\n"
 	@echo "\ttest\t build executables for test\n"
@@ -54,5 +54,5 @@ clean:
 	@echo "option:\n"
 	@echo "\tVERBOSE\t\t can be set to 0 or 1, when set to 1, output all logs\n"
 	@echo "\tPORT_TYPE\t SDK's platform, can be set to linux or espressif\n"
-	@echo "\tAPP_SEC_TYPE\t SDK's secure mode, can be set to nosec/tinydtls/dtls\n"
+	@echo "\tAPP_SEC_TYPE\t SDK's secure mode, can be set to nosec/tinydtls/mbedtls\n"
 	
