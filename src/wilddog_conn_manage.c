@@ -33,7 +33,6 @@
 #include "wilddog_conn.h"
 #include "wilddog_conn_manage.h"
 #include "wilddog_sec.h"
-#include "wilddog_conn_coap.h"
 
 #include "test_lib.h"
 
