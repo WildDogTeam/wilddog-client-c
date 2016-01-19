@@ -28,8 +28,6 @@
 #include "wilddog_common.h"
 #include "wilddog_conn.h"
 
-#include "wilddog_conn_coap.h"
-
 #include "wilddog_conn_manage.h"
 #include "wilddog_port.h"
 #include "wilddog_url_parser.h"

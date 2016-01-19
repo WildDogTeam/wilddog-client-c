@@ -13,10 +13,10 @@ while getopts ":s:1:2:3:4:a:" opt
 do
         case $opt in
                 s ) export APP_SEC_TYPE=$OPTARG;;
-                1 ) export URL1=coap://$OPTARG.wilddogio.com;;
-                2 ) export URL2=coap://$OPTARG.wilddogio.com;;
-                3 ) export URL3=coap://$OPTARG.wilddogio.com;;
-                4 ) export URL4=coap://$OPTARG.wilddogio.com;;
+                1 ) export URL1=coaps://$OPTARG.wilddogio.com;;
+                2 ) export URL2=coaps://$OPTARG.wilddogio.com;;
+                3 ) export URL3=coaps://$OPTARG.wilddogio.com;;
+                4 ) export URL4=coaps://$OPTARG.wilddogio.com;;
                 a ) export AUTH=$OPTARG;;
 #                ? ) echo "error"
 #                    exit 1;;
@@ -27,20 +27,28 @@ make test APP_SEC_TYPE=${APP_SEC_TYPE} URL1=${URL1} URL2=${URL2} URL3=${URL3} UR
 
 if [ ${APP_SEC_TYPE} = "nosec" ]
 then
+	echo "--------------------------------limit test start--------------------------------";
 	./bin/test_limit;
 	WD_LIMIT=$?;
+	echo "---------------------------------limit test end---------------------------------";
 else
 	WD_LIMIT=0;
 fi
 
+echo "----------------------------multiple Host test start----------------------------"
 ./bin/test_multipleHost
 WD_MULTIPLEHOST=$?
+echo "-----------------------------multiple Host test end-----------------------------"
 
+echo "--------------------------------step test start---------------------------------"
 ./bin/test_step
 WD_STEP=$?
+echo "---------------------------------step test end----------------------------------"
 
+echo "----------------------------offline event test start----------------------------"
 ./bin/test_disEvent
 WD_DISEVENT=$?
+echo "-----------------------------offline event test end-----------------------------"
 make clean APP_SEC_TYPE=${APP_SEC_TYPE}
 echo "\n*************************************************************************\n"
 
