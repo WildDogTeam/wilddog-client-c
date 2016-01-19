@@ -1,331 +1,87 @@
+/*
+Title: API文档
+Sort: 3
+*/
+
+# Wilddog (*Methods*)
 
 ## wilddog\_initWithUrl()
 
 ###### 定义
+
 Wilddog\_T wilddog\_initWithUrl(Wilddog\_Str\_T \*url);
 
 ###### 说明
- 通过应用URL初始化 WildDog 客户端。
+
+ 初始化应用URL对应的WildDog实例。
 
 ###### 参数
 
-* Wilddog\_Str\_T *`url` : 应用URL。Wilddog 中任何数据都能够通过一个URL来进行访问，如`coap[s]://<appId>.wilddogio.com/<path>` 
+* Wilddog\_Str\_T *`url` : 应用URL。WildDog 中任何数据都能够通过一个URL来进行访问，如`coap[s]://<appId>.wilddogio.com/<path>` 
 其中<appId\>为开发者在 WildDog 平台申请的应用id。
 <path\>为客户端关注的路径。
 
 ###### 返回值
- `Wilddog_T` 类型的客户端ID，如果创建失败，返回0。
+
+ `Wilddog_T` 类型WildDog实例的id，如果创建失败，返回0。
 
 ###### 示例
 
-	int main()
-	{
-	
-		//init client
-	
-		Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy/device/light/10abcde");
-	
-		//do something
-	
-		...
-	
-		//recycle memeory
-	
-		wilddog_destroy(&wilddog);
-	}
-
-----
-## wilddog\_getParent()
-
-###### 定义
-
-Wilddog\_T wilddog\_getParent(Wilddog\_T wilddog)
-
-###### 说明
-
-获取父节点的ID。如果当前节点是root节点，创建失败，返回0。
-
-###### 参数
-
-* wilddog : `Wilddog_T` 当前节点的ID。
-
-###### 返回值
-
-返回父节点的id，如果创建失败，返回0。
-
-###### 示例
-
-	//定位到user/jackxy
-	
-	Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy");
-	
-	//定位到user
-	
-	Wilddog_T parent = wilddog_getParent(wilddog);
-
-----
-## wilddog\_getRoot()
-
-###### 定义
-Wilddog\_T wilddog\_getRoot(Wilddog\_T wilddog)
-
-###### 说明
-
- 获取根节点ID。
-
-###### 参数
-
-* wilddog `Wilddog_T` : 当前节点的ID。
-
-###### 返回值
-
-Wilddog\_T `root` : 根节点的ID，如果失败，返回0。 
-
-###### 示例
-
-	//定位到user/jackxy
-	
-	Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy");
-	
-	//定位到root("/")
-	
-	Wilddog_T root = wilddog_getRoot(wilddog);
-
-----
-
-## wilddog\_getChild()
-
-###### 定义
-Wilddog\_T wilddog\_getChild(Wilddog\_T wilddog, Wilddog\_Str\_T \*childName)
-
-###### 说明
-
- 查询当前节点下名字为childName的子节点ID。
-
-###### 参数
-
-* wilddog `Wilddog_T` 当前节点ID。
-
-* childName `Wilddog_Str_T*` 
-子节点的相对路径，多级子节点需用'/'隔开，即使子节点不存在也能创建。
-
-###### 返回值
-`Wilddog_T` 子节点的id，如果创建失败，返回0。
-
-
-###### 示例
-
-	//定位到user/jackxy
-	
-	Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy");
-	
-	//定位到user/jackxy/aaa
-	
-	Wilddog_T child = wilddog_getChild(wilddog, "aaa");
-
-----
-
-## wilddog\_getKey()
-
-###### 定义
-
-Wilddog\_Str\_T \*wilddog\_getKey(Wilddog\_T wilddog)
-
-###### 说明
-
- 获取当前节点的key。
-
-###### 参数
- wilddog `Wilddog_T` : 当前节点ID。
-
-###### 返回值
-
- `Wilddog_Str_T` Wilddog客户端的key值，如果获取失败，返回NULL。
-
-###### 示例
-
-	//定位到user/jackxy
-	
-	Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy");
-	
-	//获取Key值（即jackxy）
-	
-	Wilddog_Str_T *key = wilddog_getKey(wilddog);
-
-----
-
-## wilddog\_getHost()
-
-###### 定义
-
-Wilddog\_Str\_T \*wilddog\_getHost(Wilddog\_T wilddog)
-
-###### 说明
-
- 获取当前节点的host。
-
-###### 参数
- wilddog `Wilddog_T` : 当前节点ID。
-
-###### 返回值
-
- `Wilddog_Str_T` Wilddog客户端的host，如果获取失败，返回NULL。
-
-###### 示例
-
-	//定位到user/jackxy
-	
-	Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy");
-	
-	//获取host（即<appId>.wilddogio.com）
-	
-	Wilddog_Str_T *host = wilddog_getHost(wilddog);
-
-----
-
-## wilddog\_getPath()
-
-###### 定义
-
-Wilddog\_Str\_T \*wilddog\_getPath(Wilddog\_T wilddog)
-
-###### 说明
-
- 获取当前节点的path。
-
-###### 参数
- wilddog `Wilddog_T` : 当前节点ID。
-
-###### 返回值
-
- `Wilddog_Str_T` Wilddog客户端的path，如果获取失败，返回NULL。
-
-###### 示例
-
-	//定位到user/jackxy
-	
-	Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy");
-	
-	//获取path（即/user/jackxy）
-	
-	Wilddog_Str_T *path = wilddog_getPath(wilddog);
+    int main()
+    {
+        //初始化实例
+        Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy/device/light/10abcde");
+
+        //do something
+        ...
+
+        //销毁实例
+        wilddog_destroy(&wilddog);
+    }
 
 ----
 
 ## wilddog\_destroy()
 
 ###### 定义
+
 Wilddog\_Return\_T wilddog\_destroy(Wilddog\_T \*p\_wilddog)
 
 ###### 说明
- 销毁一个客户端并回收内存。
+
+ 销毁一个实例并回收内存。
  
 ###### 参数
 
-* p_wilddog `Wilddog_T* ` : 客户端的ID。
+* p_wilddog `Wilddog_T* ` : 当前节点实例id的地址。
 
 ###### 返回值
 
  `Wilddog_Return_T` 返回 `0`:成功 `<0`:失败。
 
-----
-
-## wilddog\_auth()
-
-###### 定义
-Wilddog\_Return\_T wilddog\_auth(Wilddog\_Str\_T \*p\_host, u8 \*p\_auth, int len, onAuthFunc onAuth, void \*args)
-
-###### 说明
- 发送auth数据到服务器进行认证。
-
-###### 参数
-
-* p_host `Wilddog_Str_T` : 进行auth认证的host字符串，如 `"<appId>.wilddogio.com"`。
-
-* p_auth `u8*` : auth的数据指针。
-
-* int `len` : auth数据的长度。
-
-* onAuthFunc `onAuth` : 服务端回应认证或者认证超时触发的回调函数，类型是`void (*onAuthFunc)(void* arg, Wilddog_Return_T err)`，其中`arg`为用户传递的值，（即下面的`args`），`err`为状态码，具体见`Wilddog_Return_T`定义。
-
-* args `void*` : 用户给回调函数传入的参数。
-
-###### 返回值
- `Wilddog_Str_T` 发送成功返回0，发送失败则返回负数。注意该返回值仅表明发送是否成功，确认是否在云端认证成功需要在回调函数中判断。
 ###### 示例
 
-	void myOnAuthFunc(void* arg, Wilddog_Return_T err)
-	{
-		if(err < WILDDOG_ERR_NOERR || err >= WILDDOG_HTTP_BAD_REQUEST)
-		{
-			printf("auth fail!\n");
-			return;
-		}
-	
-		printf("auth success! %d\n", *(int*)arg);
-		return;
-	}
-	
-	//aquired a new auth token
-	
-	char* newToken="ABCD1234567890";
-	
-	int args = 0;
-	wilddog_auth("aaa.wilddogio.com", newToken, strlen(newToken), myOnAuthFunc, (void*)&args);
-	...
+    //定位到user/jackxy
+    Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy");
+
+    //销毁实例
+    wilddog_destroy(&wilddog);
 
 ----
-
-## wilddog\_unauth()
-
-###### 定义
-Wilddog\_Return\_T wilddog\_auth(Wilddog\_Str\_T \*p\_host, onAuthFunc onAuth, void \*args)
-
-###### 说明
- 取消和服务器的auth认证。
-
-###### 参数
-
-* p_host `Wilddog_Str_T` : 进行auth认证的host字符串，如 `"<appId>.wilddogio.com"`。
-
-* onAuthFunc `onAuth` : 服务端回应认证或者认证超时触发的回调函数，类型是`void (*onAuthFunc)(void* arg, Wilddog_Return_T err)`，其中`arg`为用户传递的值，（即下面的`args`），`err`为状态码，具体见`Wilddog_Return_T`定义。
-
-* args `void*` : 用户给回调函数传入的参数。
-
-###### 返回值
- `Wilddog_Str_T` 发送成功返回0，发送失败则返回负数。注意该返回值仅表明发送是否成功，是否成功取消认证需要在回调函数中判断。
-###### 示例
-
-	void myOnAuthFunc(void* arg, Wilddog_Return_T err)
-	{
-		if(err < WILDDOG_ERR_NOERR || err >= WILDDOG_HTTP_BAD_REQUEST)
-		{
-			printf("auth fail!\n");
-			return;
-		}
-	
-		printf("hello world! %d\n", (int)arg);
-		return;
-	}
-	
-	int args = 0;
-	wilddog_unauth("aaa.wilddogio.com", myOnAuthFunc, (void*)&args);
-	...
-
-----
-
 
 ## wilddog\_getValue()
 
 ###### 定义
+
 Wilddog\_Return\_T wilddog\_getValue(Wilddog\_T wilddog, onQueryFunc callback, void* arg)
 
 ###### 说明
+
  获取当前节点的数据,数据格式为`Wilddog_Node_T`(类似JSON)。
  
 ###### 参数
 
-* wilddog `Wilddog_T` : 客户端ID。
+* wilddog `Wilddog_T` : 当前节点实例的id。
 
 * callback `onQueryFunc` : 服务端回应数据或者回应超时触发的回调函数,类型是`void (*onQueryFunc)(const Wilddog_Node_T* p_snapshot, void* arg, Wilddog_Return_T err)`,其中`p_snapshot`是取回的数据镜像（err为200时）或者NULL，**退出函数后即被销毁**, `arg`为用户传递的值, `err`为状态码。
 
@@ -337,60 +93,65 @@ Wilddog\_Return\_T wilddog\_getValue(Wilddog\_T wilddog, onQueryFunc callback, v
  
 ###### 示例
 
-	STATIC void onQueryCallback
-		(
-		const Wilddog_Node_T* p_snapshot, 
-		void* arg, 
-		Wilddog_Return_T err
-		)
-	{
-		if(err != WILDDOG_HTTP_OK)
-		{
-			wilddog_debug("query error!");
-			return;
-		}
-	
-		wilddog_debug("query success!");
-	
-		if(p_snapshot)
-		{
-			*(Wilddog_Node_T**)arg = wilddog_node_clone(p_snapshot);
-		}
-	
-		return;
-	}
-	
-	int main(void)
-	{
-		Wilddog_T wilddog = 0;
-		Wilddog_Node_T * p_node = NULL;
-		
-		//<url>即希望获取数据的url，如coaps://<appid>.wilddogio.com/a/b/c
-		wilddog = wilddog_initWithUrl(<url>);
-	
-		wilddog_getValue(wilddog, onQueryCallback, (void*)(&p_node));
-	
-		while(1)
-		{
-			if(p_node)
-			{
-				_wilddog_debug_printnode(p_node);
-				...
-				wilddog_node_delete(p_node);
-			}
-	
-			wilddog_trySync();
-		}
-	
-		...
-	
-		wilddog_destroy(&wilddog);
-	}
+    STATIC void onQueryCallback
+        (
+        const Wilddog_Node_T* p_snapshot, 
+        void* arg, 
+        Wilddog_Return_T err
+        )
+    {
+        if(err != WILDDOG_HTTP_OK)
+        {
+            wilddog_debug("query error!");
+
+            return;
+        }
+
+        wilddog_debug("query success!");
+
+        if(p_snapshot)
+        {
+            *(Wilddog_Node_T**)arg = wilddog_node_clone(p_snapshot);
+        }
+
+        return;
+    }
+
+    int main(void)
+    {
+        Wilddog_T wilddog = 0;
+
+        //用户自定义参数，这里的用途为：将云端发回的数据clone到本地
+        Wilddog_Node_T * p_node = NULL;
+        
+        //<url>即希望获取数据的url，如coaps://<appid>.wilddogio.com/a/b/c
+        wilddog = wilddog_initWithUrl(<url>);
+
+        //注意，这里省略了对wilddog_getValue返回值的检查
+        wilddog_getValue(wilddog, onQueryCallback, (void*)(&p_node));
+
+        while(1)
+        {
+            if(p_node)
+            {
+                _wilddog_debug_printnode(p_node);
+                ...
+                wilddog_node_delete(p_node);
+            }
+
+            wilddog_trySync();
+        }
+
+        ...
+
+        wilddog_destroy(&wilddog);
+    }
 
 ----
 ## wilddog\_setValue()
 
 ###### 定义
+
 Wilddog\_Return\_T wilddog\_setValue
    (
    Wilddog\_T wilddog,
@@ -400,11 +161,13 @@ Wilddog\_Return\_T wilddog\_setValue
    )
 
 ###### 说明
+
  设置当前节点的数据,数据格式为`Wilddog_Node_T`。
  
 ###### 参数
-* wilddog `Wilddog_T` : 当前节点的ID。
-* p_node `Wilddog_Node_T` : 节点存储格式。
+
+* wilddog `Wilddog_T` : 当前节点实例的id。
+* p_node `Wilddog_Node_T` : 指向节点数据的指针。
 * callback `onSetFunc` : 服务端回应或者回应超时触发的回调函数 ,类型是`void (*onSetFunc)(void* arg, Wilddog_Return_T err)`,其中`arg`为用户传递的值,`err`为状态码。
 * arg `void*` : 用户给回调函数传入的参数。
 
@@ -414,57 +177,65 @@ Wilddog\_Return\_T wilddog\_setValue
 
 ###### 示例
 
-	STATIC void onSetCallback(void* arg, Wilddog_Return_T err)
-	{
-		if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
-		{
-			wilddog_debug("set error!");
-			return;
-		}
-	
-		wilddog_debug("set success!");
-		*(BOOL*)arg = TRUE;
-	
-		return;
-	}
-	
-	int main(void)
-	{
-		BOOL isFinish = FALSE;
-		Wilddog_T wilddog = 0;
-		Wilddog_Node_T * p_node = NULL;
-	
-		/* create a node to "wilddog", value is "123456" */
-	
-		p_node = wilddog_node_createUString(NULL,"123456");
+    STATIC void onSetCallback(void* arg, Wilddog_Return_T err)
+    {
+        if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+        {
+            wilddog_debug("set error!");
 
-		//<url>即希望设置数据的url，如coaps://<appid>.wilddogio.com/a/b/c
-		wilddog = wilddog_initWithUrl(<url>);
-	
-		wilddog_setValue(wilddog, p_node, onSetCallback, (void*)&isFinish);
-	
-		wilddog_node_delete(p_node);
-	
-		while(1)
-		{
-			if(TRUE == isFinish)
-			{
-				wilddog_debug("set success!");
-	
-				...
-	
-			}
-	
-			wilddog_trySync();
-		}
-	
-		wilddog_destroy(&wilddog);
-	}
+            return;
+        }
+
+        wilddog_debug("set success!");
+
+        *(BOOL*)arg = TRUE;
+
+        return;
+    }
+
+    int main(void)
+    {
+        //用户自定义参数，这里的用途为：初始化为FALSE，回调函数中设为TRUE
+        //因此可以在main函数中得知是否成功
+        BOOL isFinish = FALSE;
+
+        Wilddog_T wilddog = 0;
+
+        Wilddog_Node_T * p_node = NULL;
+
+        /* create a node to "wilddog", value is "123456" */
+        p_node = wilddog_node_createUString(NULL,"123456");
+
+        //<url>即希望设置数据的url，如coaps://<appid>.wilddogio.com/a/b/c
+        wilddog = wilddog_initWithUrl(<url>);
+
+        //注意，这里省略了对wilddog_setValue返回值的检查
+        wilddog_setValue(wilddog, p_node, onSetCallback, (void*)&isFinish);
+
+        //数据已经设置到云端，删除刚才建立的节点
+        wilddog_node_delete(p_node);
+
+        while(1)
+        {
+            if(TRUE == isFinish)
+            {
+                wilddog_debug("set success!");
+
+                ...
+
+            }
+
+            wilddog_trySync();
+        }
+
+        wilddog_destroy(&wilddog);
+    }
 
 ----
 ## wilddog\_push()
 
 ###### 定义
+
 Wilddog\_Return\_T wilddog\_push
    (
    Wilddog\_T wilddog, 
@@ -473,73 +244,88 @@ Wilddog\_Return\_T wilddog\_push
    void \*arg
    )
 ###### 说明
+
  在当前节点下生成一个子节点，并返回子节点的引用。子节点的key利用服务端的当前时间生成。
 
 ###### 参数 
 
-* wilddog `Wilddog_T` : 当前节点的ID。
-* p_node `Wilddog_Node_T*` : 新增`node`的ID。
+* wilddog `Wilddog_T` : 当前节点实例的id。
+* p_node `Wilddog_Node_T*` : 指向新增节点数据的指针。
 * callback `onPushFunc` : 服务端回应或者回应超时触发的回调函数 ,类型是`(*onPushFunc)(Wilddog_Str_T * p_newPath, void* arg, Wilddog_Return_T err)`,其中 `p_newPath` 是新增节点的完整路径,`arg` 为用户传递的值,`err` 为状态码。 
 * arg `void*` : 用户给回调函数传入的参数。
 
 ###### 返回值
+
 `Wilddog_Return_T` 返回 `0`:成功 `<0`:失败。
 
 ###### 示例
 
-	STATIC void onPushCallback(u8 *p_path,void* arg, Wilddog_Return_T err)
-	{
-		if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
-		{
-			wilddog_debug("push failed");
-			return;
-		}
-	
-		wilddog_debug("new path is %s", p_path);
-	
-		*(BOOL*)arg = TRUE;
-		return;
-	}
-	
-	int main(void)
-	{
-		BOOL isFinish = FALSE;
-		Wilddog_T wilddog;
-		Wilddog_Node_T * p_node = NULL, *p_head = NULL;
-	
-		p_head = wilddog_node_createObject(NULL);
-	
-		p_node = wilddog_node_createNum("2",1234);
-	
-		wilddog_node_addChild(p_head, p_node);
-		
-		//<url>即希望推送数据的url，如coaps://<appid>.wilddogio.com/a/b/c
-		wilddog = wilddog_initWithUrl(<url>);
-	
-		wilddog_push(wilddog, p_head, onPushCallback, (void *)&isFinish);
-		
-		wilddog_node_delete(p_head);
-		
-		while(1)
-		{
-			if(isFinish)
-			{
-				wilddog_debug("push success!");
-	
-				break;
-			}
-	
-			wilddog_trySync();
-		}
-	
-		wilddog_destroy(&wilddog);
-	}
+    STATIC void onPushCallback(u8 *p_path,void* arg, Wilddog_Return_T err)
+    {
+        if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+        {
+            wilddog_debug("push failed");
+
+            return;
+        }
+
+        wilddog_debug("new path is %s", p_path);
+
+        *(BOOL*)arg = TRUE;
+
+        return;
+    }
+
+    int main(void)
+    {
+        //用户自定义参数，这里的用途为：初始化为FALSE，回调函数中设为TRUE
+        //因此可以在main函数中得知是否成功
+        BOOL isFinish = FALSE;
+
+        Wilddog_T wilddog = 0;
+
+        Wilddog_Node_T * p_node = NULL, *p_head = NULL;
+
+        //建立一个object节点，即类似json中的{}
+        p_head = wilddog_node_createObject(NULL);
+
+        //建立一个key为2，value为数字1234的节点
+        p_node = wilddog_node_createNum("2",1234);
+
+        //将节点p_node添加到object中
+        wilddog_node_addChild(p_head, p_node);
+        
+        //<url>即希望推送数据的url，如coaps://<appid>.wilddogio.com/a/b/c
+        wilddog = wilddog_initWithUrl(<url>);
+
+        //把新的object推送到云端
+        //注意，这里省略了对wilddog_push返回值的检查
+        wilddog_push(wilddog, p_head, onPushCallback, (void *)&isFinish);
+
+        //数据已经推送，删除刚才建立的节点
+        wilddog_node_delete(p_head);
+        
+        while(1)
+        {
+            if(isFinish)
+            {
+                wilddog_debug("push success!");
+
+                break;
+            }
+
+            wilddog_trySync();
+        }
+
+        wilddog_destroy(&wilddog);
+    }
 
 ----
 
 ## wilddog\_removeValue()
 
 ###### 定义
+
 Wilddog\_Return\_T wilddog\_removeValue
    (
    Wilddog\_T wilddog, 
@@ -548,69 +334,76 @@ Wilddog\_Return\_T wilddog\_removeValue
    )
 
 ###### 说明
+
  删除当前节点及节点下所有数据。
 
 ###### 参数
 
-* wilddog `Wilddog_T` : 当前节点的ID
+* wilddog `Wilddog_T` : 当前节点实例的id。
 * callback `onRemoveFunc` : 服务器回应或者回应超时触发的回调函数，类型是`void (*onRemoveFunc)(void* arg, Wilddog_Return_T err)`,其中`arg` 为用户传递的值,`err` 为状态码。
 * arg `void*` : 用户传给回调函数的参数。
 
 ###### 返回值
+
 `Wilddog_Return_T` 返回 `0`:成功 `<0`:失败。
 
 ###### 示例
 
-	STATIC void onDeleteCallback(void* arg, Wilddog_Return_T err)
-	{
-		if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
-		{
-			wilddog_debug("delete failed!");
-	
-			return;
-		}
+    STATIC void onDeleteCallback(void* arg, Wilddog_Return_T err)
+    {
+        if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+        {
+            wilddog_debug("delete failed!");
 
-		wilddog_debug("delete success!");
-		*(BOOL*)arg = TRUE;
-	
-		return;
-	}
-	
-	int main(void)
-	{
-		BOOL isFinished = FALSE;
-	
-		Wilddog_T wilddog;
+            return;
+        }
 
-		//<url>即希望删除数据的url，如coaps://<appid>.wilddogio.com/a/b/c
-		wilddog = wilddog_initWithUrl(<url>);
-	
-		wilddog_removeValue(wilddog, onDeleteCallback, (void*)&isFinished);
-	
-		while(1)
-		{
-			if(TRUE == isFinished)
-			{
-				wilddog_debug("remove success!");
-	
-				break;
-			}
-	
-			wilddog_trySync();
-		}
-	
-		wilddog_destroy(&wilddog);
-	}
+        wilddog_debug("delete success!");
+
+        *(BOOL*)arg = TRUE;
+
+        return;
+    }
+
+    int main(void)
+    {
+        //用户自定义参数，这里的用途为：初始化为FALSE，回调函数中设为TRUE
+        //因此可以在main函数中得知是否成功
+        BOOL isFinished = FALSE;
+
+        Wilddog_T wilddog;
+
+        //<url>即希望删除数据的url，如coaps://<appid>.wilddogio.com/a/b/c
+        wilddog = wilddog_initWithUrl(<url>);
+
+        //注意，这里省略了对wilddog_removeValue返回值的检查
+        wilddog_removeValue(wilddog, onDeleteCallback, (void*)&isFinished);
+
+        while(1)
+        {
+            if(TRUE == isFinished)
+            {
+                wilddog_debug("remove success!");
+
+                break;
+            }
+
+            wilddog_trySync();
+        }
+
+        wilddog_destroy(&wilddog);
+    }
 
 ----
 
 ## wilddog\_addObserver()
 ###### 定义
+
 Wilddog\_Return\_T wilddog\_addObserver
    (
    Wilddog\_T wilddog, 
    Wilddog\_EventType\_T event, 
-   onQueryFunc onDataChange, 
+   onEventFunc onDataChange, 
    void \*dataChangeArg
    )
 
@@ -620,71 +413,83 @@ Wilddog\_Return\_T wilddog\_addObserver
 
 ###### 参数
 
-
-* wilddog `Wilddog_T` : 当前节点ID 。
+* wilddog `Wilddog_T` : 当前节点实例的id。
 * event `Wilddog\_EventType\_T ` : 关注的事件类型，见`Wilddog_EventType_T`定义。
-* onDataChange `onQueryFunc` : 数据变化所触发的回调函数，类型是`(*onEventFunc)(const Wilddog_Node_T* p_snapshot, void* arg, Wilddog_Return_T err)`,其中`p_snapshot`是取回的数据镜像（err为200时）或者NULL，**退出函数后即被销毁**, `arg`为用户传递的值, `err`为状态码。 
+* onDataChange `onEventFunc` : 数据变化所触发的回调函数，类型是`(*onEventFunc)(const Wilddog_Node_T* p_snapshot, void* arg, Wilddog_Return_T err)`,其中`p_snapshot`是取回的数据镜像（err为200时）或者NULL，**退出函数后即被销毁**, `arg`为用户传递的值, `err`为状态码。 
 * dataChangeArg `void*` : 传给回调函数的`arg`。
 
 ###### 返回值
+
 `Wilddog_Return_T` 返回 `0`:成功 `<0`:失败。
 
 ###### 示例
 
-	STATIC void onObserverCallback
-		(
-		const Wilddog_Node_T* p_snapshot, 
-		void* arg,
-		Wilddog_Return_T err
-		)
-	{
-		if(err != WILDDOG_HTTP_OK)
-		{
-			wilddog_debug("observe failed!");
-			return;
-		}
-	
-		wilddog_debug("observe data!");
-		return;
-	}
-	
-	int main(void)
-	{
-		BOOL isFinished = FALSE;
-		Wilddog_T wilddog;
-		STATIC int count = 0;
+    STATIC void onObserverCallback
+        (
+        const Wilddog_Node_T* p_snapshot, 
+        void* arg,
+        Wilddog_Return_T err
+        )
+    {
+        if(err != WILDDOG_HTTP_OK)
+        {
+            wilddog_debug("observe failed!");
 
-		//<url>即希望订阅数据的url，如coaps://<appid>.wilddogio.com/a/b/c
-		wilddog = wilddog_initWithUrl(<url>);
+            return;
+        }
 
-		wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, onObserverCallback, (void*)&isFinished);
-	
-		while(1)
-		{
-			if(TRUE == isFinished)
-			{
-				wilddog_debug("get new data %d times!", count++);
-	
-				isFinished = FALSE;
-	
-				if(count > 10)
-				{
-					wilddog_debug("off the data!");
-					wilddog_removeObserver(wilddog, WD_ET_VALUECHANGE);
+        wilddog_debug("observe data!");
 
-					break;
-				}
-			}
-			wilddog_trySync();
-		}
-	
-		wilddog_destroy(&wilddog);
-	}
+        return;
+    }
+
+    int main(void)
+    {
+        //用户自定义参数，这里的用途为：初始化为FALSE，回调函数中设为TRUE
+        //因此可以在main函数中得知是否成功
+        BOOL isFinished = FALSE;
+
+        Wilddog_T wilddog = 0;
+
+        STATIC int count = 0;
+
+        //<url>即希望订阅数据的url，如coaps://<appid>.wilddogio.com/a/b/c
+        wilddog = wilddog_initWithUrl(<url>);
+
+        //注意，这里省略了对wilddog_addObserver返回值的检查
+        wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, onObserverCallback, (void*)&isFinished);
+
+        while(1)
+        {
+            if(TRUE == isFinished)
+            {
+                //每次接收到推送count + 1
+                wilddog_debug("get new data %d times!", count++);
+
+                //重新设置接收状态为FALSE
+                isFinished = FALSE;
+
+                //count 超过10时，调用wilddog_removeObserver取消订阅，并退出
+                if(count > 10)
+                {
+                    wilddog_debug("off the data!");
+
+                    wilddog_removeObserver(wilddog, WD_ET_VALUECHANGE);
+
+                    break;
+                }
+            }
+            wilddog_trySync();
+        }
+
+        wilddog_destroy(&wilddog);
+    }
 
 ----
 
 ## wilddog\_removeObserver()
 ###### 定义
+
 Wilddog\_Return\_T wilddog\_removeObserver
    (
    Wilddog\_T \*p\_wilddog, 
@@ -697,7 +502,7 @@ Wilddog\_Return\_T wilddog\_removeObserver
 
 ###### 参数
 
-* p_wilddog `Wilddog_T*` : 当前节点ID。
+* p_wilddog `Wilddog_T*` : 当前节点实例的id。
 * event `Wilddog_EventType_T` : 取消的事件类型。
 
 ###### 返回值
@@ -713,6 +518,7 @@ Wilddog\_Return\_T wilddog\_removeObserver
 ## wilddog\_onDisconnectSetValue()
 
 ###### 定义
+
 Wilddog\_Return\_T wilddog\_onDisconnectSetValue
    (
    Wilddog\_T wilddog, 
@@ -722,11 +528,13 @@ Wilddog\_Return\_T wilddog\_onDisconnectSetValue
    )
 
 ###### 说明
+
  当该客户端离线时，云端自动执行该操作，设置当前节点的数据，数据格式为`Wilddog_Node_T`。
  
 ###### 参数
-* wilddog `Wilddog_T` : 当前节点的ID。
-* p_node `Wilddog_Node_T` : 节点存储格式。
+
+* wilddog `Wilddog_T` : 当前节点实例的id。
+* p_node `Wilddog_Node_T` : 指向离线时设置的节点数据的指针。
 * callback `onDisConnectFunc` : 服务端回应或者回应超时触发的回调函数 ,类型是`void (*onDisConnectFunc)(void* arg, Wilddog_Return_T err)`,其中`arg`为用户传递的值,`err`为状态码。
 * arg `void*` : 用户给回调函数传入的参数。
 
@@ -736,52 +544,59 @@ Wilddog\_Return\_T wilddog\_onDisconnectSetValue
 
 ###### 示例
 
-	STATIC void onSetCallback(void* arg, Wilddog_Return_T err)
-	{
-		if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
-		{
-			wilddog_debug("offline set error!");
-			return;
-		}
-	
-		wilddog_debug("offline set success!");
-		*(BOOL*)arg = TRUE;
-	
-		return;
-	}
-	
-	int main(void)
-	{
-		BOOL isFinish = FALSE;
-		Wilddog_T wilddog = 0;
-		Wilddog_Node_T * p_node = NULL;
-	
-		/* create a node to "wilddog", value is "123456" */
-	
-		p_node = wilddog_node_createUString(NULL,"123456");
+    STATIC void onSetCallback(void* arg, Wilddog_Return_T err)
+    {
+        if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+        {
+            wilddog_debug("offline set error!");
 
-		//<url>即希望设置数据的url，如coaps://<appid>.wilddogio.com/a/b/c
-		wilddog = wilddog_initWithUrl(<url>);
-	
-		wilddog_onDisconnectSetValue(wilddog, p_node, onSetCallback, (void*)&isFinish);
-	
-		wilddog_node_delete(p_node);
-	
-		while(1)
-		{
-			if(TRUE == isFinish)
-			{
-				wilddog_debug("set success!");
-	
-				...
-	
-			}
+            return;
+        }
 
-			wilddog_trySync();
-		}
-	
-		wilddog_destroy(&wilddog);
-	}
+        wilddog_debug("offline set success!");
+
+        *(BOOL*)arg = TRUE;
+
+        return;
+    }
+
+    int main(void)
+    {
+        //用户自定义参数，这里的用途为：初始化为FALSE，回调函数中设为TRUE
+        //因此可以在main函数中得知是否成功
+        BOOL isFinish = FALSE;
+
+        Wilddog_T wilddog = 0;
+
+        Wilddog_Node_T * p_node = NULL;
+
+        /* create a node to "wilddog", value is "123456" */
+
+        p_node = wilddog_node_createUString(NULL,"123456");
+
+        //<url>即希望设置数据的url，如coaps://<appid>.wilddogio.com/a/b/c
+        wilddog = wilddog_initWithUrl(<url>);
+
+        //注意，这里省略了对wilddog_onDisconnectSetValue返回值的检查
+        wilddog_onDisconnectSetValue(wilddog, p_node, onSetCallback, (void*)&isFinish);
+
+        wilddog_node_delete(p_node);
+
+        while(1)
+        {
+            if(TRUE == isFinish)
+            {
+                wilddog_debug("set success!");
+
+                ...
+
+            }
+
+            wilddog_trySync();
+        }
+
+        wilddog_destroy(&wilddog);
+    }
 
 ----
 ## wilddog\_onDisconnectPush()
@@ -802,8 +617,8 @@ Wilddog\_Return\_T wilddog\_onDisconnectPush
 
 ###### 参数 
 
-* wilddog `Wilddog_T` : 当前节点的ID。
-* p_node `Wilddog_Node_T*` : 新增`node`的ID。
+* wilddog `Wilddog_T` : 当前节点实例的id。
+* p_node `Wilddog_Node_T*` : 指向离线时新增节点数据的指针。
 * callback `onDisConnectFunc` : 服务端回应或者回应超时触发的回调函数 ,类型是`(*onDisConnectFunc)(void* arg, Wilddog_Return_T err)`,其中`arg`为用户传递的值,`err`为状态码。
 * arg `void*` : 用户给回调函数传入的参数。
 
@@ -813,53 +628,58 @@ Wilddog\_Return\_T wilddog\_onDisconnectPush
 
 ###### 示例
 
-	STATIC void onPushCallback(void* arg, Wilddog_Return_T err)
-	{
-		if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
-		{
-			wilddog_debug("offline push failed");
-			return;
-		}
-	
-		wilddog_debug("offline push success");
-	
-		*(BOOL*)arg = TRUE;
-		return;
-	}
-	
-	int main(void)
-	{
-		BOOL isFinish = FALSE;
-		Wilddog_T wilddog = 0;
-		Wilddog_Node_T * p_node = NULL, *p_head = NULL;
-	
-		p_head = wilddog_node_createObject(NULL);
-	
-		p_node = wilddog_node_createNum("2",1234);
-	
-		wilddog_node_addChild(p_head, p_node);
-		
-		//<url>即希望推送数据的url，如coaps://<appid>.wilddogio.com/a/b/c
-		wilddog = wilddog_initWithUrl(<url>);
-	
-		wilddog_onDisconnectPush(wilddog, p_head, onPushCallback, (void *)&isFinish);
-		
-		wilddog_node_delete(p_head);
-		
-		while(1)
-		{
-			if(isFinish)
-			{
-				wilddog_debug("push success!");
-	
-				break;
-			}
-	
-			wilddog_trySync();
-		}
-	
-		wilddog_destroy(&wilddog);
-	}
+    STATIC void onPushCallback(void* arg, Wilddog_Return_T err)
+    {
+        if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+        {
+            wilddog_debug("offline push failed");
+
+            return;
+        }
+
+        wilddog_debug("offline push success");
+
+        *(BOOL*)arg = TRUE;
+
+        return;
+    }
+
+    int main(void)
+    {
+        BOOL isFinish = FALSE;
+
+        Wilddog_T wilddog = 0;
+
+        Wilddog_Node_T * p_node = NULL, *p_head = NULL;
+
+        p_head = wilddog_node_createObject(NULL);
+
+        p_node = wilddog_node_createNum("2",1234);
+
+        wilddog_node_addChild(p_head, p_node);
+        
+        //<url>即希望推送数据的url，如coaps://<appid>.wilddogio.com/a/b/c
+        wilddog = wilddog_initWithUrl(<url>);
+
+        //注意，这里省略了对wilddog_onDisconnectPush返回值的检查
+        wilddog_onDisconnectPush(wilddog, p_head, onPushCallback, (void *)&isFinish);
+        
+        wilddog_node_delete(p_head);
+        
+        while(1)
+        {
+            if(isFinish)
+            {
+                wilddog_debug("push success!");
+
+                break;
+            }
+
+            wilddog_trySync();
+        }
+
+        wilddog_destroy(&wilddog);
+    }
 
 ----
 
@@ -880,7 +700,7 @@ Wilddog\_Return\_T wilddog\_onDisconnectRemoveValue
 
 ###### 参数
 
-* wilddog `Wilddog_T` : 当前节点的ID。
+* wilddog `Wilddog_T` : 当前节点实例的id。
 * callback `onDisConnectFunc` : 服务端回应或者回应超时触发的回调函数 ,类型是`(*onDisConnectFunc)(void* arg, Wilddog_Return_T err)`,其中`arg`为用户传递的值,`err`为状态码。
 * arg `void*` : 用户给回调函数传入的参数。
 
@@ -890,43 +710,48 @@ Wilddog\_Return\_T wilddog\_onDisconnectRemoveValue
 
 ###### 示例
 
-	STATIC void onDeleteCallback(void* arg, Wilddog_Return_T err)
-	{
-		if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
-		{
-			wilddog_debug("offline delete failed!");
-			return;
-		}
+    STATIC void onDeleteCallback(void* arg, Wilddog_Return_T err)
+    {
+        if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+        {
+            wilddog_debug("offline delete failed!");
 
-		wilddog_debug("offline delete success!");
-		*(BOOL*)arg = TRUE;
-	
-		return;
-	}
-	
-	int main(void)
-	{
-		BOOL isFinished = FALSE;
-		Wilddog_T wilddog = 0;
+            return;
+        }
 
-		//<url>即希望删除数据的url，如coaps://<appid>.wilddogio.com/a/b/c
-		wilddog = wilddog_initWithUrl(<url>);
-	
-		wilddog_onDisconnectRemoveValue(wilddog, onDeleteCallback, (void*)&isFinished);
-	
-		while(1)
-		{
-			if(TRUE == isFinished)
-			{
-				wilddog_debug("remove success!");
-				break;
-			}
-	
-			wilddog_trySync();
-		}
-	
-		wilddog_destroy(&wilddog);
-	}
+        wilddog_debug("offline delete success!");
+
+        *(BOOL*)arg = TRUE;
+
+        return;
+    }
+
+    int main(void)
+    {
+        BOOL isFinished = FALSE;
+
+        Wilddog_T wilddog = 0;
+
+        //<url>即希望删除数据的url，如coaps://<appid>.wilddogio.com/a/b/c
+        wilddog = wilddog_initWithUrl(<url>);
+
+        //注意，这里省略了对wilddog_onDisconnectRemoveValue返回值的检查
+        wilddog_onDisconnectRemoveValue(wilddog, onDeleteCallback, (void*)&isFinished);
+
+        while(1)
+        {
+            if(TRUE == isFinished)
+            {
+                wilddog_debug("remove success!");
+
+                break;
+            }
+
+            wilddog_trySync();
+        }
+
+        wilddog_destroy(&wilddog);
+    }
 
 ----
 
@@ -947,7 +772,7 @@ Wilddog\_Return\_T wilddog\_cancelDisconnectOperations
 
 ###### 参数
 
-* wilddog `Wilddog_T` : 当前节点的ID。
+* wilddog `Wilddog_T` : 当前节点实例的id。
 * callback `onDisConnectFunc` : 服务端回应或者回应超时触发的回调函数 ,类型是`(*onDisConnectFunc)(void* arg, Wilddog_Return_T err)`,其中`arg`为用户传递的值,`err`为状态码。
 * arg `void*` : 用户给回调函数传入的参数。
 
@@ -957,43 +782,48 @@ Wilddog\_Return\_T wilddog\_cancelDisconnectOperations
 
 ###### 示例
 
-	STATIC void onCancelCallback(void* arg, Wilddog_Return_T err)
-	{
-		if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
-		{
-			wilddog_debug("offline operation cancel failed!");
-			return;
-		}
+    STATIC void onCancelCallback(void* arg, Wilddog_Return_T err)
+    {
+        if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+        {
+            wilddog_debug("offline operation cancel failed!");
 
-		wilddog_debug("offline operation cancel success!");
-		*(BOOL*)arg = TRUE;
-	
-		return;
-	}
-	
-	int main(void)
-	{
-		BOOL isFinished = FALSE;
-		Wilddog_T wilddog = 0;
+            return;
+        }
 
-		//<url>即希望删除数据的url，如coaps://<appid>.wilddogio.com/a/b/c
-		wilddog = wilddog_initWithUrl(<url>);
-	
-		wilddog_cancelDisconnectOperations(wilddog, onCancelCallback, (void*)&isFinished);
-	
-		while(1)
-		{
-			if(TRUE == isFinished)
-			{
-				wilddog_debug("operation cancel success!");
-				break;
-			}
-	
-			wilddog_trySync();
-		}
-	
-		wilddog_destroy(&wilddog);
-	}
+        wilddog_debug("offline operation cancel success!");
+
+        *(BOOL*)arg = TRUE;
+
+        return;
+    }
+
+    int main(void)
+    {
+        BOOL isFinished = FALSE;
+
+        Wilddog_T wilddog = 0;
+
+        //<url>即希望删除数据的url，如coaps://<appid>.wilddogio.com/a/b/c
+        wilddog = wilddog_initWithUrl(<url>);
+
+        //注意，这里省略了对wilddog_cancelDisconnectOperations返回值的检查
+        wilddog_cancelDisconnectOperations(wilddog, onCancelCallback, (void*)&isFinished);
+
+        while(1)
+        {
+            if(TRUE == isFinished)
+            {
+                wilddog_debug("operation cancel success!");
+
+                break;
+            }
+
+            wilddog_trySync();
+        }
+
+        wilddog_destroy(&wilddog);
+    }
 
 ----
 
@@ -1020,6 +850,7 @@ void
 void wilddog\_increaseTime(u32 ms)。
 
 ###### 说明
+
  用于校准WildDog的时钟(可以在定时器中调用)。一般情况下WildDog会根据自己推算的时间执行业务操作，这个时间的推算会有偏差，我们可以通过传入一个时间增量来校准WildDog时钟。
 
 ###### 参数
@@ -1032,16 +863,187 @@ void
 
 ###### 示例
 
-	void timer_isr()
-	{
-		//this isr is been called per ms。
-	
-		wilddog_increaseTime(1);
-	}
+    void timer_isr()
+    {
+        //this isr is been called per ms。
+
+        wilddog_increaseTime(1);
+    }
+
+----
+# Wilddog(*Properties*)
+
+## wilddog\_getParent()
+
+###### 定义
+
+Wilddog\_T wilddog\_getParent(Wilddog\_T wilddog)
+
+###### 说明
+
+获取父节点实例的id。如果当前节点是root节点，创建失败，返回0。
+
+###### 参数
+
+* wilddog `Wilddog_T` : 当前节点实例的id。
+
+###### 返回值
+
+返回父节点实例的id，如果创建失败，返回0。
+
+###### 示例
+
+    //定位到user/jackxy
+    Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy");
+
+    //定位到user
+    Wilddog_T parent = wilddog_getParent(wilddog);
+
+----
+## wilddog\_getRoot()
+
+###### 定义
+
+Wilddog\_T wilddog\_getRoot(Wilddog\_T wilddog)
+
+###### 说明
+
+ 获取根节点实例的id。
+
+###### 参数
+
+* wilddog `Wilddog_T` : 当前节点实例的id。
+
+###### 返回值
+
+Wilddog\_T `root` : 根节点实例的id，如果失败，返回0。 
+
+###### 示例
+
+    //定位到user/jackxy
+    Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy");
+
+    //定位到root("/")
+    Wilddog_T root = wilddog_getRoot(wilddog);
 
 ----
 
-#Node
+## wilddog\_getChild()
+
+###### 定义
+
+Wilddog\_T wilddog\_getChild(Wilddog\_T wilddog, Wilddog\_Str\_T \*childName)
+
+###### 说明
+
+ 获取当前实例下名字为childName的子节点实例的id。
+
+###### 参数
+
+* wilddog `Wilddog_T` 当前实例的id。
+
+* childName `Wilddog_Str_T*` 
+子节点的相对路径，多级子节点需用'/'隔开，即使子节点不存在也能创建。
+
+###### 返回值
+
+`Wilddog_T` 子节点实例的id，如果创建失败，返回0。
+
+###### 示例
+
+    //定位到user/jackxy
+    Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy");
+
+    //定位到user/jackxy/aaa
+    Wilddog_T child = wilddog_getChild(wilddog, "aaa");
+
+----
+
+## wilddog\_getKey()
+
+###### 定义
+
+Wilddog\_Str\_T \*wilddog\_getKey(Wilddog\_T wilddog)
+
+###### 说明
+
+ 获取当前实例的key。
+
+###### 参数
+
+ wilddog `Wilddog_T` : 当前实例的id。
+
+###### 返回值
+
+ `Wilddog_Str_T` 当前实例的key值，如果获取失败，返回NULL。
+
+###### 示例
+
+    //定位到user/jackxy
+    Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy");
+
+    //获取Key值（即jackxy）
+    Wilddog_Str_T *key = wilddog_getKey(wilddog);
+
+----
+
+## wilddog\_getHost()
+
+###### 定义
+
+Wilddog\_Str\_T \*wilddog\_getHost(Wilddog\_T wilddog)
+
+###### 说明
+
+ 获取当前实例的host。
+
+###### 参数
+
+ wilddog `Wilddog_T` : 当前实例的id。
+
+###### 返回值
+
+ `Wilddog_Str_T` 当前实例的host，如果获取失败，返回NULL。
+
+###### 示例
+
+    //定位到user/jackxy
+    Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy");
+
+    //获取host（即<appId>.wilddogio.com）
+    Wilddog_Str_T *host = wilddog_getHost(wilddog);
+
+----
+
+## wilddog\_getPath()
+
+###### 定义
+
+Wilddog\_Str\_T \*wilddog\_getPath(Wilddog\_T wilddog)
+
+###### 说明
+
+ 获取当前节点的path。
+
+###### 参数
+
+ wilddog `Wilddog_T` : 当前节点的实例id。
+
+###### 返回值
+
+ `Wilddog_Str_T` 当前实例的path，如果获取失败，返回NULL。
+
+###### 示例
+
+    //定位到user/jackxy
+    Wilddog_T wilddog=wilddog_initWithUrl("coaps://<appId>.wilddogio.com/user/jackxy");
+
+    //获取path（即/user/jackxy）
+    Wilddog_Str_T *path = wilddog_getPath(wilddog);
+
+----
+
+# Node(*Methods*)
 
 ##wilddog\_node\_createObject()
 
@@ -1079,6 +1081,7 @@ Wilddog\_Node\_T \* wilddog\_node\_createUString(Wilddog\_Str\_T \*key, Wilddog\
 * value `Wilddog_Str_T*` : 指向utf-8字符串的指针。
 
 ###### 返回值
+
 `Wilddog_Node_T` 创建成功则返回节点的指针，失败返回NULL。
 
 ----
@@ -1101,7 +1104,7 @@ Wilddog\_Node\_T \* wilddog\_node\_createBString(Wilddog\_Str\_T \*key, u8 \*val
 
 ###### 返回值
 
-`Wilddog_Node_T*` 创建成功则返回节点的指针，失败返回NULL。
+ `Wilddog_Node_T*` 创建成功则返回节点的指针，失败返回NULL。
 
 ----
 
@@ -1183,7 +1186,7 @@ Wilddog\_Node\_T \* wilddog\_node\_createTrue(Wilddog\_Str\_T \*key)。
 
 ###### 返回值
 
-`Wilddog_Node_T ` 创建成功则返回节点的指针，失败返回NULL。
+ `Wilddog_Node_T ` 创建成功则返回节点的指针，失败返回NULL。
 
 ----
 
@@ -1203,7 +1206,7 @@ Wilddog\_Node\_T \* wilddog\_node\_createFalse(Wilddog\_Str\_T \*key)。
 
 ###### 返回值
 
-`Wilddog_Node_T ` 创建成功则返回节点的指针，失败返回NULL。
+ `Wilddog_Node_T ` 创建成功则返回节点的指针，失败返回NULL。
 
 ----
 
@@ -1263,7 +1266,7 @@ Wilddog\_Node\_T \* wilddog\_node\_clone( Wilddog\_Node\_T \*head)
 
 ###### 返回值
 
-`Wilddog_Node_T` 成功返回当前节点副本的指针, 失败返回NULL。
+ `Wilddog_Node_T` 成功返回当前节点副本的指针, 失败返回NULL。
 
 ----
 
@@ -1284,7 +1287,7 @@ root中查找相对路径下的节点。
 
 ###### 返回值
 
-`Wilddog_Node_T` 成功返回节点指针, 失败返回NULL。
+ `Wilddog_Node_T` 成功返回节点指针, 失败返回NULL。
 
 ----
 
@@ -1330,3 +1333,96 @@ Wilddog\_Return\_T (Wilddog\_Node\_T \*node, u8 \*value, int len)
  `Wilddog_Return_T` 成功返回 `0`, 失败返回 `<0` 的数。
 
 ----
+# AuthData (*Methods*)
+
+## wilddog\_auth()
+
+###### 定义
+
+Wilddog\_Return\_T wilddog\_auth(Wilddog\_Str\_T \*p\_host, u8 \*p\_auth, int len, onAuthFunc onAuth, void \*args)
+
+###### 说明
+
+ 发送auth数据到服务器进行认证。
+
+###### 参数
+
+* p_host `Wilddog_Str_T` : 进行auth认证的host字符串，如 `"<appId>.wilddogio.com"`。
+
+* p_auth `u8*` : auth的数据指针。
+
+* int `len` : auth数据的长度。
+
+* onAuthFunc `onAuth` : 服务端回应认证或者认证超时触发的回调函数，类型是`void (*onAuthFunc)(void* arg, Wilddog_Return_T err)`，其中`arg`为用户传递的值，（即下面的`args`），`err`为状态码，具体见`Wilddog_Return_T`定义。
+
+* args `void*` : 用户给回调函数传入的参数。
+
+###### 返回值
+
+ `Wilddog_Return_T` 发送成功返回0，发送失败则返回负数。注意该返回值仅表明发送是否成功，确认是否在云端认证成功需要在回调函数中判断。
+
+###### 示例
+
+    void myOnAuthFunc(void* arg, Wilddog_Return_T err)
+    {
+        if(err < WILDDOG_ERR_NOERR || err >= WILDDOG_HTTP_BAD_REQUEST)
+        {
+            printf("auth fail!\n");
+
+            return;
+        }
+
+        printf("auth success! %d\n", *(int*)arg);
+
+        return;
+    }
+
+    //aquired a new auth token
+    char* newToken="ABCD1234567890";
+
+    wilddog_auth("aaa.wilddogio.com", newToken, strlen(newToken), myOnAuthFunc, NULL);
+    ...
+
+----
+
+## wilddog\_unauth()
+
+###### 定义
+
+Wilddog\_Return\_T wilddog\_auth(Wilddog\_Str\_T \*p\_host, onAuthFunc onAuth, void \*args)
+
+###### 说明
+
+ 取消和服务器的auth认证。
+
+###### 参数
+
+* p_host `Wilddog_Str_T` : 进行auth认证的host字符串，如 `"<appId>.wilddogio.com"`。
+
+* onAuthFunc `onAuth` : 服务端回应认证或者认证超时触发的回调函数，类型是`void (*onAuthFunc)(void* arg, Wilddog_Return_T err)`，其中`arg`为用户传递的值，（即下面的`args`），`err`为状态码，具体见`Wilddog_Return_T`定义。
+
+* args `void*` : 用户给回调函数传入的参数。
+
+###### 返回值
+
+ `Wilddog_Return_T` 发送成功返回0，发送失败则返回负数。注意该返回值仅表明发送是否成功，是否成功取消认证需要在回调函数中判断。
+
+###### 示例
+
+    void myOnAuthFunc(void* arg, Wilddog_Return_T err)
+    {
+        if(err < WILDDOG_ERR_NOERR || err >= WILDDOG_HTTP_BAD_REQUEST)
+        {
+            printf("auth fail!\n");
+
+            return;
+        }
+
+        printf("hello world! %d\n", (int)arg);
+
+        return;
+    }
+
+    wilddog_unauth("aaa.wilddogio.com", myOnAuthFunc, NULL);
+    ...
+
