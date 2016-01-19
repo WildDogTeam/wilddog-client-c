@@ -402,7 +402,6 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sendWithToken
     authArg.p_newAuth = p_cm_l->p_short_token;
     authArg.d_newAuthLen = strlen((char*)p_cm_l->p_short_token);
     _wilddog_protocol_ioctl(_PROTOCOL_CMD_AUTHUPDATA,&authArg,0);
-        
     res = _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND,p_send->p_pkg,0);
     _wilddog_cm_node_updataSendTime(p_cm_l,p_send,
             _CM_NEXTSENDTIME_SET(_wilddog_getTime(),p_send->d_retransmit_cnt));
@@ -852,6 +851,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_retransmit(Wilddog_Cm_List_T *p_cm
                     if(curr->cmd == WILDDOG_CONN_CMD_AUTH)
                     {
                         /*auth send.*/
+                        
                          _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND,curr->p_pkg,0);
                          _wilddog_cm_node_updataSendTime(p_cm_l,
                             curr,_CM_NEXTSENDTIME_SET(_wilddog_getTime(),
@@ -861,8 +861,6 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_retransmit(Wilddog_Cm_List_T *p_cm
                     {
                         _wilddog_cm_onlineSend(p_cm_l,curr);
                         /* put to queue tial.*/
-                        _wilddog_cm_node_updataSendTime(p_cm_l,curr,
-                            _CM_NEXTSENDTIME_SET(_wilddog_getTime(),curr->d_retransmit_cnt));
                      }
                 }
 
@@ -1888,6 +1886,8 @@ Wilddog_Cm_List_T* WD_SYSTEM _wilddog_cm_cmd_init
     performtest_getDtlsHskTime();   
     performtest_timeReset();
 #endif 
+
+    p_cm_l->p_host = p_arg->p_repo->p_rp_url->p_url_host;
     /* auth reques and send out.*/
     if((res = _wilddog_cm_sessionInit(p_cm_l))< 0 )
         goto CM_INIT_ERROR;

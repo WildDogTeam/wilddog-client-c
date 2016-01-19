@@ -63,11 +63,19 @@ STATIC Multiple_client_T multipleClient[3];
 STATIC int multiple_judge(const Wilddog_Node_T* p_snapshot,char* src)
 {
 	int len;
-	if( p_snapshot != 0 &&
-		0 == strcmp( (const char*)wilddog_node_getValue(p_snapshot->p_wn_child,&len),src))
-		return 1;
-	else
-		return 0;
+    Wilddog_Str_T* value = NULL;
+    if(!p_snapshot || !p_snapshot->p_wn_child)
+    {
+        return 0;
+    }
+    value = wilddog_node_getValue(p_snapshot->p_wn_child,&len);
+    if(len)
+    {
+        if(0 == strcmp( (const char*)value,src))
+            return 1;
+    }
+
+    return 0;
 }
 
 STATIC void multiple_getValueFunc
@@ -79,14 +87,19 @@ STATIC void multiple_getValueFunc
 {
 	Multiple_client_T *p_client = (Multiple_client_T*)arg;
 	p_client->d_recvFlag = 1;
-	printf("Get : error: %d %s %p\n",err,p_client->p_host, p_snapshot);
-	if(p_snapshot)
-		wilddog_debug_printnode(p_snapshot);
+	printf("\nGet : error: %d %s \n",err,p_client->p_host);
+
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+    {
+        wilddog_debug("err code = %d, p_snapshot = %p", err, p_snapshot);
 		return;
-	else	
-		p_client->d_getResult = (u8) multiple_judge(p_snapshot,p_client->p_host);
-	wilddog_debug();
+    }
+	else
+    {   
+    	if(p_snapshot)
+		    wilddog_debug_printnode(p_snapshot);
+		p_client->d_getResult = (u8)multiple_judge(p_snapshot,p_client->p_host);
+    }
 }
 
 STATIC void multiple_removeValueFunc( void* arg, Wilddog_Return_T err)
@@ -94,7 +107,7 @@ STATIC void multiple_removeValueFunc( void* arg, Wilddog_Return_T err)
 	Multiple_client_T *p_client = (Multiple_client_T*)arg;
 	p_client->d_recvFlag = 1;
 	
-	printf("remove : error: %d %s \n",err,p_client->p_host);
+	printf("\nremove : error: %d %s \n",err,p_client->p_host);
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 		return;
 	else
@@ -105,7 +118,7 @@ STATIC void multiple_setValueFunc( void* arg, Wilddog_Return_T err)
 {
                         
 	Multiple_client_T *p_client = (Multiple_client_T*)arg;
-	printf("set : error: %d %s \n",err,p_client->p_host);
+	printf("\nset : error: %d %s \n",err,p_client->p_host);
 	p_client->d_recvFlag = 1;
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 		return;
@@ -119,7 +132,7 @@ STATIC void multiple_pushFunc(u8 *p_path,void* arg, Wilddog_Return_T err)
 
 	Multiple_client_T *p_client = (Multiple_client_T*)arg;
 	
-	printf("push : error: %d %s \n",err,p_client->p_host);
+	printf("\npush : error: %d %s \n",err,p_client->p_host);
 	p_client->d_recvFlag = 1;
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
 		return;
@@ -138,7 +151,7 @@ STATIC void multiple_addObserverFunc
     
 	Multiple_client_T *p_client = (Multiple_client_T*)arg;
 	
-	printf("observer : error: %d %s \n",err,p_client->p_host);
+	printf("\nobserver : error: %d %s \n",err,p_client->p_host);
 	p_client->d_recvFlag = 1;
 	
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
@@ -289,20 +302,20 @@ int main(void)
     client3 = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL3);
     /* set */
     
-	printf("test set \n");
+	printf("\ntest set \n");
 	multipletest_request(MULTIPLETEST_CMD_SET,client1,&multipleClient[0]);
 	multipletest_request(MULTIPLETEST_CMD_SET,client2,&multipleClient[1]);
 	multipletest_request(MULTIPLETEST_CMD_SET,client3,&multipleClient[2]);
 
 	multiple_trysync();
-	printf("test get \n");
+	printf("\ntest get \n");
 	/*get */
 	multipletest_request(MULTIPLETEST_CMD_GET,client1,&multipleClient[0]);
 	multipletest_request(MULTIPLETEST_CMD_GET,client2,&multipleClient[1]);
 	multipletest_request(MULTIPLETEST_CMD_GET,client3,&multipleClient[2]);    
 	multiple_trysync();
 	
-	printf("test observer \n");
+	printf("\ntest observer \n");
 	//while(1);
 	/* ON */
 	multipletest_request(MULTIPLETEST_CMD_ON,client1,&multipleClient[0]);
@@ -311,7 +324,7 @@ int main(void)
 	multiple_trysync();	
 	/*PUSH */
 	
-	printf("test PUSH \n");
+	printf("\ntest push \n");
 	multipletest_request(MULTIPLETEST_CMD_PUSH,client1,&multipleClient[0]);
 	multipletest_request(MULTIPLETEST_CMD_PUSH,client2,&multipleClient[1]);
 	multipletest_request(MULTIPLETEST_CMD_PUSH,client3,&multipleClient[2]);
@@ -319,7 +332,7 @@ int main(void)
 	
 	/*DELETE */
 	
-	printf("test delete \n");
+	printf("\ntest delete \n");
 	multipletest_request(MULTIPLETEST_CMD_DELE,client1,&multipleClient[0]);
 	multipletest_request(MULTIPLETEST_CMD_DELE,client2,&multipleClient[1]);
 	multipletest_request(MULTIPLETEST_CMD_DELE,client3,&multipleClient[2]);
