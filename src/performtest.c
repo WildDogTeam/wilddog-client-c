@@ -146,7 +146,6 @@ u32 WD_SYSTEM performtest_getSystime(void)
     return time.sec  * 1000000;
 }
 
-
 #endif
 #ifdef WILDDOG_PORT_TYPE_WICED
 
@@ -173,24 +172,20 @@ void WD_SYSTEM cpucycleCnt_get(const u8 *p)
     fflush(stdout);
     cpucycle_rst();
 }
+
 u32 WD_SYSTEM performtest_getSystime(void)
 {
-    /*printf("DWT_CYCCNT = %u;clock US=%u\n",(*DWT_CYCCNT),(*DWT_CYCCNT) /120);*/
     return((*DWT_CYCCNT) /120);
 }
 #endif
 
 void WD_SYSTEM performtest_timeReset(void)
 {
-
 #ifdef WILDDOG_PORT_TYPE_WICED
     cpucycle_rst();
     g_performtest.d_tm_star = 0;
-/*  printf("d_tm_star=%u\n",g_performtest.d_tm_star);*/
 #else 
     g_performtest.d_tm_star = performtest_getSystime();
-/*  printf("d_tm_star=%u\n",g_performtest.d_tm_star);*/
-
 #endif
 }
 
@@ -203,10 +198,12 @@ u32 WD_SYSTEM performtest_calDiffTime(void)
 #endif
     return diff_tm;
 }
+
 void WD_SYSTEM performtest_setSysState(u8 state)
 {
     g_performtest.d_sysState = state;
-}       
+}
+ 
 void WD_SYSTEM performtest_getDtlsHskTime(void)
 {
     if(SYS_ISIN(SYS_HSK))
@@ -215,16 +212,19 @@ void WD_SYSTEM performtest_getDtlsHskTime(void)
         performtest_setSysState(SYS_AUTHSENDING);
     }
 }
+
 void WD_SYSTEM performtest_getDtlsHskVerifyTime(void)
 {
     if(SYS_ISIN(SYS_HSK))
         APPEND_TM(g_performtest.d_tm_dtls_hsk_verify);
 }
+
 void WD_SYSTEM performtest_getSessionQueryTime(void)
 {
     APPEND_TM(g_performtest.d_tm_dtls_auth_send);
     performtest_setSysState(SYS_AUTHSENDING);
 }
+
 void WD_SYSTEM performtest_getWaitSessionQueryTime(void)
 {
     if(SYS_ISIN(SYS_AUTHRECV)){
@@ -232,6 +232,7 @@ void WD_SYSTEM performtest_getWaitSessionQueryTime(void)
         performtest_timeReset();
     }
 }
+
 void WD_SYSTEM performtest_getHandleSessionResponTime(void)
 {
     if(SYS_ISIN(SYS_AUTHRECV))
@@ -241,6 +242,7 @@ void WD_SYSTEM performtest_getHandleSessionResponTime(void)
         performtest_timeReset();
     }
 }
+
 void WD_SYSTEM performtest_getSendTime(void)
 {
     if(SYS_ISIN(SYS_APPLICATIONSENDING))
@@ -249,6 +251,7 @@ void WD_SYSTEM performtest_getSendTime(void)
         GET_AVERAGE(g_performtest.d_tm_send,temp);
     }
 }
+
 void WD_SYSTEM performtest_getDtlsSendTime(void)
 {
     if(SYS_ISIN(SYS_APPLICATIONSENDING) )
@@ -256,7 +259,8 @@ void WD_SYSTEM performtest_getDtlsSendTime(void)
         u32 temp = performtest_calDiffTime();
         GET_AVERAGE(g_performtest.d_tm_dtls_send,temp);
     }
- }
+}
+ 
 void WD_SYSTEM performtest_getWaitRecvTime(void)
 {
     if(SYS_ISIN(SYS_APPLICATIONRECV))
@@ -265,6 +269,7 @@ void WD_SYSTEM performtest_getWaitRecvTime(void)
         performtest_timeReset();
     }
 }
+
 void WD_SYSTEM performtest_getHandleRecvDtlsTime(void)
 {
     if(SYS_ISIN(SYS_APPLICATIONRECV))
@@ -272,6 +277,7 @@ void WD_SYSTEM performtest_getHandleRecvDtlsTime(void)
         APPEND_TM(g_performtest.d_tm_recv_dtls);
     }
 }
+
 void WD_SYSTEM performtest_getHandleRecvTime(void)
 {
     if(SYS_ISIN(SYS_APPLICATIONRECV))
@@ -280,6 +286,7 @@ void WD_SYSTEM performtest_getHandleRecvTime(void)
         performtest_setSysState(SYS_APPLICATIONRECVDONE);
     }
 }
+
 void WD_SYSTEM performtest_init( u32 delay_tm,u32 tree_num, u8 request_num)
 {
     memset(&g_performtest,0,sizeof(g_performtest));
@@ -287,6 +294,7 @@ void WD_SYSTEM performtest_init( u32 delay_tm,u32 tree_num, u8 request_num)
     g_performtest.request_num = request_num;
     g_performtest.d_tm_trysync_delay = delay_tm;
 }
+
 void WD_SYSTEM performtest_titile_printf(void)
 {
     printf("\n>--------------------------Perform--Test-------------------\n");
@@ -294,10 +302,12 @@ void WD_SYSTEM performtest_titile_printf(void)
     printf("DtlsHandShake\tCertification\tSendAuth\tWaitAuth\tHandleAuth\t");
     printf("RequestSend\tDtlsEncrypt\tRecvWait\tDtlsDecypt\tHandleRecv\t| \n");
 }
+
 void WD_SYSTEM performtest_end_printf(void)
 {
     printf(">--------------------------------------------------\n");
 }
+
 void WD_SYSTEM performtest_printf(Performtest_T *p)
 {
     static char perform_indx=0;
@@ -327,6 +337,7 @@ void WD_SYSTEM performtest_printf(Performtest_T *p)
     printf("\n");
 
 }
+
 STATIC void WD_SYSTEM test_onQueryFunc(
     const Wilddog_Node_T* p_snapshot, 
     void* arg, 
@@ -336,7 +347,6 @@ STATIC void WD_SYSTEM test_onQueryFunc(
     perform_count = (perform_count <= 0)?0:perform_count - 1;
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
     {
-        //wilddog_debug("query error = %d!",err);
         g_performtest.d_recv_err++;
         return;
     }
@@ -347,19 +357,19 @@ STATIC void WD_SYSTEM test_onQueryFunc(
     
     printf("\n");
 #endif      
-//  wilddog_debug("query success =%d!",perform_count);
+
     return;
 }
 
 
 #ifndef WILDDOG_PORT_TYPE_ESP
 void WD_SYSTEM performtest_handle
-	(
-	u32 delay_tm,
-	const u8 *p_url,
-	u32 tree_num, 
-	u8 request_num
-	)
+    (
+    u32 delay_tm,
+    const u8 *p_url,
+    u32 tree_num, 
+    u8 request_num
+    )
 {
     u8 m = 0;
     Wilddog_T wilddog = 0;
@@ -384,16 +394,17 @@ void WD_SYSTEM performtest_handle
     performtest_timeReset();
     for(m=0; m < request_num; m++)
     {
-        performtest_timeReset();
-        /*printf("g_performtest.d_tm_star = %ul\n", g_performtest.d_tm_star);*/
         int res = wilddog_getValue(wilddog, test_onQueryFunc, NULL);
+
+        performtest_timeReset();
+
         performtest_getSendTime();
-        /*printf("g_performtest.d_tm_send = %ul\n", g_performtest.d_tm_send);*/
+
         if(0 == res)
             perform_count++;
         else
             g_performtest.d_send_fault++;
-        /*printf("send =%d;res =%d \n",perform_count,res);*/
+
     }
     performtest_timeReset();
     performtest_setSysState(SYS_APPLICATIONRECV);
@@ -401,7 +412,6 @@ void WD_SYSTEM performtest_handle
     {
         if(perform_count == 0)
         {
-            //printf("break\n");
             performtest_printf(&g_performtest);
             break;
         }
@@ -421,7 +431,6 @@ void WD_SYSTEM performtest_handle
     return;
 }
 #endif
-
 
 #if defined (WILDDOG_PORT_TYPE_ESP) && (defined WILDDOG_SELFTEST)
 
@@ -445,8 +454,7 @@ void WD_SYSTEM perform_sync2(void)
 
 
 }
-  
-  
+
 void WD_SYSTEM perform_sync(void)
 {
     if(SYS_ISIN(SYS_APPLICATIONSENDING))
@@ -483,7 +491,6 @@ void WD_SYSTEM perform_sync(void)
     }
 }
   
-  
 void WD_SYSTEM performtest_handle
     (
     u32 delay_tm,
@@ -493,8 +500,7 @@ void WD_SYSTEM performtest_handle
     )
 {
     u8 m = 0;
-  
-      
+
     performtest_init(delay_tm,tree_num,request_num);
     performtest_setSysState(SYS_HSK);
 

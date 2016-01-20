@@ -9,7 +9,7 @@
  * Version      Author          Date        Description
  *
  * 0.4.0        Baikal.Hu       2015-05-15  Create file.
- * 0.4.3        Jimmy.Pan       2015-07-04  Add annotation, fix key check error.
+ * 0.4.3        Jimmy.Pan       2015-07-04  Add annotation,fix key check error.
  * 0.8.0        Jimmy.Pan       2016-01-09  Fix clone and free bug.
  *
  */
@@ -554,15 +554,15 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_node_setType
     {
         wilddog_node_deleteChildren(node);
     }
-	if(type < WILDDOG_NODE_TYPE_NUM)
-	{
-		/*changed to no value type, so if has value ,free it*/
-		if(node->p_wn_value)
-		{
-			wfree(node->p_wn_value);
-			node->p_wn_value = NULL;
-		}
-	}
+    if(type < WILDDOG_NODE_TYPE_NUM)
+    {
+        /*changed to no value type, so if has value ,free it*/
+        if(node->p_wn_value)
+        {
+            wfree(node->p_wn_value);
+            node->p_wn_value = NULL;
+        }
+    }
     node->d_wn_type = type;
     return WILDDOG_ERR_NOERR;
 }

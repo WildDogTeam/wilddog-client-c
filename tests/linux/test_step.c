@@ -7,7 +7,7 @@
 
 #include "wilddog_debug.h"
 #include "wilddog_api.h"
-#include "wilddog_ct.h"
+#include "wilddog_common.h"
 #include "test_lib.h"
 #include "test_config.h"
 

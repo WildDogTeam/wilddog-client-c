@@ -1,8 +1,8 @@
 /*
- * wilddog_wiced.c
+ * wilddog_mxchip.c
  *
  *  Created on: 2015-11-11 -- Baikal.Hu
- *				
+ *              
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -106,7 +106,7 @@ int wilddog_send
 
     socketId -= SOCKET_NUMBER;
 #if WILDDOG_SELFTEST
-		performtest_getDtlsSendTime();
+        performtest_getDtlsSendTime();
 #endif
 
     wilddog_debug_level(WD_DEBUG_LOG, "addr_in->port = %d, ip = %u.%u.%u.%u\n", addr_in->port, addr_in->ip[0], \
@@ -163,7 +163,7 @@ int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s
           ((remaddr.s_ip >> 24) & 0xff == addr->ip[0])|| \
           (remaddr.s_port) != addr->port)
        {
-           wilddog_debug("ip or port not match!");
+           wilddog_debug_level(WD_DEBUG_WARN,"ip or port not match!");
             return -1;
        }
         

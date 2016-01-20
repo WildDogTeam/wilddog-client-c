@@ -31,7 +31,6 @@ extern "C"
 
 typedef enum WILDDOG_CONN_CMD_TYPE
 {
-
     WILDDOG_CONN_CMD_GET,
     WILDDOG_CONN_CMD_SET,
     WILDDOG_CONN_CMD_PUSH,
@@ -49,18 +48,14 @@ typedef enum WILDDOG_CONN_CMD_TYPE
     WILDDOG_CONN_CMD_OFFLINE,
     WILDDOG_CONN_CMD_ONLINE,
     WILDDOG_CONN_CMD_TRYSYNC,
-
+    
     WILDDOG_CONN_CMD_INIT,
     WILDDOG_CONN_CMD_DEINIT,
-
-
-    WILDDOG_CONN_CMD_MAX
     
+    WILDDOG_CONN_CMD_MAX
 }Wilddog_Conn_Cmd_T;
 typedef enum WILDDOG_CONN_CBCMD_TYPE
 {
-
-    
     WILDDOG_CONN_CBCMD_GET,
     WILDDOG_CONN_CBCMD_SET,
     WILDDOG_CONN_CBCMD_PUSH,
@@ -78,17 +73,13 @@ typedef enum WILDDOG_CONN_CBCMD_TYPE
     WILDDOG_CONN_CBCMD_OFFLINE,
 
     WILDDOG_CONN_CBCMD_MAX
-    
 }Wilddog_Conn_CBCmd_T;
 
 typedef struct WILDDOG_CONN_T
 {
     Wilddog_Repo_T *p_conn_repo;
-    
     Wilddog_Cm_List_T *p_cm_l;
-    
     Wilddog_Func_T f_conn_ioctl;
-    
 }Wilddog_Conn_T;
 
 
@@ -107,7 +98,6 @@ typedef enum PROTOCOL_CMD_T{
     _PROTOCOL_CMD_INIT,
     _PROTOCOL_CMD_DEINIT,
 
-    
     _PROTOCOL_CMD_COUNTSIZE,
     _PROTOCOL_CMD_CREAT,
     _PROTOCOL_CMD_DESTORY,
@@ -133,7 +123,6 @@ typedef struct PROTOCOL_ARG_CREAT_T{
     u16 d_index;
     u16 d_packageLen;
     u32 d_token;
-    
 }Protocol_Arg_Creat_T;
 
 typedef struct PROTOCOL_ARG_OPTION_T{
@@ -145,7 +134,6 @@ typedef struct PROTOCOL_ARG_PAYLOADA_T{
    void *p_pkg;
    void *p_payload;
    u32 d_payloadLen;
-   
 }Protocol_Arg_Payload_T;
 
 typedef struct PROTOCOL_ARG_COUNTSIZE_T{
@@ -158,18 +146,15 @@ typedef struct PROTOCOL_ARG_COUNTSIZE_T{
 }Protocol_Arg_CountSize_T;
     
 typedef struct PROTOCOL_ARG_SEND_T{
-    
     u8 cmd;
     Wilddog_Url_T *p_url;
 
-	u32 d_token;
+    u32 d_token;
     u32 d_payloadlen;
     u8 *p_payload;  
     void *p_user_arg;
 
-    
     u16 d_messageid;
-    
 }Protocol_Arg_Send_T;
 
 
@@ -177,7 +162,6 @@ typedef struct PROTOCOL_ARG_AUTHARG_T{
     void *p_pkg;
     u8 *p_newAuth;
     int d_newAuthLen;
-    
 }Protocol_Arg_Auth_T;
 
 /* protocol application function */

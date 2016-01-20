@@ -10,6 +10,7 @@
  *
  * 0.4.0        Jimmy.Pan       2015-05-15  Create file.
  * 0.4.3        Jimmy.Pan       2015-07-04  Add l_isStarted.
+ * 0.8.0		Jimmy.Pan		2016-01-20	Add new API.
  *
  */
 #ifndef WILDDOG_PORT_TYPE_ESP   

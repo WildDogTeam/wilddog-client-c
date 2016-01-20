@@ -9,7 +9,7 @@
  * Version      Author          Date        Description
  *
  * 0.4.0        lxs       2015-05-15  Create file.
- * 0.5.0        lxs       2015-12-23  only manage list and system state.
+ * 0.8.0        lxs       2015-12-23  only manage list and system state.
  *
  */
  
@@ -37,7 +37,7 @@
 #include "test_lib.h"
 
 /*link config */
-#define TEST_LINK_LOG_EN    (1)    
+#define TEST_LINK_LOG_EN    (0)    
 
 #define _CM_TOKEN_SHORT 's'
 #define _CM_TOKEN_LONG 'l'
@@ -53,14 +53,17 @@
 #define PONG_NUMBERMAX  (98)
 #define PONG_NUMBERLEN  (2)
 #define PONG_REQUESINTERVAL  (12*60*1000)
-#define PONG_REQUEST_IMMEDIATELY    (1000)  /* auth timeout need to pong immediately*/  
+
+/* auth timeout need to pong immediately*/
+#define PONG_REQUEST_IMMEDIATELY    (1000)
 #define _CM_RECV_SERVER_ERROR(err)   ( err >= 400)
 
-#define _PAKGE_RETRANSMIT_TIME   (2000)	/* retransmit cover (FIRSTRTRANSMIT_INV**n) */
+/* retransmit cover (FIRSTRTRANSMIT_INV**n) */
+#define _PAKGE_RETRANSMIT_TIME   (2000)
 #define WILDDOG_PING_INTERVAL 60000 
 #define _CM_MAXAGE_TIME         ( 360*60)
 
-#define _CM_NEXTSENDTIME_SET(ctime,cnt) (ctime +( _PAKGE_RETRANSMIT_TIME <<(cnt++)))
+#define _CM_NEXTSENDTIME_SET(ctime,cnt) (ctime+(_PAKGE_RETRANSMIT_TIME<<(cnt++)))
 
 #define _CM_SYS_PING_SHORTTOKEN_PATH   "/.ping"
 #define _CM_SYS_PING_LONGTOKEN_PATH   "/.rst"
@@ -76,28 +79,21 @@
 
 
 typedef enum CM_NODE_TYPE{
-    
     CM_NODE_TYPE_OBSERVER = 1,
     CM_NODE_TYPE_MAX
-        
 }CM_Node_Type;
 typedef enum _CM_EVENT_TYPE{
-    
     _CM_EVENT_TYPE_NULL,
     _CM_EVENT_TYPE_REONLINE,
     _CM_EVENT_TYPE_MAX    
 }_CM_Event_Type;
 
-
 typedef enum _CM_SYS_PING_TYPE_T{
-    
     _CM_SYS_PINGTYPE_SHORT,
     _CM_SYS_PINGTYPE_LONG
-            
 }_CM_SYS_PING_TYPE_T;
 
 typedef struct _CM_SYS_NODE_T{
-    
     struct _CM_SYS_NODE_T *next;
     void *p_ping_pkg;
     _CM_SYS_PING_TYPE_T d_pingType;
@@ -124,62 +120,76 @@ typedef struct CM_CONTROL_T
     Wilddog_Cm_List_T *p_cm_l_hd;
     _CM_SYS_Node_T *p_cmsys_n_hd;
     Wilddog_Func_T f_cn_callBackHandle;
-
     
     int d_messageId;
     u8 d_list_cnt;
     u8 d_cm_onlineEvent;
 }CM_Control_T;
 
-
-
 CM_Control_T *p_l_cmControl = NULL;
 
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_destory(Wilddog_CM_Node_T **pp_dele);
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_maintian(Wilddog_Cm_List_T *p_cm_l);
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_destory
+    (
+    Wilddog_CM_Node_T **pp_dele
+    );
+
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_maintian
+    (
+    Wilddog_Cm_List_T *p_cm_l
+    );
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_saveToken
     (
-        Wilddog_Payload_T *p_recvData,
-        Wilddog_Cm_List_T *p_cm_l
-     );
-#if 0
-STATIC int WD_SYSTEM _wilddog_cm_node_rankByTime
-    (
-        Wilddog_Cm_List_T *p_cm_l,
-        Wilddog_CM_Node_T *p_cm_n
-     );
-#endif
+    Wilddog_Payload_T *p_recvData,
+    Wilddog_Cm_List_T *p_cm_l
+    );
+
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_updataSendTime
-      (
-        Wilddog_Cm_List_T *p_cm_l,
-        Wilddog_CM_Node_T *p_cm_n,
-        u32 nextSendTm
-     );
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    Wilddog_CM_Node_T *p_cm_n,
+    u32 nextSendTm
+    );
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeSkip
-       (
-        Wilddog_Cm_List_T *p_cm_l
-        );
-STATIC BOOL WD_SYSTEM _wilddog_cm_sys_findNode(Protocol_recvArg_T *p_recv);
+    (
+    Wilddog_Cm_List_T *p_cm_l
+    );
+STATIC BOOL WD_SYSTEM _wilddog_cm_sys_findNode
+    (
+    Protocol_recvArg_T *p_recv
+    );
 STATIC int WD_SYSTEM _wilddog_cm_sys_keeplink(void);
 STATIC void* WD_SYSTEM _wilddog_cm_sys_creatPing
     (
-        Wilddog_Cm_List_T *p_cm_l,
-        _CM_SYS_PING_TYPE_T pingType,
-        u32 *p_pkg_token
+    Wilddog_Cm_List_T *p_cm_l,
+    _CM_SYS_PING_TYPE_T pingType,
+    u32 *p_pkg_token
     );
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_trafficRunOut
     ( 
-        Wilddog_Cm_List_T *p_cm_l
+    Wilddog_Cm_List_T *p_cm_l
     );
 STATIC int WD_SYSTEM _wilddog_cm_sys_disablePingLink
-    (Wilddog_Cm_List_T *p_cm_l,BOOL newstate);
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    BOOL newstate
+    );
 STATIC _CM_SYS_Node_T *WD_SYSTEM _wilddog_cm_sys_findSysnodeBycml
-    (Wilddog_Cm_List_T *p_cm_l);
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeInit(_CM_SYS_Node_T *p_cmsys_n);
+    (
+    Wilddog_Cm_List_T *p_cm_l
+    );
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeInit
+    (
+    _CM_SYS_Node_T *p_cmsys_n
+    );
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_setOnLineState
-    (Wilddog_Cm_List_T *p_cm_l,u32 s);
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    u32 s
+    );
 STATIC u8 WD_SYSTEM _wilddog_cm_sys_getOnlineState
-        (Wilddog_Cm_List_T *p_cm_l);
+    (
+    Wilddog_Cm_List_T *p_cm_l
+    );
 STATIC int WD_SYSTEM _wilddog_cm_cmd_getIndex(void *p_arg,int flag);
 STATIC u32 WD_SYSTEM _wilddog_cm_cmd_getToken(void *p_arg,int flag);
 
@@ -203,7 +213,10 @@ STATIC INLINE int WD_SYSTEM _wilddog_cm_rand_get(void)
  * Output:      N/A.
  * Return:      pointer to the allocation address.
 */
-STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat(Wilddog_CM_UserArg_T *p_arg)
+STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat
+    (
+    Wilddog_CM_UserArg_T *p_arg
+    )
 {
     Wilddog_CM_Node_T *p_newNode = NULL;
 
@@ -225,21 +238,20 @@ STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat(Wilddog_CM_UserArg_T 
     
     if( p_arg->p_path )    
     {
-       int tmpLen = strlen((const char*)p_arg->p_path) +1;
-       p_newNode->p_path = wmalloc(tmpLen);
-       if(p_newNode->p_path == NULL)
+        int tmpLen = strlen((const char*)p_arg->p_path) +1;
+        p_newNode->p_path = wmalloc(tmpLen);
+        if(p_newNode->p_path == NULL)
             return NULL;
-       memset(p_newNode->p_path,0,tmpLen);
-       memcpy(p_newNode->p_path,p_arg->p_path,(tmpLen-1));
+        memset(p_newNode->p_path,0,tmpLen);
+        memcpy(p_newNode->p_path,p_arg->p_path,(tmpLen-1));
     }
     /* node type subscription.*/
     if( p_arg->cmd == WILDDOG_CONN_CBCMD_ON)
     {
         p_newNode->d_nodeType = CM_NODE_TYPE_OBSERVER;
         p_newNode->d_subscibe_index = 0;
-
     }
-    
+
     wilddog_debug_level(WD_DEBUG_LOG,"\t##\tcreat cm node : %p \n",p_newNode);
     return p_newNode;
 }
@@ -250,7 +262,10 @@ STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat(Wilddog_CM_UserArg_T 
  * Output:      N/A
  * Return:      Wilddog_Return_T type 
 */
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_destory(Wilddog_CM_Node_T **pp_dele)
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_destory
+    (
+    Wilddog_CM_Node_T **pp_dele
+    )
 {
     Wilddog_CM_Node_T *p_dele = NULL;
     if( pp_dele == NULL || *pp_dele == NULL)
@@ -279,7 +294,10 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_destory(Wilddog_CM_Node_T **p
  * Output:      N/A
  * Return:      BOOL type .
 */
-STATIC BOOL WD_SYSTEM _wilddog_cm_ndoe_isNotify(Wilddog_CM_Node_T *p_cm_n)
+STATIC BOOL WD_SYSTEM _wilddog_cm_ndoe_isNotify
+    (
+    Wilddog_CM_Node_T *p_cm_n
+    )
 {
     if( p_cm_n->d_nodeType == CM_NODE_TYPE_OBSERVER && \
         p_cm_n->d_subscibe_index > 0)
@@ -303,50 +321,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_updataSendTime
     u32 nextSendTm
     )
 {
-    /* remove it first.*/
-   // LL_DELETE(p_cm_l->p_cm_n_hd,p_cm_n);
     /* set time.*/
     p_cm_n->d_sendTm = nextSendTm;//
     return WILDDOG_ERR_NOERR;
-    /*insert in list.*/
-   // return _wilddog_cm_node_rankByTime(p_cm_l,p_cm_n);
 }
-#if 0
-STATIC int WD_SYSTEM _wilddog_cm_node_rankByTime
-    (
-        Wilddog_Cm_List_T *p_cm_l,
-        Wilddog_CM_Node_T *p_cm_n
-     )
-{
-    int appendFlag = 1;
-    Wilddog_CM_Node_T *curr = NULL,*tmp = NULL,*p_pre =NULL;
 
-    LL_FOREACH_SAFE(p_cm_l->p_cm_n_hd,curr,tmp)
-    {
-        if(curr->d_sendTm < p_cm_n->d_sendTm)
-        {
-            p_pre = curr;
-            continue;
-         }
-        else
-        {   
-            if(p_pre == NULL)
-                LL_PREPEND(p_cm_l->p_cm_n_hd,p_cm_n);
-            else
-            {
-                p_pre->next = p_cm_n;
-                p_cm_n->next = curr;
-            }
-            appendFlag = 0;
-            break;
-        }
-     }
-    
-    if(appendFlag)
-        LL_APPEND(p_cm_l->p_cm_n_hd,p_cm_n);
-    return WILDDOG_ERR_NOERR;
-}
-#endif
 /*
  * Function:    _wilddog_cm_list_destory
  * Description: free list that belong some repo.
@@ -355,7 +334,10 @@ STATIC int WD_SYSTEM _wilddog_cm_node_rankByTime
  * Output:      N/A
  * Return:      Wilddog_Return_T type .
 */
-STATIC int WD_SYSTEM   _wilddog_cm_list_destory(Wilddog_Cm_List_T *p_cm_l)
+STATIC int WD_SYSTEM   _wilddog_cm_list_destory
+    (
+    Wilddog_Cm_List_T *p_cm_l
+    )
 {
     if(p_cm_l == NULL)
         return WILDDOG_ERR_INVALID;
@@ -391,9 +373,10 @@ STATIC int WD_SYSTEM   _wilddog_cm_list_destory(Wilddog_Cm_List_T *p_cm_l)
  * Return:      Wilddog_Return_T type 
 */
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sendWithToken
-    (   Wilddog_Cm_List_T *p_cm_l,
-        Wilddog_CM_Node_T *p_send
-     )
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    Wilddog_CM_Node_T *p_send
+    )
 {
     /*  updata token.*/
     int res =0;
@@ -416,7 +399,10 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sendWithToken
  * Return:      Wilddog_Return_T type 
 */
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_authSend
-    (Wilddog_Cm_List_T *p_cm_l,Wilddog_CM_Node_T *p_send)
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    Wilddog_CM_Node_T *p_send
+    )
 {
     int res = 0;
     switch( p_cm_l->d_authStatus )
@@ -424,18 +410,21 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_authSend
         case CM_SESSION_DOAUTH:
         case CM_SESSION_AUTHING:
             /*all application request put off*/
-            _wilddog_cm_node_updataSendTime(p_cm_l,p_send,
-                _CM_NEXTSENDTIME_SET(_wilddog_getTime(),p_send->d_retransmit_cnt));
+            _wilddog_cm_node_updataSendTime(p_cm_l, \
+                                        p_send, \
+                                        _CM_NEXTSENDTIME_SET(_wilddog_getTime(),
+                                                    p_send->d_retransmit_cnt));
             break;
         case CM_SESSION_UNAUTH:
         case CM_SESSION_AUTHED:
             res = _wilddog_cm_sendWithToken(p_cm_l,p_send);
-            _wilddog_cm_node_updataSendTime(p_cm_l,p_send,
-                    _CM_NEXTSENDTIME_SET(_wilddog_getTime(),p_send->d_retransmit_cnt));
+            _wilddog_cm_node_updataSendTime(p_cm_l,
+                    p_send,
+                    _CM_NEXTSENDTIME_SET(_wilddog_getTime(),
+                    p_send->d_retransmit_cnt));
             break;
-        
     }
-    
+
     return res;
 }
 /*
@@ -452,22 +441,27 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_onlineSend
     Wilddog_CM_Node_T *p_cm_n
     )
 {
-
     if( CM_OFFLINE == _wilddog_cm_sys_getOnlineState(p_cm_l))
     {
         /* on event hold in list until system reonline.*/
-         if( p_cm_n->cmd == WILDDOG_CONN_CMD_ON)
-             _wilddog_cm_node_updataSendTime(p_cm_l,p_cm_n,
-                 (_wilddog_getTime()+_CM_MAXAGE_TIME));
-         else
-            _wilddog_cm_node_updataSendTime(p_cm_l,p_cm_n,
+        if( p_cm_n->cmd == WILDDOG_CONN_CMD_ON)
+        {
+             _wilddog_cm_node_updataSendTime(p_cm_l, \
+                                        p_cm_n, \
+                                        (_wilddog_getTime()+_CM_MAXAGE_TIME));
+        }
+        else
+        {
+            _wilddog_cm_node_updataSendTime(p_cm_l, \
+                    p_cm_n, \
               _CM_NEXTSENDTIME_SET(_wilddog_getTime(),p_cm_n->d_retransmit_cnt));
+        }
         return WILDDOG_ERR_NOERR;
     }
     else /* online*/
     {
-       return _wilddog_cm_authSend(p_cm_l,p_cm_n); 
-     }
+        return _wilddog_cm_authSend(p_cm_l,p_cm_n); 
+    }
 }
 
 /*
@@ -484,7 +478,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_cmd_userSend
     int flag
     )
 {
-    int res =0;
+    int res = 0;
     /* creat node.*/
     Wilddog_CM_Node_T *p_newNode = _wilddog_cm_node_creat(p_arg);
 
@@ -497,8 +491,9 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_cmd_userSend
     {
         /*auth send.*/
          res = _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND,p_arg->p_pkg,0);
-         _wilddog_cm_node_updataSendTime(p_arg->p_cm_l,p_newNode,
-               _CM_NEXTSENDTIME_SET(_wilddog_getTime(),p_newNode->d_retransmit_cnt));
+         _wilddog_cm_node_updataSendTime(p_arg->p_cm_l, \
+          p_newNode, \
+          _CM_NEXTSENDTIME_SET(_wilddog_getTime(),p_newNode->d_retransmit_cnt));
     }else/*application send.*/
         res =  _wilddog_cm_onlineSend(p_arg->p_cm_l,p_newNode);
     
@@ -517,63 +512,61 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_cmd_userSend
 /*
  * Function:    _wilddog_cm_recv_errorHandle
  * Description:  handle receive error code.
- *                  while error code = 401, mean unauthoried then request new session.
- *                  while error code = 412,mean flow run out then cancel all observer event.
- *                  while no error then put off ping send time and reOnline the system.
+ *               error code = 401, unauthoried then request new session.
+ *               error code = 412, flow run out then cancel all observer event.
+ *               no error then put off ping send time and reOnline the system.
  * Input:       
- *                  p_recv : receive package.
- *                  p_cm_l : reponde list.
+ *              p_recv : receive package.
+ *              p_cm_l : reponde list.
  * Output:      N/A
  * Return:      Wilddog_Return_T type.
 */
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_errorHandle
     (
-        Protocol_recvArg_T *p_recv,
-        Wilddog_Cm_List_T *p_cm_l
+    Protocol_recvArg_T *p_recv,
+    Wilddog_Cm_List_T *p_cm_l
     )
 {   
-
-   /* server error.*/
-   if( _CM_RECV_SERVER_ERROR(p_recv->err))
+    /* server error.*/
+    if( _CM_RECV_SERVER_ERROR(p_recv->err))
     {
         wilddog_debug_level(WD_DEBUG_LOG,"CM recv err : %ld",p_recv->err);
-       /* unauth need to send auth request.*/
-       if(p_recv->err == WILDDOG_HTTP_UNAUTHORIZED)
-       {
+        /* unauth need to send auth request.*/
+        if(p_recv->err == WILDDOG_HTTP_UNAUTHORIZED)
+        {
             /* session init in next execution cycle.*/
             p_cm_l->d_authStatus = CM_SESSION_DOAUTH;
-            
-       }
-       else
-       if( p_recv->err == WILDDOG_HTTP_PRECONDITION_FAIL)
-       {
+        }
+        else
+        if(p_recv->err == WILDDOG_HTTP_PRECONDITION_FAIL)
+        {
             /*traffic runout. */
             p_cm_l->d_serverEvent = CM_SERVER_EVENT_PRECONDITION_FAIL; 
-       }
-   }
-   else
+        }
+    }
+    else
     {
-      /* set online*/
-      if(   CM_OFFLINE == _wilddog_cm_sys_getOnlineState(p_cm_l))
-      {
-        /*set reonline flag.*/
-        p_l_cmControl->d_cm_onlineEvent = _CM_EVENT_TYPE_REONLINE;
-        /* set online.*/
-        _wilddog_cm_sys_setOnLineState(p_cm_l,CM_ONLINE);
-      }
-      /* normal responds.*/
-      _wilddog_cm_sys_timeSkip(p_cm_l);
+        /* set online*/
+        if(CM_OFFLINE == _wilddog_cm_sys_getOnlineState(p_cm_l))
+        {
+            /*set reonline flag.*/
+            p_l_cmControl->d_cm_onlineEvent = _CM_EVENT_TYPE_REONLINE;
+            /* set online.*/
+            _wilddog_cm_sys_setOnLineState(p_cm_l,CM_ONLINE);
+        }
+        /* normal responds.*/
+        _wilddog_cm_sys_timeSkip(p_cm_l);
    }
-
+    
    return WILDDOG_ERR_NOERR;
 }
 /*
  * Function:    _wilddog_cm_recv_handle_on.
- * Description:  
- *            handle notify: if notify index larger then update node index and notify user.
- *                                if notify index less then ignore it.
- *                                if error code > 300 then delete it.
- * Input:  p_cm_l: list pointer.
+ * Description: handle notify: 
+ *                if notify index larger then update node index and notify user.
+ *                if notify index less then ignore it.
+ *                if error code > 300 then delete it.
+ * Input:    p_cm_l: list pointer.
  *           p_cm_n :  cm node.
  *           p_recv : receive notify.
  *           p_cm_recvArg : receive arg.
@@ -583,50 +576,56 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_errorHandle
 */
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_handle_on
     (
-    
-        Wilddog_Cm_List_T *p_cm_l,
-        Wilddog_CM_Node_T *p_cm_n,
-        Protocol_recvArg_T *p_recv,
-        Wilddog_CM_Recv_T *p_cm_recvArg
+    Wilddog_Cm_List_T *p_cm_l,
+    Wilddog_CM_Node_T *p_cm_n,
+    Protocol_recvArg_T *p_recv,
+    Wilddog_CM_Recv_T *p_cm_recvArg
     )
 {
     u32 nextSendTm = 0;
 
     if(_CM_RECV_SERVER_ERROR(p_recv->err))
     {
-    
-      /*have beed observer,ignore it*/
-     if( _wilddog_cm_ndoe_isNotify(p_cm_n) && \
-         p_recv->err != WILDDOG_HTTP_PRECONDITION_FAIL)
+        /*have beed observer,ignore it*/
+        if( _wilddog_cm_ndoe_isNotify(p_cm_n) && \
+            p_recv->err != WILDDOG_HTTP_PRECONDITION_FAIL)
+        {
             return WILDDOG_ERR_NOERR;
+        }
 
-     /* call user call back.*/
-     if( p_cm_recvArg->f_user_callback || \
-                p_l_cmControl->f_cn_callBackHandle)
-                      p_l_cmControl->f_cn_callBackHandle(p_cm_recvArg->cmd,
-                      p_cm_recvArg,0);
-      /* delete it.*/   
-      LL_DELETE(p_cm_l->p_cm_n_hd,p_cm_n);
-      _wilddog_cm_node_destory(&p_cm_n);
-      
+        /* call user call back.*/
+        if( p_cm_recvArg->f_user_callback || \
+            p_l_cmControl->f_cn_callBackHandle)
+        {
+            p_l_cmControl->f_cn_callBackHandle(p_cm_recvArg->cmd, \
+                                               p_cm_recvArg, \
+                                               0);
+        }
+        /* delete it.*/   
+        LL_DELETE(p_cm_l->p_cm_n_hd,p_cm_n);
+        _wilddog_cm_node_destory(&p_cm_n);
     }
     else
     {
-       if(  p_cm_n->d_nodeType == CM_NODE_TYPE_OBSERVER && \
+        if( p_cm_n->d_nodeType == CM_NODE_TYPE_OBSERVER && \
             p_recv->d_isObserver == TRUE && \
             p_recv->d_observerIndx > p_cm_n->d_subscibe_index)
-       {
+        {
              /* call user call back.*/
             if( p_cm_recvArg->f_user_callback || \
                 p_l_cmControl->f_cn_callBackHandle)
-                      p_l_cmControl->f_cn_callBackHandle(p_cm_recvArg->cmd,p_cm_recvArg,0);
+            {
+                p_l_cmControl->f_cn_callBackHandle(p_cm_recvArg->cmd,\
+                                                   p_cm_recvArg, \
+                                                   0);
+            }
             /* get observer index.*/
             p_cm_n->d_subscibe_index = p_recv->d_observerIndx;
             /* get maxage.*/
             p_cm_n->d_maxAge = p_recv->d_maxAge * 60 ;
             /* updata next send time.*/
             nextSendTm = _wilddog_getTime() + p_recv->d_maxAge;
-            
+
             /*adjust sending list.*/
             _wilddog_cm_node_updataSendTime(p_cm_l,p_cm_n,nextSendTm);
        }
@@ -636,29 +635,25 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_handle_on
 }
 /*
  * Function:    _wilddog_cm_recv_handle.
- * Description:  
- *            handle notify: if notify index larger then update node index and notify user.
- *                                if notify index less then ignore it.
- *                                if error code > 300 then delete it.
- * Input:  p_cm_l: list pointer.
- *           p_cm_n :  cm node.
- *           p_recv : receive notify.
- *           p_cm_recvArg : receive arg.
- *                  flag : N/A.
+ * Description: handle all receive package.
+ * Input:  p_cm_l : list pointer.
+ *         p_cm_n : response node.
+ *         p_recv : store parsed receive package.
  * Output:      N/A.
  * Return:      Wilddog_Return_T type.
 */
 STATIC int WD_SYSTEM _wilddog_cm_recv_handle
     (
-        Protocol_recvArg_T *p_recv,
-        Wilddog_CM_Node_T *p_cm_n,
-        Wilddog_Cm_List_T *p_cm_l
+    Protocol_recvArg_T *p_recv,
+    Wilddog_CM_Node_T *p_cm_n,
+    Wilddog_Cm_List_T *p_cm_l
     )
 {
    /* handle error.*/
    Wilddog_Payload_T payload;
    Wilddog_CM_Recv_T cm_recv;
    int res = 0 ;
+   
    memset(&payload,0,sizeof(Wilddog_Payload_T));
    memset(&cm_recv,0,sizeof(Wilddog_CM_Recv_T));
    
@@ -667,7 +662,6 @@ STATIC int WD_SYSTEM _wilddog_cm_recv_handle
         p_cm_l == NULL
     )
         return WILDDOG_ERR_INVALID;
-   
    
    payload.p_dt_data = p_recv->p_recvData;
    payload.d_dt_len = p_recv->d_recvDataLen;
@@ -691,8 +685,9 @@ STATIC int WD_SYSTEM _wilddog_cm_recv_handle
             _wilddog_cm_session_saveToken(&payload,p_cm_l);
             if( cm_recv.f_user_callback || \
                 p_l_cmControl->f_cn_callBackHandle)
-                    p_l_cmControl->f_cn_callBackHandle(cm_recv.cmd,&cm_recv,0);
-            
+            {
+                p_l_cmControl->f_cn_callBackHandle(cm_recv.cmd,&cm_recv,0);
+            }
             LL_DELETE(p_cm_l->p_cm_n_hd,p_cm_n);
             _wilddog_cm_node_destory(&p_cm_n);
             break;
@@ -702,10 +697,11 @@ STATIC int WD_SYSTEM _wilddog_cm_recv_handle
         default:
             if( cm_recv.f_user_callback || \
                 p_l_cmControl->f_cn_callBackHandle)
-                      p_l_cmControl->f_cn_callBackHandle(cm_recv.cmd,&cm_recv,0);
-         
-           LL_DELETE(p_cm_l->p_cm_n_hd,p_cm_n);
-           _wilddog_cm_node_destory(&p_cm_n);
+            {
+                p_l_cmControl->f_cn_callBackHandle(cm_recv.cmd,&cm_recv,0);
+            }
+            LL_DELETE(p_cm_l->p_cm_n_hd,p_cm_n);
+            _wilddog_cm_node_destory(&p_cm_n);
             break;
    }
    return res;
@@ -718,7 +714,11 @@ STATIC int WD_SYSTEM _wilddog_cm_recv_handle
  * Output:      N/A.
  * Return:      BOOL type.
 */
-STATIC BOOL WD_SYSTEM _wilddog_cm_recv_findContext(Protocol_recvArg_T *p_recv,int flag)
+STATIC BOOL WD_SYSTEM _wilddog_cm_recv_findContext
+    (
+    Protocol_recvArg_T *p_recv,
+    int flag
+    )
 {
     Wilddog_Repo_T *curr_repo = NULL,*temp_repo = NULL;
     Wilddog_CM_Node_T *p_find = NULL;
@@ -736,7 +736,6 @@ STATIC BOOL WD_SYSTEM _wilddog_cm_recv_findContext(Protocol_recvArg_T *p_recv,in
             LL_FOREACH_SAFE(curr_repo->p_rp_conn->p_cm_l->p_cm_n_hd,\
                     curr_cm,temp_cm)
             {
-                
                 if( curr_cm->d_token == p_recv->d_token)
                 {
                    p_find = curr_cm;
@@ -746,7 +745,6 @@ STATIC BOOL WD_SYSTEM _wilddog_cm_recv_findContext(Protocol_recvArg_T *p_recv,in
                 }
             }
         }
-        
     }
     
     if( p_find)
@@ -762,7 +760,6 @@ STATIC int WD_SYSTEM _wilddog_cm_recv(void)
     wilddog_assert(p_l_cmControl,WILDDOG_ERR_INVALID);
         
     return  _wilddog_protocol_ioctl(_PROTOCOL_CMD_RECV,NULL,0);
-    
 }
 /*
  * Function:    _wilddog_cm_trafficRunOut.
@@ -773,13 +770,13 @@ STATIC int WD_SYSTEM _wilddog_cm_recv(void)
 */
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_trafficRunOut
     ( 
-        Wilddog_Cm_List_T *p_cm_l
+    Wilddog_Cm_List_T *p_cm_l
     )
 {
     wilddog_assert(p_cm_l,WILDDOG_ERR_INVALID);
     
     if(p_cm_l->d_serverEvent == CM_SERVER_EVENT_PRECONDITION_FAIL)
-     {
+    {
         Wilddog_CM_Node_T *curr = NULL,*tmp = NULL;
         Protocol_recvArg_T trfficRunOut;
 
@@ -788,11 +785,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_trafficRunOut
         
         LL_FOREACH_SAFE(p_cm_l->p_cm_n_hd,curr,tmp)
         {
-             /* all node touch call back,and destory.*/
-            _wilddog_cm_recv_handle(&trfficRunOut,curr,p_cm_l);
+            /* all node touch call back,and destory.*/
+           _wilddog_cm_recv_handle(&trfficRunOut,curr,p_cm_l);
         }
     }
-    
+
     return WILDDOG_ERR_NOERR;
 }
 /*
@@ -805,11 +802,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_trafficRunOut
 */
 STATIC BOOL WD_SYSTEM _wilddog_cm_transmitTimeOut
     ( 
-        Wilddog_CM_Node_T *p_cm_n,
-        Wilddog_Cm_List_T *p_cm_l
+    Wilddog_CM_Node_T *p_cm_n,
+    Wilddog_Cm_List_T *p_cm_l
     )
 {
-    if( DIFF(p_cm_n->d_registerTm,_wilddog_getTime()) > WILDDOG_RETRANSMITE_TIME )
+    if(DIFF(p_cm_n->d_registerTm,_wilddog_getTime())> WILDDOG_RETRANSMITE_TIME)
     {
         Protocol_recvArg_T timeOutArg;
         memset(&timeOutArg,0,sizeof(Protocol_recvArg_T));
@@ -827,7 +824,10 @@ STATIC BOOL WD_SYSTEM _wilddog_cm_transmitTimeOut
  * Output:      N/A.
  * Return:      Wilddog_Return_T type.
 */
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_retransmit(Wilddog_Cm_List_T *p_cm_l)
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_retransmit
+    (
+    Wilddog_Cm_List_T *p_cm_l
+    )
 {
     Wilddog_CM_Node_T *curr = NULL,*tmp = NULL;
     u32 currTm = _wilddog_getTime();
@@ -837,34 +837,35 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_retransmit(Wilddog_Cm_List_T *p_cm
     
     LL_FOREACH_SAFE(p_cm_l->p_cm_n_hd,curr,tmp)
     {
-         /*successfully observer node not need to retransmit.*/
-         if(_wilddog_cm_ndoe_isNotify(curr) == TRUE)
+        /*successfully observer node not need to retransmit.*/
+        if(_wilddog_cm_ndoe_isNotify(curr) == TRUE)
             continue;
 
-         /* send out while touch send time.*/
-         if( currTm >curr->d_sendTm && \
-                DIFF(currTm,curr->d_sendTm) < (0xffff))
-         {
-             /* time out node will be dele and not need to retransmit.*/
-             if(_wilddog_cm_transmitTimeOut(curr,p_cm_l) == FALSE)
-             {
-                    if(curr->cmd == WILDDOG_CONN_CMD_AUTH)
-                    {
-                        /*auth send.*/
-                        
-                         _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND,curr->p_pkg,0);
-                         _wilddog_cm_node_updataSendTime(p_cm_l,
-                            curr,_CM_NEXTSENDTIME_SET(_wilddog_getTime(),
-                            curr->d_retransmit_cnt));
-                    }
-                    else
-                    {
-                        _wilddog_cm_onlineSend(p_cm_l,curr);
-                        /* put to queue tial.*/
-                     }
-                }
+        /* send out while touch send time.*/
+        if( currTm >curr->d_sendTm && \
+            DIFF(currTm,curr->d_sendTm) < (0xffff))
+        {
+            /* time out node will be dele and not need to retransmit.*/
+            if(_wilddog_cm_transmitTimeOut(curr,p_cm_l) == FALSE)
+            {
+                if(curr->cmd == WILDDOG_CONN_CMD_AUTH)
+                {
+                    /*auth send.*/
 
-         }
+                    _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND,curr->p_pkg,0);
+                    _wilddog_cm_node_updataSendTime(p_cm_l, \
+                        curr, \
+                        _CM_NEXTSENDTIME_SET(_wilddog_getTime(), \
+                        curr->d_retransmit_cnt));
+                }
+                else
+                {
+                    _wilddog_cm_onlineSend(p_cm_l,curr);
+                    /* put to queue tial.*/
+                }
+            }
+
+        }
     }
 
     return WILDDOG_ERR_NOERR;
@@ -887,7 +888,9 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_reOnline(void)
         Wilddog_Repo_T **pp_head_repo = _wilddog_ct_getRepoHead();
         if( pp_head_repo == NULL || \
             *pp_head_repo == NULL)
+        {
             return WILDDOG_ERR_NOERR;
+        }
         head_repo = *pp_head_repo;
         LL_FOREACH_SAFE(head_repo,curr_repo,tmp_repo)
         {
@@ -895,8 +898,9 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_reOnline(void)
             if( curr_repo->p_rp_conn == NULL || \
                 curr_repo->p_rp_conn->p_cm_l == NULL || \
                 curr_repo->p_rp_conn->p_cm_l->p_cm_n_hd == NULL)
+            {
                     continue ;
-            
+            }
             head_n = curr_repo->p_rp_conn->p_cm_l->p_cm_n_hd;
             /* reObserver.*/
             LL_FOREACH_SAFE(head_n,curr_n,tmp_n)
@@ -916,11 +920,14 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_reOnline(void)
 /*
  * Function:    _wilddog_cm_sessionInit.
  * Description: auth request and set auth state = authing.
- * Input:  N/A.
+ * Input:       N/A.
  * Output:      N/A.
  * Return:      Wilddog_Return_T type.
 */
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sessionInit(Wilddog_Cm_List_T *p_cm_l)
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sessionInit
+    (
+    Wilddog_Cm_List_T *p_cm_l
+    )
 {
     void* p_pkg_index = NULL;
     u8 *pbuf = NULL;
@@ -962,7 +969,6 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sessionInit(Wilddog_Cm_List_T *p_c
     p_cm_l->p_short_token[_CM_TOKEN_SHORT_LEN] = 0;
     
     memcpy(p_cm_l->p_short_token,_CM_AUTHR_QURES,strlen(_CM_AUTHR_QURES));
-    //memcpy(p_cm_l->p_long_token,_CM_AUTHR_QURES,strlen(_CM_AUTHR_QURES));
     /* init protocol package.*/
     pkg_arg.cmd = WILDDOG_CONN_CMD_AUTH;
 
@@ -984,25 +990,31 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sessionInit(Wilddog_Cm_List_T *p_c
         _PROTOCOL_CMD_COUNTSIZE,&pkg_sizeCount,0);
         
     /* creat coap package.*/
-    p_pkg_index = (void*) _wilddog_protocol_ioctl(_PROTOCOL_CMD_CREAT,&pkg_arg,0);
+    p_pkg_index =(void*)_wilddog_protocol_ioctl(_PROTOCOL_CMD_CREAT,&pkg_arg,0);
     if( p_pkg_index == NULL)
         return WILDDOG_ERR_NULL;
 
     /* add host.*/
     pkg_option.p_pkg = (void*)p_pkg_index;
     pkg_option.p_options = p_cm_l->p_repo->p_rp_url->p_url_host;
-    if( _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_HOST,&pkg_option,0) != WILDDOG_ERR_NOERR )
-       goto _CM_AUTH_ERR;
+
+    res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_HOST,&pkg_option,0);
+    if( res != WILDDOG_ERR_NOERR )
+        goto _CM_AUTH_ERR;
 
     /* add path.*/
     pkg_option.p_pkg = (void*)p_pkg_index;
     pkg_option.p_options = _CM_AUTHR_PATH;
-    if( _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_PATH,&pkg_option,0) != WILDDOG_ERR_NOERR )
+
+    res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_PATH,&pkg_option,0);
+    if( res != WILDDOG_ERR_NOERR )
        goto _CM_AUTH_ERR;
 
     /*add payload.*/
-    authData.p_pkg = (void*)p_pkg_index; 
-    if((res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&authData,0) ) < 0)
+    authData.p_pkg = (void*)p_pkg_index;
+
+    res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&authData,0);
+    if(res < 0)
         goto _CM_AUTH_ERR;
     
     /*   add list and send out.*/ 
@@ -1028,9 +1040,11 @@ _CM_AUTH_ERR:
  * Output:      N/A.
  * Return:      Wilddog_Return_T type.
 */
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_maintian(Wilddog_Cm_List_T *p_cm_l)
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_maintian
+    (
+    Wilddog_Cm_List_T *p_cm_l
+    )
 {
-    
     if( p_cm_l &&
         p_cm_l->d_authStatus == CM_SESSION_DOAUTH)
        return _wilddog_cm_sessionInit(p_cm_l);
@@ -1040,20 +1054,19 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_maintian(Wilddog_Cm_List_T
 /*
  * Function:    _wilddog_cm_session_saveToken.
  * Description: updata token.
- * Input:  p_cm_l : cm list.
- *            p_recvData :  receive package ,new token in it's payload.
+ * Input:       p_cm_l : cm list.
+ *              p_recvData :  receive package ,new token in it's payload.
  * Output:      N/A.
  * Return:      Wilddog_Return_T type.
 */
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_saveToken
     (
-        Wilddog_Payload_T *p_recvData,
-        Wilddog_Cm_List_T *p_cm_l
-     )
+    Wilddog_Payload_T *p_recvData,
+    Wilddog_Cm_List_T *p_cm_l
+    )
 {
     Wilddog_Str_T *p_short_token = NULL, *p_long_token = NULL;
     Wilddog_Node_T *p_snapshot = NULL;
-
     
     if( p_recvData == NULL || \
         p_recvData->p_dt_data == NULL || \
@@ -1073,30 +1086,36 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_saveToken
 
         if( p_child_node && \
             *(p_child_node->p_wn_key) == _CM_TOKEN_SHORT)
-                p_short_token = p_child_node->p_wn_value;
+        {
+            p_short_token = p_child_node->p_wn_value;
+        }
         if( p_child_node && \
             *(p_child_node->p_wn_key) == _CM_TOKEN_LONG)
-                p_long_token = p_child_node->p_wn_value;
-
+        {
+            p_long_token = p_child_node->p_wn_value;
+        }
         
         if( p_next_node && \
             *(p_next_node->p_wn_key) == _CM_TOKEN_SHORT)
-                p_short_token = p_next_node->p_wn_value;
-        if(  p_next_node && \
+        {
+            p_short_token = p_next_node->p_wn_value;
+        }
+        if( p_next_node && \
             *(p_next_node->p_wn_key) == _CM_TOKEN_LONG)
-                p_long_token = p_next_node->p_wn_value;
-        
+        {
+            p_long_token = p_next_node->p_wn_value;
+        }
 
         if( p_long_token && p_short_token)
-         {   
-                memset( p_cm_l->p_long_token ,0,_CM_TOKEN_LONG_LEN);
-                sprintf((char*)p_cm_l->p_long_token,"%s",p_long_token);
+        {   
+            memset( p_cm_l->p_long_token ,0,_CM_TOKEN_LONG_LEN);
+            sprintf((char*)p_cm_l->p_long_token,"%s",p_long_token);
 
-                memset( p_cm_l->p_short_token ,0,_CM_TOKEN_SHORT_LEN); 
-                sprintf((char*)p_cm_l->p_short_token,"%s%s",_CM_AUTHR_QURES,p_short_token);
+            memset( p_cm_l->p_short_token ,0,_CM_TOKEN_SHORT_LEN); 
+            sprintf((char*)p_cm_l->p_short_token,"%s%s",_CM_AUTHR_QURES,p_short_token);
 
-                wilddog_node_delete(p_snapshot);
-         }
+            wilddog_node_delete(p_snapshot);
+        }
         else
         {
             wilddog_node_delete(p_snapshot);
@@ -1104,23 +1123,21 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_saveToken
         }    
         p_cm_l->d_authStatus = CM_SESSION_AUTHED;
         return WILDDOG_ERR_NOERR;
-    
     }
 
 _SET_UNAUTH:
 
    p_cm_l->d_authStatus = CM_SESSION_UNAUTH;
    return WILDDOG_ERR_INVALID;
-    
 }
 /*
  * Function:    _wilddog_cm_sys_setOnLineState.
  * Description: all repo was offline then system was offline,otherwise online.
- * Input:  p_cm_l : cm list.
- *            s : new state.
- * note:
- *           in mutilple host,system was define online or offline while one host was online  another offline ?? 
- *          while all host was out of line then the system was define offline otherwise online.
+ * Input:       p_cm_l : cm list.
+ *              s : new state.
+ * note:        in mutilple host,system was define online or offline while one 
+ *              host was online  another offline ?? while all host was out of 
+ *              line then the system was define offline otherwise online.
  * Output:      N/A.
  * Return:      Wilddog_Return_T type.
 */
@@ -1164,12 +1181,14 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_setOnLineState
 /*
  * Function:    _wilddog_cm_sys_getOnlineState.
  * Description: updata token.
- * Input:  p_cm_l : cm list.
+ * Input:       p_cm_l : cm list.
  * Output:      N/A.
  * Return:      u8 type.
 */
 STATIC u8 WD_SYSTEM _wilddog_cm_sys_getOnlineState
-        (Wilddog_Cm_List_T *p_cm_l)
+    (
+    Wilddog_Cm_List_T *p_cm_l
+    )
 {
     _CM_SYS_Node_T *p_cmsys_n = NULL;
     /*set host to new state.*/
@@ -1185,33 +1204,39 @@ STATIC u8 WD_SYSTEM _wilddog_cm_sys_getOnlineState
  * Output:      N/A
  * Return:      Wilddog_Return_T type.
 */
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeInit(_CM_SYS_Node_T *p_cmsys_n)
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeInit
+    (
+    _CM_SYS_Node_T *p_cmsys_n
+    )
 {
     p_cmsys_n->d_intervalTm = _CM_SYS_INTERVALINIT_SEC;
     p_cmsys_n->d_stepTm = _CM_SYS_STEP_SEC;
 
     if( p_cmsys_n->d_pingType != _CM_SYS_PINGTYPE_SHORT)
     {
-           if(p_cmsys_n->p_ping_pkg)
-           {
-                _wilddog_protocol_ioctl(
-                    _PROTOCOL_CMD_DESTORY,(void*)p_cmsys_n->p_ping_pkg,0);
-           }
-           p_cmsys_n->p_ping_pkg = NULL;
+        if(p_cmsys_n->p_ping_pkg)
+        {
+            _wilddog_protocol_ioctl(_PROTOCOL_CMD_DESTORY, \
+                                    (void*)p_cmsys_n->p_ping_pkg, \
+                                    0);
+        }
+        p_cmsys_n->p_ping_pkg = NULL;
     }
     
     p_cmsys_n->d_pingType = _CM_SYS_PINGTYPE_SHORT;
     p_cmsys_n->d_disableLink = FALSE;
 
     p_cmsys_n->d_offLineCnt = 0;
-    p_cmsys_n->d_ping_sendTm = _wilddog_getTime() + p_cmsys_n->d_intervalTm * _CM_MS;
+    p_cmsys_n->d_ping_sendTm = _wilddog_getTime() + \
+                               p_cmsys_n->d_intervalTm * _CM_MS;
     p_cmsys_n->d_ping_registerTm = p_cmsys_n->d_ping_sendTm;
-
 
     return WILDDOG_ERR_NOERR;
 }
 STATIC _CM_SYS_Node_T *WD_SYSTEM _wilddog_cm_sys_findSysnodeBycml
-    (Wilddog_Cm_List_T *p_cm_l)
+    (
+    Wilddog_Cm_List_T *p_cm_l
+    )
 {
     _CM_SYS_Node_T *curr = NULL,*tmp=NULL;
     
@@ -1228,12 +1253,15 @@ STATIC _CM_SYS_Node_T *WD_SYSTEM _wilddog_cm_sys_findSysnodeBycml
 /*
  * Function:    _wilddog_cm_sys_setPingControlFlag
  * Description: enable or disable ping controlFlag.
- * Input:        p_recv : receive data.
+ * Input:       p_recv : receive data.
  * Output:      N/A
  * Return:      Wilddog_Return_T type.
 */
 STATIC int WD_SYSTEM _wilddog_cm_sys_disablePingLink
-    (Wilddog_Cm_List_T *p_cm_l,BOOL newstate)
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    BOOL newstate
+    )
 {
     int res = WILDDOG_ERR_NULL;
     _CM_SYS_Node_T *p_find = NULL;
@@ -1258,50 +1286,53 @@ STATIC int WD_SYSTEM _wilddog_cm_sys_disablePingLink
  * Return:      Wilddog_Return_T type.
 */
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeStepIncrease
-       (
-        _CM_SYS_Node_T *p_cmsys_n
-        )
+    (
+    _CM_SYS_Node_T *p_cmsys_n
+    )
 {
     if( p_cmsys_n->d_pingType != _CM_SYS_PINGTYPE_SHORT)
     {
-           if(p_cmsys_n->p_ping_pkg)
-           {
-                _wilddog_protocol_ioctl(
-                    _PROTOCOL_CMD_DESTORY,(void*)p_cmsys_n->p_ping_pkg,0);
-                p_cmsys_n->p_ping_pkg = NULL;
-                
-                if(p_cmsys_n->d_stepTm)
-                {
-                    /*not convergence.*/
-                    p_cmsys_n->d_intervalTm -=  p_cmsys_n->d_stepTm;
-                    if(p_cmsys_n->d_stepTm == 1)
-                        p_cmsys_n->d_stepTm = 0;
-                    else
-                        p_cmsys_n->d_stepTm = p_cmsys_n->d_stepTm /2;
-                }
+        if(p_cmsys_n->p_ping_pkg)
+        {
+            _wilddog_protocol_ioctl(_PROTOCOL_CMD_DESTORY, \
+                                    (void*)p_cmsys_n->p_ping_pkg, \
+                                    0);
+            
+            p_cmsys_n->p_ping_pkg = NULL;
+
+            if(p_cmsys_n->d_stepTm)
+            {
+                /*not convergence.*/
+                p_cmsys_n->d_intervalTm -=  p_cmsys_n->d_stepTm;
+                if(p_cmsys_n->d_stepTm == 1)
+                    p_cmsys_n->d_stepTm = 0;
                 else
-                {   /*convergence and nat change*/
-                    p_cmsys_n->d_stepTm = _CM_SYS_STEP_SEC;
-                    p_cmsys_n->d_intervalTm -=  p_cmsys_n->d_stepTm;
-                }
-           }
+                    p_cmsys_n->d_stepTm = p_cmsys_n->d_stepTm /2;
+            }
+            else
+            {   
+                /*convergence and nat change*/
+                p_cmsys_n->d_stepTm = _CM_SYS_STEP_SEC;
+                p_cmsys_n->d_intervalTm -=  p_cmsys_n->d_stepTm;
+            }
+        }
     }
     else
     {
-        p_cmsys_n->d_intervalTm +=  p_cmsys_n->d_stepTm;
+        p_cmsys_n->d_intervalTm += p_cmsys_n->d_stepTm;
     }
 
-    p_cmsys_n->d_pingType =  _CM_SYS_PINGTYPE_SHORT;
+    p_cmsys_n->d_pingType = _CM_SYS_PINGTYPE_SHORT;
     /* step increase.*/    
     if(p_cmsys_n->d_intervalTm >= _CM_SYS_PING_INTERVAL_MAX_SEC)
     {
         p_cmsys_n->d_stepTm = 0;
         p_cmsys_n->d_intervalTm = _CM_SYS_PING_INTERVAL_MAX_SEC;
     }
-        
                                     
-    p_cmsys_n->d_ping_registerTm = \
-        _wilddog_getTime() + p_cmsys_n->d_intervalTm * _CM_MS;
+    p_cmsys_n->d_ping_registerTm = _wilddog_getTime() + 
+                                   p_cmsys_n->d_intervalTm * _CM_MS;
+    
     p_cmsys_n->d_ping_sendTm = p_cmsys_n->d_ping_registerTm;
     p_cmsys_n->d_sendCnt = 0;
 
@@ -1315,11 +1346,10 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeStepIncrease
  * Return:      Wilddog_Return_T type.
 */
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeSkip
-       (
-        Wilddog_Cm_List_T *p_cm_l
-        )
+    (
+    Wilddog_Cm_List_T *p_cm_l
+    )
 {
-    
     _CM_SYS_Node_T *p_find = NULL;
     
     wilddog_assert(p_cm_l,WILDDOG_ERR_INVALID);
@@ -1328,7 +1358,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeSkip
     if(p_find)
     {
         p_find->d_ping_registerTm = _wilddog_getTime() + \
-                                            p_find->d_intervalTm * _CM_MS;
+                                    p_find->d_intervalTm * _CM_MS;
+        
         p_find->d_ping_sendTm = p_find->d_ping_registerTm;
         
         p_find->d_sendCnt = 0;
@@ -1346,17 +1377,20 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeSkip
 */
 
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeReset
-       (
-        _CM_SYS_Node_T *p_cmsys_n
-        )
+    (
+    _CM_SYS_Node_T *p_cmsys_n
+    )
 {
     if( p_cmsys_n->d_pingType != _CM_SYS_PINGTYPE_LONG)
     {
-           if(p_cmsys_n->p_ping_pkg)
-           {
-                _wilddog_protocol_ioctl(_PROTOCOL_CMD_DESTORY,(void*)p_cmsys_n->p_ping_pkg,0);
-                p_cmsys_n->p_ping_pkg = NULL;
-           }
+        if(p_cmsys_n->p_ping_pkg)
+        {
+            _wilddog_protocol_ioctl(_PROTOCOL_CMD_DESTORY, \
+                                    (void*)p_cmsys_n->p_ping_pkg, \
+                                    0);
+            
+            p_cmsys_n->p_ping_pkg = NULL;
+        }
     }
     p_cmsys_n->d_pingType = _CM_SYS_PINGTYPE_LONG;
 #if TEST_LINK_LOG_EN
@@ -1372,7 +1406,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeReset
     else
     {
         p_cmsys_n->d_ping_registerTm = _CM_SYS_OFFLINE_PINGTM_SEC*_CM_MS + \
-                                                            _wilddog_getTime();
+                                       _wilddog_getTime();
+        
         p_cmsys_n->d_ping_sendTm = p_cmsys_n->d_ping_registerTm;
         
         p_cmsys_n->d_sendCnt = 0;
@@ -1389,27 +1424,26 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeReset
  * Function:    _wilddog_cm_sys_recvHandle
  * Description: handle ping responds.
  * Input:       p_cmsys_n:  ping node pointer.
- *                  p_recv : receive data.
+ *              p_recv : receive data.
  * Output:      N/A
  * Return:      Wilddog_Return_T type.
 */
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_recvHandle
     (
-        Protocol_recvArg_T *p_recv,
-        _CM_SYS_Node_T *p_cmsys_n
+    Protocol_recvArg_T *p_recv,
+    _CM_SYS_Node_T *p_cmsys_n
     )
 {
     if( _CM_RECV_SERVER_ERROR(p_recv->err))
     {
         if( p_recv->err == WILDDOG_ERR_RECVTIMEOUT)
             p_cmsys_n->d_offLineCnt++;
-        else 
-        if(  p_recv->err == WILDDOG_HTTP_PRECONDITION_FAIL)
+        else if(p_recv->err == WILDDOG_HTTP_PRECONDITION_FAIL)
             p_cmsys_n->p_cm_l->d_serverEvent = CM_SERVER_EVENT_PRECONDITION_FAIL; 
-        else /* server have been release session resource.*/
-        if( p_recv->err == WILDDOG_HTTP_BAD_REQUEST &&
-            p_cmsys_n->d_pingType == _CM_SYS_PINGTYPE_LONG)
-        {   
+        else if( p_recv->err == WILDDOG_HTTP_BAD_REQUEST &&
+                 p_cmsys_n->d_pingType == _CM_SYS_PINGTYPE_LONG)
+        {
+            /* server have been release session resource.*/
             p_cmsys_n->p_cm_l->d_authStatus = CM_SESSION_DOAUTH;     
             /* reset ping time.*/
             _wilddog_cm_sys_timeInit(p_cmsys_n);
@@ -1422,8 +1456,9 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_recvHandle
             
             wilddog_debug("\t<><>\tre_connect\n");
 #endif
-            _wilddog_sec_reconnect( p_cmsys_n->p_cm_l->p_host,
-                                    WILDDOG_PORT,_CM_SYS_RECONNECT_TIME);
+            _wilddog_sec_reconnect( p_cmsys_n->p_cm_l->p_host, \
+                                    WILDDOG_PORT, \
+                                    _CM_SYS_RECONNECT_TIME);
         }
         /* err responds.*/
         _wilddog_cm_sys_timeReset(p_cmsys_n);
@@ -1431,20 +1466,20 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_recvHandle
     else
     {
         /* if already off line then reOnline.*/
-         if(CM_OFFLINE == _wilddog_cm_sys_getOnlineState(p_cmsys_n->p_cm_l))
+        if(CM_OFFLINE == _wilddog_cm_sys_getOnlineState(p_cmsys_n->p_cm_l))
         {
-              p_l_cmControl->d_cm_onlineEvent = _CM_EVENT_TYPE_REONLINE;
-              _wilddog_cm_sys_setOnLineState(p_cmsys_n->p_cm_l,CM_ONLINE);
-         }
+            p_l_cmControl->d_cm_onlineEvent = _CM_EVENT_TYPE_REONLINE;
+            _wilddog_cm_sys_setOnLineState(p_cmsys_n->p_cm_l,CM_ONLINE);
+        }
         /*reset offline flag.*/
         p_cmsys_n->d_offLineCnt = 0;
         /* normal responds.*/
-       _wilddog_cm_sys_timeStepIncrease(p_cmsys_n); 
+        _wilddog_cm_sys_timeStepIncrease(p_cmsys_n); 
     }
 #if TEST_LINK_LOG_EN 
-        wilddog_debug("\t<><>\ttry long ping time : %d",p_cmsys_n->d_long_pingCont);
-        wilddog_debug("\t<><>\tinterval time :%d ",p_cmsys_n->d_intervalTm);
-        wilddog_debug("\t<><>\tstep time :%d ",p_cmsys_n->d_stepTm);
+    wilddog_debug("\t<><>\ttry long ping time : %d",p_cmsys_n->d_long_pingCont);
+    wilddog_debug("\t<><>\tinterval time :%d ",p_cmsys_n->d_intervalTm);
+    wilddog_debug("\t<><>\tstep time :%d ",p_cmsys_n->d_stepTm);
 #endif
 
     return WILDDOG_ERR_NOERR;   
@@ -1456,7 +1491,10 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_recvHandle
  * Output:      N/A
  * Return:      Wilddog_Return_T type.
 */
-STATIC BOOL WD_SYSTEM _wilddog_cm_sys_findNode(Protocol_recvArg_T *p_recv)
+STATIC BOOL WD_SYSTEM _wilddog_cm_sys_findNode
+    (
+    Protocol_recvArg_T *p_recv
+    )
 {
     BOOL res = FALSE;
     _CM_SYS_Node_T *curr = NULL,*tmp=NULL;
@@ -1476,23 +1514,30 @@ STATIC BOOL WD_SYSTEM _wilddog_cm_sys_findNode(Protocol_recvArg_T *p_recv)
     return res ;
 }
 
-STATIC int WD_SYSTEM _wilddog_cm_sys_pingSend(_CM_SYS_Node_T *p_cmsys_n)
+STATIC int WD_SYSTEM _wilddog_cm_sys_pingSend
+    (
+    _CM_SYS_Node_T *p_cmsys_n
+    )
 {
     int res = 0;
     if(p_cmsys_n->p_ping_pkg == NULL)
     {
-        p_cmsys_n->p_ping_pkg = _wilddog_cm_sys_creatPing(
-            p_cmsys_n->p_cm_l,p_cmsys_n->d_pingType,&(p_cmsys_n->d_token));
+        p_cmsys_n->p_ping_pkg = _wilddog_cm_sys_creatPing(p_cmsys_n->p_cm_l, \
+                                                        p_cmsys_n->d_pingType, \
+                                                        &(p_cmsys_n->d_token));
         
         if(p_cmsys_n->p_ping_pkg == NULL)
             return  WILDDOG_ERR_NULL;
     }
     
     res = _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND,p_cmsys_n->p_ping_pkg,0);
-    p_cmsys_n->d_ping_sendTm = _CM_NEXTSENDTIME_SET(_wilddog_getTime(), p_cmsys_n->d_sendCnt);
+    
+    p_cmsys_n->d_ping_sendTm = _CM_NEXTSENDTIME_SET(_wilddog_getTime(), \
+                                                    p_cmsys_n->d_sendCnt);
     
     return res;
 }
+
 STATIC int WD_SYSTEM _wilddog_cm_sys_keeplink(void)
 {
     _CM_SYS_Node_T *curr = NULL,*tmp = NULL;
@@ -1502,7 +1547,7 @@ STATIC int WD_SYSTEM _wilddog_cm_sys_keeplink(void)
     
     LL_FOREACH_SAFE(p_l_cmControl->p_cmsys_n_hd,curr,tmp)
     {
-        if(    currTm >curr->d_ping_sendTm&& \
+        if( currTm >curr->d_ping_sendTm&& \
             DIFF(currTm,curr->d_ping_sendTm) < (0xffff))
         {
             if(curr->d_disableLink == TRUE)
@@ -1526,10 +1571,8 @@ STATIC int WD_SYSTEM _wilddog_cm_sys_nodeAdd( Wilddog_Cm_List_T *p_cm_l)
 {
     _CM_SYS_Node_T *p_cmSys_n = NULL;
 
-    
     wilddog_assert(p_cm_l,WILDDOG_ERR_INVALID);
 
-    
     p_cmSys_n = (_CM_SYS_Node_T*)wmalloc(sizeof(_CM_SYS_Node_T));
     if( p_cmSys_n  == NULL)
         return WILDDOG_ERR_NULL;
@@ -1547,7 +1590,10 @@ STATIC int WD_SYSTEM _wilddog_cm_sys_nodeAdd( Wilddog_Cm_List_T *p_cm_l)
     
     return WILDDOG_ERR_NOERR;
 }
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_nodeRemove(_CM_SYS_Node_T **pp_cmsys_n)
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_nodeRemove
+    (
+    _CM_SYS_Node_T **pp_cmsys_n
+    )
 {
     _CM_SYS_Node_T *p_cmsys_n = NULL;
 
@@ -1569,7 +1615,10 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_nodeRemove(_CM_SYS_Node_T **pp
 
     return  WILDDOG_ERR_NOERR;
 }
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_releaseRepoResource(Wilddog_Cm_List_T *p_cm_l)
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_releaseRepoResource
+    (
+    Wilddog_Cm_List_T *p_cm_l
+    )
 {
     _CM_SYS_Node_T *p_find = NULL;
 
@@ -1581,6 +1630,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_releaseRepoResource(Wilddog_Cm
     }
     return WILDDOG_ERR_NOERR;    
 }
+
 STATIC int WD_SYSTEM _wilddog_cm_sys_listDestory(void)
 {
     _CM_SYS_Node_T *curr = NULL,*tmp=NULL;
@@ -1589,18 +1639,16 @@ STATIC int WD_SYSTEM _wilddog_cm_sys_listDestory(void)
         _wilddog_cm_sys_nodeRemove(&curr);
     }
     
-    
     return WILDDOG_ERR_NOERR;
 }
 /* system ping creat.*/
 STATIC void* WD_SYSTEM _wilddog_cm_sys_creatPing
     (
-        Wilddog_Cm_List_T *p_cm_l,
-        _CM_SYS_PING_TYPE_T pingType,
-        u32 *p_pkg_token
+    Wilddog_Cm_List_T *p_cm_l,
+    _CM_SYS_PING_TYPE_T pingType,
+    u32 *p_pkg_token
     )
 {
-    
     void* p_pkg_index = NULL;
     int res = 0;
     Protocol_Arg_Creat_T pkg_arg;
@@ -1619,57 +1667,62 @@ STATIC void* WD_SYSTEM _wilddog_cm_sys_creatPing
         pkg_arg.cmd = WILDDOG_CM_SYS_CMD_SHORTPING;
         pkg_payload.p_path =(u8*)_CM_SYS_PING_SHORTTOKEN_PATH;
         pkg_payload.p_query = p_cm_l->p_short_token;
-
     }
     else
     {
-    
         pkg_arg.cmd = WILDDOG_CM_SYS_CMD_LONGPING;
         pkg_payload.p_path =(u8*)_CM_SYS_PING_LONGTOKEN_PATH;
         pkg_payload.d_payloadLen = strlen((char*)p_cm_l->p_long_token)+1;
     }
     pkg_payload.p_host = p_cm_l->p_host;
-    pkg_arg.d_packageLen =  (int)_wilddog_protocol_ioctl(
-        _PROTOCOL_CMD_COUNTSIZE,&pkg_payload,0);
+    pkg_arg.d_packageLen=(int)_wilddog_protocol_ioctl(_PROTOCOL_CMD_COUNTSIZE, \
+                                                      &pkg_payload,
+                                                      0);
+    
     /* get messageid */
     pkg_arg.d_index = (u16)_wilddog_cm_cmd_getIndex(NULL,0);
     pkg_arg.d_token = (u32) _wilddog_cm_cmd_getToken(NULL,0);
     
 
     /* creat coap package.*/
-    p_pkg_index = (void*) _wilddog_protocol_ioctl(_PROTOCOL_CMD_CREAT,&pkg_arg,0);
+    p_pkg_index =(void*)_wilddog_protocol_ioctl(_PROTOCOL_CMD_CREAT,&pkg_arg,0);
     if( p_pkg_index == NULL)
         return NULL;
 
     /* add host.*/
     pkg_option.p_pkg = (void*)p_pkg_index;
     pkg_option.p_options = p_cm_l->p_repo->p_rp_url->p_url_host;
-    if( _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_HOST,&pkg_option,0) != WILDDOG_ERR_NOERR )
+
+    res = _wilddog_protocol_ioctl(_PROTOCOL_CMD_ADD_HOST,&pkg_option,0);
+    if( res != WILDDOG_ERR_NOERR )
        goto _CM_CREATPING_ERR;
 
-  
     /* add token*/
     if( pingType == _CM_SYS_PINGTYPE_SHORT)
     {
-      /* add ping path.*/
+        /* add ping path.*/
         pkg_option.p_pkg = (void*)p_pkg_index;
-        pkg_option.p_options = _CM_SYS_PING_SHORTTOKEN_PATH;//p_cm_l->p_repo->p_rp_url->p_url_path;
-        if( _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_PATH,&pkg_option,0) != WILDDOG_ERR_NOERR )
+        //p_cm_l->p_repo->p_rp_url->p_url_path
+        pkg_option.p_options = _CM_SYS_PING_SHORTTOKEN_PATH;
+        res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_PATH,&pkg_option,0);
+        if( res != WILDDOG_ERR_NOERR )
            goto _CM_CREATPING_ERR;
         /* add query.*/
         pkg_option.p_options = p_cm_l->p_short_token;
-        if( (res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_QUERY,&pkg_option,0)) != WILDDOG_ERR_NOERR )
+        res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_QUERY,&pkg_option,0);
+        if( res != WILDDOG_ERR_NOERR )
             goto _CM_CREATPING_ERR;
-        }
+    }
     else
     {
-          /* add ping path.*/
+        /* add ping path.*/
         Protocol_Arg_Payload_T payloadArg;
         pkg_option.p_pkg = (void*)p_pkg_index;
         pkg_option.p_options = _CM_SYS_PING_LONGTOKEN_PATH;
-        if( _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_PATH,&pkg_option,0)\
-                                                        != WILDDOG_ERR_NOERR )
-           goto _CM_CREATPING_ERR;
+
+        res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_PATH,&pkg_option,0);
+        if( res != WILDDOG_ERR_NOERR )
+            goto _CM_CREATPING_ERR;
 
         /* add ping token.*/
         payloadArg.p_pkg = (void*)p_pkg_index;
@@ -1706,7 +1759,6 @@ STATIC int WD_SYSTEM _wilddog_cm_cmd_getIndex(void *p_arg,int flag)
     
     res = res & p_l_cmControl->d_messageId;
     return res;
-    //return (int)(0xffff & (int)(++p_l_cmControl->d_messageId));
 }
 /*
  * Function:    _wilddog_get_index
@@ -1728,7 +1780,11 @@ STATIC u32 WD_SYSTEM _wilddog_cm_cmd_getToken(void *p_arg,int flag)
  * Output:      N/A
  * Return:      A rand number 
 */
-STATIC INLINE void* WD_SYSTEM _wilddog_cm_cmd_shortToken(Wilddog_Cm_List_T *p_cm_l,int flag)
+STATIC INLINE void* WD_SYSTEM _wilddog_cm_cmd_shortToken
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    int flag
+    )
 {
     return  (void*)p_cm_l->p_short_token;
 }
@@ -1739,7 +1795,11 @@ STATIC INLINE void* WD_SYSTEM _wilddog_cm_cmd_shortToken(Wilddog_Cm_List_T *p_cm
  * Output:      N/A
  * Return:      A rand number 
 */
-STATIC INLINE void* WD_SYSTEM _wilddog_cm_cmd_authQuery(Wilddog_Cm_List_T *p_cm_l,int flag)
+STATIC INLINE void* WD_SYSTEM _wilddog_cm_cmd_authQuery
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    int flag
+    )
 {
     return (void*)(p_cm_l->p_short_token);
 }
@@ -1751,7 +1811,11 @@ STATIC INLINE void* WD_SYSTEM _wilddog_cm_cmd_authQuery(Wilddog_Cm_List_T *p_cm_
  * Output:      N/A
  * Return:      A rand number 
 */
-STATIC int WD_SYSTEM _wilddog_cm_cmd_deleNodeByPath(Wilddog_CM_OffArg_T *p_arg,int flag)
+STATIC int WD_SYSTEM _wilddog_cm_cmd_deleNodeByPath
+    (
+    Wilddog_CM_OffArg_T *p_arg,
+    int flag
+    )
 {
     Wilddog_CM_Node_T *curr = NULL, *tmp = NULL;
 
@@ -1762,14 +1826,12 @@ STATIC int WD_SYSTEM _wilddog_cm_cmd_deleNodeByPath(Wilddog_CM_OffArg_T *p_arg,i
     {
         if( curr->d_nodeType == CM_NODE_TYPE_OBSERVER &&
             strcmp((const char*)curr->p_path,(const char*)p_arg->p_path) == 0)
-         {
-                
-                LL_DELETE(p_arg->p_cm_l->p_cm_n_hd,curr);
-                _wilddog_cm_node_destory(&curr);
-         }
+        {
+            LL_DELETE(p_arg->p_cm_l->p_cm_n_hd,curr);
+            _wilddog_cm_node_destory(&curr);
+        }
     }  
 
-    
     return WILDDOG_ERR_NOERR;
 }
 
@@ -1780,11 +1842,15 @@ STATIC int WD_SYSTEM _wilddog_cm_cmd_deleNodeByPath(Wilddog_CM_OffArg_T *p_arg,i
  * Output:      N/A
  * Return:      A rand number 
 */
-STATIC int WD_SYSTEM _wilddog_cm_cmd_offLine(Wilddog_Cm_List_T *p_cm_l,int flag)
+STATIC int WD_SYSTEM _wilddog_cm_cmd_offLine
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    int flag
+    )
 {
     wilddog_assert(p_cm_l,WILDDOG_ERR_INVALID);
-    /* all host offLine cmd already beed send out then we define system offline .*/
-     _wilddog_cm_sys_setOnLineState(p_cm_l,CM_OFFLINE);
+    /*all host offLine cmd already sended out then we define system offline.*/
+    _wilddog_cm_sys_setOnLineState(p_cm_l,CM_OFFLINE);
     return _wilddog_cm_sys_disablePingLink(p_cm_l,TRUE);
 }
 /*
@@ -1794,7 +1860,11 @@ STATIC int WD_SYSTEM _wilddog_cm_cmd_offLine(Wilddog_Cm_List_T *p_cm_l,int flag)
  * Output:      N/A
  * Return:      A rand number 
 */
-STATIC int WD_SYSTEM _wilddog_cm_cmd_onLine(Wilddog_Cm_List_T *p_cm_l,int flag)
+STATIC int WD_SYSTEM _wilddog_cm_cmd_onLine
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    int flag
+    )
 {
     _CM_SYS_Node_T *p_cmsys_n = NULL;
     wilddog_assert(p_cm_l,WILDDOG_ERR_INVALID);
@@ -1818,7 +1888,11 @@ STATIC int WD_SYSTEM _wilddog_cm_cmd_onLine(Wilddog_Cm_List_T *p_cm_l,int flag)
  * Output:      N/A
  * Return:      A rand number 
 */
-STATIC int WD_SYSTEM _wilddog_cm_cmd_trySync(Wilddog_Cm_List_T *p_cm_l,int flag)
+STATIC int WD_SYSTEM _wilddog_cm_cmd_trySync
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    int flag
+    )
 {
     int res = 0;
     res  = _wilddog_cm_retransmit(p_cm_l);
@@ -1842,8 +1916,8 @@ STATIC int WD_SYSTEM _wilddog_cm_cmd_trySync(Wilddog_Cm_List_T *p_cm_l,int flag)
 */
 Wilddog_Cm_List_T* WD_SYSTEM _wilddog_cm_cmd_init
     (
-      Wilddog_CM_InitArg_T *p_arg,
-      int flag
+    Wilddog_CM_InitArg_T *p_arg,
+    int flag
     )
 {
     int res = 0;
@@ -1852,7 +1926,6 @@ Wilddog_Cm_List_T* WD_SYSTEM _wilddog_cm_cmd_init
     
     memset(&d_pkginitArg,0,sizeof(Protocol_Arg_Init_T));
 
-    
     d_pkginitArg.d_port = WILDDOG_PORT;
     d_pkginitArg.p_host = p_arg->p_repo->p_rp_url->p_url_host;
     d_pkginitArg.f_handleRespond = (Wilddog_Func_T)_wilddog_cm_recv_findContext;
@@ -1893,13 +1966,14 @@ Wilddog_Cm_List_T* WD_SYSTEM _wilddog_cm_cmd_init
         goto CM_INIT_ERROR;
 
 #ifdef WILDDOG_SELFTEST                            
-        ramtest_skipLastmalloc();
-    
-        performtest_getSessionQueryTime();
-        performtest_timeReset();
+    ramtest_skipLastmalloc();
+
+    performtest_getSessionQueryTime();
+    performtest_timeReset();
 #endif 
 
-    if( (res =_wilddog_cm_sys_nodeAdd(p_cm_l)) < 0 )
+    res =_wilddog_cm_sys_nodeAdd(p_cm_l);
+    if( res < 0 )
         goto CM_INIT_ERROR;
     
     p_l_cmControl->d_list_cnt++;
@@ -1907,7 +1981,6 @@ Wilddog_Cm_List_T* WD_SYSTEM _wilddog_cm_cmd_init
     return p_cm_l;
 CM_INIT_ERROR:
 
-    
     wfree(p_cm_l);
     if( p_l_cmControl->d_list_cnt == 0)
     {
@@ -1925,7 +1998,11 @@ CM_INIT_ERROR:
  * Output:      N/A
  * Return:      N/A
 */
-Wilddog_Return_T WD_SYSTEM _wilddog_cm_cmd_deInit(Wilddog_Cm_List_T *p_cm_l,int flags)
+Wilddog_Return_T WD_SYSTEM _wilddog_cm_cmd_deInit
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    int flags
+    )
 {
     if( p_l_cmControl == NULL)
         return WILDDOG_ERR_NULL; 
@@ -1957,7 +2034,6 @@ Wilddog_Func_T _wilddog_cm_funcTable[CM_CMD_MAX + 1] =
     (Wilddog_Func_T) _wilddog_cm_cmd_getIndex,
     (Wilddog_Func_T) _wilddog_cm_cmd_getToken,
 
-     
     (Wilddog_Func_T) _wilddog_cm_cmd_shortToken,
     (Wilddog_Func_T) _wilddog_cm_cmd_authQuery,
 

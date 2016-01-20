@@ -202,7 +202,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_store_ioctl
             break;
         case WILDDOG_STORE_CMD_ONDISPUSH:
             if(p_conn && p_conn->f_conn_ioctl)
-                return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_ONDISPUSH, arg, 0);
+                return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_ONDISPUSH, arg,0);
             break;
         case WILDDOG_STORE_CMD_SENDREMOVE:
             if(p_conn && p_conn->f_conn_ioctl)
@@ -210,11 +210,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_store_ioctl
             break;
         case WILDDOG_STORE_CMD_ONDISRMV:
             if(p_conn && p_conn->f_conn_ioctl)
-                return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_ONDISREMOVE, arg, 0);
+               return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_ONDISREMOVE,arg,0);
             break;
         case WILDDOG_STORE_CMD_ONDISCANCEL:
             if(p_conn && p_conn->f_conn_ioctl)
-                return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_CANCELDIS, arg, 0);
+                return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_CANCELDIS, arg,0);
             break;
         case WILDDOG_STORE_CMD_SENDON:
             if(p_rp_event && p_rp_event->p_ev_cb_on)
@@ -237,4 +237,3 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_store_ioctl
     }
     return WILDDOG_ERR_INVALID;
 }
-

@@ -7,8 +7,6 @@ extern "C"
 {
 #endif
 
- 
-
 #if WILDDOG_LITTLE_ENDIAN == 1
 #define __WD_SWAP32__(val) ( (u32) ((((val) & 0xFF000000) >> 24 ) | \
     (((val) & 0x00FF0000) >> 8) \
@@ -16,7 +14,6 @@ extern "C"
 
 #define __WD_SWAP16__(val) ( (u16) ((((val) & 0xFF00) >> 8) | \
     (((val) & 0x00FF) << 8)))
-
 
 #ifndef wilddog_htonl
 #define wilddog_htonl(val)  __WD_SWAP32__(val)

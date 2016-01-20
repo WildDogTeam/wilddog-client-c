@@ -35,7 +35,7 @@
 #endif
 /* Used in test_step.c to test set auth  */
 #ifndef TEST_AUTH
-#define TEST_AUTH 	"yourauth"
+#define TEST_AUTH   "yourauth"
 #endif
 
 
