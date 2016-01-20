@@ -1,3 +1,22 @@
+0.8.0 2016.01.18
+新增：
+增加离线事件系列API：
+	wilddog_goOnline, 使客户端在线；
+	wilddog_goOffline, 使客户端离线；
+	wilddog_onDisconnectSetValue, 当客户端离线时，云端会自动执行该操作；
+	wilddog_onDisconnectPush, 当客户端离线时，云端会自动执行该操作；
+	wilddog_onDisconnectRemoveValue, 当客户端离线时，云端会自动执行该操作；
+	wilddog_cancelDisconnectOperations, 取消之前所有离线操作；
+增加对Wilddog Client结构的操作API：
+	wilddog_getHost, 获取Wilddog实例的host；
+	wilddog_getPath, 获取Wilddog实例的path；
+优化：
+对长连接机制进行重构，智能检测最合适的心跳时间，client掉线时云端数据会在重连后第一时间同步;
+wilddog_getKey将不再返回client对应key的快照，直接返回key本身的地址;
+将APP_SEC_TYPE中的dtls更名为mbedtls；
+修复：
+修复tinydtls以及mbedtls握手有概率失败的bug。
+
 0.7.5 2015.12.14
 修复：
 修复在tinydtls由于字节不对齐可能产生bus error的bug。

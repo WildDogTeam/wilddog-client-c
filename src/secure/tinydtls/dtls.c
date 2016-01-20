@@ -786,7 +786,8 @@ dtls_check_tls_extension(dtls_peer_t *peer,
 {
   uint16_t i, j;
   int ext_elliptic_curve = 0;
-  int ext_client_cert_type = 0;
+  /* no need.*/
+  int ext_client_cert_type = 1;
   int ext_server_cert_type = 0;
   int ext_ec_point_formats = 0;
   dtls_handshake_parameters_t *handshake = peer->handshake_params;
@@ -2568,13 +2569,16 @@ check_server_certificate(dtls_context_t *ctx,
   wilddog_assert(is_tls_ecdhe_ecdsa_with_aes_128_ccm_8(config->cipher), -1);
 
   data += DTLS_HS_LENGTH;
-
-  if (dtls_uint24_to_int(data) != 94) {
+  
+  if (dtls_uint24_to_int(data) == 94) {    
+    /*skip certificate message length.*/
+    data += sizeof(uint24);
+#if 0
     dtls_alert("expect length of 94 bytes for server certificate message\n");
     return dtls_alert_fatal_create(DTLS_ALERT_DECODE_ERROR);
+ #endif   
   }
-  data += sizeof(uint24);
-
+  
   if (dtls_uint24_to_int(data) != 91) {
     dtls_alert("expect length of 91 bytes for certificate\n");
     return dtls_alert_fatal_create(DTLS_ALERT_DECODE_ERROR);
@@ -2974,7 +2978,10 @@ dtls_renegotiate(dtls_context_t *ctx, const session_t *dst)
   peer->handshake_params = dtls_handshake_new();
   if (!peer->handshake_params)
     return -1;
-
+  dtls_security_free(peer->security_params[0]);
+  dtls_security_free(peer->security_params[1]);
+  peer->security_params[0] = dtls_security_new();
+  peer->security_params[1] = dtls_security_new();
   peer->handshake_params->hs_state.mseq_r = 0;
   peer->handshake_params->hs_state.mseq_s = 0;
 

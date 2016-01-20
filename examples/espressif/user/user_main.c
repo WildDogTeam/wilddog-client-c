@@ -47,15 +47,10 @@
     
 #include "wilddog.h"
 
-
-
 BOOL dns_flag = FALSE;
 os_timer_t test_timer1;
 os_timer_t test_timer2;
 os_timer_t client_timer;
-
-
-
 
 /******************************************************************************
 * FunctionName : user_udp_recv_cb
@@ -76,7 +71,7 @@ user_udp_recv_cb(void *arg, char *pusrdata, unsigned short length)
 STATIC void WD_SYSTEM 
 test_setValueFunc(void* arg, Wilddog_Return_T err)
 {
-					 
+                     
     if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
     {
         wilddog_debug("setValue error!");
@@ -94,7 +89,7 @@ fake_main(void)
 {
     if(!dns_flag)
     {
-        gethost();		
+        gethost();      
     }
     else
     {
@@ -178,12 +173,9 @@ user_set_station_config(void)
 
 }
 
-
 void user_rf_pre_init(void)
 {
 }
-
-
 
 /******************************************************************************
  * FunctionName : user_init

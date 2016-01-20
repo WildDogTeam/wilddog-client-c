@@ -119,8 +119,9 @@ int WD_SYSTEM _wilddog_sec_getHost
     {
         i = _wilddog_sec_getDefaultIpIndex(p_host);
         p_remoteAddr->len = l_defaultAddr_t[i].len;
-        memcpy(p_remoteAddr->ip, l_defaultAddr_t[i].ip, l_defaultAddr_t[i].len);
-    } 
+        memcpy(p_remoteAddr->ip, l_defaultAddr_t[i].ip,l_defaultAddr_t[i].len);
+        res = 0;
+    }
     p_remoteAddr->port = d_port;
     
 #undef WILDDOG_COAP_LOCAL_HOST

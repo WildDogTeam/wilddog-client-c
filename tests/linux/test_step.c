@@ -7,7 +7,7 @@
 
 #include "wilddog_debug.h"
 #include "wilddog_api.h"
-#include "wilddog_ct.h"
+#include "wilddog_common.h"
 #include "test_lib.h"
 #include "test_config.h"
 
@@ -152,8 +152,8 @@ STATIC void test_step_printf(void)
 STATIC void test_gethost(char *p_host,const char *url)
 {
 	char *star_p = NULL,*end_p = NULL;
-	star_p =  strchr(url,'/')+2;
-	end_p = strchr(star_p,'.');
+	star_p =  _wilddog_strchar(url,'/')+2;
+	end_p = _wilddog_strchar(star_p,'.');
 	memcpy(p_host,star_p,end_p - star_p);	
     memcpy(&p_host[end_p - star_p],TEST_URL_END,strlen(TEST_URL_END));
 }

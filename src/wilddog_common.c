@@ -183,3 +183,27 @@ void WD_SYSTEM _wilddog_syncTime(void)
     return;
 }
 
+char* WD_SYSTEM _wilddog_strchar(const char *s1,const char c)
+{
+    const char *p = NULL;
+    for(p=s1; *p != 0 ;p++)
+    {
+        if(*p == c)
+            return (char*)p;
+    }
+    return NULL;
+}
+char* WD_SYSTEM _wilddog_strstr(const char *s1,const char *s2)
+{
+    const char *p=s1;
+    const size_t len=strlen(s2);
+    for(;(p=_wilddog_strchar(p,*s2))!=0;p++)
+    {
+        if(strncmp(p,s2,len)==0)
+            return  (char*)p;
+    }
+    
+    return(NULL);
+}
+
+

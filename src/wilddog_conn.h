@@ -8,7 +8,7 @@
  * History:
  * Version      Author          Date        Description
  *
- * 0.4.0        lsx       2015-05-15  Create file.
+ * 0.4.0        lxs       2015-05-15  Create file.
  *
  */
 
@@ -20,22 +20,14 @@ extern "C"
 {
 #endif
 
-#include "wilddog.h"
+#include "wilddog_conn_manage.h"
 #include "wilddog_config.h"
 #include "wilddog_ct.h"
-#include "wilddog_url_parser.h"
 
-#define AUTHR_PATH  "/.cs"
-#define AUTHR_QURES ".cs="
-#define AUTHR_LEN   (4)
-#define AUTHR_LENINBYTE (2*AUTHR_LEN)
+/* protocol package len .*/
+#define PROTOCOL_QUERY_HEADLEN  (8)
+#define PROTOCOL_PATH_HEADLEN  (8)
 
-#define PONG_PATH   "/.ping"
-#define PONG_QURES  "seq="
-#define PONG_NUMBERMAX  (98)
-#define PONG_NUMBERLEN  (2)
-#define PONG_REQUESINTERVAL  (10*60*1000)
-#define PONG_REQUEST_IMMEDIATELY    (1000)  /* auth timeout need to pong immediately*/  
 
 typedef enum WILDDOG_CONN_CMD_TYPE
 {
@@ -46,107 +38,143 @@ typedef enum WILDDOG_CONN_CMD_TYPE
     WILDDOG_CONN_CMD_ON,
     WILDDOG_CONN_CMD_OFF,
     WILDDOG_CONN_CMD_AUTH,
-    WILDDOG_CONN_CMD_PING,
-    WILDDOG_CONN_CMD_PONG
-}Wilddog_Conn_Cmd_T;
-
-typedef struct WILDDOG_CONN_NODE_T
-{
-    struct WILDDOG_CONN_NODE_T *next;
-    u32 d_cn_registerTime;
-    u32 d_cn_nextsendTime;
-    u32 d_cn_retansmitCnt;
-    void  *p_cn_pkt;    
-    Wilddog_Func_T f_cn_callback;
-    u8 *p_cn_path;
-    u8* p_cn_key;
-    void* p_cn_cb_arg;
-    u8 d_cmd;
-    u8 d_observe_flag;  
     
-}Wilddog_Conn_Node_T;
+    WILDDOG_CONN_CMD_ONDISSET,
+    WILDDOG_CONN_CMD_ONDISPUSH,
+    WILDDOG_CONN_CMD_ONDISREMOVE,
+
+    WILDDOG_CONN_CMD_CANCELDIS,
+
+    WILDDOG_CONN_CMD_OFFLINE,
+    WILDDOG_CONN_CMD_ONLINE,
+    WILDDOG_CONN_CMD_TRYSYNC,
+    
+    WILDDOG_CONN_CMD_INIT,
+    WILDDOG_CONN_CMD_DEINIT,
+    
+    WILDDOG_CONN_CMD_MAX
+}Wilddog_Conn_Cmd_T;
+typedef enum WILDDOG_CONN_CBCMD_TYPE
+{
+    WILDDOG_CONN_CBCMD_GET,
+    WILDDOG_CONN_CBCMD_SET,
+    WILDDOG_CONN_CBCMD_PUSH,
+    WILDDOG_CONN_CBCMD_REMOVE,
+    WILDDOG_CONN_CBCMD_ON,
+    WILDDOG_CONN_CBCMD_OFF,
+    WILDDOG_CONN_CBCMD_AUTH,
+    
+    WILDDOG_CONN_CBCMD_ONDISSET,
+    WILDDOG_CONN_CBCMD_ONDISPUSH,
+    WILDDOG_CONN_CBCMD_ONDISREMOVE,
+
+    WILDDOG_CONN_CBCMD_CANCELDIS,
+    WILDDOG_CONN_CBCMD_ONLINE,
+    WILDDOG_CONN_CBCMD_OFFLINE,
+
+    WILDDOG_CONN_CBCMD_MAX
+}Wilddog_Conn_CBCmd_T;
 
 typedef struct WILDDOG_CONN_T
 {
     Wilddog_Repo_T *p_conn_repo;
-    
-    u8  d_sessionState;
-    u8  d_onlineState;
-    u8  d_pong_num;
-    u8  d_reObserver_flag;
-    
-    u32 d_token;
-    u32 d_recentSendTime;
-    
-    u32 d_nextSendPingTime;
-
-    Wilddog_Func_T f_conn_trysync;
-    Wilddog_Func_T f_conn_send;
-    
-    struct WILDDOG_CONN_NODE_T *p_conn_node_hd;
-
+    Wilddog_Cm_List_T *p_cm_l;
+    Wilddog_Func_T f_conn_ioctl;
 }Wilddog_Conn_T;
 
 
-typedef struct WILDDOG_CONN_PKTSEND_T{
-    
-    Wilddog_Conn_Cmd_T cmd;
-    Wilddog_Url_T *p_url;
-
-    u32 d_payloadlen;
-    u8 *p_payload;  
-
-    /*recv call back */
-    Wilddog_Conn_T *p_conn;
-    Wilddog_Conn_Node_T *p_cn_node;
-    Wilddog_Func_T f_cn_callback;
-    
-}Wilddog_Conn_PktSend_T;
-
-typedef struct WILDDOG_CONN_RECVDATA_T
-{
-    u8 *p_Recvdata;
-    u32 d_recvlen;
-    u32 d_RecvErr;
-    
-}Wilddog_Conn_RecvData_T;
-
 typedef struct WILDDOG_CONN_CMD_ARG
 {
+    
+    Wilddog_Repo_T *p_repo;
     Wilddog_Url_T * p_url;
     Wilddog_Node_T * p_data;
     Wilddog_Func_T p_complete;
     void* p_completeArg;
 }Wilddog_ConnCmd_Arg_T;
 
+/* protocol peripheral interface.*/
+typedef enum PROTOCOL_CMD_T{
+    _PROTOCOL_CMD_INIT,
+    _PROTOCOL_CMD_DEINIT,
 
-extern int _byte2bytestr(u8 *p_dst,u8 *p_dscr,u8 len);
+    _PROTOCOL_CMD_COUNTSIZE,
+    _PROTOCOL_CMD_CREAT,
+    _PROTOCOL_CMD_DESTORY,
+    _PROTOCOL_CMD_ADD_HOST,
+    _PROTOCOL_CMD_ADD_PATH,
+    _PROTOCOL_CMD_ADD_QUERY,
+    _PROTOCOL_CMD_ADD_OBSERVER,
+    _PROTOCOL_CMD_ADD_DATA,
+    
+    _PROTOCOL_CMD_AUTHUPDATA,
+    _PROTOCOL_CMD_SEND,
+    _PROTOCOL_CMD_RECV,
+    _PROTOCOL_CMD_MAX
+}Protocol_cmd_t;
+typedef struct PROTOCOL_ARG_INIT_T{
+    Wilddog_Str_T *p_host;
+    Wilddog_Func_T f_handleRespond;
+    u16 d_port;
+}Protocol_Arg_Init_T;
 
-/*@ api require*/
-int _wilddog_conn_pkt_creat
-    (
-    Wilddog_Conn_PktSend_T *p_pktSend,
-    void **pp_pkt_creat
-    );
-Wilddog_Return_T _wilddog_conn_pkt_init
-    (
-    Wilddog_Str_T *p_host,
-    u16 d_port
-    );
-void _wilddog_conn_pkt_free(void **pp_pkt);
+typedef struct PROTOCOL_ARG_CREAT_T{
+    u8 cmd;
+    u16 d_index;
+    u16 d_packageLen;
+    u32 d_token;
+}Protocol_Arg_Creat_T;
 
-Wilddog_Return_T _wilddog_conn_pkt_deinit(void);
-Wilddog_Return_T _wilddog_conn_pkt_send
+typedef struct PROTOCOL_ARG_OPTION_T{
+   void *p_pkg;
+   void *p_options;
+}Protocol_Arg_Option_T;
+
+typedef struct PROTOCOL_ARG_PAYLOADA_T{
+   void *p_pkg;
+   void *p_payload;
+   u32 d_payloadLen;
+}Protocol_Arg_Payload_T;
+
+typedef struct PROTOCOL_ARG_COUNTSIZE_T{
+    u8 *p_host;
+    u8 *p_path;
+    u8 *p_query;
+    
+    u32 d_payloadLen;
+    u32 d_extendLen;
+}Protocol_Arg_CountSize_T;
+    
+typedef struct PROTOCOL_ARG_SEND_T{
+    u8 cmd;
+    Wilddog_Url_T *p_url;
+
+    u32 d_token;
+    u32 d_payloadlen;
+    u8 *p_payload;  
+    void *p_user_arg;
+
+    u16 d_messageid;
+}Protocol_Arg_Send_T;
+
+
+typedef struct PROTOCOL_ARG_AUTHARG_T{
+    void *p_pkg;
+    u8 *p_newAuth;
+    int d_newAuthLen;
+}Protocol_Arg_Auth_T;
+
+/* protocol application function */
+extern size_t WD_SYSTEM _wilddog_protocol_ioctl
     (
-    u8 *p_auth,
-    void *p_cn_pkt
+    Protocol_cmd_t cmd,
+    void *p_args,
+    int flags
     );
-Wilddog_Return_T _wilddog_conn_pkt_recv
-    (
-    Wilddog_Conn_RecvData_T *p__cpk_recv
-    );
-Wilddog_Conn_T * _wilddog_conn_init(Wilddog_Repo_T* p_repo);
-Wilddog_Conn_T* _wilddog_conn_deinit(Wilddog_Repo_T*p_repo);
+
+/*implemented interface.*/
+extern Wilddog_Conn_T* _wilddog_conn_init(Wilddog_Repo_T* p_repo);
+extern Wilddog_Conn_T* _wilddog_conn_deinit(Wilddog_Repo_T*p_repo);
 
 #endif /*_WILDDOG_CONN_H_*/
 

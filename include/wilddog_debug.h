@@ -9,7 +9,7 @@
 #define _WILDDOG_DEBUG_H_
 
 
-#ifndef WILDDOG_PORT_TYPE_ESP	
+#ifndef WILDDOG_PORT_TYPE_ESP   
 #include <stdint.h>
 #endif
 

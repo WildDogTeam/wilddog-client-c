@@ -2,277 +2,77 @@
 
 <project>
   <fileVersion>2</fileVersion>
-  <fileChecksum>3814876928</fileChecksum>
+  <fileChecksum>1780206099</fileChecksum>
   <configuration>
     <name>Debug</name>
     <outputs>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\Cortex-M3\hardfault.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\Drivers\spi_flash\spi_flash.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\Drivers\spi_flash\spi_flash_platform.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\EWARM\Retarget.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\EWARM\startup_stm32f2xx_EWARM.s</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\paltform_rtc.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_HAL_Driver\Src\stm32f2xx_hal.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\misc.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_HAL_Driver\Src\stm32f2xx_hal_hcd.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_HAL_Driver\Src\stm32f2xx_ll_usb.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp_tdes.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_adc.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_can.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_crc.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp_aes.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp_des.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_hash_sha1.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dac.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dbgmcu.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dcmi.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dma.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_exti.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_flash.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_fsmc.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_gpio.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_hash.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_hash_md5.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_adc.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_i2c.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_iwdg.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_pwr.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_rcc.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_rng.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_rtc.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_sdio.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_spi.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_syscfg.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_tim.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_usart.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_wwdg.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_flash.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_gpio.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_i2c.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_mcu_powersave.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_pwm.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_rng.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_spi.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_uart.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_watchdog.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\wlan_bus_driver\wlan_bus_sdio.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\wlan_bus_driver\wlan_platform.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\platform_init.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\mico_platform_common.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\wlan_platform_common.c</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_system_para_storage.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\demo.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_system_monitor.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_system_notification.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\demo.pbi</file>
-      <file>$PROJ_DIR$\Debug\Exe\wilddog_tinydtls.out</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_tinydtls.pbd</file>
-      <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform.o</file>
-      <file>$TOOLKIT_DIR$\inc\c\ystdio.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\string.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Product_string.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\stdio.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\json_object.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\AESUtils.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\SHAUtils.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\SocketUtils.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\StringUtils.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\TimeUtils.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\TLVUtils.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\HTTPUtils.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\CheckSumUtils.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\debug.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\RingBufferUtils.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\arraylist.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\SHAUtils.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\SecurityUtils.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\StringUtils.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\SocketUtils.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\TimeUtils.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\TLVUtils.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\URLUtils.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\json_tokener.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\json_util.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\linkhash.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\printbuf.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\arraylist.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\debug.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\json_object.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\json_util.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\json_tokener.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\linkhash.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\printbuf.pbi</file>
-      <file>$TOOLKIT_DIR$\inc\c\stdlib.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_mxchip.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\AESUtils.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\CheckSumUtils.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\RingBufferUtils.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\SecurityUtils.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\HTTPUtils.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_debug.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\performtest.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_api.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\ramtest.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_common.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_debug.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_event.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_ct.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_node.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_store.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_sec_host.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\performtest.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_url_parser.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\ramtest.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_api.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_ct.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_common.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_event.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_node.pbi</file>
-      <file>$TOOLKIT_DIR$\inc\c\inttypes.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_sec_host.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_store.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_url_parser.pbi</file>
-      <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
-      <file>$TOOLKIT_DIR$\inc\c\assert.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_mxchip.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\option.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wlan_platform.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\sha2.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\session.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\dtls_time.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn_coap.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\pdu.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\rijndael.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\peer.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\netq.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn_coap.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\hmac.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\system_easylink.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\crt0_EWARM.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\spi_flash_platform.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_watchdog.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_fsmc.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dcmi.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\system_easylink_delegate.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_mdns.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\system_easylink_wac.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_spi.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\paltform_rtc.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp_aes.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_syscfg.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_flash.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\spi_flash.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\misc.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp_des.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\paltform_rtc.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_adc.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_pwm.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp_tdes.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\hardfault.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_gpio.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\hardfault.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_hash_md5.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_rng.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_gpio.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_i2c.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\ecc.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\tiny_ccm.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\pdu.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\crypto.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\dtls.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\option.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\startup_stm32f2xx_EWARM.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_flash.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_fsmc.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_gpio.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_rng.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_rtc.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_sdio.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wlan_firmware.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_spi.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\Retarget.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_platform_common.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_init.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wlan_firmware.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_system_notification.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_system_para_storage.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wlan_platform.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_system_power_daemon.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\system_misc.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\system_factory_test.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp_aes.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_system_init.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp_tdes.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_system_init.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_config.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_cli.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_cli.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wlan_bus_sdio.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_crc.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wlan_bus_sdio.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_init.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp_des.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dac.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_config.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wlan_platform_common.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_system_monitor.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_rng.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\wlan_platform_common.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_platform_common.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_tim.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dbgmcu.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_rng.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_pwm.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_mcu_powersave.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dma.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_gpio.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_flash.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_adc.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\crt0_EWARM.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_iwdg.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\config_server_menu.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\tftp_ota.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_sdio.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\system_easylink_wac.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\system_easylink_delegate.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_uart.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\mico_mdns.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_i2c.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_watchdog.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\config_server.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_spi.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_i2c.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\system_easylink.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\config_server.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\tftp_ota.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\config_server_menu.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\platform_mcu_powersave.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dcmi.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\misc.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dbgmcu.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_hal_hcd.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_can.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_hal.pbi</file>
+      <file>$PROJ_DIR$\..\..\..\..\examples\mxchip\demo.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\examples\mxchip\mico_config.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Board\MiCOKit-3162\platform_config.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Board\MiCOKit-3162\platform.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Board\MiCOKit-3162\platform.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\MicoDrivers\MicoDriverAdc.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\MicoDrivers\MicoDriverRng.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\MicoDrivers\MicoDriverGpio.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\MicoDrivers\MicoDriverI2c.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\MicoDrivers\MicoDriverPwm.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\MicoDrivers\MicoDriverMFiAuth.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\MicoDrivers\MicoDriverRtc.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\MicoDrivers\MicoDriverSpi.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\MicoDrivers\MicoDriverUart.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\MicoDrivers\MicoDriverWdg.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\bits.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\MICO.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\arraylist.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\arraylist.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\debug.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\debug.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\linkhash.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_object.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_object.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_tokener.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_tokener.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_util.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_util.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\linkhash.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\include\wilddog_api.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\printbuf.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\printbuf.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\AESUtils.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\CheckSumUtils.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\HTTPUtils.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\RingBufferUtils.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\SecurityUtils.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\SHAUtils.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\SocketUtils.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\StringUtils.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\TimeUtils.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\TLVUtils.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\URLUtils.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\networking\coap\wilddog_conn_coap.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\include\wilddog.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\include\wilddog_config.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\include\wilddog_debug.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\platform\mxchip\wilddog_mxchip.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\platform\mxchip\wilddog_mxchip.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\networking\coap\option.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\networking\coap\pdu.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\crypto.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\dtls.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\rijndael.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\dtls_time.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\ecc.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\hmac.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\netq.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\peer.c</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_ll_usb.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_usart.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Full.h</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_wwdg.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_can.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_exti.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_adc.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_can.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_crc.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_adc.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_flash.o</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_adc.o</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dac.o</file>
@@ -280,22 +80,23 @@
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_ll_usb.o</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_rcc.o</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_hal_hcd.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_hash_sha1.o</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_hash.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_hash_md5.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_hash_sha1.o</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_pwr.o</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_rtc.o</file>
       <file>$PROJ_DIR$\Debug\Obj\platform_spi.o</file>
       <file>$PROJ_DIR$\Debug\Obj\platform_uart.o</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_hash.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\Retarget.o</file>
       <file>$PROJ_DIR$\Debug\Obj\system_misc.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\spi_flash.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\Retarget.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn_sec_dtls.o</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dma.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\spi_flash_platform.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn_sec_dtls.o</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_exti.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\tiny_debug.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_exti.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_cbor.o</file>
       <file>$PROJ_DIR$\Debug\Obj\system_factory_test.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\crypto.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\dtls_time.pbi</file>
@@ -309,655 +110,421 @@
       <file>$PROJ_DIR$\Debug\Obj\sha2.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\tiny_ccm.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\tiny_debug.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_cbor.o</file>
-      <file>$TOOLKIT_DIR$\inc\c\time.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn_sec_dtls.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\stddef.h</file>
       <file>$PROJ_DIR$\Debug\Obj\wilddog_cbor.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn_sec_dtls.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\mico_system_power_daemon.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_hash_sha1.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_i2c.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_iwdg.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_pwr.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_rcc.pbi</file>
-      <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Full.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_usart.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_syscfg.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_tim.pbi</file>
-      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_usart.pbi</file>
       <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_wwdg.pbi</file>
       <file>$PROJ_DIR$\Debug\Exe\wilddog_tinydtls.bin</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\easylink\system_easylink_delegate.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\easylink\system_easylink_wac.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\system_factory_test.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\system_misc.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\tftp_ota\tftp_ota.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\easylink\system_easylink.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_monitor.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_init.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_notification.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_para_storage.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_power_daemon.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Platform\Cortex-M3\crt0_EWARM.c</file>
+      <file>$PROJ_DIR$\Debug\Obj\URLUtils.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_system_para_storage.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\demo.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_system_monitor.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\demo.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_system_notification.pbi</file>
+      <file>$PROJ_DIR$\Debug\Exe\wilddog_tinydtls.out</file>
+      <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\ystdio.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_tinydtls.pbd</file>
+      <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\string.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Product_string.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdio.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\AESUtils.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\json_object.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\hardfault.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\session.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_platform_common.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_mxchip.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\option.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wlan_platform.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\sha2.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\dtls_time.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn_coap.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\rijndael.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\pdu.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\crt0_EWARM.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\peer.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\netq.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn_coap.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\hmac.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\system_easylink.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\spi_flash_platform.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_fsmc.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_watchdog.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dcmi.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_mdns.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\system_easylink_delegate.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\system_easylink_wac.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_spi.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp_aes.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\paltform_rtc.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_syscfg.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_flash.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\spi_flash.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp_des.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\misc.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\paltform_rtc.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_adc.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_pwm.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp_tdes.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_gpio.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\hardfault.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_hash_md5.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\crt0_EWARM.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_rng.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_gpio.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_i2c.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\tiny_ccm.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\ecc.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\crypto.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\pdu.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\option.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\dtls.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wlan_firmware.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\startup_stm32f2xx_EWARM.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_flash.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_fsmc.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_gpio.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_rng.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_rtc.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_sdio.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_init.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_spi.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\Retarget.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wlan_platform.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dbgmcu.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wlan_firmware.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_system_notification.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_system_para_storage.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\system_misc.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_system_power_daemon.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\system_factory_test.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_system_init.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp_aes.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_config.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp_tdes.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_system_init.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_cli.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wlan_bus_sdio.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_cli.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_config.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_crc.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wlan_bus_sdio.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_init.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp_des.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dac.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wlan_platform_common.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_system_monitor.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_rng.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wlan_platform_common.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_platform_common.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_tim.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dbgmcu.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dma.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_rng.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_pwm.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_mcu_powersave.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_iwdg.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_gpio.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_flash.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_adc.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\tftp_ota.o</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_rcc.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\config_server_menu.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_cryp.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_sdio.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\system_easylink_wac.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_i2c.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\system_easylink_delegate.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_uart.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\mico_mdns.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_watchdog.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\system_easylink.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\config_server.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_spi.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_i2c.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\config_server.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\config_server_menu.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\tftp_ota.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn_manage.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\platform_mcu_powersave.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_dcmi.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\misc.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn_manage.pbi</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_exti.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_iwdg.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\Cortex-M3\CMSIS\core_cmFunc.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_sdio.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_syscfg.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_flash.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_i2c.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_spi.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_usart.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_rng.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\system_stm32f2xx.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\Debug.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdbool.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\MicoDrivers\MicoDriverFlash.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\ctype.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\xlocalelist.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Demos\COM.MXCHIP.BASIC\mico_config.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\Common.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\xtls.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_gpio.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\xmtx.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\mico_socket.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\include\platform_peripheral.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\misc.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\xlocale_lconv.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\wchar.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_adc.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_rtc.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\mico_rtos.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\mico_platform.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\MicoDrivers\MICODriverNanoSecond.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\intrinsics.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\RingBufferUtils.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_tim.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\cmsis_iar.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\locale.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\xlocale.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_pwr.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\Cortex-M3\platform_assert.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\mico_wlan.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\inc\stm32f2xx_dma.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\mico_security.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\include\mico_system.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\include\PlatformLogging.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_mcu_peripheral.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\stm32f2xx_conf.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\Cortex-M3\CMSIS\core_cmInstr.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\Cortex-M3\CMSIS\core_cm3.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\TimeUtils.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\HTTPUtils.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\TLVUtils.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\CheckSumUtils.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\RingBufferUtils.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\arraylist.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\debug.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\arraylist.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\SHAUtils.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\SecurityUtils.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\SocketUtils.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\StringUtils.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\json_tokener.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\TimeUtils.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\TLVUtils.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\URLUtils.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\json_util.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\linkhash.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\printbuf.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\debug.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\json_object.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\json_util.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\json_tokener.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\linkhash.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\printbuf.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_hal.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_mxchip.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\AESUtils.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\CheckSumUtils.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\RingBufferUtils.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\SecurityUtils.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\HTTPUtils.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\performtest.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_debug.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_api.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\ramtest.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_common.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_debug.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_event.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_ct.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_node.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_store.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_sec_host.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_url_parser.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\performtest.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\ramtest.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_api.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_ct.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_common.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_conn.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_event.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_node.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_url_parser.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_sec_host.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\wilddog_store.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_hal_hcd.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_can.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\stm32f2xx_usart.o</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\session.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\sha2.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\tiny_ccm.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\tiny_debug.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\serialize\cbor\wilddog_cbor.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\wilddog_conn_sec_dtls.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\test_lib.h</file>
       <file>$PROJ_DIR$\..\..\..\..\src\performtest.c</file>
       <file>$PROJ_DIR$\..\..\..\..\src\ramtest.c</file>
       <file>$PROJ_DIR$\..\..\..\..\src\utlist.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\mdns\mico_mdns.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\command_console\mico_cli.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\config_server\config_server_menu.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\config_server\config_server.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\core\RF driver\wlan_firmware.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\MICO\core\mico_config.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_url_parser.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_url_parser.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_api.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_common.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_common.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_conn.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_conn.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_ct.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_conn_manage.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_ct.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_debug.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_endian.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_event.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_event.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_node.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_payload.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_sec.h</file>
       <file>$PROJ_DIR$\..\..\..\..\src\wilddog_store.c</file>
       <file>$PROJ_DIR$\..\..\..\..\src\wilddog_sec_host.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_sec.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_node.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_event.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_endian.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_debug.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_ct.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_ct.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_conn.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_conn.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_common.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_common.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_api.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\test_lib.h</file>
-      <file>$PROJ_DIR$\Debug\Obj\URLUtils.o</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\serialize\cbor\wilddog_cbor.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\wilddog_conn_sec_dtls.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\utlist.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\tinydtls.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\tiny_debug.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\tiny_ccm.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\t_list.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\state.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\sha2.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\sha2.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\session.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\session.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\rijndael.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\rijndael.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\prng.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\peer.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\peer.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\numeric.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\netq.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\netq.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\hmac.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\hmac.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\global.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\ecc.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\ecc.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\dtls_time.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\dtls_time.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\dtls_config.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\dtls.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\dtls.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\debug.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\crypto.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\crypto.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\ccm.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\alert.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\networking\coap\wilddog_conn_coap.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\networking\coap\wilddog_conn_coap.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\networking\coap\pdu.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\networking\coap\pdu.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\networking\coap\option.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\networking\coap\option.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\src\networking\coap\bits.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\platform\mxchip\wilddog_mxchip.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\include\wilddog_port.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\include\wilddog_debug.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\include\wilddog_config.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\include\wilddog_api.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\include\wilddog.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\platform\mxchip\wilddog_mxchip.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\URLUtils.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\TLVUtils.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\TimeUtils.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\StringUtils.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\SocketUtils.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\SHAUtils.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\SecurityUtils.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\RingBufferUtils.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\HTTPUtils.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\CheckSumUtils.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\AESUtils.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\printbuf.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\linkhash.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_util.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_tokener.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_object.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\debug.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\arraylist.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\examples\mxchip\mico_config.h</file>
-      <file>$PROJ_DIR$\..\..\..\..\..\Board\MiCOKit-3162\platform.c</file>
-      <file>$PROJ_DIR$\..\..\..\..\examples\mxchip\demo.c</file>
-      <file>$TOOLKIT_DIR$\inc\c\stddef.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_sec_host.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_store.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_url_parser.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\src\wilddog_url_parser.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\core\mico_config.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\core\RF driver\wlan_firmware.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\config_server\config_server.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_init.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\config_server\config_server_menu.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\command_console\mico_cli.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\mdns\mico_mdns.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_monitor.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_para_storage.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_spi.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_notification.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_power_daemon.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\system.h</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\easylink\system_easylink.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\system_factory_test.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\easylink\system_easylink_delegate.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\easylink\system_easylink_wac.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\tftp_ota\tftp_ota.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\MICO\system\system_misc.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\Cortex-M3\crt0_EWARM.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\Cortex-M3\hardfault.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\Drivers\spi_flash\spi_flash.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_uart.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\Drivers\spi_flash\spi_flash_platform.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\EWARM\Retarget.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\EWARM\startup_stm32f2xx_EWARM.s</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_HAL_Driver\Src\stm32f2xx_hal.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\misc.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_HAL_Driver\Src\stm32f2xx_hal_hcd.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_HAL_Driver\Src\stm32f2xx_ll_usb.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_adc.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_can.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_crc.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp_aes.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp_des.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp_tdes.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dac.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dbgmcu.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dcmi.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dma.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_exti.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_flash.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_fsmc.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_gpio.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_hash.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_hash_md5.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_hash_sha1.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_i2c.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_iwdg.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_pwr.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_rcc.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_rng.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_rtc.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_sdio.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_spi.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_syscfg.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_tim.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_usart.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_wwdg.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\paltform_rtc.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_adc.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_flash.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_gpio.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_i2c.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_mcu_powersave.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_pwm.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_rng.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_watchdog.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\mico_platform_common.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\wlan_bus_driver\wlan_bus_sdio.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\wlan_bus_driver\wlan_platform.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\platform_init.c</file>
+      <file>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\wlan_platform_common.c</file>
+      <file>$PROJ_DIR$\Debug\Obj\StringUtils.o</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdlib.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\SocketUtils.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\SHAUtils.o</file>
     </outputs>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\Cortex-M3\hardfault.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\examples\mxchip\demo.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
-          <file> 175</file>
+          <file> 124</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 173</file>
+          <file> 121</file>
         </tool>
       </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 241 274 108 276 272 273 278 280 275 281 12 104 285 277 132 127 128 282 279 286 11 283 287 4 19 390 292 293 140 138 130 289 284 288 7 5 294 296 290 291 298 295 297 414 24 45 303 305 306 302 477 133 134 135 61 136 137 300 299 8 13 9 14 6 10 307 308 2 304 301 309 311 310 265 263 264 266 267 18 32 46 49 30 16 268 269 270 271 21 15 29 28 26 47</file>
+        </tool>
+      </inputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\Drivers\spi_flash\spi_flash.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\Board\MiCOKit-3162\platform.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
-          <file> 166</file>
+          <file> 131</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 283</file>
+          <file> 122</file>
         </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\Drivers\spi_flash\spi_flash_platform.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\arraylist.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
-          <file> 154</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 286</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\EWARM\Retarget.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 284</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 195</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\EWARM\startup_stm32f2xx_EWARM.s</name>
-      <outputs>
-        <tool>
-          <name>AARM</name>
-          <file> 186</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\paltform_rtc.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 169</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 162</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_HAL_Driver\Src\stm32f2xx_hal.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 270</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 259</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\misc.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 167</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 255</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_HAL_Driver\Src\stm32f2xx_hal_hcd.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 273</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 257</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_HAL_Driver\Src\stm32f2xx_ll_usb.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 271</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 260</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp_tdes.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 172</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 208</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_adc.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 268</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 265</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_can.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 258</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 263</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_crc.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 266</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 214</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 238</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 207</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp_aes.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 163</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 205</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp_des.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 168</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 217</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_hash_sha1.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 276</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 308</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dac.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 269</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 218</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dbgmcu.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 226</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 256</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dcmi.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 157</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 254</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dma.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 230</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 285</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_exti.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 264</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 288</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_flash.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 267</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 187</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_fsmc.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 156</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 188</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_gpio.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 178</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 189</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_hash.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 281</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 274</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_hash_md5.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 176</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 275</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_adc.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 170</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 233</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_i2c.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 179</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 309</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_iwdg.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 235</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 310</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_pwr.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 277</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 311</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_rcc.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 272</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 312</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_rng.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 177</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 190</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_rtc.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 278</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 191</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_sdio.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 239</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 192</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_spi.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 161</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 194</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_syscfg.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 164</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 314</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_tim.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 225</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 315</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_usart.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 261</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 316</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_wwdg.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 262</file>
+          <file> 319</file>
         </tool>
         <tool>
           <name>BICOMP</name>
@@ -966,184 +533,388 @@
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_flash.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\debug.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
-          <file> 165</file>
+          <file> 318</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 232</file>
+          <file> 331</file>
         </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_gpio.c</name>
+      <name>[ROOT_NODE]</name>
       <outputs>
         <tool>
-          <name>ICCARM</name>
-          <file> 174</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 231</file>
+          <name>ILINK</name>
+          <file> 126</file>
         </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_i2c.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\linkhash.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
-          <file> 244</file>
+          <file> 329</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 248</file>
+          <file> 335</file>
         </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_mcu_powersave.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_object.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
-          <file> 253</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 229</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_pwm.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 171</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 228</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_rng.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 222</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 227</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_spi.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 279</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 247</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_uart.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 280</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 242</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_watchdog.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 245</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 155</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\wlan_bus_driver\wlan_bus_sdio.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 213</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 215</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\wlan_bus_driver\wlan_platform.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 201</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
           <file> 141</file>
         </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\platform_init.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 197</file>
-        </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 216</file>
+          <file> 332</file>
         </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\mico_platform_common.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_tokener.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
-          <file> 224</file>
+          <file> 324</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 196</file>
+          <file> 334</file>
         </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\wlan_platform_common.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_util.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
-          <file> 223</file>
+          <file> 328</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 220</file>
+          <file> 333</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\printbuf.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 330</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 336</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\AESUtils.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 339</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 139</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\CheckSumUtils.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 340</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 315</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\HTTPUtils.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 343</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 313</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\RingBufferUtils.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 341</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 316</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\SecurityUtils.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 342</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 321</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\SHAUtils.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 479</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 320</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\SocketUtils.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 478</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 322</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\StringUtils.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 476</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 323</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\TimeUtils.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 312</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 325</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\TLVUtils.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 314</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 326</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\URLUtils.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 119</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 327</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\networking\coap\wilddog_conn_coap.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 150</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 156</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\platform\mxchip\wilddog_mxchip.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 338</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 145</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\networking\coap\option.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 189</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 146</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\networking\coap\pdu.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 152</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 188</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\crypto.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 187</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 92</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\dtls.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 190</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 94</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\rijndael.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 151</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 99</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\dtls_time.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 149</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 93</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\ecc.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 186</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 95</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\hmac.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 157</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 96</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\netq.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 155</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 97</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\peer.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 154</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 98</file>
         </tool>
       </outputs>
     </file>
@@ -1152,462 +923,7 @@
       <outputs>
         <tool>
           <name>OBJCOPY</name>
-          <file> 318</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\easylink\system_easylink_delegate.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 241</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 158</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\easylink\system_easylink_wac.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 240</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 160</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\system_factory_test.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 204</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 290</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\system_misc.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 203</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 282</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\tftp_ota\tftp_ota.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 237</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 251</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\easylink\system_easylink.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 249</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 152</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_monitor.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 221</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 57</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_init.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 206</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 209</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_notification.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 199</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 58</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_para_storage.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 200</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 55</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_power_daemon.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 202</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 307</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Platform\Cortex-M3\crt0_EWARM.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 153</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 234</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\performtest.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 113</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 124</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\ramtest.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 115</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 126</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\mdns\mico_mdns.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 159</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 243</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\command_console\mico_cli.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 211</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 212</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\config_server\config_server_menu.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 252</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 236</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\config_server\config_server.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 250</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 246</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\core\RF driver\wlan_firmware.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 193</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 198</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\MICO\core\mico_config.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 210</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 219</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_url_parser.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 125</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 136</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_store.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 122</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 135</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_sec_host.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 123</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 134</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_node.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 121</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 132</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_event.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 119</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 131</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_debug.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
           <file> 118</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 112</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_ct.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 120</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 128</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_conn.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 117</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 130</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_common.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 116</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 129</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_api.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 114</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 127</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\serialize\cbor\wilddog_cbor.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 303</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 306</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\wilddog_conn_sec_dtls.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 287</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 305</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\tiny_debug.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 289</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 302</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\tiny_ccm.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 181</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 301</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\sha2.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 142</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 300</file>
         </tool>
       </outputs>
     </file>
@@ -1620,401 +936,16 @@
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 299</file>
+          <file> 100</file>
         </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\rijndael.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 147</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 298</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\peer.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\sha2.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
           <file> 148</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 297</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\netq.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 149</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 296</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 63 400 68 365 403 66 391 364 405 105 370 376 404 64 428 385 361 389 380 388 74 402 67 70 71 313 72 368 386 137 375 69 73 383 373 392 378 360 366 304</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\hmac.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 151</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 295</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 63 64 405 137 72 368 361 69 378 67 70 71 313 74 380 105 385 388 66 68 73 403 400 404 366 402 428</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\ecc.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 180</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 294</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 63 70 69 67 381 405 133 137 64 68 73 74 402 403 428 71 313 72 400 404 66</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\dtls_time.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 144</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 292</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 405 74 67 383 385 402 64 361 63 72 403 400 404 66 70 71 313 137 68 428 304</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\dtls.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 184</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 293</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 380 67 403 383 63 392 365 74 64 70 69 105 388 368 66 68 428 405 364 376 386 366 385 402 361 73 375 137 370 372 356 400 404 71 313 72 304 378 391 373 389 360</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\crypto.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 183</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 291</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 405 74 389 375 72 105 137 63 64 373 380 402 69 67 386 391 376 70 71 313 403 428 361 73 365 385 388 381 372 66 68 400 404 368 364 392 378 383 370 360 366 304 133</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\networking\coap\wilddog_conn_coap.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 145</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 150</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 68 67 63 402 66 405 74 403 333 356 64 137 105 393 344 340 69 347 351 397 395 401 353 73 399 70 71 313 72 400 404 428 349</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\networking\coap\pdu.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 146</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 182</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 63 64 402 72 74 395 353 67 137 405 401 70 71 313 73 105 69 397 347 68 66 403 428 400 404 399</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\src\networking\coap\option.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 185</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 140</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 395 402 63 67 64 397 137 428 74 69 405 66 68 73 403 70 71 313 72 399 400 404</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\platform\mxchip\wilddog_mxchip.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 106</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 139</file>
-        </tool>
-      </outputs>
-      <inputs>
-        <tool>
-          <name>BICOMP</name>
-          <file> 64 353 67 313 63 400 401 70 71 403 69 72 105 138 405 347 356 66 68 73 404 428 74 402 137</file>
-        </tool>
-      </inputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\URLUtils.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 357</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 93</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\TLVUtils.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 81</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 92</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\TimeUtils.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 80</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 91</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\StringUtils.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 79</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 89</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\SocketUtils.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 78</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 90</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\SHAUtils.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 77</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 87</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\SecurityUtils.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 110</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 88</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\RingBufferUtils.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 109</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 85</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\HTTPUtils.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 111</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 82</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\CheckSumUtils.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 108</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 83</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\AESUtils.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 107</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 76</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\printbuf.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 97</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 104</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\linkhash.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 96</file>
-        </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 103</file>
-        </tool>
-      </outputs>
-    </file>
-    <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_util.c</name>
-      <outputs>
-        <tool>
-          <name>ICCARM</name>
-          <file> 95</file>
         </tool>
         <tool>
           <name>BICOMP</name>
@@ -2023,11 +954,11 @@
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_tokener.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\tiny_ccm.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
-          <file> 94</file>
+          <file> 185</file>
         </tool>
         <tool>
           <name>BICOMP</name>
@@ -2036,55 +967,614 @@
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\json_object.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\tiny_debug.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
-          <file> 75</file>
+          <file> 88</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 100</file>
+          <file> 103</file>
         </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\debug.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\src\serialize\cbor\wilddog_cbor.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
+          <file> 90</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 105</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\secure\tinydtls\wilddog_conn_sec_dtls.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 85</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 106</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\performtest.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 344</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 357</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\ramtest.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 347</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 358</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_api.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 346</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 359</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_common.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 348</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 361</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_conn.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 349</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 362</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_ct.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 352</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 360</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_conn_manage.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 258</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 262</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_debug.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 350</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 345</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_event.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 351</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 363</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_node.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 353</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 364</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_store.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 354</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 367</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_sec_host.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 355</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 366</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\src\wilddog_url_parser.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 356</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 365</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\core\mico_config.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 212</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 219</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\core\RF driver\wlan_firmware.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 191</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 204</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\config_server\config_server.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 255</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 252</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_init.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 210</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 215</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\config_server\config_server_menu.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 256</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 242</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\command_console\mico_cli.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 216</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 218</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\mdns\mico_mdns.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 163</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 249</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_monitor.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 226</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 123</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_para_storage.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 206</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 120</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_spi.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 79</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 253</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_notification.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 205</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 125</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\mico_system_power_daemon.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 208</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 107</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\easylink\system_easylink.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 251</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 158</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\system_factory_test.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 209</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 91</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\easylink\system_easylink_delegate.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 247</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 164</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\easylink\system_easylink_wac.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 245</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 165</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\tftp_ota\tftp_ota.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 240</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 257</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\MICO\system\system_misc.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 207</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 83</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\Cortex-M3\crt0_EWARM.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 153</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 181</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\Cortex-M3\hardfault.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 142</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 179</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\Drivers\spi_flash\spi_flash.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 171</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
           <file> 84</file>
         </tool>
-        <tool>
-          <name>BICOMP</name>
-          <file> 99</file>
-        </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\libraries\utilities\json_c\arraylist.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_uart.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
-          <file> 86</file>
+          <file> 80</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 98</file>
+          <file> 248</file>
         </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\..\..\..\[ROOT_NODE]</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\Drivers\spi_flash\spi_flash_platform.c</name>
       <outputs>
         <tool>
-          <name>ILINK</name>
+          <name>ICCARM</name>
+          <file> 159</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 87</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\EWARM\Retarget.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 82</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 201</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\EWARM\startup_stm32f2xx_EWARM.s</name>
+      <outputs>
+        <tool>
+          <name>AARM</name>
+          <file> 192</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_HAL_Driver\Src\stm32f2xx_hal.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 70</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 337</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\misc.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 173</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 261</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_HAL_Driver\Src\stm32f2xx_hal_hcd.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 73</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 368</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_HAL_Driver\Src\stm32f2xx_ll_usb.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 71</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
           <file> 60</file>
         </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\..\Board\MiCOKit-3162\platform.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_adc.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 68</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 66</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_can.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 369</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 64</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_crc.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
@@ -2092,28 +1582,542 @@
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 61</file>
+          <file> 220</file>
         </tool>
       </outputs>
     </file>
     <file>
-      <name>$PROJ_DIR$\..\..\..\..\examples\mxchip\demo.c</name>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp.c</name>
       <outputs>
         <tool>
           <name>ICCARM</name>
-          <file> 56</file>
+          <file> 243</file>
         </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 59</file>
+          <file> 213</file>
         </tool>
       </outputs>
-      <inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp_aes.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 167</file>
+        </tool>
         <tool>
           <name>BICOMP</name>
-          <file> 63 400 71 403 66 70 347 404 64 313 405 137 74 402 67 72 68 428</file>
+          <file> 211</file>
         </tool>
-      </inputs>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp_des.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 172</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 223</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_cryp_tdes.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 177</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 214</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dac.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 69</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 224</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dbgmcu.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 231</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 203</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dcmi.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 162</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 260</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_dma.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 232</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 86</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_exti.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 63</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 89</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_flash.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 67</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 193</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_fsmc.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 160</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 194</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_gpio.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 183</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 195</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_hash.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 81</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 75</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_hash_md5.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 180</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 76</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_hash_sha1.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 74</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 109</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_i2c.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 184</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 110</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_iwdg.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 236</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 111</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_pwr.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 77</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 112</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_rcc.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 72</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 113</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_rng.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 182</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 196</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_rtc.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 78</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 197</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_sdio.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 244</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 198</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_spi.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 166</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 200</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_syscfg.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 169</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_tim.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 230</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 116</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_usart.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 370</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 114</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\Libraries\STM32F2xx_StdPeriph_Driver\src\stm32f2xx_wwdg.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 62</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 117</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\paltform_rtc.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 174</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 168</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_adc.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 175</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 239</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_flash.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 170</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 238</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_gpio.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 178</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 237</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_i2c.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 246</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 254</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_mcu_powersave.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 259</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 235</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_pwm.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 176</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 234</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_rng.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 227</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 233</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\peripherals\platform_watchdog.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 250</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 161</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\mico_platform_common.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 229</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 144</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\wlan_bus_driver\wlan_bus_sdio.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 217</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 221</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\wlan_bus_driver\wlan_platform.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 202</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 147</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\STM32F2xx\platform_init.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 199</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 222</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\..\..\..\..\..\Platform\MCU\wlan_platform_common.c</name>
+      <outputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 228</file>
+        </tool>
+        <tool>
+          <name>BICOMP</name>
+          <file> 225</file>
+        </tool>
+      </outputs>
     </file>
   </configuration>
   <configuration>

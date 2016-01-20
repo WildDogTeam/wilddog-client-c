@@ -30,7 +30,10 @@
 #include <unistd.h>
 #endif
 #include <ctype.h>
-#if !defined(WILDDOG_PORT_TYPE_WICED) && !defined(WILDDOG_PORT_TYPE_QUCETEL) && !defined(WILDDOG_PORT_TYPE_MXCHIP)
+#if !defined(WILDDOG_PORT_TYPE_WICED) && \
+    !defined(WILDDOG_PORT_TYPE_QUCETEL) && \
+    !defined(WILDDOG_PORT_TYPE_MXCHIP)
+
 #include <netinet/in.h>
 #endif
 
@@ -49,11 +52,16 @@
 #define UNUSED_PARAM
 #endif /* __GNUC__ */
 
+typedef enum  _TINYDTLS_STATE_S{
+    _TINYDTLS_STATE_WARNING = 1,
+    _TINYDTLS_STATE_ERROR = 2,
+    _TINYDTLS_STATE_CONNECT = 3
+}TinyDtls_State_S;
 typedef struct WILDDOG_CONN_SEC_T{
-    size_t d_fd;
     dtls_context_t *dtls_context;
+    size_t d_fd;
     session_t dst;
-    unsigned short d_delstState;
+    unsigned short d_dtlstState;
     u8 *p_recvbuf;
     u32 d_recvlen;
     u8 d_recvFig;
@@ -256,6 +264,7 @@ STATIC int read_from_peer
     )
 {
     size_t i,readlen;
+    
     if(d_conn_sec_dtls.p_recvbuf == NULL)
         return 0;
     d_conn_sec_dtls.d_recvFig = 1;
@@ -265,6 +274,7 @@ STATIC int read_from_peer
         d_conn_sec_dtls.p_recvbuf[i] = data[i];
     }
     d_conn_sec_dtls.d_recvlen = readlen;
+
     return 0;
 }
 
@@ -281,7 +291,10 @@ STATIC int send_to_peer
     Wilddog_Address_T addr_inSend;
 
     addr_inSend.len = session->size;
-#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL) || defined(WILDDOG_PORT_TYPE_MXCHIP)
+#if defined(WILDDOG_PORT_TYPE_WICED) || \
+    defined(WILDDOG_PORT_TYPE_QUCETEL) || \
+    defined(WILDDOG_PORT_TYPE_MXCHIP)
+    
     addr_inSend.len = session->addr.len;
     addr_inSend.port = session->addr.port;
     memcpy(addr_inSend.ip,&session->addr.ip,session->size);
@@ -306,23 +319,28 @@ STATIC int dtls_handle_read(struct dtls_context_t *ctx)
     fd = *(int *)dtls_get_app_data(ctx);
     if (!fd)
         return -1;
-#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL) || defined(WILDDOG_PORT_TYPE_MXCHIP)
+#if defined(WILDDOG_PORT_TYPE_WICED) || \
+    defined(WILDDOG_PORT_TYPE_QUCETEL) || \
+    defined(WILDDOG_PORT_TYPE_MXCHIP)
+    
     addr_in.len = d_conn_sec_dtls.dst.addr.len;
     addr_in.port = d_conn_sec_dtls.dst.addr.port;
-    memcpy(addr_in.ip,&d_conn_sec_dtls.dst.addr.ip,d_conn_sec_dtls.dst.addr.len);
+   memcpy(addr_in.ip,&d_conn_sec_dtls.dst.addr.ip,d_conn_sec_dtls.dst.addr.len);
 #else
     addr_in.len = d_conn_sec_dtls.dst.size;
     addr_in.port = d_conn_sec_dtls.dst.addr.sin.sin_port;
-    memcpy(addr_in.ip,&d_conn_sec_dtls.dst.addr.sin.sin_addr,d_conn_sec_dtls.dst.size);
+    memcpy(addr_in.ip, \
+           &d_conn_sec_dtls.dst.addr.sin.sin_addr, \
+           d_conn_sec_dtls.dst.size);
 #endif
 
     memset(buf, 0, MAX_READ_BUF);
     len = wilddog_receive(fd,&addr_in,buf,MAX_READ_BUF,WILDDOG_RECEIVE_TIMEOUT);
     if (len < 0)
     {
-        return -1;
+        return 0;// return -1;
     }
-    else if(len >0)
+    else if(len > 0)
     {
         dtls_dsrv_log_addr(DTLS_LOG_DEBUG, "peer", p_session);
         dtls_debug_dump("bytes from peer", buf, len);
@@ -339,13 +357,10 @@ int handle_dtls_event
     unsigned short code
     )
 {
-    d_conn_sec_dtls.d_delstState = code;
-    if (level > 0)
-    {
-		//dtls_connect(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst);
-        //perror("DTLS ERROR EVENT");
-        wilddog_debug("DTLS ERROR EVENT");
-    }
+    d_conn_sec_dtls.d_dtlstState = level;
+    if( code == DTLS_EVENT_CONNECTED)
+        d_conn_sec_dtls.d_dtlstState = _TINYDTLS_STATE_CONNECT;
+    
     return 0;
 }
 
@@ -368,29 +383,91 @@ STATIC dtls_handler_t cb =
 #define DTLS_CLIENT_CMD_RENEGOTIATE "client:renegotiate"
 #define WD_DEBUG_DTLS DTLS_LOG_EMERG // DTLS_LOG_EMERG for non  DTLS_LOG_DEBUG for all
 
+STATIC int _wilddog_sec_reconnectInner
+    (
+    Wilddog_Conn_Sec_T *wd_sec, 
+    int timeout,
+    int reconnectNum
+    )
+{
+    int i;
+    int res = 0;
+
+    wilddog_assert(wd_sec, -1);    
+    wilddog_assert(wd_sec->dtls_context, -1);
+
+    for(i = 0; i < reconnectNum; i++)
+    {
+        int tmp_cnt = 0;
+        dtls_connect(wd_sec->dtls_context, &wd_sec->dst);
+        
+        while( tmp_cnt++ < 100 )
+        {
+            /*dtls error.*/
+            if( wd_sec->d_dtlstState == _TINYDTLS_STATE_ERROR )
+                break;
+            else /* connect finish.*/
+            if( wd_sec->d_dtlstState == _TINYDTLS_STATE_CONNECT)
+                return 0;
+            /* read receive.*/
+            res = dtls_handle_read(wd_sec->dtls_context);
+            if(res < 0)
+                break;        
+        }
+    }
+
+    return -1;
+}
+
+Wilddog_Return_T _wilddog_sec_reconnect
+    (
+    Wilddog_Str_T *p_host,
+    u16 d_port,
+    int retryNum
+    )
+{
+    int res = 0;
+    
+    res = _wilddog_sec_reconnectInner(&d_conn_sec_dtls,
+                                      WILDDOG_RETRANSMITE_TIME,retryNum);
+    if(res >= 0)
+        return res;
+        
+    _wilddog_sec_deinit();
+    res = _wilddog_sec_init(p_host, d_port);
+    return res;
+}
+
 /* do not malloc session*/
-STATIC int _wilddog_sec_setSession(int fd, Wilddog_Address_T * addr_in)
+STATIC int _wilddog_sec_setSession
+    (
+    int fd, 
+    Wilddog_Address_T * addr_in
+    )
 {
     d_conn_sec_dtls.d_fd = fd;
-#if defined(WILDDOG_PORT_TYPE_WICED) || defined(WILDDOG_PORT_TYPE_QUCETEL) || defined(WILDDOG_PORT_TYPE_MXCHIP)
+#if defined(WILDDOG_PORT_TYPE_WICED) || \
+    defined(WILDDOG_PORT_TYPE_QUCETEL) || \
+    defined(WILDDOG_PORT_TYPE_MXCHIP)
+
     memcpy(&d_conn_sec_dtls.dst.addr.ip,addr_in->ip,addr_in->len);
     d_conn_sec_dtls.dst.size = addr_in->len;
     d_conn_sec_dtls.dst.addr.len = addr_in->len;
     d_conn_sec_dtls.dst.addr.port = addr_in->port;
 #else
-    d_conn_sec_dtls.dst.addr.sin.sin_family = 2;//AF_INET  ipv4
+    d_conn_sec_dtls.dst.addr.sin.sin_family = 2;/*AF_INET  ipv4*/
     memcpy(&d_conn_sec_dtls.dst.addr.sin.sin_addr,addr_in->ip,addr_in->len);
     d_conn_sec_dtls.dst.size = addr_in->len;
     
     d_conn_sec_dtls.dst.addr.sin.sin_port = addr_in->port;
 #endif
-	return 0;
+    return 0;
 }
 /*
  * Function:    _wilddog_sec_send
  * Description: tinyDtls send function
- * Input:  	p_data: The buffer which store the sending data
- *			len: The length of the wanting send data
+ * Input:   p_data: The buffer which store the sending data
+ *          len: The length of the wanting send data
  * Output:      N/A
  * Return:      The length of the actual sending data
 */
@@ -406,39 +483,34 @@ Wilddog_Return_T _wilddog_sec_send
     
     _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
     
-    if(d_conn_sec_dtls.d_delstState != DTLS_EVENT_CONNECTED)
+    if(d_conn_sec_dtls.d_dtlstState != _TINYDTLS_STATE_CONNECT)
         return WILDDOG_ERR_SENDERR;
-	
+    
     while(sendLen < len)
     {       
-        /*res = dtls_write(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst, \
-                          (uint8 *)p_buf, unsendlen);*/
         res = dtls_write(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst, \
                          (uint8 *)(p_buf + sendLen), len - sendLen);
-        if (res >= 0 )// && (res != unsendlen))
+        if (res >= 0 )
         {
             sendLen += res;
-            //memmove(p_buf, p_buf + res, unsendlen - res);
-            //unsendlen -= res;
         }
         else 
         {
-            //if(res >= 0 )
-            //    res = len;
             break;
         }
     }
-    //return res;
     return sendLen;
 }
 
 /*
  * Function:    _wilddog_sec_recv
  * Description: No security recv function
- * Input: 		len: The length of the wanting receive data
+ * Input:       len: The length of the wanting receive data
  * Output:      p_data: The buffer which store the receiving data
  * Return:      The length of the actual receiving data
 */
+#define WD_DEAULT_RETRY_TIME 3
+
 int _wilddog_sec_recv
     (
     void* p_data, 
@@ -455,16 +527,16 @@ int _wilddog_sec_recv
     res = dtls_handle_read(d_conn_sec_dtls.dtls_context);
     if( d_conn_sec_dtls.d_recvFig )
         res = d_conn_sec_dtls.d_recvlen;
-    
+
     return res;
-    
 }
+#undef WD_DEAULT_RETRY_TIME
 
 /*
  * Function:    _wilddog_sec_init
  * Description: Initialize no security session
  * Input:    p_host: Remote Host   
-		   d_port: Remote Server's port
+           d_port: Remote Server's port
  * Output:  N/A
  * Return:  Success: 0 else init failure
 */
@@ -475,13 +547,13 @@ Wilddog_Return_T _wilddog_sec_init
     )
 {
     int res = 0;
-	int sec_int_cnt = 0;
+    int sec_int_cnt = 0;
     memset(&d_conn_sec_dtls, 0, sizeof(Wilddog_Conn_Sec_T));
-	
-	wilddog_openSocket(&l_tinyfd);
-	res = _wilddog_sec_getHost(&l_tinyaddr_in,p_host,d_port);
-	if(res <0 )
-		return res;
+    
+    wilddog_openSocket(&l_tinyfd);
+    res = _wilddog_sec_getHost(&l_tinyaddr_in,p_host,d_port);
+    if(res <0 )
+        return res;
     _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
     dtls_init();
 #ifndef WILDDOG_PORT_TYPE_WICED
@@ -496,22 +568,29 @@ Wilddog_Return_T _wilddog_sec_init
     dtls_set_handler(d_conn_sec_dtls.dtls_context, &cb);
 
     /*@ Establishes a DTLS channel with the specified remote peer dst.  
-    **@ star client Hello
+    **@ start client Hello
     */
-    res = dtls_connect(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst);
-    while(d_conn_sec_dtls.d_delstState != DTLS_EVENT_CONNECTED)
-    {
-    	if(sec_int_cnt++ > 100)
-			break;
 
-		/*dtls alert */
-    	if( d_conn_sec_dtls.d_delstState < DTLS_EVENT_CONNECT)
-				break;
+    res = dtls_connect(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst);
+    
+    while(sec_int_cnt++ < 100)
+    {
+        if(d_conn_sec_dtls.d_dtlstState == _TINYDTLS_STATE_CONNECT)
+            return 0;
+
+        /*dtls error */
+        if( d_conn_sec_dtls.d_dtlstState ==  _TINYDTLS_STATE_ERROR)
+                break;
 
         res = dtls_handle_read(d_conn_sec_dtls.dtls_context);
         if(res < 0)
             break;
     }
+
+/*    res = _wilddog_sec_reconnectInner(d_conn_sec_dtls.dtls_context, 
+                           &d_conn_sec_dtls.dst,
+                           WILDDOG_RETRANSMITE_TIME,
+                           3);*/
     return res;
 }
 
@@ -524,15 +603,15 @@ Wilddog_Return_T _wilddog_sec_init
 */
 Wilddog_Return_T _wilddog_sec_deinit(void)
 {
-	  /* send terminate alert*/	
-      dtls_free_context(d_conn_sec_dtls.dtls_context);
-	  if(l_tinyfd)
-      	wilddog_closeSocket(l_tinyfd);
-	  
-	  l_tinyfd = 0;
-	  memset(&l_tinyaddr_in,0,sizeof(l_tinyaddr_in));
-	  memset(&d_conn_sec_dtls, 0, sizeof(Wilddog_Conn_Sec_T));
-	  
-      return WILDDOG_ERR_NOERR;
+    /* send terminate alert*/   
+    dtls_free_context(d_conn_sec_dtls.dtls_context);
+    if(l_tinyfd)
+        wilddog_closeSocket(l_tinyfd);
+    
+    l_tinyfd = 0;
+    memset(&l_tinyaddr_in,0,sizeof(l_tinyaddr_in));
+    memset(&d_conn_sec_dtls, 0, sizeof(Wilddog_Conn_Sec_T));
+
+    return WILDDOG_ERR_NOERR;
 }
 

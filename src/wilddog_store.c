@@ -96,17 +96,17 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_store_setAuth
     else
         memcpy(p_store->p_se_auth->p_auth,p_authArg->p_data, p_authArg->d_len);
     p_store->p_se_auth->d_len = p_authArg->d_len;
-    
+
+    connCmd.p_repo = p_store->p_se_repo;
     connCmd.p_url = p_authArg->p_url;
     connCmd.p_complete = (Wilddog_Func_T)p_authArg->p_onAuth;
     connCmd.p_completeArg = p_authArg->p_onAuthArg;
     connCmd.p_data = NULL;
 
     /*auth data will be called by lower layer*/
-    if(p_conn && p_conn->f_conn_send)
+    if(p_conn && p_conn->f_conn_ioctl)
     {
-        return p_conn->f_conn_send(WILDDOG_CONN_CMD_AUTH, p_store->p_se_repo, \
-            &connCmd);
+        return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_AUTH, &connCmd, 0);
     }
     return WILDDOG_ERR_INVALID;
 }
@@ -185,24 +185,36 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_store_ioctl
         case WILDDOG_STORE_CMD_SETAUTH:
             return _wilddog_store_setAuth(p_store, arg, flags);
         case WILDDOG_STORE_CMD_SENDGET:
-            if(p_conn && p_conn->f_conn_send)
-                return p_conn->f_conn_send(WILDDOG_CONN_CMD_GET, \
-                                            p_store->p_se_repo, arg);
+            if(p_conn && p_conn->f_conn_ioctl)
+                return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_GET, arg, 0);
             break;
         case WILDDOG_STORE_CMD_SENDSET:
-            if(p_conn && p_conn->f_conn_send)
-                return p_conn->f_conn_send(WILDDOG_CONN_CMD_SET, \
-                                            p_store->p_se_repo, arg);
+            if(p_conn && p_conn->f_conn_ioctl)
+                return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_SET, arg, 0);
+            break;
+        case WILDDOG_STORE_CMD_ONDISSET:
+            if(p_conn && p_conn->f_conn_ioctl)
+                return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_ONDISSET, arg, 0);
             break;
         case WILDDOG_STORE_CMD_SENDPUSH:
-            if(p_conn && p_conn->f_conn_send)
-                return p_conn->f_conn_send(WILDDOG_CONN_CMD_PUSH, \
-                                            p_store->p_se_repo, arg);
+            if(p_conn && p_conn->f_conn_ioctl)
+                return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_PUSH, arg, 0);
+            break;
+        case WILDDOG_STORE_CMD_ONDISPUSH:
+            if(p_conn && p_conn->f_conn_ioctl)
+                return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_ONDISPUSH, arg,0);
             break;
         case WILDDOG_STORE_CMD_SENDREMOVE:
-            if(p_conn && p_conn->f_conn_send)
-                return p_conn->f_conn_send(WILDDOG_CONN_CMD_REMOVE, \
-                                            p_store->p_se_repo, arg);
+            if(p_conn && p_conn->f_conn_ioctl)
+                return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_REMOVE, arg, 0);
+            break;
+        case WILDDOG_STORE_CMD_ONDISRMV:
+            if(p_conn && p_conn->f_conn_ioctl)
+               return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_ONDISREMOVE,arg,0);
+            break;
+        case WILDDOG_STORE_CMD_ONDISCANCEL:
+            if(p_conn && p_conn->f_conn_ioctl)
+                return p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_CANCELDIS, arg,0);
             break;
         case WILDDOG_STORE_CMD_SENDON:
             if(p_rp_event && p_rp_event->p_ev_cb_on)
@@ -225,4 +237,3 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_store_ioctl
     }
     return WILDDOG_ERR_INVALID;
 }
-

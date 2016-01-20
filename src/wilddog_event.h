@@ -1,7 +1,6 @@
 #ifndef _WILDDOG_EVENT_H_
 #define _WILDDOG_EVENT_H_
 
- 
 #include "wilddog_store.h"
 
 #ifdef __cplusplus
@@ -44,11 +43,9 @@ typedef struct WILDDOG_EVENTNODE_T
     ON_OFF_FLAG_T flag;
 }Wilddog_EventNode_T;
 
-
 Wilddog_Event_T* _wilddog_event_init(Wilddog_Store_T *p_store);
 
 Wilddog_Event_T* _wilddog_event_deinit(Wilddog_Store_T *p_store);
-
 
 #ifdef __cplusplus
 }

@@ -400,15 +400,14 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
         {
             if(head->flag == ON_FLAG)
             {
-                if(p_conn && p_conn->f_conn_send)
+                if(p_conn && p_conn->f_conn_ioctl)
                 {
                     tmp = arg->p_url->p_url_path;
                     arg->p_url->p_url_path = (Wilddog_Str_T*)head->p_url->p_url_path;
                     
-                    if(p_conn && p_conn->f_conn_send)
+                    if(p_conn && p_conn->f_conn_ioctl)
                     {
-                        err = p_conn->f_conn_send(WILDDOG_CONN_CMD_OFF, \
-                                            event->p_ev_store->p_se_repo,arg);
+                        err = p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_OFF, arg, 0);
                     }
                     
                     wilddog_debug_level(WD_DEBUG_LOG, "off path:%s", \
@@ -422,7 +421,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
         else if(pathContainResult == WD_EVENT_PATHCONTAIN_DCS)
         {
             wilddog_debug_level(WD_DEBUG_LOG, "don't send");
-            if(p_conn && p_conn->f_conn_send)
+            if(p_conn && p_conn->f_conn_ioctl)
             {
                 /*don't send oberve on*/
             }
@@ -437,10 +436,9 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
                 
                 head->flag = ON_FLAG;
                 
-                if(p_conn && p_conn->f_conn_send)
+                if(p_conn && p_conn->f_conn_ioctl)
                 {
-                    err = p_conn->f_conn_send(WILDDOG_CONN_CMD_ON, \
-                                        event->p_ev_store->p_se_repo,arg);
+                    err = p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_ON, arg, 0);
                 }
             }
             head = head->next;
@@ -530,10 +528,9 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeDelete
     
     if(node->flag == ON_FLAG)
     {
-        if(p_conn && p_conn->f_conn_send)
+        if(p_conn && p_conn->f_conn_ioctl)
         {
-            err =  p_conn->f_conn_send(WILDDOG_CONN_CMD_OFF, \
-                                event->p_ev_store->p_se_repo,arg);
+            err =  p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_OFF, arg, 0);
         }
         
         wilddog_debug_level(WD_DEBUG_LOG, "nodedelete off node path:%s\n", \
@@ -569,14 +566,15 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeDelete
                     }
                     tmp_arg->p_url = (Wilddog_Url_T *) \
                                      wmalloc(sizeof(Wilddog_Url_T));
+                    tmp_arg->p_repo = event->p_ev_store->p_se_repo;
                     if(tmp_arg->p_url == NULL)
                     {
                         wilddog_debug_level( WD_DEBUG_ERROR, \
                             "cannot wmalloc tmp arg url!");
                     }
                     len = strlen((const char *)node->p_url->p_url_host);
-                    tmp_arg->p_url->p_url_host= (Wilddog_Str_T *) \
-                                                wmalloc( len + 1);
+                    tmp_arg->p_url->p_url_host = (Wilddog_Str_T *) \
+                                                  wmalloc( len + 1);
                     
                     if(tmp_arg->p_url->p_url_host == NULL)
                     {
@@ -607,10 +605,9 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeDelete
                     tmp_arg->p_complete = node->p_onData;
                     tmp_arg->p_completeArg=node->p_dataArg;
 
-                    if(p_conn && p_conn->f_conn_send)
+                    if(p_conn && p_conn->f_conn_ioctl)
                     {
-                        err = p_conn->f_conn_send(WILDDOG_CONN_CMD_ON, \
-                                          event->p_ev_store->p_se_repo,tmp_arg);
+                        err = p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_ON, tmp_arg, 0);
                     }
                     
                     node->flag = ON_FLAG;                        

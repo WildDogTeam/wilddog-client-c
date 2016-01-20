@@ -139,7 +139,6 @@ STATIC s32 WD_SYSTEM _wilddog_c2n_getItemLen
         wilddog_debug_level(WD_DEBUG_ERROR, "cannot read header!\n");
         return 0;
     }
-    return 0;
 }
 
 
@@ -160,10 +159,10 @@ STATIC void WD_SYSTEM _wilddog_c2n_numHandler
     Wilddog_Str_T *p_num
     )
 {
-    if(dataLen == WILDDOG_CBOR_HEAD_LEN         || \
-       dataLen == WILDDOG_CBOR_FOLLOW_1BYTE_LEN || \
-       dataLen == WILDDOG_CBOR_FOLLOW_2BYTE_LEN || \
-       dataLen == WILDDOG_CBOR_FOLLOW_4BYTE_LEN)
+    if((dataLen == WILDDOG_CBOR_HEAD_LEN)         || \
+       (dataLen == WILDDOG_CBOR_FOLLOW_1BYTE_LEN) || \
+       (dataLen == WILDDOG_CBOR_FOLLOW_2BYTE_LEN) || \
+       (dataLen == WILDDOG_CBOR_FOLLOW_4BYTE_LEN))
     {
         if (WILDDOG_CBOR_NEGINT == type)
             num = -1 - num;
@@ -756,7 +755,7 @@ Wilddog_Node_T * WD_SYSTEM _wilddog_cbor2Node(Wilddog_Payload_T* p_data)
             }
             p_node->p_wn_value = p_value;
             p_node->d_wn_type = _wilddog_c2n_typeTranslate(type);
-            if(p_node->d_wn_type < 0)
+            if(p_node->d_wn_type == (u8)-1)
             {
                 wilddog_node_delete(p_node);
                 wfree(p_value);
@@ -1084,6 +1083,7 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeFloat
  * Output:      p_data: output data type
  * Return:      Success:0 Faied:-1
 */
+extern BOOL WD_SYSTEM _isKeyValid(Wilddog_Str_T * key, BOOL isSpritValid);
 STATIC int WD_SYSTEM _wilddog_n2c_encodeString
     (
     Wilddog_Node_T *p_node, 
@@ -1098,6 +1098,23 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeString
     if(NULL == p_node->p_wn_key && TYPE_KEY == type)
         return WILDDOG_ERR_NOERR;
 
+    /*must be check*/
+    if(TYPE_KEY == type)
+    {
+        if(FALSE == _isKeyValid(p_node->p_wn_key, FALSE))
+        {
+            if(p_node->p_wn_key)
+            {
+                /*only header's key can be "/"*/
+                if(strlen((const char*)p_node->p_wn_key) != 1 || \
+                    p_node->p_wn_key[0] != '/' || \
+                    p_node->p_wn_parent != NULL)
+                    return WILDDOG_ERR_INVALID;
+            }
+            else
+                return WILDDOG_ERR_INVALID;
+        }
+    }
     /*string data max use length*/
     int maxExpectLen = WILDDOG_CBOR_HEAD_LEN + p_node->d_wn_len + \
                        WILDDOG_CBOR_FOLLOW_4BYTE_LEN;

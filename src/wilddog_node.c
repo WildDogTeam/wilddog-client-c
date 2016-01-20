@@ -9,7 +9,8 @@
  * Version      Author          Date        Description
  *
  * 0.4.0        Baikal.Hu       2015-05-15  Create file.
- * 0.4.3        Jimmy.Pan       2015-07-04  Add annotation, fix key check error.
+ * 0.4.3        Jimmy.Pan       2015-07-04  Add annotation,fix key check error.
+ * 0.8.0        Jimmy.Pan       2016-01-09  Fix clone and free bug.
  *
  */
  
@@ -64,10 +65,10 @@ Wilddog_Node_T * WD_SYSTEM _wilddog_node_new(void)
  * Output:      N/A
  * Return:      valid returns TRUE, others return FALSE.
 */
-STATIC BOOL WD_SYSTEM _isKeyValid(Wilddog_Str_T * key, BOOL isSpritValid)
+BOOL WD_SYSTEM _isKeyValid(Wilddog_Str_T * key, BOOL isSpritValid)
 {
-    int len, i;
-    volatile u8 data;
+    int len = 0, i = 0;
+    volatile u8 data = 127;
 
     if(NULL == key)
         return TRUE;
@@ -527,7 +528,7 @@ STATIC const Wilddog_Str_T * WD_SYSTEM wilddog_node_getKey(Wilddog_Node_T *node)
 }
 #endif
 /*
- * Function:    wilddog_node_setType
+ * Function:    _wilddog_node_setType
  * Description: Set a node's type.
  * Input:       node:   The pointer to the node.
  *              type:   The new type of the node.
@@ -535,7 +536,7 @@ STATIC const Wilddog_Str_T * WD_SYSTEM wilddog_node_getKey(Wilddog_Node_T *node)
  * Return:      if success, returns 0, else return negative number.
  * Others:      N/A
 */
-STATIC Wilddog_Return_T WD_SYSTEM wilddog_node_setType
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_node_setType
     (
     Wilddog_Node_T *node,
     u8 type
@@ -552,6 +553,15 @@ STATIC Wilddog_Return_T WD_SYSTEM wilddog_node_setType
         WILDDOG_NODE_TYPE_OBJECT > type)
     {
         wilddog_node_deleteChildren(node);
+    }
+    if(type < WILDDOG_NODE_TYPE_NUM)
+    {
+        /*changed to no value type, so if has value ,free it*/
+        if(node->p_wn_value)
+        {
+            wfree(node->p_wn_value);
+            node->p_wn_value = NULL;
+        }
     }
     node->d_wn_type = type;
     return WILDDOG_ERR_NOERR;
@@ -590,20 +600,16 @@ Wilddog_Return_T WD_SYSTEM wilddog_node_setValue
     int len
     )
 {
+    Wilddog_Str_T *newValue = NULL;
+    
     if(NULL == node)
         return WILDDOG_ERR_INVALID;
     
-    if(node->p_wn_value!= NULL)
-    {
-        wfree(node->p_wn_value);
-        node->p_wn_value = NULL;
-    }
     if(!value || !len)
     {
-        node->p_wn_value = NULL;
-        node->d_wn_len = 0;
-        return WILDDOG_ERR_NOERR;
+        return WILDDOG_ERR_NULL;
     }
+    
     if(WILDDOG_NODE_TYPE_NUM == node->d_wn_type)
     {
         len = sizeof(s32);
@@ -617,12 +623,17 @@ Wilddog_Return_T WD_SYSTEM wilddog_node_setValue
             WILDDOG_NODE_TYPE_OBJECT == node->d_wn_type
             )
     {
+        if(node->p_wn_value!= NULL)
+        {
+            wfree(node->p_wn_value);
+        }
         node->p_wn_value = NULL;
         node->d_wn_len = 0;
         return WILDDOG_ERR_NOERR;
     }
-    node->p_wn_value = wmalloc(len + 1);
-    if(node->p_wn_value== NULL)
+
+    newValue = wmalloc(len + 1);
+    if(newValue== NULL)
     {
         wilddog_debug_level( WD_DEBUG_ERROR, "setValue malloc error");
 
@@ -630,6 +641,11 @@ Wilddog_Return_T WD_SYSTEM wilddog_node_setValue
     }
     else
     {
+        if(node->p_wn_value!= NULL)
+        {
+            wfree(node->p_wn_value);
+        }
+        node->p_wn_value = newValue;
         memcpy(node->p_wn_value, value, len);
         node->d_wn_len = len;
     }
@@ -675,16 +691,23 @@ Wilddog_Str_T* WD_SYSTEM wilddog_node_getValue
 */
 int WD_SYSTEM _wilddog_node_free(Wilddog_Node_T *node)
 {
+    Wilddog_Node_T * currChild = NULL, *nextChild = NULL;;
     wilddog_assert(node , -1);
     
     if(node->p_wn_child != NULL)
     {
+        currChild = node->p_wn_child;
+        nextChild = currChild->p_wn_next;
+
+        while(nextChild)
+        {
+            currChild = nextChild;
+            nextChild = currChild->p_wn_next;
+            _wilddog_node_free(currChild);
+        }
         _wilddog_node_free(node->p_wn_child);
-    }   
-    if(node->p_wn_next != NULL)
-    {
-        _wilddog_node_free(node->p_wn_next);
     }
+
     node->p_wn_next = NULL;
     node->p_wn_prev = NULL;
     node->p_wn_child = NULL;
@@ -814,6 +837,7 @@ Wilddog_Return_T WD_SYSTEM wilddog_node_addChild
         {
             if(first_child->p_wn_key != NULL && newnode->p_wn_key != NULL)
             {
+                /*the same key means the same node*/
                 if(strcmp((const char *)first_child->p_wn_key, \
                            (const char *)newnode->p_wn_key ) == 0
                    )    
@@ -955,9 +979,9 @@ Wilddog_Return_T WD_SYSTEM wilddog_node_delete( Wilddog_Node_T *p_node)
         else if(NULL  == p_head->p_wn_next && NULL == p_head->p_wn_prev)
         {
             /*set it's parent as null node*/
-            wilddog_node_setType(p_head->p_wn_parent, WILDDOG_NODE_TYPE_NULL);
-            _wilddog_node_setKey(p_head->p_wn_parent ,NULL);
-            wilddog_node_setValue(p_head->p_wn_parent,NULL, 0);
+            _wilddog_node_setType(p_head->p_wn_parent, WILDDOG_NODE_TYPE_NULL);
+            //_wilddog_node_setKey(p_head->p_wn_parent ,NULL);
+            //wilddog_node_setValue(p_head->p_wn_parent,NULL, 0);
             p_head->p_wn_parent->p_wn_child = NULL;
         }
     }
@@ -979,56 +1003,62 @@ DEL_FREE:
 */
 Wilddog_Node_T * WD_SYSTEM wilddog_node_clone(const Wilddog_Node_T *node)
 {
-    Wilddog_Node_T *p_snapshot;
-    Wilddog_Node_T *tmp;
-    int len;
+    Wilddog_Node_T *p_snapshot = NULL;
+    Wilddog_Node_T *tmp = NULL;
+    int len = 0;
+    
     if(!node)
         return NULL;
     p_snapshot = _wilddog_node_new();
+
+    if(p_snapshot == NULL)
     {
-        
-        if(p_snapshot == NULL)
-        {
-            wilddog_debug_level( WD_DEBUG_ERROR, \
-                "could not clone the node");
+        wilddog_debug_level( WD_DEBUG_ERROR, \
+            "could not clone the node");
 
-            return NULL;
-        }
-
-        if(node->p_wn_key != NULL)
-        {
-            len = strlen((const char *)node->p_wn_key);
-            p_snapshot->p_wn_key = wmalloc(len + 1);
-            if(p_snapshot->p_wn_key == NULL)
-                return NULL;
-            memcpy(p_snapshot->p_wn_key, node->p_wn_key, len);
-            p_snapshot->d_wn_len = node->d_wn_len;
-        }
-
-        if(node->p_wn_value != NULL)
-        {
-            len = node->d_wn_len; 
-            p_snapshot->p_wn_value = wmalloc(len + 1);
-            if(p_snapshot->p_wn_value == NULL)
-                return NULL;
-            memcpy(p_snapshot->p_wn_value, node->p_wn_value, len);
-            p_snapshot->d_wn_len = node->d_wn_len;
-        }
-
-        p_snapshot->d_wn_type = node->d_wn_type;
-        if(node->p_wn_child)
-        {
-            tmp =  wilddog_node_clone(node->p_wn_child);
-            p_snapshot->p_wn_child = tmp;
-            tmp->p_wn_parent = p_snapshot;
-        }
-        if(node->p_wn_next)
-        {
-            tmp = wilddog_node_clone(node->p_wn_next);
-            p_snapshot->p_wn_next = tmp;
-            tmp->p_wn_prev = p_snapshot;
-        }
-        return p_snapshot;  
+        return NULL;
     }
+
+    if(node->p_wn_key != NULL)
+    {
+        len = strlen((const char *)node->p_wn_key);
+        p_snapshot->p_wn_key = wmalloc(len + 1);
+        if(p_snapshot->p_wn_key == NULL)
+            return NULL;
+        memcpy(p_snapshot->p_wn_key, node->p_wn_key, len);
+    }
+
+    if(node->p_wn_value != NULL)
+    {
+        len = node->d_wn_len; 
+        p_snapshot->p_wn_value = wmalloc(len + 1);
+        if(p_snapshot->p_wn_value == NULL)
+            return NULL;
+        memcpy(p_snapshot->p_wn_value, node->p_wn_value, len);
+    }
+    
+    p_snapshot->d_wn_len = node->d_wn_len;
+    p_snapshot->d_wn_type = node->d_wn_type;
+    if(node->p_wn_child)
+    {
+        Wilddog_Node_T *newCurrent = NULL;
+        Wilddog_Node_T *oldCurrent = NULL;
+        tmp = wilddog_node_clone(node->p_wn_child);
+        p_snapshot->p_wn_child = tmp;
+        tmp->p_wn_parent = p_snapshot;
+        oldCurrent = node->p_wn_child;
+        newCurrent = p_snapshot->p_wn_child;
+        while(oldCurrent->p_wn_next)
+        {
+            tmp = wilddog_node_clone(oldCurrent->p_wn_next);
+            newCurrent->p_wn_next = tmp;
+            tmp->p_wn_parent = p_snapshot;
+            tmp->p_wn_prev= newCurrent;
+            newCurrent = tmp;
+            oldCurrent = oldCurrent->p_wn_next;
+        }
+    }
+
+    return p_snapshot;
 }
 

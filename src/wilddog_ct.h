@@ -27,7 +27,18 @@ typedef enum WILDDOG_API_CMDS
     WILDDOG_APICMD_ON,
     WILDDOG_APICMD_OFF,
     WILDDOG_APICMD_GETKEY,
+    WILDDOG_APICMD_GETHOST,
+    WILDDOG_APICMD_GETPATH,
+    
+    WILDDOG_APICMD_DISCONN_SET,
+    WILDDOG_APICMD_DISCONN_PUSH,
+    WILDDOG_APICMD_DISCONN_RMV,
+    WILDDOG_APICMD_DISCONN_CANCEL,
+    WILDDOG_APICMD_GOOFFLINE,
+    WILDDOG_APICMD_GOONLINE,
+
     WILDDOG_APICMD_SYNC,
+    
     WILDDOG_APICMD_MAXCMD
 }Wilddog_Api_Cmd_T;
 
@@ -99,6 +110,7 @@ typedef struct WILDDOG_REPO_T
 typedef struct WILDDOG_REPO_CONTAINER_T
 {
     Wilddog_Repo_T *p_rc_head;
+    u32 d_rc_online;
 }Wilddog_Repo_Con_T;
 
 extern size_t _wilddog_ct_ioctl
@@ -109,7 +121,9 @@ extern size_t _wilddog_ct_ioctl
     );
 extern Wilddog_Repo_T *_wilddog_ct_findRepo(Wilddog_Str_T * p_host);
 extern u8 _wilddog_ct_getRepoNum(void);
-
+extern u32 _wilddog_ct_getOnlineStatus(void);
+extern Wilddog_Return_T _wilddog_ct_setOnlineStatus(u32 s);
+extern Wilddog_Repo_T** _wilddog_ct_getRepoHead(void);
 #ifdef __cplusplus
 }
 #endif
