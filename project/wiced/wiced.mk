@@ -4,7 +4,7 @@ WILDDOG_TOP_DIR := ../../
 
 #app layer protocol, such as coap
 APP_PROTO_TYPE=coap
-#security method, such as mbedtls/nosec/tinydtls
+#security method, such as nosec/tinydtls
 APP_SEC_TYPE=nosec
 
 PORT_TYPE=wiced
