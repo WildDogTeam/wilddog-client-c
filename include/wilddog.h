@@ -36,7 +36,7 @@ extern "C"
 #define WD_DEBUG_ERROR  3
 #define WD_DEBUG_NODBG  4
 
-#ifdef WILDDOG_PORT_TYPE_ESP	
+#ifdef WILDDOG_PORT_TYPE_ESP    
 #include "wilddog_espressif.h"
 #define FAR ICACHE_FLASH_ATTR
 #define WD_SYSTEM FAR
@@ -221,6 +221,7 @@ typedef void (*onPushFunc)
 typedef onSetFunc onRemoveFunc;
 typedef onSetFunc onAuthFunc;
 typedef onQueryFunc onEventFunc;
+typedef onSetFunc onDisConnectFunc;
 
 typedef size_t Wilddog_T;
 

@@ -20,15 +20,23 @@
  
 
 /* test url*/
+#ifndef TEST_URL
 #define TEST_URL         "coap://<your appid1>.wilddogio.com"
-
+#endif
 /* used in test_multipleHost.c to Test performance while accessing  multiple url the same time.*/
+#ifndef TEST_URL2
 #define TEST_URL2         "coap://<your appid2>.wilddogio.com"
+#endif
+#ifndef TEST_URL3
 #define TEST_URL3         "coap://<your appid3>.wilddogio.com"
-
+#endif
+#ifndef TEST_URL4
+#define TEST_URL4         "coap://<your appid4>.wilddogio.com"
+#endif
 /* Used in test_step.c to test set auth  */
-#define TEST_AUTH 	"yourauth"
-
+#ifndef TEST_AUTH
+#define TEST_AUTH   "yourauth"
+#endif
 
 
 #endif /* #ifdef WILDDOG_SELFTEST */ 

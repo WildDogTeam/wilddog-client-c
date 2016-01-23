@@ -88,10 +88,10 @@ int demo(char* url, int* isUnConnected)
     wilddog_addObserver(wilddog, WD_ET_VALUECHANGE,test_onQueryFunc, 0);
     while(1)
     {
-		if(*isUnConnected)
-		{
-			wilddog_debug("wlan off!");
-		}
+        if(*isUnConnected)
+        {
+            wilddog_debug("wlan off!");
+        }
 
         wilddog_trySync();
     }

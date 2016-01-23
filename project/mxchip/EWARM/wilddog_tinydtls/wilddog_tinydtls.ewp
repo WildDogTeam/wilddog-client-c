@@ -171,7 +171,6 @@
           <state>USE_STDPERIPH_DRIVER</state>
           <state>DEBUG</state>
           <state>WILDDOG_PORT_TYPE_MXCHIP</state>
-          <state>WILDDOG_SELFTEST</state>
           <state>WILDDOG_PORT=5684</state>
         </option>
         <option>
@@ -2294,6 +2293,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\..\..\src\wilddog_conn.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\src\wilddog_conn_manage.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\..\..\src\wilddog_ct.c</name>

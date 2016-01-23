@@ -1,8 +1,8 @@
 /*
- * wilddog_wiced.c
+ * wilddog_mxchip.c
  *
  *  Created on: 2015-11-11 -- Baikal.Hu
- *				
+ *              
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,9 +54,8 @@ int wilddog_gethostbyname( Wilddog_Address_T* addr, char* host )
 */
 int wilddog_openSocket( int* socketId )
 {
-    int fd;
-    struct sockaddr_t addr;
-    int ret;
+    int fd = -1;
+
     if ((fd = socket(AF_INET,  SOCK_DGRM, IPPROTO_UDP)) < 0) {
         printf("cannot create socket");
         return -1;
@@ -107,7 +106,7 @@ int wilddog_send
 
     socketId -= SOCKET_NUMBER;
 #if WILDDOG_SELFTEST
-		performtest_getDtlsSendTime();
+        performtest_getDtlsSendTime();
 #endif
 
     wilddog_debug_level(WD_DEBUG_LOG, "addr_in->port = %d, ip = %u.%u.%u.%u\n", addr_in->port, addr_in->ip[0], \
@@ -137,7 +136,6 @@ int wilddog_send
 */
 int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s32 timeout)
 {
-        int ret = 0;
         int fd;
         struct sockaddr_t remaddr;
         memset((char*)&remaddr, 0, sizeof(remaddr));
@@ -150,7 +148,7 @@ int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s
         time = timeout;
 
         fd=socketId - SOCKET_NUMBER;
-        ret = setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&time,sizeof(struct timeval_t));
+        setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char *)&time,sizeof(struct timeval_t));
         recvlen = recvfrom(fd, buf, bufLen, 0, &remaddr, &addrlen);
         inet_ntoa( ip_address, remaddr.s_ip );
 
@@ -165,7 +163,7 @@ int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s
           ((remaddr.s_ip >> 24) & 0xff == addr->ip[0])|| \
           (remaddr.s_port) != addr->port)
        {
-           wilddog_debug("ip or port not match!");
+           wilddog_debug_level(WD_DEBUG_WARN,"ip or port not match!");
             return -1;
        }
         

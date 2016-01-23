@@ -133,6 +133,29 @@ static int has_getrandom = -1;
 #endif /* SYS_getrandom */
 #endif /* __linux__ */
 
+#if defined(WILDDOG_PORT_TYPE_WICED)
+#include "wiced.h"
+#include "wilddog.h"
+int mbedtls_platform_entropy_poll( 
+	void *data, 
+	unsigned char *output, 
+	size_t len,
+    size_t *olen )
+{
+	int i;
+	wiced_time_t time;
+	wiced_time_get_time(&time);
+	srand(time & 0x3ff);
+	for(i =0; i < len; i++)
+	{
+		*(unsigned char*)(output + i) = 0xff & rand();
+	}
+	*olen = len;
+	return 0;
+}
+
+#else
+
 #include <stdio.h>
 
 int mbedtls_platform_entropy_poll( void *data,
@@ -176,6 +199,7 @@ int mbedtls_platform_entropy_poll( void *data,
 
     return( 0 );
 }
+#endif /* WILDDOG_PORT_TYPE_WICED end */ 
 #endif /* _WIN32 && !EFIX64 && !EFI32 */
 #endif /* !MBEDTLS_NO_PLATFORM_ENTROPY */
 

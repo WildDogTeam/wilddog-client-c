@@ -73,7 +73,7 @@ Wilddog_T wilddog_initWithUrl(Wilddog_Str_T *url)
 */
 Wilddog_Return_T wilddog_destroy(Wilddog_T *p_wilddog)
 {
-    wilddog_assert(p_wilddog, 0);
+    wilddog_assert(p_wilddog, WILDDOG_ERR_NULL);
 
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_DESTROYREF, \
                                                p_wilddog,0);
@@ -210,8 +210,9 @@ Wilddog_Return_T wilddog_setValue
  * Function:    wilddog_push
  * Description: Push the data of the client to server.
  * Input:       wilddog: Id of the client.
- *              p_node: a point to node(Wilddog_Node_T structure), you can 
- *                      create a node tree by call node APIs.
+ *              p_node: a point to node(Wilddog_Node_T structure), you can
+ *                      create a node tree by call node APIs, can free after
+ *                      this function.
  *              callback: the callback function called when the server returns 
  *                      a response or send fail.
  *              args: the arg defined by user, if you do not need, can be NULL.
@@ -398,6 +399,196 @@ Wilddog_Str_T *wilddog_getKey(Wilddog_T wilddog)
     wilddog_assert(wilddog, NULL);
 
     return (Wilddog_Str_T *)_wilddog_ct_ioctl(WILDDOG_APICMD_GETKEY, \
-                                                (void*)wilddog,0);
+                                              (void*)wilddog, 0);
 }
 
+/*
+ * Function:    wilddog_getHost
+ * Description: Get the client's host.
+ * Input:       wilddog: Id of the client.
+ * Output:      N/A
+ * Return:      a pointer point to a host string(should be freed by user),
+ *              like "aaa.wilddogio.com" .
+ * Others:      N/A
+*/
+Wilddog_Str_T *wilddog_getHost(Wilddog_T wilddog)
+{
+    wilddog_assert(wilddog, NULL);
+
+    return (Wilddog_Str_T *)_wilddog_ct_ioctl(WILDDOG_APICMD_GETHOST, \
+                                              (void*)wilddog, 0);
+}
+
+/*
+ * Function:    wilddog_getPath
+ * Description: Get the client's path.
+ * Input:       wilddog: Id of the client.
+ * Output:      N/A
+ * Return:      a pointer point to a path string(should be freed by user),
+ *              like "/a/b/c" .
+ * Others:      N/A
+*/
+Wilddog_Str_T *wilddog_getPath(Wilddog_T wilddog)
+{
+    wilddog_assert(wilddog, NULL);
+
+    return (Wilddog_Str_T *)_wilddog_ct_ioctl(WILDDOG_APICMD_GETPATH, \
+                                              (void*)wilddog, 0);
+}
+
+/*
+ * Function:    wilddog_onDisconnectSetValue
+ * Description: Set the device's disconnect action to cloud, when the device is 
+ *              offline, the value will be set to the cloud.
+ * Input:       wilddog: the client id.
+ *              p_node: a point to node(Wilddog_Node_T structure), you can
+ *                      create a node tree by call node APIs, can free after
+ *                      this function.
+ *              callback: the callback function called when the server returns 
+ *                      or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
+Wilddog_Return_T wilddog_onDisconnectSetValue
+    (
+    Wilddog_T wilddog, 
+    Wilddog_Node_T *p_node, 
+    onDisConnectFunc callback, 
+    void* arg
+    )
+{
+    Wilddog_Arg_Set_T args;
+    
+    wilddog_assert(wilddog, WILDDOG_ERR_NULL);
+    
+    args.p_ref = wilddog;
+    args.p_node = p_node;
+    args.p_callback = (Wilddog_Func_T)callback;
+    args.arg = arg;
+    
+    return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_DISCONN_SET, \
+                                               &args,0);
+}
+
+/*
+ * Function:    wilddog_onDisconnectPush
+ * Description: Set the device's disconnect action to cloud, when the device is 
+ *              offline, the value will be push to the cloud.
+ * Input:       wilddog: the client id.
+ *              p_node: a point to node(Wilddog_Node_T structure), you can
+ *                      create a node tree by call node APIs, can free after
+ *                      this function.
+ *              callback: the callback function called when the server returns 
+ *                        or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
+Wilddog_Return_T wilddog_onDisconnectPush
+    (
+    Wilddog_T wilddog, 
+    Wilddog_Node_T *p_node, 
+    onDisConnectFunc callback, 
+    void* arg
+    )
+{
+    Wilddog_Arg_Push_T args;
+    
+    wilddog_assert(wilddog, WILDDOG_ERR_NULL);
+    
+    args.p_ref = wilddog;
+    args.p_node = p_node;
+    args.p_callback = (Wilddog_Func_T)callback;
+    args.arg = arg;
+    
+    return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_DISCONN_PUSH, \
+                                               &args,0);
+}
+
+/*
+ * Function:    wilddog_onDisconnectRemoveValue
+ * Description: Set the device's disconnect action to cloud, when the device is 
+ *              offline, the value will be push to the cloud.
+ * Input:       wilddog:  Id of the client.
+ *              callback: the callback function called when the server returns 
+ *                        or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
+Wilddog_Return_T wilddog_onDisconnectRemoveValue
+    (
+    Wilddog_T wilddog, 
+    onDisConnectFunc callback, 
+    void* arg
+    )
+{
+    Wilddog_Arg_Remove_T args;
+    
+    wilddog_assert(wilddog, WILDDOG_ERR_NULL);
+    
+    args.p_ref = wilddog;
+    args.p_callback = (Wilddog_Func_T)callback;
+    args.arg = arg;
+    
+    return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_DISCONN_RMV, \
+                                               &args,0);
+}
+
+/*
+ * Function:    wilddog_cancelDisconnectOperations
+ * Description: Cancel the wilddog client's disconnect actions.
+ * Input:       wilddog:  Id of the client.
+ *              callback: the callback function called when the server returns 
+ *                        or send fail.
+ *              args: the arg defined by user, if you do not need, can be NULL.
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
+Wilddog_Return_T wilddog_cancelDisconnectOperations
+    (
+    Wilddog_T wilddog, 
+    onDisConnectFunc callback, 
+    void* arg
+    )
+{
+    Wilddog_Arg_Remove_T args;
+    
+    wilddog_assert(wilddog, WILDDOG_ERR_NULL);
+    
+    args.p_ref = wilddog;
+    args.p_callback = (Wilddog_Func_T)callback;
+    args.arg = arg;
+    
+    return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_DISCONN_CANCEL, \
+                                               &args,0);
+}
+/*
+ * Function:    wilddog_goOffline
+ * Description: let the device offline.
+ * Input:       N/A
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
+Wilddog_Return_T wilddog_goOffline(void)
+{
+    return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_GOOFFLINE, NULL,0);      
+}
+/*
+ * Function:    wilddog_goOnline
+ * Description: let the device online.
+ * Input:       N/A
+ * Output:      N/A
+ * Return:      0 means success , others fail.
+ * Others:      N/A
+*/
+Wilddog_Return_T wilddog_goOnline(void)
+{
+    return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_GOONLINE, NULL,0);      
+}

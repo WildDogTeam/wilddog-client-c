@@ -91,9 +91,15 @@ int wilddog_closeSocket(int socketId)
  *                  tosend: The pointer of the send buffer
  *                  tosendLength: The length of the send buffer.
  * Output:      N/A
- * Return:      If success, return the number of characters sent.; else return -1.
+ * Return:      If success, return the sended number. else return -1.
 */
-int wilddog_send(int socketId,Wilddog_Address_T* addr_in,void* tosend,s32 tosendLength)
+int wilddog_send
+    (
+    int socketId,
+    Wilddog_Address_T* addr_in,
+    void* tosend,
+    s32 tosendLength
+    )
 {
     int ret;
     struct sockaddr_in servaddr;    /* server address */
@@ -109,14 +115,19 @@ int wilddog_send(int socketId,Wilddog_Address_T* addr_in,void* tosend,s32 tosend
     servaddr.sin_port = wilddog_htons(addr_in->port);
     memcpy(&servaddr.sin_addr.s_addr,addr_in->ip,addr_in->len);
 #if WILDDOG_SELFTEST
-		performtest_getDtlsSendTime();
+        performtest_getDtlsSendTime();
 #endif
 
-    wilddog_debug_level(WD_DEBUG_LOG, "addr_in->port = %d, ip = %u.%u.%u.%u\n", addr_in->port, addr_in->ip[0], \
-        addr_in->ip[1], addr_in->ip[2], addr_in->ip[3]);
-    if((ret = sendto(socketId, tosend, tosendLength, 0, (struct sockaddr *)&servaddr,
-             sizeof(servaddr)))<0){
-        perror("sendto failed");
+    wilddog_debug_level(WD_DEBUG_LOG, \
+                        "addr_in->port = %d, ip = %u.%u.%u.%u\n", \
+                        addr_in->port, addr_in->ip[0], \
+                        addr_in->ip[1], addr_in->ip[2], \
+                        addr_in->ip[3]);
+    if((ret = sendto(socketId, tosend, tosendLength, 0, 
+                      (struct sockaddr *)&servaddr,
+                      sizeof(servaddr)))<0)
+    {
+        wilddog_debug_level(WD_DEBUG_WARN, "sendto failed");
         return -1;
     }
     return ret;
@@ -133,7 +144,15 @@ int wilddog_send(int socketId,Wilddog_Address_T* addr_in,void* tosend,s32 tosend
  * Output:      N/A
  * Return:      If success, return the number of bytes received; else return -1.
 */
-int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s32 timeout){
+int wilddog_receive
+    (
+    int socketId,
+    Wilddog_Address_T* addr,
+    void* buf,
+    s32 bufLen, 
+    s32 timeout
+    )
+{
     struct sockaddr_in remaddr;
     socklen_t addrlen = sizeof(remaddr);
     int recvlen;
@@ -141,9 +160,11 @@ int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s
     tv.tv_sec = 0;
     tv.tv_usec = timeout*1000;
 
-    setsockopt(socketId, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval));
+    setsockopt(socketId, SOL_SOCKET, SO_RCVTIMEO, \
+               (char *)&tv,sizeof(struct timeval));
 
-    recvlen = recvfrom(socketId, buf, bufLen, 0, (struct sockaddr *)&remaddr, &addrlen);
+    recvlen = recvfrom(socketId, buf, bufLen, 0, \
+                       (struct sockaddr *)&remaddr, &addrlen);
     if(recvlen < 0)
     {
         return -1;
@@ -154,11 +175,16 @@ int wilddog_receive(int socketId,Wilddog_Address_T* addr,void* buf,s32 bufLen, s
         wilddog_debug("ip or port not match!");
         return -1;
     }
+    else
+    {
+        wilddog_debug_level(WD_DEBUG_LOG, "received %d packet",recvlen);
+    }
 #if WILDDOG_SELFTEST
-	{
-		performtest_getWaitSessionQueryTime();
-		performtest_getWaitRecvTime();
-	}
+    {
+        performtest_getWaitSessionQueryTime();
+        performtest_getWaitRecvTime();
+    }
 #endif
     return recvlen;
 }
+

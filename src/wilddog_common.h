@@ -18,6 +18,8 @@ extern u8 _wilddog_isAuthValid(Wilddog_Str_T * auth, int len);
 extern void INLINE _wilddog_setTimeIncrease(u32 ms);
 extern void _wilddog_syncTime(void);
 extern u32 _wilddog_getTime(void);
+extern char* WD_SYSTEM _wilddog_strchar(const char *s1,const char c);
+extern char* WD_SYSTEM _wilddog_strstr(const char *s1,const char *s2);
 
 #ifdef __cplusplus
 }

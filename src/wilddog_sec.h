@@ -22,7 +22,12 @@ extern Wilddog_Return_T _wilddog_sec_init
     u16 d_port
     );
 extern Wilddog_Return_T _wilddog_sec_deinit(void);
-
+extern Wilddog_Return_T _wilddog_sec_reconnect
+    (
+    Wilddog_Str_T *p_host,
+    u16 d_port,
+    int retryNum
+    );
 #ifdef __cplusplus
 }
 #endif

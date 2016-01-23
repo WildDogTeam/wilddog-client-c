@@ -127,7 +127,7 @@ int application_start( void )
     OSStatus err = kNoErr;
     network_InitTypeDef_adv_st  wNetConfigAdv={0};
     IPStatusTypedef outNetpara;
-    char ipstr[16];
+
     MicoInit( );
   
     mico_rtos_init_semaphore( &wait_sem,1 );

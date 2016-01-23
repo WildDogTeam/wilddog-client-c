@@ -241,20 +241,15 @@ STATIC void stab_trysync(void)
 
 }
 
-int stab_oneCrcuRequest(void) 
+int stab_oneCrcuRequest(Wilddog_T client) 
 {
 	int res = 0;
 	BOOL otherFinish = FALSE,onFinish = FALSE;
 	BOOL *p_finish = &onFinish;
-    Wilddog_T client = 0;
     STABTEST_CMD_TYPE cmd = STABTEST_CMD_ON;
-    
-    
 
 	/* mark star time*/
 	stab_set_runtime();
-    /*Init a wilddog client*/
-    client = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
 	stab_get_requestRes(stabtest_request(cmd,client,p_finish));
 
     while(1)
@@ -276,9 +271,6 @@ int stab_oneCrcuRequest(void)
         }
         stab_trysync();
     }
-    /*Destroy the wilddog clent and release the memory*/
-    res = wilddog_destroy(&client);
-
     return res;
 }
 
@@ -322,14 +314,26 @@ void stab_resultPrint(void)
 	return;
 }
 void stab_test_cycle(void)
-{
+{ 
+    Wilddog_T client = 0;
 	ramtest_init(1,1);
 	stab_titlePrint();
+    /*Init a wilddog client*/
+    client = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
+    if(client == 0)
+    {
+        printf("wilddog_initWithUrl error \n");
+        return ;
+    }
 	while(1)
 	{
-		stab_oneCrcuRequest();
+		stab_oneCrcuRequest(client);
 		stab_resultPrint();
 	}
+    
+    /*Destroy the wilddog clent and release the memory*/
+    wilddog_destroy(&client);
+    
 	stab_endPrint();
 }
 

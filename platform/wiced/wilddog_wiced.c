@@ -2,7 +2,7 @@
  * wilddog_wiced.c
  *
  *  Created on: 2015-6-15 -- jimmy.pan
- *				
+ *              
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -287,8 +287,8 @@ int wilddog_receive
                 {
                     wilddog_debug_level(WD_DEBUG_ERROR, \
                         "get next fragment err! %d lost!", total);
-					if(receive)
-	                    wiced_packet_delete( receive );
+                    if(receive)
+                        wiced_packet_delete( receive );
                     return -1;
                 }
                 if ( NULL == receive )
@@ -310,8 +310,7 @@ int wilddog_receive
     {
         wilddog_debug_level(WD_DEBUG_LOG, "result = %d",result);
     }
-    /*if(receive)
-        wiced_packet_delete( receive );*/
+
     return 0;
 }
 

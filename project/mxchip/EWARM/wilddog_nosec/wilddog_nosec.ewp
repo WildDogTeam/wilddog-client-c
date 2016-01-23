@@ -171,7 +171,6 @@
           <state>USE_STDPERIPH_DRIVER</state>
           <state>DEBUG</state>
           <state>WILDDOG_PORT_TYPE_MXCHIP</state>
-          <state>WILDDOG_SELFTEST</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -329,6 +328,8 @@
           <state>$PROJ_DIR$\..\..\..\..\src</state>
           <state>$PROJ_DIR$\..\..\..\..\src\networking\coap</state>
           <state>$PROJ_DIR$\..\..\..\..\platform\mxchip</state>
+          <state>$PROJ_DIR$\..\..\..\..\examples\mxchip</state>
+          <state>$PROJ_DIR$\..\..\..\..\..\Platform\Drivers</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -2188,6 +2189,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\..\..\src\wilddog_conn.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\..\..\src\wilddog_conn_manage.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\..\..\src\wilddog_ct.c</name>

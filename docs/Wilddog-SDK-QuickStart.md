@@ -1,6 +1,6 @@
 ####第一步 创建账号和应用
 
-首先[**注册**](https://www.wilddog.com/account/signup)并登录Wilddog账号，进入控制面板。在控制面板中，添加一个新的应用。
+首先[**注册**](https://www.wilddog.com/account/signup)并登录WildDog账号，进入控制面板。在控制面板中，添加一个新的应用。
 
 你会获得一个独一无二的应用URL https://<appId>.wilddogio.com/，在同步和存取数据的时候，我们将使用这个URL。
 
@@ -8,7 +8,7 @@
 
 获得 SDK，你可以从gitHub中下载。
 
-我们的SDK已经在Linux平台和Wiced平台、espressif平台上成功移植，在此仅以Linux为例，其他平台请查看对应的Wilddog-Porting-xxx-User-Manual.md。
+我们的SDK已经在Linux平台和WICED平台、Espressif平台、庆科MICO平台上成功移植，在此仅以Linux为例，其他平台请查看对应的Wilddog-Porting-xxx-User-Manual.md。
 
 ####第三步 编译SDK
 
