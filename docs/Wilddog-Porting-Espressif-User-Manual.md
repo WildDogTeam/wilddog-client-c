@@ -1,3 +1,10 @@
+
+SDK在esp\_iot\_sdk\_v1.2.0上测试通过，以esp\_iot\_sdk\_v1.2.0为例进行说明，其他版本可以参考该说明。
+
+#### 下载esp\_iot\_sdk\_v1.2.0
+
+下载地址：http://bbs.espressif.com/viewtopic.php?f=5&t=734%E4%B8%8B%E8%BD%BD
+
 #### 为esp\_iot\_sdk\_v1.2.0打patch
 
 首先将wilddog\-client\-c拷贝到esp\_iot\_sdk\_v1.2.0根目录下,此时的目录结构如下：
@@ -14,9 +21,13 @@
 	├── tools
 	└── wilddog-client-c
 
+注意：从网页下载时，解压后sdk文件夹名字为wilddog\-client\-c\-master，将之修改为wilddog\-client\-c。
 
-为esp\_iot\_sdk\_v1.2.0添加patch：
 
+从esp sdk根目录下开始，为esp\_iot\_sdk\_v1.2.0添加patch：
+
+	$pwd
+	/home/espressif/esp_iot_sdk_v1.2.0
 	$ cp wilddog-client-c/platform/espressif/esp.patch ./include/
 	$ cd ./include/
 	$ patch -p0 < esp.patch
@@ -52,7 +63,7 @@
 
 接着将Wilddog SDK的示例程序拷贝到esp平台下，在app目录下编译示例程序:
 
-	$ cd app/
+	$ cd ../app/
 	$ cp ../wilddog-client-c/examples/espressif/* . -rf
 	$ ./gen_misc.sh
 
@@ -61,3 +72,10 @@
 #### 建立自己的Demo程序
 
 请参考wilddog\-client\-c/examples/espressif的目录结构和Makefile写法。如果有多个子目录，请在Makefile中修改SUBDIRS变量。另外，请注意Makefile中的INCLUDES变量，需要添加wilddog\-client\-c下的路径。
+
+注意：
+
+1. 在esp\_iot\_sdk\_v1.5.0版本，需要对wilddog\-client\-c/examples/espressif/Makefile进行修改，在`LINKFLAGS_eagle.app.v6`变量中增加`-lcrypto`，否则可能出现找不到函数的情况；
+
+2. esp sdk不要放在共享文件夹下编译，否则可能出现循环编译`user_main.c`的问题。
+ 
