@@ -145,6 +145,8 @@ typedef enum WILDDOG_RETURN_T
     WILDDOG_ERR_RECVTIMEOUT = -10,
     WILDDOG_ERR_RECVNOMATCH = -11,
     WILDDOG_ERR_CLIENTOFFLINE = -12,
+    WILDDOG_ERR_RECONNECT = -13,
+    
 /*****************HTTP return error******************/
     WILDDOG_HTTP_OK = 200,
     WILDDOG_HTTP_CREATED = 201,

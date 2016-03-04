@@ -98,9 +98,10 @@ typedef struct WILDDOG_CM_NODE_T{
     struct WILDDOG_CM_NODE_T *next;
 
     
+	u8 reObserver_flg;
     u8 d_nodeType;
-    u8 d_retransmit_cnt;  
-    u16 _reserve;
+    u8 d_retransmit_cnt; 
+    u8 _reserve;
 }Wilddog_CM_Node_T;
 
 typedef struct WILDDOG_CM_LIST_T
