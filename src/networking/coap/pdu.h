@@ -149,20 +149,20 @@ typedef int coap_tid_t;
 
 #ifdef WORDS_BIGENDIAN
 typedef struct {
-  unsigned int version:2;   /* protocol version */
-  unsigned int type:2;      /* type flag */
-  unsigned int token_length:4;  /* length of Token */
-  unsigned int code:8;          /* request method (value 1--10) or response code (value 40-255) */
+  unsigned short version:2;   /* protocol version */
+  unsigned short type:2;      /* type flag */
+  unsigned short token_length:4;  /* length of Token */
+  unsigned short code:8;          /* request method (value 1--10) or response code (value 40-255) */
   unsigned short id;        /* message id */
   unsigned char token[];    /* the actual token, if any */
 } coap_hdr_t;
 #else
 
 typedef struct {
-  unsigned int token_length:4;
-  unsigned int type:2;
-  unsigned int version:2;
-  unsigned int code:8;
+  unsigned short token_length:4;
+  unsigned short type:2;
+  unsigned short version:2;
+  unsigned short code:8;
   unsigned short id;
   unsigned char token[];
 } coap_hdr_t;

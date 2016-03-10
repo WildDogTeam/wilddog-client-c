@@ -72,8 +72,10 @@
 #define _CM_SYS_STEP_SEC    ( 10 )
 #define _CM_SYS_INTERVALINIT_SEC (20 )   
 #define _CM_SYS_KEEPOFFLINE     (3)
+#define _CM_SYS_PINGRETRACETIME_SEC	(10)
 #define _CM_SYS_OFFLINE_PINGTM_SEC (3*60)
 #define _CM_SYS_SERVER_KEEPSESSION_SEC   (170)
+#define _CM_SYS_PING_INTERVAL_MIN_SEC	(10)
 #define _CM_SYS_PING_INTERVAL_MAX_SEC ((_CM_SYS_SERVER_KEEPSESSION_SEC) - \
                             (WILDDOG_RETRANSMITE_TIME/(_CM_MS)))
 
@@ -249,6 +251,8 @@ STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat
     if( p_arg->cmd == WILDDOG_CONN_CBCMD_ON)
     {
         p_newNode->d_nodeType = CM_NODE_TYPE_OBSERVER;
+	
+        p_newNode->reObserver_flg = FALSE;
         p_newNode->d_subscibe_index = 0;
     }
 
@@ -592,7 +596,6 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_handle_on
         {
             return WILDDOG_ERR_NOERR;
         }
-
         /* call user call back.*/
         if( p_cm_recvArg->f_user_callback || \
             p_l_cmControl->f_cn_callBackHandle)
@@ -611,6 +614,12 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_handle_on
             p_recv->d_isObserver == TRUE && \
             p_recv->d_observerIndx > p_cm_n->d_subscibe_index)
         {
+        	/*reobserver call back */
+			if(p_cm_n->reObserver_flg == TRUE)
+			{
+				p_cm_n->reObserver_flg = FALSE;
+				p_cm_recvArg->err = WILDDOG_ERR_RECONNECT;
+			}
              /* call user call back.*/
             if( p_cm_recvArg->f_user_callback || \
                 p_l_cmControl->f_cn_callBackHandle)
@@ -907,6 +916,10 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_reOnline(void)
             {
                 if(curr_n->d_nodeType == CM_NODE_TYPE_OBSERVER)
                 {
+                	/* have been notify..*/
+					if(curr_n->d_subscibe_index)
+						curr_n->reObserver_flg = TRUE;
+					
                     /*reset observer index.*/
                     curr_n->d_subscibe_index = 0;
                     _wilddog_cm_authSend(curr_repo->p_rp_conn->p_cm_l,curr_n);    
@@ -1047,8 +1060,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_maintian
 {
     if( p_cm_l &&
         p_cm_l->d_authStatus == CM_SESSION_DOAUTH)
-       return _wilddog_cm_sessionInit(p_cm_l);
-    else 
+    	{
+			p_l_cmControl->d_cm_onlineEvent = _CM_EVENT_TYPE_REONLINE;
+	       	return _wilddog_cm_sessionInit(p_cm_l);
+    	}
+	else 
         return WILDDOG_ERR_NOERR;
 }
 /*
@@ -1305,8 +1321,14 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeStepIncrease
                 /*not convergence.*/
                 p_cmsys_n->d_intervalTm -=  p_cmsys_n->d_stepTm;
                 if(p_cmsys_n->d_stepTm == 1)
+                {
                     p_cmsys_n->d_stepTm = 0;
-                else
+					/*  internvaltime retrace retrace.*/
+					if(p_cmsys_n->d_intervalTm > _CM_SYS_PINGRETRACETIME_SEC)
+						p_cmsys_n->d_intervalTm -= _CM_SYS_PINGRETRACETIME_SEC;
+					
+				}
+				else
                     p_cmsys_n->d_stepTm = p_cmsys_n->d_stepTm /2;
             }
             else
@@ -1329,8 +1351,12 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeStepIncrease
         p_cmsys_n->d_stepTm = 0;
         p_cmsys_n->d_intervalTm = _CM_SYS_PING_INTERVAL_MAX_SEC;
     }
+	else 
+		/* mini interval time.*/
+	if( p_cmsys_n->d_intervalTm < _CM_SYS_PING_INTERVAL_MIN_SEC)
+			p_cmsys_n->d_intervalTm = _CM_SYS_PING_INTERVAL_MIN_SEC;
                                     
-    p_cmsys_n->d_ping_registerTm = _wilddog_getTime() + 
+    p_cmsys_n->d_ping_registerTm = _wilddog_getTime() + \
                                    p_cmsys_n->d_intervalTm * _CM_MS;
     
     p_cmsys_n->d_ping_sendTm = p_cmsys_n->d_ping_registerTm;
