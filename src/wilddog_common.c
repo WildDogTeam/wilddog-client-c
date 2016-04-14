@@ -133,7 +133,7 @@ u8 WD_SYSTEM _wilddog_isAuthValid(u8 * auth, int len)
  * Output:      N/A
  * Return:      N/A
 */
-void INLINE WD_SYSTEM _wilddog_setTimeIncrease(u32 ms)
+void WD_SYSTEM _wilddog_setTimeIncrease(u32 ms)
 {
     l_wilddog_currTime += ms;
     return;
