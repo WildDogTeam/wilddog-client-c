@@ -78,7 +78,7 @@ void WD_SYSTEM observe_sync(void *arg)
     else
     {   
         wilddog_trySync();  
-
+        wilddog_increaseTime(1100);//1000为定时器增加的时间1s，100为trySync中阻塞接收的时间WILDDOG_RECEIVE_TIMEOUT (wilddog_config.h中)
         os_timer_setfn(&test_timer2, (os_timer_func_t *)observe_sync, arg);
         
         os_timer_arm(&test_timer2, 1000, 0);        
@@ -99,7 +99,8 @@ void WD_SYSTEM sync(void *arg)
     }
     else
     {   
-        wilddog_trySync();  
+        wilddog_trySync();
+        wilddog_increaseTime(1100);//1000为定时器增加的时间1s，100为trySync中阻塞接收的时间WILDDOG_RECEIVE_TIMEOUT (wilddog_config.h中)
         os_timer_setfn(&test_timer2, (os_timer_func_t *)sync, arg);
         os_timer_arm(&test_timer2, 1000, 0);        
     }
