@@ -107,7 +107,7 @@ typedef double wFloat;
 
 typedef u8 Wilddog_Str_T;
 
-typedef int (*Wilddog_Func_T)();
+typedef size_t (*Wilddog_Func_T)();
 
 #define WILDDOG_NODE_TYPE_FALSE  0
 #define WILDDOG_NODE_TYPE_TRUE   1
