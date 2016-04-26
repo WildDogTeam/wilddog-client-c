@@ -3,7 +3,7 @@ SDK在esp\_iot\_sdk\_v1.2.0上测试通过，以esp\_iot\_sdk\_v1.2.0为例进�
 
 #### 下载esp\_iot\_sdk\_v1.2.0
 
-下载地址：http://bbs.espressif.com/viewtopic.php?f=5&t=734%E4%B8%8B%E8%BD%BD
+下载地址：http://espressif.com/en/products/hardware/esp8266ex/resources
 
 #### 为esp\_iot\_sdk\_v1.2.0打patch
 
