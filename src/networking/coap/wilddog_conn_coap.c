@@ -566,6 +566,23 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_send(void *p_arg,int flag)
 #endif
    return _wilddog_sec_send(p_coap->hdr, p_coap->length);
 }
+
+Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_ping(void *p_arg,int flag)
+{
+    Wilddog_CM_Send_Ping_Arg_T *ping_pkg = (Wilddog_CM_Send_Ping_Arg_T*)p_arg;
+    coap_pdu_t *p_coap = (coap_pdu_t*)(ping_pkg->p_pkg);
+    coap_hdr_t *p_hdr = p_coap->hdr;
+    
+    if(NULL == ping_pkg || NULL == p_coap || NULL == p_hdr)
+        return WILDDOG_ERR_INVALID;
+
+    p_hdr->id = ping_pkg->d_mid;
+    
+    memcpy(p_hdr->token, (u8*)(&(ping_pkg->d_token)), p_hdr->token_length);
+
+    return _wilddog_sec_send(p_coap->hdr, p_coap->length);
+}
+
 /*
  * Function:    _wilddog_recvCoap
  * Description: Verify the receive the coap 
@@ -889,7 +906,7 @@ Wilddog_Func_T _wilddog_protocolPackage_funcTable[_PROTOCOL_CMD_MAX + 1] =
     (Wilddog_Func_T) _wilddog_conn_coap_auth_update,
     (Wilddog_Func_T) _wilddog_coap_send,
     (Wilddog_Func_T) _wilddog_coap_receive,
-    
+    (Wilddog_Func_T) _wilddog_coap_send_ping,
     NULL
 };
 

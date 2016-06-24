@@ -169,6 +169,12 @@ typedef struct PROTOCOL_RECVARG_T{
 	
 }Protocol_recvArg_T;
 
+typedef struct WILDDOG_CM_SEND_PING_ARG_T
+{
+    void* p_pkg;
+    u16 d_mid;
+    u32 d_token;
+}Wilddog_CM_Send_Ping_Arg_T;
 extern size_t WD_SYSTEM _wilddog_cm_ioctl(u8 cmd,void *p_args,int flags);
 
 #endif /* _WILDDOG_CONN_MANAGE_H_ */

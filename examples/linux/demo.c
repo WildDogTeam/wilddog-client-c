@@ -170,9 +170,10 @@ STATIC void addObserver_callback
     )
 {
     *(BOOL*)arg = TRUE;
-    if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
+     if((err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED ) &&
+        err != WILDDOG_ERR_RECONNECT)
     {
-        wilddog_debug("addObserver failed!");
+        wilddog_debug("addObserver failed! error code = %d",err);
         return;
     }
     wilddog_debug("Observe new data!");
@@ -449,6 +450,7 @@ int main(int argc, char **argv)
                               "remove Observer.", cnt, cntmax);
             cnt++;
             isFinish = FALSE;
+#if 1
             if(cnt > cntmax)/*force break when received new data.*/
             {
                 if(type ==  TEST_CMD_ON)
@@ -459,6 +461,7 @@ int main(int argc, char **argv)
                 }
                 break;
             }
+#endif
         }
         /*
          * Handle the event and callback function, it must be called in a 
