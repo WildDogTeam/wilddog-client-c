@@ -145,8 +145,12 @@ typedef enum WILDDOG_RETURN_T
     WILDDOG_ERR_RECVTIMEOUT = -10,
     WILDDOG_ERR_RECVNOMATCH = -11,
     WILDDOG_ERR_CLIENTOFFLINE = -12,
-    WILDDOG_ERR_RECONNECT = -13,
-    
+    WILDDOG_ERR_RECONNECT = -13, 
+    /*
+     * Using auto detect udp session tech, sdk maybe trigger reconnect event in 
+     * first serval minutes, and the snapshot in callback maybe newer than local
+     * , or the same as local.
+    */
 /*****************HTTP return error******************/
     WILDDOG_HTTP_OK = 200,
     WILDDOG_HTTP_CREATED = 201,

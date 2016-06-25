@@ -69,12 +69,12 @@
 #define _CM_SYS_PING_LONGTOKEN_PATH   "/.rst"
 #define _CM_SYS_RECONNECT_TIME  (2)
 
-#define _CM_SYS_STEP_SEC    ( 10 )
+#define _CM_SYS_STEP_SEC    ( 9 )
 #define _CM_SYS_INTERVALINIT_SEC (20 )   
 #define _CM_SYS_KEEPOFFLINE     (3)
 #define _CM_SYS_PINGRETRACETIME_SEC	(10)
 #define _CM_SYS_OFFLINE_PINGTM_SEC (3*60)
-#define _CM_SYS_SERVER_KEEPSESSION_SEC   (170)
+#define _CM_SYS_SERVER_KEEPSESSION_SEC   (168)
 #define _CM_SYS_PING_INTERVAL_MIN_SEC	(10)
 #define _CM_SYS_PING_INTERVAL_MAX_SEC ((_CM_SYS_SERVER_KEEPSESSION_SEC) - \
                             (WILDDOG_RETRANSMITE_TIME/(_CM_MS)))
@@ -597,8 +597,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_handle_on
             return WILDDOG_ERR_NOERR;
         }
         /* call user call back.*/
-        if( p_cm_recvArg->f_user_callback || \
-            p_l_cmControl->f_cn_callBackHandle)
+        if(p_l_cmControl->f_cn_callBackHandle)
         {
             p_l_cmControl->f_cn_callBackHandle(p_cm_recvArg->cmd, \
                                                p_cm_recvArg, \
@@ -621,8 +620,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_handle_on
 				p_cm_recvArg->err = WILDDOG_ERR_RECONNECT;
 			}
              /* call user call back.*/
-            if( p_cm_recvArg->f_user_callback || \
-                p_l_cmControl->f_cn_callBackHandle)
+            if(p_l_cmControl->f_cn_callBackHandle)
             {
                 p_l_cmControl->f_cn_callBackHandle(p_cm_recvArg->cmd,\
                                                    p_cm_recvArg, \
@@ -692,8 +690,7 @@ STATIC int WD_SYSTEM _wilddog_cm_recv_handle
             performtest_getHandleSessionResponTime();
 #endif         
             _wilddog_cm_session_saveToken(&payload,p_cm_l);
-            if( cm_recv.f_user_callback || \
-                p_l_cmControl->f_cn_callBackHandle)
+            if(p_l_cmControl->f_cn_callBackHandle)
             {
                 p_l_cmControl->f_cn_callBackHandle(cm_recv.cmd,&cm_recv,0);
             }
@@ -704,8 +701,7 @@ STATIC int WD_SYSTEM _wilddog_cm_recv_handle
             res = _wilddog_cm_recv_handle_on(p_cm_l,p_cm_n,p_recv,&cm_recv);
             break;
         default:
-            if( cm_recv.f_user_callback || \
-                p_l_cmControl->f_cn_callBackHandle)
+            if(p_l_cmControl->f_cn_callBackHandle)
             {
                 p_l_cmControl->f_cn_callBackHandle(cm_recv.cmd,&cm_recv,0);
             }
@@ -745,7 +741,7 @@ STATIC BOOL WD_SYSTEM _wilddog_cm_recv_findContext
             LL_FOREACH_SAFE(curr_repo->p_rp_conn->p_cm_l->p_cm_n_hd,\
                     curr_cm,temp_cm)
             {
-                if( curr_cm->d_token == p_recv->d_token)
+                if( (curr_cm->d_token & 0xffffffff) == (p_recv->d_token & 0xffffffff))
                 {
                    p_find = curr_cm;
                    p_cm_l = curr_repo->p_rp_conn->p_cm_l;
@@ -756,7 +752,7 @@ STATIC BOOL WD_SYSTEM _wilddog_cm_recv_findContext
         }
     }
     
-    if( p_find)
+    if(p_find)
     {
         _wilddog_cm_recv_handle(p_recv,p_find,p_cm_l);
         return TRUE;
@@ -1529,7 +1525,7 @@ STATIC BOOL WD_SYSTEM _wilddog_cm_sys_findNode
     
     LL_FOREACH_SAFE(p_l_cmControl->p_cmsys_n_hd,curr,tmp)
     {
-        if(curr->d_token == p_recv->d_token)
+        if((curr->d_token & 0xffffffff) == (p_recv->d_token & 0xffffffff))
         {
             _wilddog_cm_sys_recvHandle(p_recv,curr);
             res = TRUE;
@@ -1546,6 +1542,7 @@ STATIC int WD_SYSTEM _wilddog_cm_sys_pingSend
     )
 {
     int res = 0;
+    Wilddog_CM_Send_Ping_Arg_T ping_pkg;
     if(p_cmsys_n->p_ping_pkg == NULL)
     {
         p_cmsys_n->p_ping_pkg = _wilddog_cm_sys_creatPing(p_cmsys_n->p_cm_l, \
@@ -1555,8 +1552,16 @@ STATIC int WD_SYSTEM _wilddog_cm_sys_pingSend
         if(p_cmsys_n->p_ping_pkg == NULL)
             return  WILDDOG_ERR_NULL;
     }
+
+    if(NULL == p_cmsys_n->p_ping_pkg)
+        return -1;
     
-    res = _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND,p_cmsys_n->p_ping_pkg,0);
+    ping_pkg.p_pkg = p_cmsys_n->p_ping_pkg;
+    ping_pkg.d_mid = (u16)_wilddog_cm_cmd_getIndex(NULL, 0);
+    ping_pkg.d_token = (u32) _wilddog_cm_cmd_getToken(NULL, 0);
+    p_cmsys_n->d_token = ping_pkg.d_token;
+    
+    res = _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND_PING, &ping_pkg, 0);
     
     p_cmsys_n->d_ping_sendTm = _CM_NEXTSENDTIME_SET(_wilddog_getTime(), \
                                                     p_cmsys_n->d_sendCnt);

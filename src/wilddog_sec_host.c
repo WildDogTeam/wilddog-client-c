@@ -123,7 +123,7 @@ int WD_SYSTEM _wilddog_sec_getHost
         res = 0;
     }
     p_remoteAddr->port = d_port;
-    
+
 #undef WILDDOG_COAP_LOCAL_HOST
     return res;
 }
