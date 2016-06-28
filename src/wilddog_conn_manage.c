@@ -151,10 +151,6 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_updataSendTime
     Wilddog_CM_Node_T *p_cm_n,
     u32 nextSendTm
     );
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeSkip
-    (
-    Wilddog_Cm_List_T *p_cm_l
-    );
 STATIC BOOL WD_SYSTEM _wilddog_cm_sys_findNode
     (
     Protocol_recvArg_T *p_recv
@@ -256,7 +252,7 @@ STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat
         p_newNode->d_subscibe_index = 0;
     }
 
-    wilddog_debug_level(WD_DEBUG_LOG,"\t##\tcreat cm node : %p \n",p_newNode);
+    wilddog_debug_level(WD_DEBUG_LOG,"conn_manage:: creat cm node : %p \n",p_newNode);
     return p_newNode;
 }
 /*
@@ -276,7 +272,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_destory
         return 0;
 
     p_dele = *pp_dele;
-    wilddog_debug_level(WD_DEBUG_LOG,"\t##\tdestory node :%p",p_dele);
+    wilddog_debug_level(WD_DEBUG_LOG,"conn_manage:: destory node :%p",p_dele);
    
     if(p_dele->p_pkg)
         _wilddog_protocol_ioctl(_PROTOCOL_CMD_DESTORY,(void*)p_dele->p_pkg,0);
@@ -346,7 +342,7 @@ STATIC int WD_SYSTEM   _wilddog_cm_list_destory
     if(p_cm_l == NULL)
         return WILDDOG_ERR_INVALID;
     /* destory cm node hang on this list.*/
-    wilddog_debug_level(WD_DEBUG_LOG,"\t$$ destory list : %p",p_cm_l);
+    wilddog_debug_level(WD_DEBUG_LOG,"conn_manage:: destory repo linked list : %p",p_cm_l);
     if(p_cm_l->p_cm_n_hd)
     {
         Wilddog_CM_Node_T *curr = NULL,*tmp = NULL;
@@ -534,7 +530,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_errorHandle
     /* server error.*/
     if( _CM_RECV_SERVER_ERROR(p_recv->err))
     {
-        wilddog_debug_level(WD_DEBUG_LOG,"CM recv err : %ld",p_recv->err);
+        wilddog_debug_level(WD_DEBUG_LOG,"conn_manage:: receive return code: %ld",p_recv->err);
         /* unauth need to send auth request.*/
         if(p_recv->err == WILDDOG_HTTP_UNAUTHORIZED)
         {
@@ -559,7 +555,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_errorHandle
             _wilddog_cm_sys_setOnLineState(p_cm_l,CM_ONLINE);
         }
         /* normal responds.*/
-        _wilddog_cm_sys_timeSkip(p_cm_l);
+		/* 20160627 : disable,while notify frequently , server need ping package to keep session.*/
+        //_wilddog_cm_sys_timeSkip(p_cm_l);
    }
     
    return WILDDOG_ERR_NOERR;
@@ -875,6 +872,31 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_retransmit
 
     return WILDDOG_ERR_NOERR;
 }
+
+/*
+ * Function:    _wilddog_cm_reonline_send.
+ * Description: send observer.
+ * Input:  N/A.
+ * Output:      N/A.
+ * Return:      Wilddog_Return_T type.
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_reonline_send
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    Wilddog_CM_Node_T *p_send
+    )
+{
+	Wilddog_CM_Send_Ping_Arg_T ping_pkg;  
+	ping_pkg.p_pkg = p_send->p_pkg;
+	ping_pkg.d_mid = (u16)_wilddog_cm_cmd_getIndex(NULL, 0);
+	ping_pkg.d_token = (u32) _wilddog_cm_cmd_getToken(NULL, 0);
+	p_send->d_token = ping_pkg.d_token;
+
+
+	_wilddog_protocol_ioctl( _PROTOCOL_CMD_MODIFY_MIDTOKEN, &ping_pkg, 0);
+
+	return _wilddog_cm_authSend(p_cm_l,p_send);	
+}
 /*
  * Function:    _wilddog_cm_reOnline.
  * Description: system reonline, retransmit observer request.
@@ -918,7 +940,10 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_reOnline(void)
 					
                     /*reset observer index.*/
                     curr_n->d_subscibe_index = 0;
-                    _wilddog_cm_authSend(curr_repo->p_rp_conn->p_cm_l,curr_n);    
+					/* 20160627 UPDATE REGISTER TIME */
+					curr_n->d_registerTm = _wilddog_getTime();
+					_wilddog_cm_reonline_send(curr_repo->p_rp_conn->p_cm_l,curr_n);
+                    //_wilddog_cm_authSend(curr_repo->p_rp_conn->p_cm_l,curr_n);    
                 }
             }
         }
@@ -1367,6 +1392,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeStepIncrease
  * Output:      N/A
  * Return:      Wilddog_Return_T type.
 */
+/* 20160627 : disable,while notify frequently , server need ping package to keep session.*/
+#if 0
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeSkip
     (
     Wilddog_Cm_List_T *p_cm_l
@@ -1390,6 +1417,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeSkip
     else
         return WILDDOG_ERR_NULL;
 }
+#endif
 /*
  * Function:    _wilddog_cm_sys_timeReset
  * Description: ping request lost or server haven't support.
@@ -1476,7 +1504,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_recvHandle
         {
 #if TEST_LINK_LOG_EN 
             
-            wilddog_debug("\t<><>\tre_connect\n");
+            wilddog_debug("\t re_connect session\n");
 #endif
             _wilddog_sec_reconnect( p_cmsys_n->p_cm_l->p_host, \
                                     WILDDOG_PORT, \
@@ -1561,8 +1589,8 @@ STATIC int WD_SYSTEM _wilddog_cm_sys_pingSend
     ping_pkg.d_token = (u32) _wilddog_cm_cmd_getToken(NULL, 0);
     p_cmsys_n->d_token = ping_pkg.d_token;
     
-    res = _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND_PING, &ping_pkg, 0);
-    
+    _wilddog_protocol_ioctl(_PROTOCOL_CMD_MODIFY_MIDTOKEN, &ping_pkg, 0);
+    res = _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND,p_cmsys_n->p_ping_pkg,0);
     p_cmsys_n->d_ping_sendTm = _CM_NEXTSENDTIME_SET(_wilddog_getTime(), \
                                                     p_cmsys_n->d_sendCnt);
     
@@ -1612,7 +1640,7 @@ STATIC int WD_SYSTEM _wilddog_cm_sys_nodeAdd( Wilddog_Cm_List_T *p_cm_l)
     
     p_cmSys_n->p_cm_l = p_cm_l;
 
-    wilddog_debug_level(WD_DEBUG_LOG,"### Add node : %p",p_cmSys_n);
+    wilddog_debug_level(WD_DEBUG_LOG,"conn_manage:: Add system node : %p",p_cmSys_n);
 
     /*add to list.*/
     LL_APPEND(p_l_cmControl->p_cmsys_n_hd,p_cmSys_n);
@@ -1633,7 +1661,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_nodeRemove
 
     p_cmsys_n = *pp_cmsys_n;
 
-    wilddog_debug_level(WD_DEBUG_LOG,"### remove node : %p",p_cmsys_n);
+    wilddog_debug_level(WD_DEBUG_LOG,"conn_manage::  remove system node : %p",p_cmsys_n);
     if(p_cmsys_n->p_ping_pkg)
         _wilddog_protocol_ioctl(_PROTOCOL_CMD_DESTORY,(void*)p_cmsys_n->p_ping_pkg,0);
 
@@ -2008,7 +2036,7 @@ Wilddog_Cm_List_T* WD_SYSTEM _wilddog_cm_cmd_init
         goto CM_INIT_ERROR;
     
     p_l_cmControl->d_list_cnt++;
-    wilddog_debug_level(WD_DEBUG_LOG,"\t$$\tcreat list : %p",p_cm_l);
+    wilddog_debug_level(WD_DEBUG_LOG,"conn_manage:: creat repo linked list : %p",p_cm_l);
     return p_cm_l;
 CM_INIT_ERROR:
 

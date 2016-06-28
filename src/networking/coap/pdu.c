@@ -114,7 +114,7 @@ size_t WD_SYSTEM coap_add_option
   if (type < pdu->max_delta) 
   {
     wilddog_debug_level(WD_DEBUG_WARN, \
-                        "coap_add_option: options are not in correct order\n");
+                        "pdu:: options are not in correct order\n");
     return 0;
   }
 
@@ -127,7 +127,7 @@ size_t WD_SYSTEM coap_add_option
   if (!optsize) 
   {
     wilddog_debug_level(WD_DEBUG_WARN, \
-                        "coap_add_option: cannot add option\n");
+                        "pdu:: cannot add option\n");
     /* error */
     return 0;
   } 
@@ -157,7 +157,7 @@ unsigned char* WD_SYSTEM coap_add_option_later
   if (type < pdu->max_delta) 
   {
      wilddog_debug_level(WD_DEBUG_WARN, \
-                         "coap_add_option: options are not in correct order\n");
+                         "pdu:: options are not in correct order\n");
      return NULL;
   }
 
@@ -169,7 +169,7 @@ unsigned char* WD_SYSTEM coap_add_option_later
 
   if (!optsize) 
   {
-    wilddog_debug_level(WD_DEBUG_WARN, "coap_add_option: cannot add option\n");
+    wilddog_debug_level(WD_DEBUG_WARN, "pdu:: cannot add option\n");
     /* error */
     return NULL;
   } 
@@ -198,7 +198,7 @@ int WD_SYSTEM coap_add_data
   if (pdu->length + len + 1 > pdu->max_size) 
   {
     wilddog_debug_level(WD_DEBUG_WARN, \
-                        "coap_add_data: cannot add: data too large for PDU\n");
+                        "pdu:: cannot add: data too large for PDU\n");
     wilddog_assert(pdu->data == NULL, 0);
     return 0;
   }
@@ -276,13 +276,13 @@ int WD_SYSTEM coap_pdu_parse
   if (pdu->max_size < length) 
   {
     wilddog_debug_level(WD_DEBUG_ERROR, \
-                        "insufficient space to store parsed PDU\n");
+                        "pdu:: insufficient space to store parsed PDU\n");
     return 0;
   }
 
   if (length < sizeof(coap_hdr_t)) 
   {
-    wilddog_debug_level(WD_DEBUG_ERROR, "discarded invalid PDU\n");
+    wilddog_debug_level(WD_DEBUG_ERROR, "pdu:: discarded invalid PDU\n");
   }
 
   pdu->hdr->version = data[0] >> 6;
@@ -296,7 +296,7 @@ int WD_SYSTEM coap_pdu_parse
     if (length != sizeof(coap_hdr_t) || pdu->hdr->token_length) 
     {
       wilddog_debug_level(WD_DEBUG_ERROR, \
-                          "coap_pdu_parse: empty message is not empty\n");
+                          "pdu:: empty message is not empty\n");
       goto discard;
     }
   }
@@ -304,7 +304,7 @@ int WD_SYSTEM coap_pdu_parse
   if (length < sizeof(coap_hdr_t) + pdu->hdr->token_length
       || pdu->hdr->token_length > 8) 
   {
-    wilddog_debug_level(WD_DEBUG_ERROR, "coap_pdu_parse: invalid Token\n");
+    wilddog_debug_level(WD_DEBUG_ERROR, "pdu:: coap_pdu_parse: invalid Token\n");
     goto discard;
   }
 
@@ -328,7 +328,7 @@ int WD_SYSTEM coap_pdu_parse
 
     if (!next_option_safe(&opt, (size_t *)&length)) 
     {
-      wilddog_debug_level(WD_DEBUG_ERROR, "coap_pdu_parse: drop\n");
+      wilddog_debug_level(WD_DEBUG_ERROR, "pdu:: coap_pdu_parse: drop\n");
       goto discard;
     }
   }
@@ -342,12 +342,12 @@ int WD_SYSTEM coap_pdu_parse
     if (!length) 
     {
       wilddog_debug_level(WD_DEBUG_ERROR, \
-                    "coap_pdu_parse: message ending in payload start marker\n");
+                    "pdu:: message ending in payload start marker\n");
       goto discard;
     }
 
     wilddog_debug_level(WD_DEBUG_LOG, \
-                      "set data to %p (pdu ends at %p)\n", (unsigned char *)opt,
+                      "pdu:: set data to %p (pdu ends at %p)\n", (unsigned char *)opt,
                       (unsigned char *)pdu->hdr + pdu->length);
     pdu->data = (unsigned char *)opt;
   }

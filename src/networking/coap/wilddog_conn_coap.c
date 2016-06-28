@@ -336,7 +336,7 @@ STATIC size_t WD_SYSTEM _wilddog_coap_creat
     /* add token option.*/
     coap_add_token(p_pdu, COAP_TOKENLEN, (u8*)&(p_arg->d_token));
 
-    wilddog_debug_level(WD_DEBUG_LOG,"\tcc\tcreat coap pakge :%p :",p_pdu);
+    wilddog_debug_level(WD_DEBUG_LOG,"coap:: tcreat coap pakge :%p :",p_pdu);
     return ( size_t )p_pdu;
 }
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_destory
@@ -348,7 +348,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_destory
     if(p_coap == 0)
         return WILDDOG_ERR_INVALID;
     
-    wilddog_debug_level(WD_DEBUG_LOG,"\tcc\tdestory coap pakge :%p :",p_coap);
+    wilddog_debug_level(WD_DEBUG_LOG,"coap:: destory coap pakge :%p :",p_coap);
     coap_delete_pdu((coap_pdu_t*)p_coap);
 
     return WILDDOG_ERR_NOERR;
@@ -567,7 +567,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_send(void *p_arg,int flag)
    return _wilddog_sec_send(p_coap->hdr, p_coap->length);
 }
 
-Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_ping(void *p_arg,int flag)
+Wilddog_Return_T WD_SYSTEM _wilddog_coap_midTokenModify(void *p_arg,int flag)
 {
     Wilddog_CM_Send_Ping_Arg_T *ping_pkg = (Wilddog_CM_Send_Ping_Arg_T*)p_arg;
     coap_pdu_t *p_coap = (coap_pdu_t*)(ping_pkg->p_pkg);
@@ -578,9 +578,9 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_ping(void *p_arg,int flag)
 
     p_hdr->id = ping_pkg->d_mid;
     
-    memcpy(p_hdr->token, (u8*)(&(ping_pkg->d_token)), p_hdr->token_length);
+    memcpy(p_hdr->token, (u8*)(&(ping_pkg->d_token)), p_hdr->token_length);\
 
-    return _wilddog_sec_send(p_coap->hdr, p_coap->length);
+	return WILDDOG_ERR_NOERR;
 }
 
 /*
@@ -683,17 +683,17 @@ Wilddog_Return_T WD_SYSTEM _wilddog_recv_dispatch
     size_t playloadLen =0;
     u8 *p_payload = NULL;
     /* get err*/
-    wilddog_debug_level(WD_DEBUG_LOG," coap err : %d",p_recvPdu->hdr->code);
+    wilddog_debug_level(WD_DEBUG_LOG,"coap:: receive coap return code  : %d",p_recvPdu->hdr->code);
     p_cm_recvArg->err = _wilddog_coap_code2Http( \
                             (unsigned int)_GET_COAP_CODE(p_recvPdu->hdr->code));
     
-    wilddog_debug_level(WD_DEBUG_LOG,"coap http error %ld",p_cm_recvArg->err);
+    wilddog_debug_level(WD_DEBUG_LOG,"coap:: receive return code %ld",p_cm_recvArg->err);
 
     /* get token option.*/
     if(p_recvPdu->hdr->token_length != COAP_TOKENLEN)
         return WILDDOG_ERR_INVALID;
     
-    memcpy(&p_cm_recvArg->d_token,p_recvPdu->hdr->token,COAP_TOKENLEN);
+    memcpy((char*)&p_cm_recvArg->d_token,p_recvPdu->hdr->token,COAP_TOKENLEN);
     /* get observer index.*/
     p_cm_recvArg->d_isObserver = _wilddog_recv_getOptionValue(p_recvPdu,
                                         COAP_OPTION_OBSERVE,
@@ -701,7 +701,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_recv_dispatch
                                         sizeof(p_cm_recvArg->d_observerIndx));
     
     wilddog_debug_level(WD_DEBUG_LOG, \
-                        "coap get observerIndex : %lu ", \
+                        "coap:: receive package observer index : %lu ", \
                         p_cm_recvArg->d_observerIndx);
     /* get maxage.*/
     _wilddog_recv_getOptionValue(p_recvPdu,
@@ -710,7 +710,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_recv_dispatch
                                  sizeof( p_cm_recvArg->d_maxAge));
     
     wilddog_debug_level(WD_DEBUG_LOG, \
-                        "coap get max-age : %lu ", \
+                        "coap:: receive package max-age : %lu ", \
                         p_cm_recvArg->d_maxAge);
     /* get blockNum.*/
     /*get payload data */
@@ -725,7 +725,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_recv_dispatch
     p_cm_recvArg->d_recvDataLen = playloadLen;
     
     wilddog_debug_level(WD_DEBUG_LOG, \
-                        "coap recv data :%s", \
+                        "coap:: receive payload :%s", \
                         p_cm_recvArg->p_recvData);
     
     return WILDDOG_ERR_NOERR;
@@ -821,7 +821,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_receive(void *p_arg,int flag)
 
 #ifdef WILDDOG_DEBUG
 #if DEBUG_LEVEL <= WD_DEBUG_LOG
-    printf("recv:\n");
+    printf("recv coap package:\n");
     coap_show_pdu(p_pdu);
 #endif
 #endif
@@ -906,7 +906,7 @@ Wilddog_Func_T _wilddog_protocolPackage_funcTable[_PROTOCOL_CMD_MAX + 1] =
     (Wilddog_Func_T) _wilddog_conn_coap_auth_update,
     (Wilddog_Func_T) _wilddog_coap_send,
     (Wilddog_Func_T) _wilddog_coap_receive,
-    (Wilddog_Func_T) _wilddog_coap_send_ping,
+    (Wilddog_Func_T) _wilddog_coap_midTokenModify,
     NULL
 };
 
