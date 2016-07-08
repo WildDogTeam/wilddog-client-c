@@ -190,6 +190,11 @@ STATIC u8 WD_SYSTEM _wilddog_cm_sys_getOnlineState
     );
 STATIC int WD_SYSTEM _wilddog_cm_cmd_getIndex(void *p_arg,int flag);
 STATIC u32 WD_SYSTEM _wilddog_cm_cmd_getToken(void *p_arg,int flag);
+STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_findObserverNode_byPath
+	(
+		Wilddog_CM_Node_T *p_node_hd,
+		u8 *p_s_path
+	);
 
 /*
  * Function:    _wilddog_cm_rand_get
@@ -562,6 +567,40 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_errorHandle
    return WILDDOG_ERR_NOERR;
 }
 /*
+ * Function:    _wilddog_cm_findObserverNode_byPath.
+ * Description: list head and return node who's path ==  p_s_path
+ * Input:    p_node_hd: list head.
+ *           p_recv_path :  socurce path.
+ *           p_recv : receive notify.
+
+ * Output:      N/A.
+ * Return:      Wilddog_CM_Node_T node.
+*/
+STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_findObserverNode_byPath
+	(
+		Wilddog_CM_Node_T *p_node_hd,
+		u8 *p_s_path
+	)
+{
+	u32 len = 0;
+	Wilddog_CM_Node_T *curr_cm = NULL,*temp_cm = NULL;
+	LL_FOREACH_SAFE(p_node_hd,curr_cm,temp_cm)
+	{
+		if(curr_cm->p_path == 0 )
+			continue;
+		len  = (strlen((const char*)curr_cm->p_path) >= strlen((const char*)p_s_path))? \
+				strlen((const char*)p_s_path) : strlen((const char*)curr_cm->p_path);
+		if(memcmp(p_s_path,curr_cm->p_path,len) == 0 )
+			return curr_cm;
+	}
+	return NULL;
+}
+STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_findObserverNode
+	(	Wilddog_CM_FindNode_Arg_T *p_arg,int flag)
+{
+	return _wilddog_cm_findObserverNode_byPath(p_arg->p_node_hd,p_arg->path);
+}
+/*
  * Function:    _wilddog_cm_recv_handle_on.
  * Description: handle notify: 
  *                if notify index larger then update node index and notify user.
@@ -749,8 +788,13 @@ STATIC BOOL WD_SYSTEM _wilddog_cm_recv_findContext
         }
     }
     
-    if(p_find)
+    if( p_find )
     {
+		    /* Observer then find node by path.*/
+	   if(	p_recv->p_r_path && 
+	   		p_find->d_nodeType == CM_NODE_TYPE_OBSERVER)
+	   		p_find = _wilddog_cm_findObserverNode_byPath(p_cm_l->p_cm_n_hd, p_recv->p_r_path);
+	   
         _wilddog_cm_recv_handle(p_recv,p_find,p_cm_l);
         return TRUE;
     }

@@ -34,6 +34,7 @@
 #include "wilddog_conn_manage.h"
 #include "wilddog_conn_coap.h"
 
+#define _COAP_PATH_SLASH	'/'
 #define AUTHR_LEN   (4)
 
 #define  _GET_COAP_CODE(code)   ((code >> 5) * 100 + (code & 0x1F))
@@ -138,6 +139,15 @@ STATIC void WD_SYSTEM _wilddog_coap_freeRecvBuffer(u8* ptr)
     }   
     _wilddog_coap_recvBufUnlock();
 }  
+STATIC void WD_SYSTEM _wilddog_coap_recvArg_free(Protocol_recvArg_T *p_recvArg)
+{
+	if(p_recvArg == NULL )
+		return ;
+	wfree( p_recvArg->p_r_path);
+	p_recvArg->p_r_path = NULL;
+	_wilddog_coap_freeRecvBuffer( p_recvArg->p_recvData );
+}
+
 /*
  * Function:    _wilddog_coap_code2Http
  * Description: Convert the coap code to http return code
@@ -664,6 +674,62 @@ BOOL WD_SYSTEM _wilddog_recv_getOptionValue
     return FALSE;
 }
 
+
+u8* WD_SYSTEM _wilddog_recv_path_alloc
+	(const coap_pdu_t *pdu) 
+{
+  coap_opt_iterator_t opt_iter;
+  coap_opt_t *option;
+  u16 pdu_hd_option_len = 0,i=0;
+  u8 *p_path_buf = NULL;
+
+  if(pdu->data) /* path len < pdu head + total option    */
+		pdu_hd_option_len = pdu->data -(unsigned char *)pdu->hdr;	
+  else
+  		pdu_hd_option_len = pdu->length;
+  /*list all option  */
+  coap_option_iterator_init((coap_pdu_t *)pdu, &opt_iter, COAP_OPT_ALL);
+  while ((option = coap_option_next(&opt_iter))) 
+  {
+
+		if ( opt_iter.type == COAP_OPTION_URI_PATH ) 
+			{
+			  u16 d_optionlen = coap_opt_length(option);
+			  u8 *p_optionvalue = coap_opt_value(option);
+			  
+			  if(p_path_buf == NULL){
+				  p_path_buf = wmalloc(pdu_hd_option_len);
+		  
+				  if( p_path_buf == NULL ) 
+				  	return NULL;
+				  memset(p_path_buf,0,pdu_hd_option_len);
+				  p_path_buf[i] = _COAP_PATH_SLASH;
+			  	  i++;
+			  	}
+			  
+			  if( d_optionlen == 0)
+					continue;
+			  /* just in cast, unexpect error : option prase faile */
+			  if( (pdu_hd_option_len - i  ) < d_optionlen )
+			  {
+					wfree(p_path_buf);
+					return NULL;
+			  }
+			if( i != 1 ){
+
+				p_path_buf[i] = _COAP_PATH_SLASH;
+			  	i++;
+				}
+	            memcpy((u8*)&p_path_buf[i],p_optionvalue,d_optionlen);
+				i += d_optionlen;
+			}
+  }
+
+
+  return p_path_buf;
+}
+
+
 /*
  * Function:    _wilddog_recv_dispatch.
  * Description: recv coap packet and handle it.
@@ -708,7 +774,12 @@ Wilddog_Return_T WD_SYSTEM _wilddog_recv_dispatch
                                  COAP_OPTION_MAXAGE, \
                                  (u8*)&(p_cm_recvArg->d_maxAge), \
                                  sizeof( p_cm_recvArg->d_maxAge));
-    
+
+	/* get path */
+	/* path must be free !! */
+	p_cm_recvArg->p_r_path = _wilddog_recv_path_alloc(p_recvPdu);
+
+	wilddog_debug_level(WD_DEBUG_LOG,"coap:: package path %s ",p_cm_recvArg->p_r_path);
     wilddog_debug_level(WD_DEBUG_LOG, \
                         "coap:: receive package max-age : %lu ", \
                         p_cm_recvArg->d_maxAge);
@@ -844,12 +915,12 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_receive(void *p_arg,int flag)
         ack_type = COAP_MESSAGE_RST;
     /* ack */
     _wilddog_coap_ackSend(recv_type,ack_type,tmp_mid,tmp_tokenLen,tmp_token);
-    _wilddog_coap_freeRecvBuffer( recvArg.p_recvData );
+    _wilddog_coap_recvArg_free( &recvArg);
    
     return  WILDDOG_ERR_NOERR;
    
 _COAPRECV_ERR:
-    _wilddog_coap_freeRecvBuffer( recvArg.p_recvData );
+    _wilddog_coap_recvArg_free( &recvArg );
     return WILDDOG_ERR_NULL;
 }
 /*
