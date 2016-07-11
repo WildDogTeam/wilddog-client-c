@@ -56,6 +56,8 @@ typedef enum CM_CMD_T{
 
 	
 	CM_CMD_OBSERVER_ALEADY,
+	CM_CMD_AUTH_DELETE,
+	
 	CM_CMD_MAX
 }CM_Cmd_T;
 typedef enum CM_ONLINE_STATUS{

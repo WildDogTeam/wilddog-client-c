@@ -468,6 +468,38 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_onlineSend
         return _wilddog_cm_authSend(p_cm_l,p_cm_n); 
     }
 }
+/*
+ * Function:    _wilddog_cm_cmd_authe_delete.
+ * Description:  clean all autho node .
+ * Input:       Wilddog_Cm_List_T *p_cm_l node list.
+ *                  flag : N/A.
+ * Output:      N/A.
+ * Return:      Wilddog_Return_T type.
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_cmd_authe_delete
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    int flag
+    )
+{ 
+	if(p_cm_l == NULL)
+        return WILDDOG_ERR_INVALID;
+    /* destory cm node hang on this list.*/
+    if(p_cm_l->p_cm_n_hd)
+    {
+        Wilddog_CM_Node_T *curr = NULL,*tmp = NULL;
+        LL_FOREACH_SAFE(p_cm_l->p_cm_n_hd,curr,tmp)
+        {
+            if( curr->cmd != WILDDOG_CONN_CMD_AUTH )
+				continue;
+            LL_DELETE(p_cm_l->p_cm_n_hd,curr);
+            _wilddog_cm_node_destory(&curr);
+        }
+    }
+    
+    return WILDDOG_ERR_NOERR;
+}
+
 
 /*
  * Function:    _wilddog_cm_cmd_userSend.
@@ -2147,6 +2179,8 @@ Wilddog_Func_T _wilddog_cm_funcTable[CM_CMD_MAX + 1] =
     (Wilddog_Func_T) _wilddog_cm_cmd_onLine,
     
     (Wilddog_Func_T) _wilddog_cm_cmd_trySync,
+    (Wilddog_Func_T) _wilddog_cm_findObserverNode,
+    (Wilddog_Func_T) _wilddog_cm_cmd_authe_delete,
     NULL
 };
 /*

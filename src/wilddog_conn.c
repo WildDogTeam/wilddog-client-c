@@ -807,6 +807,8 @@ STATIC int WD_SYSTEM _wilddog_conn_auth
    res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&authData,0);
    if(res < 0)
         goto _CONN_AUTH_ERR;
+   /*20160711 skyli : delete all auth node to guarantee user auth send alone*/
+   _wilddog_cm_ioctl( CM_CMD_AUTH_DELETE,p_arg->p_repo->p_rp_conn->p_cm_l,0);
    /* send to */ 
 
    res = (int)_wilddog_conn_send(pkg_arg.cmd, \
