@@ -128,6 +128,8 @@ typedef struct CM_CONTROL_T
     u8 d_cm_onlineEvent;
 }CM_Control_T;
 
+STATIC u16 d_user_node_num = 0;
+
 CM_Control_T *p_l_cmControl = NULL;
 
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_destory
@@ -216,16 +218,20 @@ STATIC INLINE int WD_SYSTEM _wilddog_cm_rand_get(void)
  * Output:      N/A.
  * Return:      pointer to the allocation address.
 */
-STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_creat
     (
-    Wilddog_CM_UserArg_T *p_arg
+    Wilddog_CM_UserArg_T *p_arg,
+    Wilddog_CM_Node_T    **p_cm_node
     )
 {
     Wilddog_CM_Node_T *p_newNode = NULL;
 
+	/* 20160712:skylli:: add max queue node judge*/
+	if( d_user_node_num > WILDDOG_REQ_QUEUE_NUM )
+		return WILDDOG_ERR_QUEUEFULL;
     p_newNode = (Wilddog_CM_Node_T*)wmalloc(sizeof(Wilddog_CM_Node_T));
     if(p_newNode == NULL)
-        return NULL;
+        return WILDDOG_ERR_NULL;
     
     memset(p_newNode,0,sizeof(Wilddog_CM_Node_T));
 
@@ -244,7 +250,7 @@ STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat
         int tmpLen = strlen((const char*)p_arg->p_path) +1;
         p_newNode->p_path = wmalloc(tmpLen);
         if(p_newNode->p_path == NULL)
-            return NULL;
+            return WILDDOG_ERR_NULL;
         memset(p_newNode->p_path,0,tmpLen);
         memcpy(p_newNode->p_path,p_arg->p_path,(tmpLen-1));
     }
@@ -258,7 +264,10 @@ STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat
     }
 
     wilddog_debug_level(WD_DEBUG_LOG,"conn_manage:: creat cm node : %p \n",p_newNode);
-    return p_newNode;
+	/* add */
+	d_user_node_num++;
+	*p_cm_node = p_newNode;
+    return WILDDOG_ERR_NOERR;
 }
 /*
  * Function:    _wilddog_cm_node_destory
@@ -289,7 +298,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_destory
     
     wfree(p_dele);
     *pp_dele = NULL;
-    
+    d_user_node_num = ( d_user_node_num == 0 )?0:(d_user_node_num-1);
     return 0;    
 }
 /*
@@ -517,10 +526,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_cmd_userSend
 {
     int res = 0;
     /* creat node.*/
-    Wilddog_CM_Node_T *p_newNode = _wilddog_cm_node_creat(p_arg);
+    Wilddog_CM_Node_T *p_newNode = NULL;
+	res = _wilddog_cm_node_creat(p_arg,&p_newNode);
 
-    if(p_newNode == NULL)
-        return WILDDOG_ERR_NULL;
+    if( res != WILDDOG_ERR_NOERR)
+        return res;
     /* add to list's head.*/
     LL_PREPEND(p_arg->p_cm_l->p_cm_n_hd,p_newNode);   
     
