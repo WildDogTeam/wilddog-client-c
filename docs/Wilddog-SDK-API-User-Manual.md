@@ -89,7 +89,7 @@ Wilddog\_Return\_T wilddog\_getValue(Wilddog\_T wilddog, onQueryFunc callback, v
 
 ###### 返回值
 
- `Wilddog_Return_T` 返回 `0`:成功 `<0`:失败。
+ `Wilddog_Return_T` 返回 `0`:成功 `<0`:失败，返回码见`wilddog.h`。
  
 ###### 示例
 
@@ -173,7 +173,7 @@ Wilddog\_Return\_T wilddog\_setValue
 
 ###### 返回值
 
-`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败。
+`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败，返回码见`wilddog.h`。
 
 ###### 示例
 
@@ -256,7 +256,7 @@ Wilddog\_Return\_T wilddog\_push
 
 ###### 返回值
 
-`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败。
+`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败，返回码见`wilddog.h`。
 
 ###### 示例
 
@@ -345,7 +345,7 @@ Wilddog\_Return\_T wilddog\_removeValue
 
 ###### 返回值
 
-`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败。
+`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败，返回码见`wilddog.h`。
 
 ###### 示例
 
@@ -420,7 +420,7 @@ Wilddog\_Return\_T wilddog\_addObserver
 
 ###### 返回值
 
-`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败。
+`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败，返回码见`wilddog.h`。
 
 ###### 示例
 
@@ -507,7 +507,7 @@ Wilddog\_Return\_T wilddog\_removeObserver
 
 ###### 返回值
 
-`Wilddog_Return_T`返回 `0`:成功 `<0`:失败。
+`Wilddog_Return_T`返回 `0`:成功 `<0`:失败，返回码见`wilddog.h`。
 
 ###### 示例
 
@@ -540,7 +540,7 @@ Wilddog\_Return\_T wilddog\_onDisconnectSetValue
 
 ###### 返回值
 
-`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败。
+`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败，返回码见`wilddog.h`。
 
 ###### 示例
 
@@ -624,7 +624,7 @@ Wilddog\_Return\_T wilddog\_onDisconnectPush
 
 ###### 返回值
 
-`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败。
+`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败，返回码见`wilddog.h`。
 
 ###### 示例
 
@@ -706,7 +706,7 @@ Wilddog\_Return\_T wilddog\_onDisconnectRemoveValue
 
 ###### 返回值
 
-`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败。
+`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败，返回码见`wilddog.h`。
 
 ###### 示例
 
@@ -778,7 +778,7 @@ Wilddog\_Return\_T wilddog\_cancelDisconnectOperations
 
 ###### 返回值
 
-`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败。
+`Wilddog_Return_T` 返回 `0`:成功 `<0`:失败，返回码见`wilddog.h`。
 
 ###### 示例
 
@@ -1343,7 +1343,7 @@ Wilddog\_Return\_T wilddog\_auth(Wilddog\_Str\_T \*p\_host, u8 \*p\_auth, int le
 
 ###### 说明
 
- 发送auth数据到服务器进行认证。
+ 发送auth数据到服务器进行认证，每个 host 只需要发送一次 auth。
 
 ###### 参数
 
@@ -1393,7 +1393,7 @@ Wilddog\_Return\_T wilddog\_auth(Wilddog\_Str\_T \*p\_host, onAuthFunc onAuth, v
 
 ###### 说明
 
- 取消和服务器的auth认证。
+ 取消和服务器的auth认证，每个 host 只需要发送一次 unauth。
 
 ###### 参数
 
