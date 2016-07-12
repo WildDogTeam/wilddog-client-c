@@ -562,10 +562,21 @@ STATIC int WD_SYSTEM _wilddog_conn_on
     Protocol_Arg_Creat_T pkg_arg;
     Protocol_Arg_Option_T pkg_option;
     Wilddog_CM_UserArg_T sendArg;
+	Wilddog_CM_FindNode_Arg_T nodeFind_arg;
 
     wilddog_assert(p_arg,WILDDOG_ERR_INVALID);    
     wilddog_assert(p_arg->p_url,WILDDOG_ERR_INVALID);
 
+	/*if the path have been  observer aleady,Ignore the request*/
+	if( p_arg->p_repo->p_rp_conn->p_cm_l &&
+		p_arg->p_repo->p_rp_conn->p_cm_l->p_cm_n_hd 
+		)
+	{
+		nodeFind_arg.path = p_arg->p_url->p_url_path;
+		nodeFind_arg.p_node_hd = p_arg->p_repo->p_rp_conn->p_cm_l->p_cm_n_hd;
+		if(_wilddog_cm_ioctl(CM_CMD_OBSERVER_ALEADY,&nodeFind_arg,0))
+			return WILDDOG_ERR_NOERR;
+	}
     memset(&pkg_arg,0,sizeof(Protocol_Arg_Creat_T));
     memset(&pkg_option,0,sizeof(Protocol_Arg_Option_T));
     memset(&sendArg,0,sizeof(Wilddog_CM_UserArg_T));    
@@ -796,8 +807,9 @@ STATIC int WD_SYSTEM _wilddog_conn_auth
    res = _wilddog_protocol_ioctl( _PROTOCOL_CMD_ADD_DATA,&authData,0);
    if(res < 0)
         goto _CONN_AUTH_ERR;
+   /*20160711 skyli : delete all auth node to guarantee user auth send alone*/
+   _wilddog_cm_ioctl( CM_CMD_AUTH_DELETE,p_arg->p_repo->p_rp_conn->p_cm_l,0);
    /* send to */ 
-
    res = (int)_wilddog_conn_send(pkg_arg.cmd, \
                                  (void*)p_pkg_index, \
                                  pkg_arg.d_token, \

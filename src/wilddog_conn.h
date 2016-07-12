@@ -164,6 +164,11 @@ typedef struct PROTOCOL_ARG_AUTHARG_T{
     u8 *p_newAuth;
     int d_newAuthLen;
 }Protocol_Arg_Auth_T;
+typedef struct WILDDOG_CM_FINDNODE_ARG_T
+{
+	Wilddog_CM_Node_T *p_node_hd;
+	u8 *path;
+}Wilddog_CM_FindNode_Arg_T;
 
 /* protocol application function */
 extern size_t WD_SYSTEM _wilddog_protocol_ioctl

@@ -128,6 +128,8 @@ typedef struct CM_CONTROL_T
     u8 d_cm_onlineEvent;
 }CM_Control_T;
 
+STATIC u16 d_user_node_num = 0;
+
 CM_Control_T *p_l_cmControl = NULL;
 
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_destory
@@ -190,6 +192,11 @@ STATIC u8 WD_SYSTEM _wilddog_cm_sys_getOnlineState
     );
 STATIC int WD_SYSTEM _wilddog_cm_cmd_getIndex(void *p_arg,int flag);
 STATIC u32 WD_SYSTEM _wilddog_cm_cmd_getToken(void *p_arg,int flag);
+STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_findObserverNode_byPath
+	(
+		Wilddog_CM_Node_T *p_node_hd,
+		u8 *p_s_path
+	);
 
 /*
  * Function:    _wilddog_cm_rand_get
@@ -211,16 +218,20 @@ STATIC INLINE int WD_SYSTEM _wilddog_cm_rand_get(void)
  * Output:      N/A.
  * Return:      pointer to the allocation address.
 */
-STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_creat
     (
-    Wilddog_CM_UserArg_T *p_arg
+    Wilddog_CM_UserArg_T *p_arg,
+    Wilddog_CM_Node_T    **p_cm_node
     )
 {
     Wilddog_CM_Node_T *p_newNode = NULL;
 
+	/* 20160712:skylli:: add max queue node judge*/
+	if( d_user_node_num > WILDDOG_REQ_QUEUE_NUM )
+		return WILDDOG_ERR_QUEUEFULL;
     p_newNode = (Wilddog_CM_Node_T*)wmalloc(sizeof(Wilddog_CM_Node_T));
     if(p_newNode == NULL)
-        return NULL;
+        return WILDDOG_ERR_NULL;
     
     memset(p_newNode,0,sizeof(Wilddog_CM_Node_T));
 
@@ -239,7 +250,7 @@ STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat
         int tmpLen = strlen((const char*)p_arg->p_path) +1;
         p_newNode->p_path = wmalloc(tmpLen);
         if(p_newNode->p_path == NULL)
-            return NULL;
+            return WILDDOG_ERR_NULL;
         memset(p_newNode->p_path,0,tmpLen);
         memcpy(p_newNode->p_path,p_arg->p_path,(tmpLen-1));
     }
@@ -253,7 +264,10 @@ STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_node_creat
     }
 
     wilddog_debug_level(WD_DEBUG_LOG,"conn_manage:: creat cm node : %p \n",p_newNode);
-    return p_newNode;
+	/* add */
+	d_user_node_num++;
+	*p_cm_node = p_newNode;
+    return WILDDOG_ERR_NOERR;
 }
 /*
  * Function:    _wilddog_cm_node_destory
@@ -284,7 +298,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_destory
     
     wfree(p_dele);
     *pp_dele = NULL;
-    
+    d_user_node_num = ( d_user_node_num == 0 )?0:(d_user_node_num-1);
     return 0;    
 }
 /*
@@ -463,6 +477,38 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_onlineSend
         return _wilddog_cm_authSend(p_cm_l,p_cm_n); 
     }
 }
+/*
+ * Function:    _wilddog_cm_cmd_authe_delete.
+ * Description:  clean all autho node .
+ * Input:       Wilddog_Cm_List_T *p_cm_l node list.
+ *                  flag : N/A.
+ * Output:      N/A.
+ * Return:      Wilddog_Return_T type.
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_cmd_authe_delete
+    (
+    Wilddog_Cm_List_T *p_cm_l,
+    int flag
+    )
+{ 
+	if(p_cm_l == NULL)
+        return WILDDOG_ERR_INVALID;
+    /* destory cm node hang on this list.*/
+    if(p_cm_l->p_cm_n_hd)
+    {
+        Wilddog_CM_Node_T *curr = NULL,*tmp = NULL;
+        LL_FOREACH_SAFE(p_cm_l->p_cm_n_hd,curr,tmp)
+        {
+            if( curr->cmd != WILDDOG_CONN_CMD_AUTH )
+				continue;
+            LL_DELETE(p_cm_l->p_cm_n_hd,curr);
+            _wilddog_cm_node_destory(&curr);
+        }
+    }
+    
+    return WILDDOG_ERR_NOERR;
+}
+
 
 /*
  * Function:    _wilddog_cm_cmd_userSend.
@@ -480,10 +526,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_cmd_userSend
 {
     int res = 0;
     /* creat node.*/
-    Wilddog_CM_Node_T *p_newNode = _wilddog_cm_node_creat(p_arg);
+    Wilddog_CM_Node_T *p_newNode = NULL;
+	res = _wilddog_cm_node_creat(p_arg,&p_newNode);
 
-    if(p_newNode == NULL)
-        return WILDDOG_ERR_NULL;
+    if( res != WILDDOG_ERR_NOERR)
+        return res;
     /* add to list's head.*/
     LL_PREPEND(p_arg->p_cm_l->p_cm_n_hd,p_newNode);   
     
@@ -560,6 +607,40 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_errorHandle
    }
     
    return WILDDOG_ERR_NOERR;
+}
+/*
+ * Function:    _wilddog_cm_findObserverNode_byPath.
+ * Description: list head and return node who's path ==  p_s_path
+ * Input:    p_node_hd: list head.
+ *           p_recv_path :  socurce path.
+ *           p_recv : receive notify.
+
+ * Output:      N/A.
+ * Return:      Wilddog_CM_Node_T node.
+*/
+STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_findObserverNode_byPath
+	(
+		Wilddog_CM_Node_T *p_node_hd,
+		u8 *p_s_path
+	)
+{
+	u32 len = 0;
+	Wilddog_CM_Node_T *curr_cm = NULL,*temp_cm = NULL;
+	LL_FOREACH_SAFE(p_node_hd,curr_cm,temp_cm)
+	{
+		if(curr_cm->p_path == 0 )
+			continue;
+		len  = (strlen((const char*)curr_cm->p_path) >= strlen((const char*)p_s_path))? \
+				strlen((const char*)p_s_path) : strlen((const char*)curr_cm->p_path);
+		if(memcmp(p_s_path,curr_cm->p_path,len) == 0 )
+			return curr_cm;
+	}
+	return NULL;
+}
+STATIC Wilddog_CM_Node_T* WD_SYSTEM _wilddog_cm_findObserverNode
+	(	Wilddog_CM_FindNode_Arg_T *p_arg,int flag)
+{
+	return _wilddog_cm_findObserverNode_byPath(p_arg->p_node_hd,p_arg->path);
 }
 /*
  * Function:    _wilddog_cm_recv_handle_on.
@@ -749,8 +830,13 @@ STATIC BOOL WD_SYSTEM _wilddog_cm_recv_findContext
         }
     }
     
-    if(p_find)
+    if( p_find )
     {
+		    /* Observer then find node by path.*/
+	   if(	p_recv->p_r_path && 
+	   		p_find->d_nodeType == CM_NODE_TYPE_OBSERVER)
+	   		p_find = _wilddog_cm_findObserverNode_byPath(p_cm_l->p_cm_n_hd, p_recv->p_r_path);
+	   
         _wilddog_cm_recv_handle(p_recv,p_find,p_cm_l);
         return TRUE;
     }
@@ -2103,6 +2189,8 @@ Wilddog_Func_T _wilddog_cm_funcTable[CM_CMD_MAX + 1] =
     (Wilddog_Func_T) _wilddog_cm_cmd_onLine,
     
     (Wilddog_Func_T) _wilddog_cm_cmd_trySync,
+    (Wilddog_Func_T) _wilddog_cm_findObserverNode,
+    (Wilddog_Func_T) _wilddog_cm_cmd_authe_delete,
     NULL
 };
 /*

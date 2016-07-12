@@ -53,6 +53,11 @@ typedef enum CM_CMD_T{
 	CM_CMD_OFFLINE,
 	CM_CMD_ONLINE,
 	CM_CMD_TRYSYNC,
+
+	
+	CM_CMD_OBSERVER_ALEADY,
+	CM_CMD_AUTH_DELETE,
+	
 	CM_CMD_MAX
 }CM_Cmd_T;
 typedef enum CM_ONLINE_STATUS{
@@ -160,12 +165,15 @@ typedef struct PROTOCOL_RECVARG_T{
 	u32 d_token;
     u32 err;
     
-	u8 *p_recvData;
 	u32 d_recvDataLen;
 	
     u8 d_isObserver;   
     u8 d_blockIdx;
 	u8 d_blockNum;
+	u8 reserve;
+	
+	u8 *p_r_path;	
+	u8 *p_recvData;
 	
 }Protocol_recvArg_T;
 
