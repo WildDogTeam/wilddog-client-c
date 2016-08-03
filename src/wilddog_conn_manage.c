@@ -547,8 +547,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_cmd_userSend
     if( res < 0 )
     {
         LL_DELETE(p_arg->p_cm_l->p_cm_n_hd,p_newNode);
-        wfree(p_newNode->p_path);
-        wfree(p_newNode);
+        _wilddog_cm_node_destory(&p_newNode);
     }
     /* set auth state*/
     if( p_arg->cmd == WILDDOG_CONN_CMD_AUTH && res >= 0)
