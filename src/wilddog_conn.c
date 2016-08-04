@@ -380,7 +380,6 @@ STATIC int WD_SYSTEM _wilddog_conn_set(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
     if( res < 0)
         goto _CONN_SET_ERR;
 
-    wfree(pkg_cborPayload.p_payload);
    
     /* todo send to */ 
     res = (int)_wilddog_conn_send(pkg_arg.cmd, \
@@ -389,6 +388,8 @@ STATIC int WD_SYSTEM _wilddog_conn_set(Wilddog_ConnCmd_Arg_T *p_arg,int flags)
                                  p_arg);
     if(res < 0)
         goto _CONN_SET_ERR;
+   
+    wfree(pkg_cborPayload.p_payload);
    
     return res;
     
@@ -466,7 +467,6 @@ STATIC int WD_SYSTEM _wilddog_conn_push
     if( res < 0)
          goto _CONN_PUSH_ERR;
     
-    wfree(pkg_cborPayload.p_payload);
 
     /* send to */ 
     res = (int)_wilddog_conn_send(pkg_arg.cmd, \
@@ -476,6 +476,8 @@ STATIC int WD_SYSTEM _wilddog_conn_push
     
     if( res < 0)
          goto _CONN_PUSH_ERR;
+	
+    wfree(pkg_cborPayload.p_payload);
 
     return res;
      
@@ -896,7 +898,6 @@ STATIC int WD_SYSTEM _wilddog_conn_onDisSet
    if( res < 0)
         goto _CONN_DISSET_ERR;
     
-   wfree(pkg_cborPayload.p_payload);
 
    /* send to */ 
    res = (int)_wilddog_conn_send(pkg_arg.cmd, \
@@ -906,6 +907,7 @@ STATIC int WD_SYSTEM _wilddog_conn_onDisSet
    if( res < 0)
         goto _CONN_DISSET_ERR;
    
+   wfree(pkg_cborPayload.p_payload);
    return res;
     
 _CONN_DISSET_ERR:
@@ -985,7 +987,6 @@ STATIC int WD_SYSTEM _wilddog_conn_onDisPush
     if( res < 0)
          goto _CONN_DISPUSH_ERR;
      
-    wfree(pkg_cborPayload.p_payload);
 
     /* send to */ 
     res = (int)_wilddog_conn_send(pkg_arg.cmd, \
@@ -995,6 +996,7 @@ STATIC int WD_SYSTEM _wilddog_conn_onDisPush
     if( res < 0)
         goto _CONN_DISPUSH_ERR;
 
+    wfree(pkg_cborPayload.p_payload);
     return res;
 
 _CONN_DISPUSH_ERR:

@@ -543,13 +543,18 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_cmd_userSend
           _CM_NEXTSENDTIME_SET(_wilddog_getTime(),p_newNode->d_retransmit_cnt));
     }else/*application send.*/
         res =  _wilddog_cm_onlineSend(p_arg->p_cm_l,p_newNode);
-    
+#if 0   
+/* 20160804 :  never return send_to failt .let's try retransmits,we will release it when timeout*/ 
     if( res < 0 )
     {
         LL_DELETE(p_arg->p_cm_l->p_cm_n_hd,p_newNode);
-        wfree(p_newNode->p_path);
-        wfree(p_newNode);
+		wfree(p_newNode->p_path);
+		p_newNode->p_path = NULL;
+		wfree(p_newNode);
+		p_newNode = NULL;
+        //_wilddog_cm_node_destory(&p_newNode);
     }
+#endif	
     /* set auth state*/
     if( p_arg->cmd == WILDDOG_CONN_CMD_AUTH && res >= 0)
         p_arg->p_cm_l->d_authStatus = CM_SESSION_AUTHING;
@@ -1148,7 +1153,10 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sessionInit
     return res;
 
 _CM_AUTH_ERR:
-
+	wfree( p_cm_l->p_short_token);
+	p_cm_l->p_short_token = NULL;
+	wfree( p_cm_l->p_long_token);
+	p_cm_l->p_long_token = NULL;
     _wilddog_protocol_ioctl(_PROTOCOL_CMD_DESTORY,(void*)p_pkg_index,0);
     return res;
     
@@ -2154,8 +2162,9 @@ Wilddog_Return_T WD_SYSTEM _wilddog_cm_cmd_deInit
     
     wilddog_assert(p_cm_l,WILDDOG_ERR_INVALID);
     /* destory list.*/
-    _wilddog_cm_list_destory(p_cm_l);
+	
     _wilddog_cm_sys_releaseRepoResource(p_cm_l);
+    _wilddog_cm_list_destory(p_cm_l);
     p_l_cmControl->d_list_cnt--;
     
    /* pakg deinit.*/
