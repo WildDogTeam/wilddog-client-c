@@ -75,7 +75,7 @@ STATIC void WD_SYSTEM _wilddog_conn_cb_push
 {
     if( p_cm_recv->f_user_callback )
     {
-        p_cm_recv->f_user_callback(p_cm_recv->p_recvData,\
+        p_cm_recv->f_user_callback(p_cm_recv->p_recvData->p_dt_data,\
                                    p_cm_recv->p_user_cb_arg, \
                                    p_cm_recv->err);
     }
