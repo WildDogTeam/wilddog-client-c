@@ -894,7 +894,7 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeUint
 		u16 tmp = wilddog_htons(*(u16 *)(value));
 		_wilddog_memcpy((void*)(p_data->p_dt_data + p_data->d_dt_pos),
 			(void*)&tmp,WILDDOG_CBOR_FOLLOW_2BYTE_LEN);
-		
+
         (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_2BYTE_LEN;
     }
     else if(_wilddog_n2c_uintAdditionalInfo(*(u32 *)(value)) == \
