@@ -51,7 +51,6 @@ STATIC s8 _wilddog_c2n_parseSpecial
     Wilddog_Payload_T * p_data, 
     wFloat * p_num
     );
-
 /*
  * Function:    _wilddog_c2n_typeTranslate
  * Description: Translate the cbor data type to the node type
@@ -892,16 +891,20 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeUint
         WILDDOG_CBOR_FOLLOW_2BYTE
         )
     {
-        *(u16 *)(p_data->p_dt_data + p_data->d_dt_pos) = \
-                                            wilddog_htons(*(u16 *)(value));
+		u16 tmp = wilddog_htons(*(u16 *)(value));
+		_wilddog_memcpy((void*)(p_data->p_dt_data + p_data->d_dt_pos),
+			(void*)&tmp,WILDDOG_CBOR_FOLLOW_2BYTE_LEN);
+
         (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_2BYTE_LEN;
     }
     else if(_wilddog_n2c_uintAdditionalInfo(*(u32 *)(value)) == \
                     WILDDOG_CBOR_FOLLOW_4BYTE
         )
     {
-        *(u32 *)(p_data->p_dt_data + p_data->d_dt_pos) = \
-                                            wilddog_htonl(*(u32 *)(value));
+	    u32 tmp = wilddog_htons(*(u32 *)(value));
+		_wilddog_memcpy((void*)(p_data->p_dt_data + p_data->d_dt_pos),
+			(void*)&tmp,WILDDOG_CBOR_FOLLOW_4BYTE_LEN);
+		
         (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_4BYTE_LEN;
     }
 
@@ -958,8 +961,9 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeNegint
         WILDDOG_CBOR_FOLLOW_2BYTE
         )
     {
-        *(s16 *)(p_data->p_dt_data + p_data->d_dt_pos) = \
-                                    wilddog_htons(-1 - *(s16 *)(value));
+        s16 tmp = wilddog_htons(-1 - *(s16 *)(value));
+		_wilddog_memcpy((void*)(p_data->p_dt_data + p_data->d_dt_pos),
+			(void*)&tmp,WILDDOG_CBOR_FOLLOW_2BYTE_LEN);
         (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_2BYTE_LEN;
     }
     else if(
@@ -967,8 +971,9 @@ STATIC int WD_SYSTEM _wilddog_n2c_encodeNegint
         WILDDOG_CBOR_FOLLOW_4BYTE
         )
     {
-        *(s32 *)(p_data->p_dt_data + p_data->d_dt_pos) = \
-                                    wilddog_htonl(-1 - (*(s32 *)(value)));
+        s32 tmp = wilddog_htons(-1 - *(s32 *)(value));
+		_wilddog_memcpy((void*)(p_data->p_dt_data + p_data->d_dt_pos),
+			(void*)&tmp,WILDDOG_CBOR_FOLLOW_4BYTE_LEN);
         (p_data->d_dt_pos) += WILDDOG_CBOR_FOLLOW_4BYTE_LEN;
     }
 
