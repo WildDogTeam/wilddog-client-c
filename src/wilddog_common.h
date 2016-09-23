@@ -20,6 +20,7 @@ extern void _wilddog_syncTime(void);
 extern u32 _wilddog_getTime(void);
 extern char* WD_SYSTEM _wilddog_strchar(const char *s1,const char c);
 extern char* WD_SYSTEM _wilddog_strstr(const char *s1,const char *s2);
+extern void* _wilddog_memcpy(void *dest,const void *src,size_t len);
 
 #ifdef __cplusplus
 }

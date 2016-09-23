@@ -205,5 +205,9 @@ char* WD_SYSTEM _wilddog_strstr(const char *s1,const char *s2)
     
     return(NULL);
 }
-
+void* _wilddog_memcpy(void *dest,const void *src,size_t len)
+{
+	memcpy(dest,src,len);
+	return (void*)(dest + len);
+}
 
