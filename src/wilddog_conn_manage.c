@@ -674,11 +674,14 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_handle_on
     if(_CM_RECV_SERVER_ERROR(p_recv->err))
     {
         /*have beed observer,ignore it*/
-        if( _wilddog_cm_ndoe_isNotify(p_cm_n) && \
+//20161020 node must be remove since receive error.
+#if 0
+		if( _wilddog_cm_ndoe_isNotify(p_cm_n) && \
             p_recv->err != WILDDOG_HTTP_PRECONDITION_FAIL)
         {
             return WILDDOG_ERR_NOERR;
         }
+#endif		
         /* call user call back.*/
         if(p_l_cmControl->f_cn_callBackHandle)
         {
