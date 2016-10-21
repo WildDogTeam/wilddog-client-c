@@ -33,6 +33,11 @@ typedef enum ON_OFF_FLAG
     ON_FLAG
 }ON_OFF_FLAG_T;
 
+typedef enum EVENT_STATE
+{
+    EVENT_STATE_ON = 0,
+    EVENT_STATE_OFF
+}EVENT_STATE_T;
 
 typedef struct WILDDOG_EVENTNODE_T
 {
@@ -40,6 +45,7 @@ typedef struct WILDDOG_EVENTNODE_T
     Wilddog_Url_T * p_url;
     Wilddog_Func_T p_onData;
     void* p_dataArg;
+	EVENT_STATE_T state;
     ON_OFF_FLAG_T flag;
 }Wilddog_EventNode_T;
 

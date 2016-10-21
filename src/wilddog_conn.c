@@ -564,12 +564,12 @@ STATIC int WD_SYSTEM _wilddog_conn_on
     Protocol_Arg_Creat_T pkg_arg;
     Protocol_Arg_Option_T pkg_option;
     Wilddog_CM_UserArg_T sendArg;
-	Wilddog_CM_FindNode_Arg_T nodeFind_arg;
+	//Wilddog_CM_FindNode_Arg_T nodeFind_arg;
 
     wilddog_assert(p_arg,WILDDOG_ERR_INVALID);    
     wilddog_assert(p_arg->p_url,WILDDOG_ERR_INVALID);
 
-	/*if the path have been  observer aleady,Ignore the request*/
+	/*if the path have been  observer aleady,Ignore the request*
 	if( p_arg->p_repo->p_rp_conn->p_cm_l &&
 		p_arg->p_repo->p_rp_conn->p_cm_l->p_cm_n_hd 
 		)
@@ -579,6 +579,8 @@ STATIC int WD_SYSTEM _wilddog_conn_on
 		if(_wilddog_cm_ioctl(CM_CMD_OBSERVER_ALEADY,&nodeFind_arg,0))
 			return WILDDOG_ERR_NOERR;
 	}
+	*/
+	wilddog_debug("observer path %s", p_arg->p_url->p_url_path);
     memset(&pkg_arg,0,sizeof(Protocol_Arg_Creat_T));
     memset(&pkg_option,0,sizeof(Protocol_Arg_Option_T));
     memset(&sendArg,0,sizeof(Wilddog_CM_UserArg_T));    
