@@ -20,6 +20,7 @@
 *   `test_stab_cycle.c` : API稳定性测试
 *   `test_stab_fullload.c` : 满负荷运行稳定性测试
 *   `test_step.c` : API可用性测试
+*	`test_reobserver.c` : 重复 observer测试
 
 ##2.配置说明
 
