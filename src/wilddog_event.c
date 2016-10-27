@@ -56,6 +56,7 @@ STATIC Wilddog_EventNode_T * WD_SYSTEM _wilddog_event_nodeInit(void)
     head->p_onData = NULL;
     head->p_dataArg = NULL;
     head->flag = OFF_FLAG;
+	head->state = EVENT_STATE_ON;
 
     return head;
 }
@@ -170,6 +171,59 @@ char * WD_SYSTEM _wilddog_event_pathRelative
     else
         return (dpath + slength );
 }
+/*
+ * Function:    _wilddog_event_errCheck
+ * Description: if node event receive error we will set event state to be off.
+ *				the event node will be off after user call back.
+ * Input:       enode: event to be check.
+ *              err: error code.
+ * Output:      N/A
+ * Return:      N/A
+*/
+STATIC void WD_SYSTEM _wilddog_event_errCheck
+(   
+	Wilddog_EventNode_T *enode,
+    int err
+)
+{
+	if(err > 400 || err <0 )
+	{
+
+			enode->state = EVENT_STATE_OFF;
+	}
+}
+/*
+ * Function:    _wilddog_event_errhandle
+ * Description: delete node whitch receive error.
+ *
+ * Input:       enode: event to be handle.
+ *              
+ * Output:      N/A
+ * Return:      N/A
+*/
+STATIC int WD_SYSTEM _wilddog_event_errHandle
+(   
+	Wilddog_EventNode_T **enode
+)
+{
+	Wilddog_EventNode_T *node, *tmp;
+    
+    wilddog_assert(enode, WILDDOG_ERR_NULL);
+    wilddog_assert(*enode, WILDDOG_ERR_NULL);
+	
+    LL_FOREACH_SAFE(*enode,node,tmp) 
+    {
+        if( node->state == EVENT_STATE_OFF )
+        {
+  			LL_DELETE(*enode,node);
+			
+			wilddog_debug_level( WD_DEBUG_LOG,"dele node %s",node->p_url->p_url_path);
+			_wilddog_event_nodeFree(node);			
+        }
+    }
+	
+	return WILDDOG_ERR_NOERR;
+}
 
 /*
  * Function:    _wilddog_event_trigger
@@ -246,7 +300,9 @@ void WD_SYSTEM _wilddog_event_trigger
                 obj_node_next = obj_node->p_wn_next;
                 obj_node->p_wn_next = NULL;
             }
-            
+			/* whild observer receive err set node state to off*/
+            _wilddog_event_errCheck(enode,(int)err);
+			
             enode->p_onData( obj_node, enode->p_dataArg, err);
 
             if(obj_node_prev != NULL)
@@ -263,6 +319,10 @@ void WD_SYSTEM _wilddog_event_trigger
 
         enode = enode->next;
     }
+	/*delete observer node.while receive error */
+
+	_wilddog_event_errHandle(&repo->p_rp_store->p_se_event->p_head);
+	
 }
 
  
@@ -365,9 +425,13 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
             tmp_node->p_onData = arg->p_complete;
             tmp_node->p_dataArg = arg->p_completeArg;
             _wilddog_event_nodeFree(node);
+			node = NULL;
             wilddog_debug_level(WD_DEBUG_WARN, "cover the old path %s%s", \
                                 tmp_node->p_url->p_url_host, \
                                 tmp_node->p_url->p_url_path);
+			/*resend it.*/
+			if(tmp_node->state == EVENT_STATE_OFF)
+				break;
             return WILDDOG_ERR_NOERR;
         }
         else
@@ -375,17 +439,21 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
             break;
         }
     }
-    if(prev_node == tmp_node)
-    {
-        node->next = tmp_node;
-        event->p_head = node;
-    }
-    else
-    {
-        prev_node->next = node;
-        node->next = tmp_node;
-    }
-
+	if(node)
+	{
+		
+		/* */
+	    if(prev_node == tmp_node)
+	    {
+	        node->next = tmp_node;
+	        event->p_head = node;
+	    }
+	    else
+	    {
+	        prev_node->next = node;
+	        node->next = tmp_node;
+	    }
+	}
     arg->p_complete= (Wilddog_Func_T)_wilddog_event_trigger;
     arg->p_completeArg= arg->p_url;
         
@@ -396,29 +464,31 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
                                        (char*)head->p_url->p_url_path, \
                                        (char*)arg->p_url->p_url_path);
 
-        if(pathContainResult == WD_EVENT_PATHCONTAIN_SCD)
-        {
-            if(head->flag == ON_FLAG)
-            {
-                if(p_conn && p_conn->f_conn_ioctl)
-                {
-                    tmp = arg->p_url->p_url_path;
-                    arg->p_url->p_url_path = (Wilddog_Str_T*)head->p_url->p_url_path;
-                    
-                    if(p_conn && p_conn->f_conn_ioctl)
-                    {
-                        err = p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_OFF, arg, 0);
-                    }
-                    
-                    wilddog_debug_level(WD_DEBUG_LOG, "off path:%s", \
-                                        arg->p_url->p_url_path);
-                    head->flag = OFF_FLAG;
-                    arg->p_url->p_url_path = tmp;
-                }
-            }
-            head = head->next;
-        }
-        else if(pathContainResult == WD_EVENT_PATHCONTAIN_DCS)
+		if(pathContainResult == WD_EVENT_PATHCONTAIN_SCD)
+		{
+		    if(head->flag == ON_FLAG)
+		    {
+		        if(p_conn && p_conn->f_conn_ioctl)
+		        {
+		            tmp = arg->p_url->p_url_path;
+		            arg->p_url->p_url_path = (Wilddog_Str_T*)head->p_url->p_url_path;
+		            
+		            if(p_conn && p_conn->f_conn_ioctl)
+		            {
+		                err = p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_OFF, arg, 0);
+		            }
+		            
+		            wilddog_debug_level(WD_DEBUG_LOG, "off path:%s", \
+		                                arg->p_url->p_url_path);
+		            head->flag = OFF_FLAG;
+		            arg->p_url->p_url_path = tmp;
+		        }
+		    }
+		    head = head->next;
+		}
+        else if( head->state ==  EVENT_STATE_ON \
+				&&head->flag == ON_FLAG \
+				&&pathContainResult == WD_EVENT_PATHCONTAIN_DCS)
         {
             wilddog_debug_level(WD_DEBUG_LOG, "don't send");
             if(p_conn && p_conn->f_conn_ioctl)
@@ -435,6 +505,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
                                     arg->p_url->p_url_path);
                 
                 head->flag = ON_FLAG;
+				head->state = EVENT_STATE_ON;
                 
                 if(p_conn && p_conn->f_conn_ioctl)
                 {
@@ -610,7 +681,8 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeDelete
                         err = p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_ON, tmp_arg, 0);
                     }
                     
-                    node->flag = ON_FLAG;                        
+                    node->flag = ON_FLAG;
+					node->state = EVENT_STATE_ON;
                     wilddog_debug_level(WD_DEBUG_LOG, \
                                         "nodedelete on node path:%s\n", \
                                         tmp_arg->p_url->p_url_path);
