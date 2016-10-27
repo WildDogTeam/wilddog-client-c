@@ -1,6 +1,6 @@
 1.0.8 2016.10.21
 修复：
-修复 observer接收到错误不能完全释放observer资源，需要用户手动removeObserver；
+修复observer接收到错误后不能完全释放资源，需要用户手动removeObserver的bug。
 
 1.0.7 2016.09.23
 修复：
