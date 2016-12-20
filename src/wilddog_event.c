@@ -47,6 +47,7 @@ STATIC Wilddog_EventNode_T * WD_SYSTEM _wilddog_event_nodeInit(void)
     head->p_url = (Wilddog_Url_T *)wmalloc(sizeof(Wilddog_Url_T));
     if(head->p_url == NULL)
     {
+        wfree(head);
         wilddog_debug_level( WD_DEBUG_ERROR, \
             "wmalloc event head p_url error");
 

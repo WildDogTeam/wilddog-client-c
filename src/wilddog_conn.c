@@ -580,7 +580,7 @@ STATIC int WD_SYSTEM _wilddog_conn_on
 			return WILDDOG_ERR_NOERR;
 	}
 	*/
-	wilddog_debug("observer path %s", p_arg->p_url->p_url_path);
+	//wilddog_debug("observer path %s", p_arg->p_url->p_url_path);
     memset(&pkg_arg,0,sizeof(Protocol_Arg_Creat_T));
     memset(&pkg_option,0,sizeof(Protocol_Arg_Option_T));
     memset(&sendArg,0,sizeof(Wilddog_CM_UserArg_T));    
