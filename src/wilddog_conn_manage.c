@@ -250,8 +250,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_creat
         int tmpLen = strlen((const char*)p_arg->p_path) +1;
         p_newNode->p_path = wmalloc(tmpLen);
         if(p_newNode->p_path == NULL)
+		{	
+			wfree(p_newNode);
             return WILDDOG_ERR_NULL;
-        memset(p_newNode->p_path,0,tmpLen);
+        }
+		memset(p_newNode->p_path,0,tmpLen);
         memcpy(p_newNode->p_path,p_arg->p_path,(tmpLen-1));
     }
     /* node type subscription.*/
@@ -938,28 +941,28 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_retransmit
             continue;
 
         /* send out while touch send time.*/
-        if( currTm >curr->d_sendTm && \
-            DIFF(currTm,curr->d_sendTm) < (0xffff))
+			/* time out node will be dele and not need to retransmit.*/
+        if(_wilddog_cm_transmitTimeOut(curr,p_cm_l) == FALSE)
         {
-            /* time out node will be dele and not need to retransmit.*/
-            if(_wilddog_cm_transmitTimeOut(curr,p_cm_l) == FALSE)
-            {
-                if(curr->cmd == WILDDOG_CONN_CMD_AUTH)
-                {
-                    /*auth send.*/
-
-                    _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND,curr->p_pkg,0);
-                    _wilddog_cm_node_updataSendTime(p_cm_l, \
-                        curr, \
-                        _CM_NEXTSENDTIME_SET(_wilddog_getTime(), \
-                        curr->d_retransmit_cnt));
-                }
-                else
-                {
-                    _wilddog_cm_onlineSend(p_cm_l,curr);
-                    /* put to queue tial.*/
-                }
-            }
+            /* send out while touch send time.*/
+			//wilddog_debug("currTm >curr->d_sendTm %ld currTm = %ld",curr->d_sendTm,currTm);
+	        if( currTm >curr->d_sendTm && \
+	            DIFF(currTm,curr->d_sendTm) < (0xffff)){
+	                if(curr->cmd == WILDDOG_CONN_CMD_AUTH)
+	                {
+	                    /*auth send.*/
+	                    _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND,curr->p_pkg,0);
+	                    _wilddog_cm_node_updataSendTime(p_cm_l, \
+	                        curr, \
+	                        _CM_NEXTSENDTIME_SET(_wilddog_getTime(), \
+	                        curr->d_retransmit_cnt));
+	                }
+	                else
+	                {
+	                    _wilddog_cm_onlineSend(p_cm_l,curr);
+	                    /* put to queue tial.*/
+	                }
+	            }
 
         }
     }

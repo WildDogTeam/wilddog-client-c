@@ -1006,9 +1006,9 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_conn_sync
         if(p_conn && p_conn->f_conn_ioctl)
         {
             Wilddog_ConnCmd_Arg_T cmd = {NULL, NULL, NULL, NULL, NULL};
-            _wilddog_syncTime();
             cmd.p_repo = p_curr;
             (p_conn->f_conn_ioctl)(WILDDOG_CONN_CMD_TRYSYNC, &cmd, 0);
+			_wilddog_syncTime();
         }
     }
     return WILDDOG_ERR_NOERR;
