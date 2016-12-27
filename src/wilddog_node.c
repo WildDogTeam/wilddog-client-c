@@ -194,6 +194,11 @@ STATIC Wilddog_Node_T * WD_SYSTEM _wilddog_node_newWithStr
                 }
                 p_tmp = p_head;
                 p_tmp->p_wn_key = (Wilddog_Str_T*)wmalloc(pos + 1);
+                if(NULL == p_tmp->p_wn_key){
+                    wilddog_node_delete(p_head);
+                    *p_node = NULL;
+                    return NULL;
+                }
                 strcpy((char*)p_tmp->p_wn_key, (char*)(p_tmpStr + i));
                 i += pos;
                 continue;
@@ -207,6 +212,12 @@ STATIC Wilddog_Node_T * WD_SYSTEM _wilddog_node_newWithStr
                 return NULL;
             }
             p_tmp->p_wn_key = (Wilddog_Str_T*)wmalloc(pos + 1);
+            if(NULL == p_tmp->p_wn_key){
+                wilddog_node_delete(p_head);
+                wilddog_node_delete(p_tmp);
+                *p_node = NULL;
+                return NULL;
+            }
             strcpy((char*)p_tmp->p_wn_key, (char*)(p_tmpStr + i));
             wilddog_node_addChild(p_parent, p_tmp);
             i += pos;

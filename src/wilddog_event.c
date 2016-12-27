@@ -635,6 +635,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeDelete
                     {
                         wilddog_debug_level( WD_DEBUG_ERROR, \
                             "cannot wmalloc tmp arg!");
+                        return WILDDOG_ERR_NULL;
                     }
                     tmp_arg->p_url = (Wilddog_Url_T *) \
                                      wmalloc(sizeof(Wilddog_Url_T));
@@ -643,6 +644,8 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeDelete
                     {
                         wilddog_debug_level( WD_DEBUG_ERROR, \
                             "cannot wmalloc tmp arg url!");
+                        wfree(tmp_arg);
+                        return WILDDOG_ERR_NULL;
                     }
                     len = strlen((const char *)node->p_url->p_url_host);
                     tmp_arg->p_url->p_url_host = (Wilddog_Str_T *) \
@@ -652,7 +655,8 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeDelete
                     {
                         wilddog_debug_level( WD_DEBUG_ERROR, \
                             "cannot wmalloc event node path!");
-
+                        wfree(tmp_arg->p_url);
+                        wfree(tmp_arg);
                         return WILDDOG_ERR_NULL;
                     }
 
@@ -667,7 +671,9 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeDelete
                     {
                         wilddog_debug_level( WD_DEBUG_ERROR, \
                             "cannot wmalloc event node path!");
-
+                        wfree(tmp_arg->p_url->p_url_host);
+                        wfree(tmp_arg->p_url);
+                        wfree(tmp_arg);
                         return WILDDOG_ERR_NULL;
                     }
 

@@ -10,6 +10,9 @@ extern "C"
 #include "wilddog.h"
 #include "wilddog_url_parser.h"
 
+#define WILDDOG_FORCE_OFFLINE
+#define WILDDOG_ADD_ONLINESTAT
+
 #ifndef WILDDOG_WEAK
 #define WILDDOG_WEAK  __attribute__((weak))
 #endif
@@ -105,12 +108,17 @@ typedef struct WILDDOG_REPO_T
     Wilddog_Url_T * p_rp_url;
     struct WILDDOG_STORE_T * p_rp_store;
     struct WILDDOG_CONN_T * p_rp_conn;
+#ifdef WILDDOG_ADD_ONLINESTAT
+    Wilddog_Func_T p_rp_onlineFunc;
+    void* p_rp_onlineArg;
+#endif
 }Wilddog_Repo_T;
 
 typedef struct WILDDOG_REPO_CONTAINER_T
 {
     Wilddog_Repo_T *p_rc_head;
     u32 d_rc_online;
+    BOOL isForcedOffline;
 }Wilddog_Repo_Con_T;
 
 extern size_t _wilddog_ct_ioctl
@@ -123,6 +131,10 @@ extern Wilddog_Repo_T *_wilddog_ct_findRepo(Wilddog_Str_T * p_host);
 extern u8 _wilddog_ct_getRepoNum(void);
 extern u32 _wilddog_ct_getOnlineStatus(void);
 extern Wilddog_Return_T _wilddog_ct_setOnlineStatus(u32 s);
+#ifdef WILDDOG_FORCE_OFFLINE
+extern u32 _wilddog_ct_getOfflineForced(void);
+#endif
+extern u32  _wilddog_ct_setOfflineForced(BOOL flag);
 extern Wilddog_Repo_T** _wilddog_ct_getRepoHead(void);
 #ifdef __cplusplus
 }
