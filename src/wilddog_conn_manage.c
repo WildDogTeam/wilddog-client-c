@@ -546,22 +546,10 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_cmd_userSend
           _CM_NEXTSENDTIME_SET(_wilddog_getTime(),p_newNode->d_retransmit_cnt));
     }else/*application send.*/
         res =  _wilddog_cm_onlineSend(p_arg->p_cm_l,p_newNode);
-#if 0   
-/* 20160804 :  never return send_to failt .let's try retransmits,we will release it when timeout*/ 
-    if( res < 0 )
-    {
-        LL_DELETE(p_arg->p_cm_l->p_cm_n_hd,p_newNode);
-		wfree(p_newNode->p_path);
-		p_newNode->p_path = NULL;
-		wfree(p_newNode);
-		p_newNode = NULL;
-        //_wilddog_cm_node_destory(&p_newNode);
-    }
-#endif	
     /* set auth state*/
-    if( p_arg->cmd == WILDDOG_CONN_CMD_AUTH && res >= 0)
+    if( p_arg->cmd == WILDDOG_CONN_CMD_AUTH && res >= 0){
         p_arg->p_cm_l->d_authStatus = CM_SESSION_AUTHING;
-
+    }
     return WILDDOG_ERR_NOERR;
 }
 /*
@@ -599,6 +587,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_errorHandle
             p_cm_l->d_serverEvent = CM_SERVER_EVENT_PRECONDITION_FAIL; 
         }
     }
+#if 0
     else
     {
         /* set online*/
@@ -613,7 +602,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_errorHandle
 		/* 20160627 : disable,while notify frequently , server need ping package to keep session.*/
         //_wilddog_cm_sys_timeSkip(p_cm_l);
    }
-    
+    #endif
    return WILDDOG_ERR_NOERR;
 }
 /*
@@ -749,7 +738,6 @@ STATIC int WD_SYSTEM _wilddog_cm_recv_handle
    Wilddog_Payload_T payload;
    Wilddog_CM_Recv_T cm_recv;
    int res = 0 ;
-   
    memset(&payload,0,sizeof(Wilddog_Payload_T));
    memset(&cm_recv,0,sizeof(Wilddog_CM_Recv_T));
    
@@ -797,6 +785,20 @@ STATIC int WD_SYSTEM _wilddog_cm_recv_handle
             LL_DELETE(p_cm_l->p_cm_n_hd,p_cm_n);
             _wilddog_cm_node_destory(&p_cm_n);
             break;
+   }
+   if( !_CM_RECV_SERVER_ERROR(p_recv->err))
+   {
+        /* set online*/
+        if(CM_OFFLINE == _wilddog_cm_sys_getOnlineState(p_cm_l))
+        {
+            /*set reonline flag.*/
+            p_l_cmControl->d_cm_onlineEvent = _CM_EVENT_TYPE_REONLINE;
+            /* set online.*/
+            _wilddog_cm_sys_setOnLineState(p_cm_l,CM_ONLINE);
+        }
+        /* normal responds.*/
+		/* 20160627 : disable,while notify frequently , server need ping package to keep session.*/
+        //_wilddog_cm_sys_timeSkip(p_cm_l);
    }
    return res;
 }
@@ -933,10 +935,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_retransmit
     
     if(p_cm_l == NULL)
         return WILDDOG_ERR_INVALID;
-#ifdef WILDDOG_FORCE_OFFLINE
-    if(_wilddog_ct_getOfflineForced())
-        return WILDDOG_ERR_NOERR;
-#endif
+
     LL_FOREACH_SAFE(p_cm_l->p_cm_n_hd,curr,tmp)
     {
         /*successfully observer node not need to retransmit.*/
@@ -1354,7 +1353,6 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_timeInit
 {
     p_cmsys_n->d_intervalTm = _CM_SYS_INTERVALINIT_SEC;
     p_cmsys_n->d_stepTm = _CM_SYS_STEP_SEC;
-
     if( p_cmsys_n->d_pingType != _CM_SYS_PINGTYPE_SHORT)
     {
         if(p_cmsys_n->p_ping_pkg)
@@ -2015,6 +2013,7 @@ STATIC int WD_SYSTEM _wilddog_cm_cmd_offLine
 {
     wilddog_assert(p_cm_l,WILDDOG_ERR_INVALID);
     /*all host offLine cmd already sended out then we define system offline.*/
+    //p_cm_l->d_authStatus = CM_SESSION_UNAUTH;
     _wilddog_cm_sys_setOnLineState(p_cm_l,CM_OFFLINE);
     return _wilddog_cm_sys_disablePingLink(p_cm_l,TRUE);
 }
@@ -2033,7 +2032,7 @@ STATIC int WD_SYSTEM _wilddog_cm_cmd_onLine
 {
     _CM_SYS_Node_T *p_cmsys_n = NULL;
     wilddog_assert(p_cm_l,WILDDOG_ERR_INVALID);
-    
+    //p_cm_l->d_authStatus = CM_SESSION_DOAUTH;
     p_cmsys_n = _wilddog_cm_sys_findSysnodeBycml(p_cm_l);
     if(p_cmsys_n)
     {
@@ -2063,15 +2062,9 @@ STATIC int WD_SYSTEM _wilddog_cm_cmd_trySync
     res  = _wilddog_cm_retransmit(p_cm_l);
     res = _wilddog_cm_session_maintain(p_cm_l);
     res = _wilddog_cm_recv();
-#ifdef WILDDOG_FORCE_OFFLINE
-    if(!_wilddog_ct_getOfflineForced())// if force offline, do not connect
-#endif
-        res = _wilddog_cm_reOnline();
+    res = _wilddog_cm_reOnline();
     res = _wilddog_cm_trafficRunOut(p_cm_l);
-#ifdef WILDDOG_FORCE_OFFLINE
-    if(!_wilddog_ct_getOfflineForced())// if force offline, do not connect
-#endif
-        res = _wilddog_cm_sys_keeplink();
+    res = _wilddog_cm_sys_keeplink();
     return res;
 }
 
