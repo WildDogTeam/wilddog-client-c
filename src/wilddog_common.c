@@ -101,6 +101,8 @@ void * WD_SYSTEM wrealloc(void *ptr, size_t oldSize, size_t newSize)
 */
 int WD_SYSTEM _wilddog_atoi(char* str)
 {
+    if(NULL == str)
+        return 0;
     return atoi(str);
 }
 /*
@@ -170,16 +172,16 @@ u32 WD_SYSTEM _wilddog_getTime(void)
 */
 void WD_SYSTEM _wilddog_syncTime(void)
 {
-    static u32 recentTime = 0;
-    u32 currTime = _wilddog_getTime();
+//    static u32 recentTime = 0;
+    u32 currTime = _wilddog_getTime() + WILDDOG_RECEIVE_TIMEOUT;
 
     /*every repo will receive WILDDOG_RECEIVE_TIMEOUT ms*/
-    u32 calTime = recentTime + WILDDOG_RECEIVE_TIMEOUT;
+//    u32 calTime = recentTime + WILDDOG_RECEIVE_TIMEOUT;
     
-    currTime = (currTime != recentTime ? (currTime):(calTime));
+//    currTime = (currTime != recentTime ? (currTime):(calTime));
     
     _wilddog_setTime(currTime);
-    recentTime = currTime;
+//    recentTime = currTime;
     return;
 }
 

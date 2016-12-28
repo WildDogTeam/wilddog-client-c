@@ -15,6 +15,7 @@ extern "C" {
 
 #include "wilddog.h"
 
+
 typedef struct WILDDOG_URL_T
 {
     Wilddog_Str_T     * p_url_host;

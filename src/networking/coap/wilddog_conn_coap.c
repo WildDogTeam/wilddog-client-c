@@ -297,15 +297,15 @@ STATIC int WD_SYSTEM _wilddog_coap_countPacktSize
     
     /*option*/
     if(p_arg->p_host)
-        len = 4+ strlen((const char *)p_arg->p_host);
+        len = 4 + strlen((const char *)p_arg->p_host);
     
     if(p_arg->p_query)
-        len += 6+ strlen((const char *)p_arg->p_query);
+        len += 6 + strlen((const char *)p_arg->p_query);
     if(p_arg->p_path)
     {
         n = _wilddog_coap_findChar('/',p_arg->p_path);
-        len += 4*(n+1)+strlen((const char *)p_arg->p_path);
-        }
+        len += 4 * (n+1)+strlen((const char *)p_arg->p_path);
+    }
     else
         len += 5;
     
@@ -569,7 +569,11 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_send(void *p_arg,int flag)
     
     if( p_coap == NULL)
         return WILDDOG_ERR_INVALID;
-    
+#ifdef WILDDOG_FORCE_OFFLINE
+    if(_wilddog_ct_getOfflineForced()){
+        return WILDDOG_ERR_SENDERR;
+    }
+#endif
 #ifdef DEBUG_LEVEL
     if(DEBUG_LEVEL <= WD_DEBUG_LOG )
         coap_show_pdu(p_coap);
@@ -875,7 +879,11 @@ Wilddog_Return_T WD_SYSTEM _wilddog_coap_receive(void *p_arg,int flag)
     
     res = _wilddog_sec_recv((void*)recvArg.p_recvData,(s32)WILDDOG_PROTO_MAXSIZE);
     /*@ NO enougth space */
-    if( res <= 0 || res  > WILDDOG_PROTO_MAXSIZE ) 
+    if( res <= 0 || res  > WILDDOG_PROTO_MAXSIZE
+#ifdef WILDDOG_FORCE_OFFLINE
+        || _wilddog_ct_getOfflineForced()
+#endif
+        ) 
         goto _COAPRECV_ERR;
 
     recvArg.d_recvDataLen = res;

@@ -30,6 +30,12 @@
 #include "wilddog.h"
 #include "wilddog_url_parser.h"
 #include "wilddog_common.h"
+#include "wilddog_ct.h"
+
+#ifdef WILDDOG_ADD_ONLINESTAT
+#define WILDDOG_ONLINE_PATH ".info/connected"
+//#define WILDDOG_ONLINE_PATH_WITH_SPRIT "/.info/connected"
+#endif
 
 /*
  * URL storage
@@ -465,9 +471,15 @@ Wilddog_Url_T * WD_SYSTEM _wilddog_url_parseUrl(Wilddog_Str_T * url)
            _wilddogurl_checkPath((Wilddog_Str_T*)p_paresd_url->path)
            )
         {
-            _wilddog_url_freeParsedUrl(p_wd_url);
-            parsed_url_free(p_paresd_url);
-            return NULL;
+#ifdef WILDDOG_ADD_ONLINESTAT
+            //added by jimmy
+            if(0 != strncmp((const char*)p_paresd_url->path, WILDDOG_ONLINE_PATH,strlen(WILDDOG_ONLINE_PATH)))
+#endif
+            {
+                _wilddog_url_freeParsedUrl(p_wd_url);
+                parsed_url_free(p_paresd_url);
+                return NULL;
+            }
         }
         p_wd_url->p_url_path = (Wilddog_Str_T *)wmalloc(len + 1);
         if(NULL == p_wd_url->p_url_path)

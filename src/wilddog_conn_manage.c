@@ -137,7 +137,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_destory
     Wilddog_CM_Node_T **pp_dele
     );
 
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_maintian
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_maintain
     (
     Wilddog_Cm_List_T *p_cm_l
     );
@@ -250,8 +250,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_node_creat
         int tmpLen = strlen((const char*)p_arg->p_path) +1;
         p_newNode->p_path = wmalloc(tmpLen);
         if(p_newNode->p_path == NULL)
+		{	
+			wfree(p_newNode);
             return WILDDOG_ERR_NULL;
-        memset(p_newNode->p_path,0,tmpLen);
+        }
+		memset(p_newNode->p_path,0,tmpLen);
         memcpy(p_newNode->p_path,p_arg->p_path,(tmpLen-1));
     }
     /* node type subscription.*/
@@ -930,7 +933,10 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_retransmit
     
     if(p_cm_l == NULL)
         return WILDDOG_ERR_INVALID;
-    
+#ifdef WILDDOG_FORCE_OFFLINE
+    if(_wilddog_ct_getOfflineForced())
+        return WILDDOG_ERR_NOERR;
+#endif
     LL_FOREACH_SAFE(p_cm_l->p_cm_n_hd,curr,tmp)
     {
         /*successfully observer node not need to retransmit.*/
@@ -938,28 +944,28 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_retransmit
             continue;
 
         /* send out while touch send time.*/
-        if( currTm >curr->d_sendTm && \
-            DIFF(currTm,curr->d_sendTm) < (0xffff))
+			/* time out node will be dele and not need to retransmit.*/
+        if(_wilddog_cm_transmitTimeOut(curr,p_cm_l) == FALSE)
         {
-            /* time out node will be dele and not need to retransmit.*/
-            if(_wilddog_cm_transmitTimeOut(curr,p_cm_l) == FALSE)
-            {
-                if(curr->cmd == WILDDOG_CONN_CMD_AUTH)
-                {
-                    /*auth send.*/
-
-                    _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND,curr->p_pkg,0);
-                    _wilddog_cm_node_updataSendTime(p_cm_l, \
-                        curr, \
-                        _CM_NEXTSENDTIME_SET(_wilddog_getTime(), \
-                        curr->d_retransmit_cnt));
-                }
-                else
-                {
-                    _wilddog_cm_onlineSend(p_cm_l,curr);
-                    /* put to queue tial.*/
-                }
-            }
+            /* send out while touch send time.*/
+			//wilddog_debug("currTm >curr->d_sendTm %ld currTm = %ld",curr->d_sendTm,currTm);
+	        if( currTm >curr->d_sendTm && \
+	            DIFF(currTm,curr->d_sendTm) < (0xffff)){
+	                if(curr->cmd == WILDDOG_CONN_CMD_AUTH)
+	                {
+	                    /*auth send.*/
+	                    _wilddog_protocol_ioctl(_PROTOCOL_CMD_SEND,curr->p_pkg,0);
+	                    _wilddog_cm_node_updataSendTime(p_cm_l, \
+	                        curr, \
+	                        _CM_NEXTSENDTIME_SET(_wilddog_getTime(), \
+	                        curr->d_retransmit_cnt));
+	                }
+	                else
+	                {
+	                    _wilddog_cm_onlineSend(p_cm_l,curr);
+	                    /* put to queue tial.*/
+	                }
+	            }
 
         }
     }
@@ -1165,13 +1171,13 @@ _CM_AUTH_ERR:
     
 }
 /*
- * Function:    _wilddog_cm_session_maintian.
+ * Function:    _wilddog_cm_session_maintain.
  * Description: set session state == doauth then send auth request in nex cycle.
  * Input:  p_cm_l : cm list.
  * Output:      N/A.
  * Return:      Wilddog_Return_T type.
 */
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_maintian
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_session_maintain
     (
     Wilddog_Cm_List_T *p_cm_l
     )
@@ -1288,6 +1294,9 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sys_setOnLineState
         return WILDDOG_ERR_NULL;
     /*set new state.*/
     p_cmsys_n->d_onlineState = s;
+    if(_wilddog_ct_getOnlineStatus() == s){
+        return WILDDOG_ERR_NOERR;
+    }
     /*deal with offline while system online.*/
     if( _wilddog_ct_getOnlineStatus() == CM_ONLINE )
     {
@@ -2052,11 +2061,17 @@ STATIC int WD_SYSTEM _wilddog_cm_cmd_trySync
 {
     int res = 0;
     res  = _wilddog_cm_retransmit(p_cm_l);
-    res = _wilddog_cm_session_maintian(p_cm_l);
+    res = _wilddog_cm_session_maintain(p_cm_l);
     res = _wilddog_cm_recv();
-    res = _wilddog_cm_reOnline();
+#ifdef WILDDOG_FORCE_OFFLINE
+    if(!_wilddog_ct_getOfflineForced())// if force offline, do not connect
+#endif
+        res = _wilddog_cm_reOnline();
     res = _wilddog_cm_trafficRunOut(p_cm_l);
-    res = _wilddog_cm_sys_keeplink();
+#ifdef WILDDOG_FORCE_OFFLINE
+    if(!_wilddog_ct_getOfflineForced())// if force offline, do not connect
+#endif
+        res = _wilddog_cm_sys_keeplink();
     return res;
 }
 
