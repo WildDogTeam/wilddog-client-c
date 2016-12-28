@@ -101,6 +101,8 @@ void * WD_SYSTEM wrealloc(void *ptr, size_t oldSize, size_t newSize)
 */
 int WD_SYSTEM _wilddog_atoi(char* str)
 {
+    if(NULL == str)
+        return 0;
     return atoi(str);
 }
 /*

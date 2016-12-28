@@ -1102,9 +1102,7 @@ Wilddog_Return_T _wilddog_ct_conn_goOffline()
     Wilddog_Repo_T** p_head = _wilddog_ct_getRepoHead();
     Wilddog_Repo_T* p_curr, *p_tmp;
     Wilddog_Conn_T * p_conn;
-#ifdef WILDDOG_FORCE_OFFLINE
-    _wilddog_ct_setOfflineForced(TRUE);
-#endif
+
     LL_FOREACH_SAFE(*p_head, p_curr, p_tmp)
     {
       p_conn = p_curr->p_rp_conn;
@@ -1116,6 +1114,10 @@ Wilddog_Return_T _wilddog_ct_conn_goOffline()
           (p_conn->f_conn_ioctl)(WILDDOG_CONN_CMD_OFFLINE, &cmd, 0);
       }
     }
+#ifdef WILDDOG_FORCE_OFFLINE
+    _wilddog_ct_setOfflineForced(TRUE);
+#endif
+
     return WILDDOG_ERR_NOERR;
 }
 
