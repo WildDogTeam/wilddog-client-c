@@ -627,6 +627,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_setAuth
     Wilddog_Store_T * p_rp_store = NULL;
     
     wilddog_assert(arg->p_host, WILDDOG_ERR_NULL);
+#ifdef WILDDOG_FORCE_OFFLINE
+    if(TRUE == _wilddog_ct_getOfflineForced()){
+        return WILDDOG_ERR_CLIENTOFFLINE;
+    }
+#endif
 
     /*add valid check!*/
     if(!_wilddog_isAuthValid(arg->p_auth, arg->d_len))
@@ -668,7 +673,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_query
     Wilddog_ConnCmd_Arg_T connCmd;
     Wilddog_Store_T * p_rp_store = NULL;
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T *)(arg->p_ref);
-
+    Wilddog_Return_T ret = WILDDOG_ERR_NULL;
 #ifdef WILDDOG_ADD_ONLINESTAT
     if(NULL != p_ref->p_ref_url && NULL != p_ref->p_ref_url->p_url_path){
         if(0 == strncmp((const char*)p_ref->p_ref_url->p_url_path, WILDDOG_ONLINE_PATH_WITH_SPRIT,strlen(WILDDOG_ONLINE_PATH_WITH_SPRIT))){
@@ -678,7 +683,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_query
                 (wilddog_node_createTrue(NULL)) : (wilddog_node_createFalse(NULL));
             
             if(NULL == tmp_online_status){
-                return WILDDOG_ERR_NULL;
+                ret = WILDDOG_ERR_NULL;
+                goto query_done;
             }
             if(arg->p_callback){
                 ((onQueryFunc)(arg->p_callback))((const Wilddog_Node_T*)tmp_online_status,arg->arg, WILDDOG_HTTP_OK);
@@ -688,6 +694,12 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_query
         }
     }
 #endif
+#ifdef WILDDOG_FORCE_OFFLINE
+    if(TRUE == _wilddog_ct_getOfflineForced()){
+        ret = WILDDOG_ERR_CLIENTOFFLINE;
+        goto query_done;
+    }
+#endif
 
     connCmd.p_repo = p_ref->p_ref_repo;
     connCmd.p_url = p_ref->p_ref_url;
@@ -695,11 +707,18 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_query
     connCmd.p_completeArg = arg->arg;
     connCmd.p_data = NULL;
     p_rp_store = p_ref->p_ref_repo->p_rp_store;
-    if( p_rp_store && p_rp_store->p_se_callback)
-        return (p_rp_store->p_se_callback)(p_rp_store, \
+    if( p_rp_store && p_rp_store->p_se_callback){
+        ret = (p_rp_store->p_se_callback)(p_rp_store, \
                                         WILDDOG_STORE_CMD_SENDGET, &connCmd, 0);
-    else
-        return WILDDOG_ERR_INVALID;
+    }
+    
+query_done:
+    if(WILDDOG_ERR_NOERR != ret){
+        if(arg->p_callback){
+            ((onQueryFunc)(arg->p_callback))(NULL,arg->arg, ret);
+        }
+    }
+    return ret;
 }
 
 /*
@@ -721,13 +740,22 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_set
     Wilddog_Store_T * p_rp_store = NULL;
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T *)(arg->p_ref);
     Wilddog_Store_Cmd_T cmd = WILDDOG_STORE_CMD_SENDSET;
+    Wilddog_Return_T ret = WILDDOG_ERR_NULL;
 #ifdef WILDDOG_ADD_ONLINESTAT
     if(NULL != p_ref->p_ref_url && NULL != p_ref->p_ref_url->p_url_path){
         if(0 == strncmp((const char*)p_ref->p_ref_url->p_url_path, WILDDOG_ONLINE_PATH_WITH_SPRIT,strlen(WILDDOG_ONLINE_PATH_WITH_SPRIT))){
             //It is invalid!
             wilddog_debug_level(WD_DEBUG_ERROR, "Set %s is invalid!",WILDDOG_ONLINE_PATH_WITH_SPRIT);
-            return WILDDOG_ERR_INVALID;
+            ret = WILDDOG_ERR_INVALID;
+            goto set_done;
         }
+    }
+#endif
+
+#ifdef WILDDOG_FORCE_OFFLINE
+    if(TRUE == _wilddog_ct_getOfflineForced()){
+        ret = WILDDOG_ERR_CLIENTOFFLINE;
+        goto set_done;
     }
 #endif
 
@@ -741,11 +769,18 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_set
 
     p_rp_store = p_ref->p_ref_repo->p_rp_store;
     
-    if(p_rp_store && p_rp_store->p_se_callback)
-        return (p_rp_store->p_se_callback)(p_rp_store, \
+    if(p_rp_store && p_rp_store->p_se_callback){
+        ret = (p_rp_store->p_se_callback)(p_rp_store, \
                                     cmd, &connCmd, 0);
-    else
-        return WILDDOG_ERR_INVALID;
+    }
+
+set_done:
+    if(WILDDOG_ERR_NOERR != ret){
+        if(arg->p_callback){
+            ((onSetFunc)(arg->p_callback))(arg->arg, ret);
+        }
+    }
+    return ret;
 }
 
 /*
@@ -767,13 +802,21 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_push
     Wilddog_Store_T * p_rp_store = NULL;
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T *)(arg->p_ref);
     Wilddog_Store_Cmd_T cmd = WILDDOG_STORE_CMD_SENDSET;
+    Wilddog_Return_T ret = WILDDOG_ERR_NULL;
 #ifdef WILDDOG_ADD_ONLINESTAT
     if(NULL != p_ref->p_ref_url && NULL != p_ref->p_ref_url->p_url_path){
         if(0 == strncmp((const char*)p_ref->p_ref_url->p_url_path, WILDDOG_ONLINE_PATH_WITH_SPRIT,strlen(WILDDOG_ONLINE_PATH_WITH_SPRIT))){
             //It is invalid!
             wilddog_debug_level(WD_DEBUG_ERROR, "Push %s is invalid!",WILDDOG_ONLINE_PATH_WITH_SPRIT);
-            return WILDDOG_ERR_INVALID;
+            ret = WILDDOG_ERR_INVALID;
+            goto push_done;
         }
+    }
+#endif
+#ifdef WILDDOG_FORCE_OFFLINE
+    if(TRUE == _wilddog_ct_getOfflineForced()){
+        ret = WILDDOG_ERR_CLIENTOFFLINE;
+        goto push_done;
     }
 #endif
 
@@ -787,11 +830,18 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_push
     connCmd.p_completeArg = arg->arg;
     
     p_rp_store = p_ref->p_ref_repo->p_rp_store;
-    if(p_rp_store && p_rp_store->p_se_callback)
-        return (p_rp_store->p_se_callback)(p_rp_store, \
+    if(p_rp_store && p_rp_store->p_se_callback){
+        ret = (p_rp_store->p_se_callback)(p_rp_store, \
                                     cmd, &connCmd, 0);
-    else
-        return WILDDOG_ERR_INVALID;
+    }
+    
+push_done:
+    if(WILDDOG_ERR_NOERR != ret){
+        if(arg->p_callback){
+            ((onPushFunc)(arg->p_callback))(NULL, arg->arg, ret);
+        }
+    }
+    return ret;
 }
 
 /*
@@ -813,13 +863,21 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_remove
     Wilddog_Store_T * p_rp_store = NULL;
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T *)(arg->p_ref);
     Wilddog_Store_Cmd_T cmd = WILDDOG_STORE_CMD_SENDSET;
+    Wilddog_Return_T ret = WILDDOG_ERR_NULL;
 #ifdef WILDDOG_ADD_ONLINESTAT
     if(NULL != p_ref->p_ref_url && NULL != p_ref->p_ref_url->p_url_path){
         if(0 == strncmp((const char*)p_ref->p_ref_url->p_url_path, WILDDOG_ONLINE_PATH_WITH_SPRIT,strlen(WILDDOG_ONLINE_PATH_WITH_SPRIT))){
             //It is invalid!
             wilddog_debug_level(WD_DEBUG_ERROR, "Remove %s is invalid!",WILDDOG_ONLINE_PATH_WITH_SPRIT);
-            return WILDDOG_ERR_INVALID;
+            ret = WILDDOG_ERR_INVALID;
+            goto remove_done;
         }
+    }
+#endif
+#ifdef WILDDOG_FORCE_OFFLINE
+    if(TRUE == _wilddog_ct_getOfflineForced()){
+        ret = WILDDOG_ERR_CLIENTOFFLINE;
+        goto remove_done;
     }
 #endif
 
@@ -832,11 +890,17 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_remove
     connCmd.p_completeArg = arg->arg;
     connCmd.p_data = NULL;
     p_rp_store = p_ref->p_ref_repo->p_rp_store;
-    if(p_rp_store && p_rp_store->p_se_callback)
-        return (p_rp_store->p_se_callback)(p_rp_store, \
+    if(p_rp_store && p_rp_store->p_se_callback){
+        ret = (p_rp_store->p_se_callback)(p_rp_store, \
                                     cmd, &connCmd, 0);
-    else
-        return WILDDOG_ERR_INVALID;
+    }
+remove_done:
+    if(WILDDOG_ERR_NOERR != ret){
+        if(arg->p_callback){
+            ((onRemoveFunc)(arg->p_callback))(arg->arg, ret);
+        }
+    }
+    return ret;
 }
 
 /*
@@ -858,6 +922,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_on
     Wilddog_Store_T * p_rp_store = NULL;
     Wilddo_Store_EventArg_T eventArg;
     Wilddog_Ref_T * p_ref = (Wilddog_Ref_T *)(arg->p_ref);
+    Wilddog_Return_T ret = WILDDOG_ERR_NULL;
 #ifdef WILDDOG_ADD_ONLINESTAT
     if(NULL != p_ref->p_ref_url && NULL != p_ref->p_ref_url->p_url_path){
         if(0 == strncmp((const char*)p_ref->p_ref_url->p_url_path, WILDDOG_ONLINE_PATH_WITH_SPRIT,strlen(WILDDOG_ONLINE_PATH_WITH_SPRIT))){
@@ -867,7 +932,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_on
                 (wilddog_node_createTrue(NULL)) : (wilddog_node_createFalse(NULL));
             
             if(NULL == tmp_online_status){
-                return WILDDOG_ERR_NULL;
+                ret = WILDDOG_ERR_NULL;
+                goto on_done;
             }
             if(arg->p_onData){
                 ((onEventFunc)(arg->p_onData))((const Wilddog_Node_T*)tmp_online_status,arg->p_dataArg, WILDDOG_HTTP_OK);
@@ -883,6 +949,12 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_on
         }
     }
 #endif
+#ifdef WILDDOG_FORCE_OFFLINE
+    if(TRUE == _wilddog_ct_getOfflineForced()){
+        ret = WILDDOG_ERR_CLIENTOFFLINE;
+        goto on_done;
+    }
+#endif
 
     connCmd.p_repo = p_ref->p_ref_repo;
     connCmd.p_url = p_ref->p_ref_url;
@@ -893,11 +965,17 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_on
     eventArg.d_connCmd = connCmd;
     
     p_rp_store = p_ref->p_ref_repo->p_rp_store;
-    if(p_rp_store && p_rp_store->p_se_callback)
-        return (p_rp_store->p_se_callback)(p_rp_store, \
+    if(p_rp_store && p_rp_store->p_se_callback){
+        ret = (p_rp_store->p_se_callback)(p_rp_store, \
                                     WILDDOG_STORE_CMD_SENDON, &eventArg, 0);
-    else
-        return WILDDOG_ERR_INVALID;
+    }
+on_done:
+    if(WILDDOG_ERR_NOERR != ret){
+        if(arg->p_onData){
+            ((onEventFunc)(arg->p_onData))(NULL,arg->p_dataArg, ret);
+        }
+    }
+    return ret;
 }
 
 /*
@@ -929,6 +1007,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_off
 
             return WILDDOG_ERR_NOERR;
         }
+    }
+#endif
+#ifdef WILDDOG_FORCE_OFFLINE
+    if(TRUE == _wilddog_ct_getOfflineForced()){
+        return WILDDOG_ERR_CLIENTOFFLINE;
     }
 #endif
 
@@ -990,6 +1073,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_store_disCancel
             wilddog_debug_level(WD_DEBUG_ERROR, "Disconnect cancel %s is invalid!",WILDDOG_ONLINE_PATH_WITH_SPRIT);
             return WILDDOG_ERR_INVALID;
         }
+    }
+#endif
+#ifdef WILDDOG_FORCE_OFFLINE
+    if(TRUE == _wilddog_ct_getOfflineForced()){
+        return WILDDOG_ERR_CLIENTOFFLINE;
     }
 #endif
 
@@ -1103,6 +1191,9 @@ Wilddog_Return_T _wilddog_ct_conn_goOffline()
     Wilddog_Repo_T* p_curr, *p_tmp;
     Wilddog_Conn_T * p_conn;
 
+#ifdef WILDDOG_FORCE_OFFLINE
+    _wilddog_ct_setOfflineForced(TRUE);
+#endif
     LL_FOREACH_SAFE(*p_head, p_curr, p_tmp)
     {
       p_conn = p_curr->p_rp_conn;
@@ -1114,10 +1205,6 @@ Wilddog_Return_T _wilddog_ct_conn_goOffline()
           (p_conn->f_conn_ioctl)(WILDDOG_CONN_CMD_OFFLINE, &cmd, 0);
       }
     }
-#ifdef WILDDOG_FORCE_OFFLINE
-    _wilddog_ct_setOfflineForced(TRUE);
-#endif
-
     return WILDDOG_ERR_NOERR;
 }
 
@@ -1133,6 +1220,7 @@ Wilddog_Return_T _wilddog_ct_conn_goOnline()
     Wilddog_Repo_T** p_head = _wilddog_ct_getRepoHead();
     Wilddog_Repo_T* p_curr, *p_tmp;
     Wilddog_Conn_T * p_conn;
+
 #ifdef WILDDOG_FORCE_OFFLINE
     _wilddog_ct_setOfflineForced(FALSE);
 #endif
@@ -1167,6 +1255,12 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_conn_sync
     Wilddog_Repo_T** p_head = _wilddog_ct_getRepoHead();
     Wilddog_Repo_T* p_curr, *p_tmp;
     Wilddog_Conn_T * p_conn;
+#ifdef WILDDOG_FORCE_OFFLINE
+    if(TRUE == _wilddog_ct_getOfflineForced()){
+        return WILDDOG_ERR_CLIENTOFFLINE;
+    }
+#endif
+
     /*1. time increase
      *
      *2. call syncs in all repo
