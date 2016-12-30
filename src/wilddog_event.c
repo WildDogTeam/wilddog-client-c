@@ -187,15 +187,14 @@ STATIC void WD_SYSTEM _wilddog_event_errCheck
     int err
 )
 {
-	if(err > 400 || err <0 )
+	if((err >= WILDDOG_HTTP_BAD_REQUEST || err < 0) && err != WILDDOG_ERR_RECONNECT)
 	{
-
-			enode->state = EVENT_STATE_OFF;
+        enode->state = EVENT_STATE_OFF;
 	}
 }
 /*
  * Function:    _wilddog_event_errhandle
- * Description: delete node whitch receive error.
+ * Description: delete node which receive error.
  *
  * Input:       enode: event to be handle.
  *              
@@ -217,8 +216,7 @@ STATIC int WD_SYSTEM _wilddog_event_errHandle
         if( node->state == EVENT_STATE_OFF )
         {
   			LL_DELETE(*enode,node);
-			
-			wilddog_debug_level( WD_DEBUG_LOG,"dele node %s",node->p_url->p_url_path);
+			wilddog_debug_level( WD_DEBUG_LOG,"delete node %s",node->p_url->p_url_path);
 			_wilddog_event_nodeFree(node);			
         }
     }
@@ -301,7 +299,7 @@ void WD_SYSTEM _wilddog_event_trigger
                 obj_node_next = obj_node->p_wn_next;
                 obj_node->p_wn_next = NULL;
             }
-			/* whild observer receive err set node state to off*/
+			/* while observer receive err set node state to off*/
             _wilddog_event_errCheck(enode,(int)err);
 			
             enode->p_onData( obj_node, enode->p_dataArg, err);
@@ -350,7 +348,6 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
     Wilddog_Str_T *tmp;
     Wilddog_Conn_T *p_conn = event->p_ev_store->p_se_repo->p_rp_conn;
     u32 len = 0;
-
     head = event->p_head;
     
     if(arg->p_url)
