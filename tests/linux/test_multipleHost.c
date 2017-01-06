@@ -64,16 +64,22 @@ STATIC int multiple_judge(const Wilddog_Node_T* p_snapshot,char* src)
 {
 	int len;
     Wilddog_Str_T* value = NULL;
+    Wilddog_Node_T* temp;
     if(!p_snapshot || !p_snapshot->p_wn_child)
     {
         return 0;
     }
-    value = wilddog_node_getValue(p_snapshot->p_wn_child,&len);
-    if(len)
-    {
-        if(0 == strcmp( (const char*)value,src))
-            return 1;
+    temp = p_snapshot->p_wn_child;
+    while(temp){
+		value = wilddog_node_getValue(temp,&len);
+		if(len)
+		{
+		    if(0 == strcmp( (const char*)value,src))
+		        return 1;
+		}
+        temp = temp->p_wn_next;
     }
+
 
     return 0;
 }
@@ -117,7 +123,8 @@ STATIC void multiple_removeValueFunc( void* arg, Wilddog_Return_T err)
 STATIC void multiple_setValueFunc( void* arg, Wilddog_Return_T err)
 {
                         
-	Multiple_client_T *p_client = (Multiple_client_T*)arg;
+	Multiple_client_T *p_client = (Multiple_client_T*)arg;
+
 	printf("\nset : error: %d %s \n",err,p_client->p_host);
 	p_client->d_recvFlag = 1;
 	if(err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED)
