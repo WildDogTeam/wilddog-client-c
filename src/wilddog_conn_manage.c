@@ -587,23 +587,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_recv_errorHandle
             p_cm_l->d_serverEvent = CM_SERVER_EVENT_PRECONDITION_FAIL; 
         }
     }
-#if 0
-    else
-    {
-        /* set online*/
-        if(CM_OFFLINE == _wilddog_cm_sys_getOnlineState(p_cm_l))
-        {
-            /*set reonline flag.*/
-            p_l_cmControl->d_cm_onlineEvent = _CM_EVENT_TYPE_REONLINE;
-            /* set online.*/
-            _wilddog_cm_sys_setOnLineState(p_cm_l,CM_ONLINE);
-        }
-        /* normal responds.*/
-		/* 20160627 : disable,while notify frequently , server need ping package to keep session.*/
-        //_wilddog_cm_sys_timeSkip(p_cm_l);
-   }
-    #endif
-   return WILDDOG_ERR_NOERR;
+
+    return WILDDOG_ERR_NOERR;
 }
 /*
  * Function:    _wilddog_cm_findObserverNode_byPath.

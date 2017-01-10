@@ -260,9 +260,9 @@ int main(int argc, char **argv)
 
         case 'h':
             fprintf(stderr, \
-                 "Usage: %s setAuth|getValue|setValue|push|removeValue|addObser\n"
+                 "Usage: %s setAuth|getValue|setValue|push|removeValue|addObserver\n"
                 "\t|disSetValue|disPush|disRemove|cacelDis|offLine|onLine\n"
-                "\tver -l coap://<your appid>.wilddogio.com/ [ --auth=<auth data> "
+                "\t -l coap://<your appid>.wilddogio.com/ [ --auth=<auth data> "
                 "--key=<key>  --value=<value>]\n",
                     argv[0]);
             return 0;
@@ -274,9 +274,9 @@ int main(int argc, char **argv)
             break;          
         default: /* '?' */
             fprintf(stderr, \
-               "Usage: %s setAuth|getValue|setValue|push|removeValue|addObser\n"
+               "Usage: %s setAuth|getValue|setValue|push|removeValue|addObserver\n"
                "\t|disSetValue|disPush|disRemove|cacelDis|offLine|onLine\n"
-               "\tver -l coap://<your appid>.wilddogio.com/ [ --auth=<auth data> "
+               "\t -l coap://<your appid>.wilddogio.com/ [ --auth=<auth data> "
                "--key=<key>  --value=<value>]\n",
                     argv[0]);
             return 0;
@@ -351,9 +351,9 @@ int main(int argc, char **argv)
     }
     if( !type)
     {
-        printf("Usage: %s setAuth|getValue|setValue|push|removeValue|addObser\n"
+        printf("Usage: %s setAuth|getValue|setValue|push|removeValue|addObserver\n"
                 "\t|disSetValue|disPush|disRemove|cacelDis|offLine|onLine\n"
-               "\tver -l coap://<your appid>.wilddogio.com/ [ --auth=<auth data> "
+               "\t -l coap://<your appid>.wilddogio.com/ [ --auth=<auth data> "
                "--key=<key>  --value=<value>]\n", 
                argv[0]);
         return 0;
