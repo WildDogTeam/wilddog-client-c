@@ -260,7 +260,7 @@ void WD_SYSTEM _wilddog_event_trigger
 
     enode = repo->p_rp_store->p_se_event->p_head;
     
-    /*TODO: use the type to check which event can be triggered */
+    /* Event bubbling, trigger all relative events. */
     while(enode)
     {
         u8 pathContainResult = 0;
@@ -420,6 +420,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
         }
         else if( ((cmpResult == 0) && (slen == dlen)) )
         {
+            /*oh no, find a node already exists.*/
             tmp_node->p_onData = arg->p_complete;
             tmp_node->p_dataArg = arg->p_completeArg;
             _wilddog_event_nodeFree(node);
@@ -597,6 +598,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeDelete
     
     if(node->flag == ON_FLAG)
     {
+
         if(p_conn && p_conn->f_conn_ioctl)
         {
             err =  p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_OFF, arg, 0);
@@ -605,6 +607,9 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeDelete
         wilddog_debug_level(WD_DEBUG_LOG, "nodedelete off node path:%s\n", \
                             arg->p_url->p_url_path);
 
+        /*if this node is to be closed, but it's son or grandson want's on, then
+         *on them.
+        */
         prev_node = node;
         node = node->next;
         while(node)
@@ -738,7 +743,6 @@ Wilddog_Event_T* WD_SYSTEM _wilddog_event_init(Wilddog_Store_T *p_store)
     if(p_event == NULL)
     {
         wilddog_debug_level( WD_DEBUG_ERROR, "cannot wmalloc Wilddog_Event_T");
-
         return NULL;
     }
 

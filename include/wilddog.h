@@ -30,11 +30,11 @@ extern "C"
 /* if do not need debug log, undefine it to cost down ROM space. */
 #define WILDDOG_DEBUG
 
-#define WD_DEBUG_ALL    0
-#define WD_DEBUG_LOG    1
-#define WD_DEBUG_WARN   2
-#define WD_DEBUG_ERROR  3
-#define WD_DEBUG_NODBG  4
+#define WD_DEBUG_ALL    (0)
+#define WD_DEBUG_LOG    (1)
+#define WD_DEBUG_WARN   (2)
+#define WD_DEBUG_ERROR  (3)
+#define WD_DEBUG_DEBUG  (4)
 
 #ifdef WILDDOG_PORT_TYPE_ESP    
 #include "wilddog_espressif.h"
@@ -78,11 +78,19 @@ typedef signed long s32 ;
 #ifdef WILDDOG_DEBUG
 #define DEBUG_LEVEL WD_DEBUG_ERROR
 
+STATIC const char *s_debug[] = {
+    "[ALL]",
+    "[LOG]",
+    "[WARN]",
+    "[ERROR]",
+    "[DEBUG]"
+};
+
 #define wilddog_debug_level(level, format,...) do{if(level >= DEBUG_LEVEL){ \
-    printf("func:%s LINE: %d: "format"\r\n", __func__, __LINE__, ##__VA_ARGS__); \
+    printf("func:%s LINE: %d: %s"format"\r\n", __func__, __LINE__, s_debug[level],##__VA_ARGS__); \
     }}while(0)
 
-#define wilddog_debug(format,...) wilddog_debug_level(WD_DEBUG_NODBG, \
+#define wilddog_debug(format,...) wilddog_debug_level(WD_DEBUG_DEBUG, \
     format,##__VA_ARGS__)
 
 #else
@@ -155,6 +163,7 @@ typedef enum WILDDOG_RETURN_T
     WILDDOG_HTTP_OK = 200,
     WILDDOG_HTTP_CREATED = 201,
     WILDDOG_HTTP_NO_CONTENT = 204,
+    WILDDOG_HTTP_PARTICAL_CONTENT = 206,
 
     WILDDOG_HTTP_NOT_MODIFIED = 304,
 

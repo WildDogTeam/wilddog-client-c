@@ -562,9 +562,12 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_destoryRepo
     wilddog_assert(p_repo, WILDDOG_ERR_NULL);
     p_repoHead = _wilddog_ct_getRepoHead(); 
     
-    p_repo->p_rp_store = _wilddog_store_deinit(p_repo);
-    p_repo->p_rp_conn  = _wilddog_conn_deinit(p_repo);
-
+    _wilddog_store_deinit(p_repo);
+    _wilddog_conn_deinit(p_repo);
+    
+    p_repo->p_rp_store = NULL;
+    p_repo->p_rp_conn  = NULL;
+    
     _wilddog_url_freeParsedUrl(p_repo->p_rp_url);
     p_repo->p_rp_url = NULL;
     LL_DELETE((*p_repoHead), p_repo);

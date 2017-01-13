@@ -116,24 +116,24 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_store_setAuth
  * Description: Deinit the store structure.
  * Input:       p_repo: The pointer of the repo structure.
  * Output:      N/A
- * Return:      return NULL.
+ * Return:      return 0 or error code.
 */
-Wilddog_Store_T* WD_SYSTEM _wilddog_store_deinit(Wilddog_Repo_T* p_repo)
+Wilddog_Return_T WD_SYSTEM _wilddog_store_deinit(Wilddog_Repo_T* p_repo)
 {
     Wilddog_Store_T *p_store = NULL;
 
-    wilddog_assert(p_repo, NULL);
+    wilddog_assert(p_repo, WILDDOG_ERR_NULL);
     
     p_store = p_repo->p_rp_store;
     if(NULL == p_store)
-        return NULL;
+        return WILDDOG_ERR_NULL;
     p_store->p_se_head = NULL;
     p_store->p_se_event = _wilddog_event_deinit(p_store);
     if(p_store->p_se_auth)
         wfree(p_store->p_se_auth);
     p_store->p_se_auth = NULL;
     wfree(p_store);
-    return NULL;
+    return WILDDOG_ERR_NOERR;
 }
 
 /*

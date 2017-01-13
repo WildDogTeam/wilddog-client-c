@@ -15,7 +15,7 @@ else
 QUIET = @
 MAKE += --no-print-directory
 endif
-CFLAGS+=-Wall -O2
+CFLAGS+=-Wall -g
 
 ifeq ($(APP_SEC_TYPE), tinydtls)
 CFLAGS += -pthread

@@ -61,7 +61,7 @@ typedef struct WILDDOG_STORE_T
 
 
 extern Wilddog_Store_T *_wilddog_store_init(Wilddog_Repo_T* p_repo);
-extern Wilddog_Store_T *_wilddog_store_deinit(Wilddog_Repo_T* p_repo);
+extern Wilddog_Return_T _wilddog_store_deinit(Wilddog_Repo_T* p_repo);
 
 #ifdef __cplusplus
 }
