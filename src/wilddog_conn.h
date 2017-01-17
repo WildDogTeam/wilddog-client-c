@@ -178,8 +178,8 @@ extern size_t WD_SYSTEM _wilddog_protocol_ioctl
     int flags
     );
 #else
-#define WILDDOG_CONN_SESSION_SHORT_LEN 4
-#define WILDDOG_CONN_SESSION_LONG_LEN 32
+#define WILDDOG_CONN_SESSION_SHORT_LEN (8 + 1)
+#define WILDDOG_CONN_SESSION_LONG_LEN (32 + 1)
 
 typedef enum WILDDOG_SESSION_STATE{
     WILDDOG_SESSION_NOTAUTHED = 0,

@@ -30,7 +30,7 @@ typedef struct WILDDOG_PROTO_CMD_ARG_T{
     u8 *p_data;//input 
     u32 d_data_len;
     Wilddog_Url_T * p_url;
-    u32 * p_message_id;
+    u32 * p_message_id;//we assume message id in u32
     u8 **p_out_data;//output
     u32 *p_out_data_len;
     u8 **p_proto_data;//proto special, in/out

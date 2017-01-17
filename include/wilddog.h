@@ -76,7 +76,7 @@ typedef signed long s32 ;
 #endif
 
 #ifdef WILDDOG_DEBUG
-#define DEBUG_LEVEL WD_DEBUG_ERROR
+#define DEBUG_LEVEL WD_DEBUG_ALL
 
 STATIC const char *s_debug[] = {
     "[ALL]",
@@ -87,7 +87,7 @@ STATIC const char *s_debug[] = {
 };
 
 #define wilddog_debug_level(level, format,...) do{if(level >= DEBUG_LEVEL){ \
-    printf("func:%s LINE: %d: %s"format"\r\n", __func__, __LINE__, s_debug[level],##__VA_ARGS__); \
+    printf("%s:func:%s LINE: %d: "format"\r\n",s_debug[level],__func__, __LINE__, ##__VA_ARGS__); \
     }}while(0)
 
 #define wilddog_debug(format,...) wilddog_debug_level(WD_DEBUG_DEBUG, \
@@ -154,6 +154,7 @@ typedef enum WILDDOG_RETURN_T
     WILDDOG_ERR_RECVNOMATCH = -11,
     WILDDOG_ERR_CLIENTOFFLINE = -12,
     WILDDOG_ERR_RECONNECT = -13, 
+    WILDDOG_ERR_IGNORE = -14,
     /*
      * Using auto detect udp session tech, sdk maybe trigger reconnect event in 
      * first serval minutes, and the snapshot in callback maybe newer than local

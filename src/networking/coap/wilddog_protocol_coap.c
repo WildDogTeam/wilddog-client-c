@@ -32,6 +32,14 @@
 
 #include "wilddog_conn.h"
 
+#define  COAP_CODE_GET(code)   ((code >> 5) * 100 + (code & 0x1F))
+
+typedef struct _WILDDOG_COAP_OBSERVE_DATA{
+    u32 last_index;
+    u32 last_recv_time;
+    u32 maxage;
+}_Wilddog_Coap_Observe_Data_T;
+
 /*
  * Function:    _wilddog_conn_mallocRecvBuffer
  * Description: conn layer malloc the buffer which used for recv
@@ -83,6 +91,31 @@ STATIC void WD_SYSTEM _wilddog_coap_freeRecvBuffer(Wilddog_Protocol_T *proto,u8*
     return;
 }
 
+/*
+ * Function:    _wilddog_coap_ntoh
+ * Description: Convert the byte order
+ * Input:       src: The pointer of the source byte    
+ *              len: The length of the source byte
+ * Output:      dst: The pointer of the destination byte
+ * Return:      N/A
+*/
+STATIC INLINE void WD_SYSTEM  _wilddog_coap_ntoh
+    (
+    u8 *dst,
+    const u8 *src,
+    const u8 len
+    )
+{
+    u8 i;
+
+    for(i=0;i<len; i++){
+#if WILDDOG_LITTLE_ENDIAN == 1
+        dst[i] = src[len - i - 1 ];
+#else
+        dst[i] = src[i];
+#endif
+    }
+}
 
 /*
  * Function:    _wilddog_coap_random
@@ -114,6 +147,127 @@ STATIC u32 WD_SYSTEM _wilddog_coap_getToken(u16 mid)
     u32 token = _wilddog_coap_random();
     return (u32)(((token & (~0xff)) | (mid & 0xff)) & 0xffffffff);
 }
+/*
+ * Function:    _wilddog_coap_getRecvCode
+ * Description: Convert the coap code to http return code
+ * Input:       pdu: The coap pkt   
+ * Output:      N/A
+ * Return:      The http return code
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_getRecvCode(coap_pdu_t * pdu)
+{
+    u32 rec_code;
+
+    wilddog_assert(pdu, WILDDOG_ERR_NULL);
+
+    rec_code = COAP_CODE_GET(pdu->hdr->code);
+
+    switch(rec_code)
+    {
+        case 201:   return WILDDOG_HTTP_CREATED;
+        case 202:   return WILDDOG_HTTP_NO_CONTENT;
+        case 203:   return WILDDOG_HTTP_NOT_MODIFIED;
+        case 204:   return WILDDOG_HTTP_NO_CONTENT;
+        case 205:   return WILDDOG_HTTP_OK;
+    }
+    return rec_code;
+}
+
+/*notice, observe_index may not be continually, and may be fallback to 
+  little index.
+/* from RFC 7641: https://tools.ietf.org/html/rfc7641#section-3.4
+   V1 is last index, V2 is recv index, T1 is last recv time
+   T2 is now recv time. Condition 3 we do not care , only care 1 and 2
+
+  (V1 < V2 and V2 - V1 < 2^23) or
+  (V1 > V2 and V1 - V2 > 2^23) or
+  (T2 > T1 + 128 seconds)
+*/
+STATIC BOOL WD_SYSTEM _wilddog_coap_isObserveNew(u32 old_index, u32 new_index){
+    if(((old_index < new_index) && (new_index - old_index < (1<<23))) || \
+        ((old_index > new_index) && (old_index - new_index > (1<<23))))
+        return TRUE;
+    
+    return FALSE;
+}
+/*
++-----+---+---+---+---+---------+--------+--------+---------+
+| No. | C | U | N | R | Name    | Format | Length | Default |
++-----+---+---+---+---+---------+--------+--------+---------+
+|   6 |   | x | - |   | Observe | uint   | 0-3 B  | (none)  |
++-----+---+---+---+---+---------+--------+--------+---------+
+*/
+STATIC u32 WD_SYSTEM _wilddog_coap_getRecvObserveIndex(coap_pdu_t * pdu)
+{
+    u32 observe = 0;
+    u16 len;
+    coap_opt_t *p_op =NULL;
+    coap_opt_iterator_t d_oi;
+    u8 *option_value = NULL;
+    
+    wilddog_assert(pdu, WILDDOG_ERR_NULL);
+
+    p_op = coap_check_option(pdu,COAP_OPTION_OBSERVE,&d_oi);
+
+    if(p_op){
+        len = coap_opt_length(p_op);
+        // max observe data is 3 bytes.
+        if(len == 0 || len > 3){
+            wilddog_debug_level(WD_DEBUG_ERROR, "Get an maxage option but length is %ld!",len);
+            return 0;
+        }
+        option_value = coap_opt_value(p_op);
+        if(NULL == option_value){
+            wilddog_debug_level(WD_DEBUG_ERROR, \
+                     "Get an option length is %ld but no value!",len);
+
+            return 0;
+        }
+        //observe option is in big endian.
+        _wilddog_coap_ntoh((u8*)&observe,option_value,len);
+    }
+    return observe;
+}
+
+/*
++-----+---+---+---+---+----------------+--------+--------+----------+
+| No. | C | U | N | R |      Name      | Format | Length |  Default |
++-----+---+---+---+---+----------------+--------+--------+----------+
+| 14  |   | x | - |   |     Max-Age    | uint   | 0-4    |  60      |
++-----+---+---+---+---+----------------+--------+--------+----------+
+*/
+STATIC u32 WD_SYSTEM _wilddog_coap_getRecvMaxage(coap_pdu_t * pdu)
+{
+    u32 maxage = 0;
+    u16 len;
+    coap_opt_t *p_op =NULL;
+    coap_opt_iterator_t d_oi;
+    u8 *option_value = NULL;
+    
+    wilddog_assert(pdu, WILDDOG_ERR_NULL);
+
+    p_op = coap_check_option(pdu,COAP_OPTION_MAXAGE,&d_oi);
+
+    if(p_op){
+        len = coap_opt_length(p_op);
+        // max maxage data is 4 bytes.
+        if(len == 0 || len > 4){
+            wilddog_debug_level(WD_DEBUG_ERROR, "Get an maxage option but length is %ld!",len);
+            return 0;
+        }
+        option_value = coap_opt_value(p_op);
+        if(NULL == option_value){
+            wilddog_debug_level(WD_DEBUG_ERROR, \
+                     "Get an option length is %ld but no value!",len);
+
+            return 0;
+        }
+        //maxage option is in big endian.
+        _wilddog_coap_ntoh((u8*)&maxage,option_value,len);
+    }
+    return maxage;
+}
+
 /*
  * Function:    _wilddog_coap_countChar
  * Description: count the number of  char 'c' exist in  the string buffer.
@@ -272,7 +426,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_initSession(void* data, int flag
     coap_add_option(pdu,COAP_OPTION_URI_PATH, strlen((const char*)pkt.url->p_url_path),pkt.url->p_url_path);
 
     //add data
-    coap_add_data(pdu,pkt.data_len, pkt.data);
+    if(pkt.data)
+        coap_add_data(pdu,pkt.data_len, pkt.data);
 
     if(_wilddog_sec_send(arg->protocol, pdu->hdr, pdu->length) < 0){
         coap_delete_pdu(pdu);
@@ -281,10 +436,78 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_initSession(void* data, int flag
     }
     wfree(pkt.url->p_url_path);
     pkt.url->p_url_path = oldPath;
+
+    //store the packet to connect layer
     *(u8**)(arg->p_out_data) = (u8*)pdu;
     *(arg->p_out_data_len) = (u32)pdu->length;
-    
     return WILDDOG_ERR_NOERR;
+}
+
+
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_handlePkt(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    u32 error_code = WILDDOG_ERR_NOTAUTH;
+    u32 maxage = 0;
+    u32 observe_index = 0;
+    coap_pdu_t * pdu;
+    u32 payload_len = 0;
+    u8 *payload = NULL;
+    _Wilddog_Coap_Observe_Data_T *observe_data;
+    
+    wilddog_assert(data, WILDDOG_ERR_NULL);
+
+    /* we may get the following:
+     * 1. error code, 
+     * 2. token(already got in getPkt), 
+     * 3. maxage 
+     * 4. observe index(the 3&4 were used by observer), 
+     * 5. path, 
+     * 6. blockNum(used by block), 
+     * 7. payload
+    */
+
+    //pdu stored in p_data
+    pdu = (coap_pdu_t *)arg->p_data;
+
+    wilddog_assert(pdu, WILDDOG_ERR_NULL);
+    
+    //1. get error code
+    error_code = _wilddog_coap_getRecvCode(pdu);
+    
+    //2. get token, we already got it, pass.
+    //3. get maxage
+    maxage = _wilddog_coap_getRecvMaxage(pdu);
+    //4. get observe index
+    observe_index = _wilddog_coap_getRecvObserveIndex(pdu);
+    //5. get path, only observer may be use path to find the root path, we assume
+    //   when root firstly sended, do not send child, when child firstly sended,
+    //   send root again, and remove child observe.
+    //6. get block number, fixme: we do not support block [rfc7959]
+    //7. get payload
+    coap_get_data(pdu,&payload_len,&payload);
+
+    //from observe index, check if the pkt is new or not.
+    if(observe_index){
+        observe_data = *(_Wilddog_Coap_Observe_Data_T**)arg->p_proto_data;
+
+        wilddog_assert(observe_data, WILDDOG_ERR_NULL);
+
+        if(TRUE == _wilddog_coap_isObserveNew(observe_data->last_index,observe_index)){
+            //get new observe, handle it.
+            observe_data->last_index = observe_index;
+            if(maxage)
+                observe_data->maxage = maxage;
+            observe_data->last_recv_time = _wilddog_getTime();
+        }else{
+            //get old observe, ignore it.
+            error_code = WILDDOG_ERR_IGNORE;
+        }
+    }
+    //error code and payload must tell connect layer
+    //send payload to connect layer.
+    *(arg->p_out_data) = (u8*)payload;
+    *(arg->p_out_data_len) = payload_len;
+    return error_code;
 }
 
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_freePkt(void* data, int flag){
@@ -292,8 +515,9 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_freePkt(void* data, int fla
 
     wilddog_assert(data, WILDDOG_ERR_NULL);
 
-    if(arg->p_out_data){
-        wfree(arg->p_out_data);
+    //we only free p_data!!!
+    if(arg->p_data){
+        wfree(arg->p_data);
     }
     return WILDDOG_ERR_NOERR;
 }
@@ -302,7 +526,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_getPkt(void* data, int flag
     u8* recv_data = NULL;
     int res = 0;
     coap_pdu_t * pdu;
-    
+    int len;
     Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
 
     wilddog_assert(data, WILDDOG_ERR_NULL);
@@ -312,7 +536,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_getPkt(void* data, int flag
     res = _wilddog_sec_recv(arg->protocol,(void*)recv_data,(s32)WILDDOG_PROTO_MAXSIZE);
     if(res < 0 || res > WILDDOG_PROTO_MAXSIZE){
         _wilddog_coap_freeRecvBuffer(arg->protocol,recv_data);
-        wilddog_debug_level(WD_DEBUG_ERROR, "Receive failed, error = %d",res);
+        //wilddog_debug_level(WD_DEBUG_ERROR, "Receive failed, error = %d",res);
         return WILDDOG_ERR_INVALID;
     }
     
@@ -335,8 +559,14 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_getPkt(void* data, int flag
         wilddog_debug_level(WD_DEBUG_ERROR, "Parse pdu failed!");
         return WILDDOG_ERR_INVALID;
     }
-    //3. send pkt to upper
-    *(arg->p_message_id) = *(u32*)(pdu->hdr->token);
+    //3. send pkt to connect layer.
+    //!!!Notice, we assume token is WILDDOG_COAP_TOKEN_LEN bytes!
+    //more than WILDDOG_COAP_TOKEN_LEN bytes will be ignored!
+    len = pdu->hdr->token_length > WILDDOG_COAP_TOKEN_LEN? \
+            (WILDDOG_COAP_TOKEN_LEN):(pdu->hdr->token_length);
+    memcpy((u8*)arg->p_message_id,pdu->hdr->token, len);
+    _wilddog_coap_freeRecvBuffer(arg->protocol,recv_data);
+    //send pdu to connect layer to store.
     *(arg->p_out_data) = (u8*)pdu;
     *(arg->p_out_data_len) = pdu->length;
     return WILDDOG_ERR_NOERR;
@@ -360,7 +590,8 @@ Wilddog_Func_T _wilddog_protocol_funcTable[WD_PROTO_CMD_MAX + 1] =
     (Wilddog_Func_T)NULL,//online
     (Wilddog_Func_T)NULL,//offline
     (Wilddog_Func_T)_wilddog_coap_recv_getPkt,//get pkt
-    (Wilddog_Func_T)_wilddog_coap_recv_freePkt//free pkt
+    (Wilddog_Func_T)_wilddog_coap_recv_freePkt,//free pkt
+    (Wilddog_Func_T)_wilddog_coap_recv_handlePkt,//handle pkt
     NULL
 };
 

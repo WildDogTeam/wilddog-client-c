@@ -119,7 +119,7 @@ int wilddog_send
 #endif
 
     wilddog_debug_level(WD_DEBUG_LOG, \
-                        "addr_in->port = %d, ip = %u.%u.%u.%u\n", \
+                        "addr_in->port = %d, ip = %u.%u.%u.%u", \
                         addr_in->port, addr_in->ip[0], \
                         addr_in->ip[1], addr_in->ip[2], \
                         addr_in->ip[3]);
@@ -177,7 +177,7 @@ int wilddog_receive
     }
     else
     {
-        wilddog_debug_level(WD_DEBUG_LOG, "received %d packet",recvlen);
+        wilddog_debug_level(WD_DEBUG_LOG, "received %d bytes",recvlen);
     }
 #if WILDDOG_SELFTEST
     {
