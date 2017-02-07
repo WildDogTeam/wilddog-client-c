@@ -44,7 +44,7 @@
 
 #include "wilddog.h"
 #include "wilddog_port.h"
-#include "wilddog_sec_host.h"
+#include "wilddog_sec.h"
 
 #ifdef __GNUC__
 #define UNUSED_PARAM __attribute__((unused))
@@ -57,9 +57,8 @@ typedef enum  _TINYDTLS_STATE_S{
     _TINYDTLS_STATE_ERROR = 2,
     _TINYDTLS_STATE_CONNECT = 3
 }TinyDtls_State_S;
-typedef struct WILDDOG_CONN_SEC_T{
+typedef struct WILDDOG_SEC_TINYDTLS_T{
     dtls_context_t *dtls_context;
-    size_t d_fd;
     session_t dst;
     unsigned short d_dtlstState;
     u8 *p_recvbuf;
@@ -68,11 +67,7 @@ typedef struct WILDDOG_CONN_SEC_T{
     u8 reserved1;
     u8 reserved2;
     u8 reserved3;
-}Wilddog_Conn_Sec_T;
-
-STATIC  Wilddog_Conn_Sec_T d_conn_sec_dtls;
-STATIC Wilddog_Address_T l_tinyaddr_in;
-STATIC int l_tinyfd;
+}Wilddog_Sec_Tinydtls_T;
 
 /*publick key*/
 STATIC const unsigned char server_pub_key_x[] = 
@@ -145,6 +140,8 @@ ssize_t read_from_file(char *arg, unsigned char *buf, size_t max_buf_len)
 #endif
 
 /* The PSK information for DTLS */
+//jimmy: Useful or not??? Only get_psk_info used them, but their value never changed.
+// so we cannot retrieve key.
 #define PSK_ID_MAXLEN 256
 #define PSK_MAXLEN 256
 static unsigned char psk_id[PSK_ID_MAXLEN];
@@ -264,16 +261,24 @@ STATIC int read_from_peer
     )
 {
     size_t i,readlen;
+    Wilddog_Protocol_T *protocol = NULL;
+    Wilddog_Sec_Tinydtls_T * sec_session = NULL;
+
+    protocol = (Wilddog_Protocol_T *)dtls_get_app_data(ctx);
+    wilddog_assert(protocol, -1);
     
-    if(d_conn_sec_dtls.p_recvbuf == NULL)
+    sec_session = (Wilddog_Sec_Tinydtls_T*)protocol->user_data;
+    wilddog_assert(sec_session, -1);
+
+    if(sec_session->p_recvbuf == NULL)
         return 0;
-    d_conn_sec_dtls.d_recvFig = 1;
-    readlen = (d_conn_sec_dtls.d_recvlen > len)?len:d_conn_sec_dtls.d_recvlen;
+    sec_session->d_recvFig = 1;
+    readlen = (sec_session->d_recvlen > len)?len:sec_session->d_recvlen;
     for (i = 0; i < len; i++)
     {
-        d_conn_sec_dtls.p_recvbuf[i] = data[i];
+        sec_session->p_recvbuf[i] = data[i];
     }
-    d_conn_sec_dtls.d_recvlen = readlen;
+    sec_session->d_recvlen = readlen;
 
     return 0;
 }
@@ -286,10 +291,14 @@ STATIC int send_to_peer
     size_t len
     ) 
 {
-    int fd = *(int *)dtls_get_app_data(ctx);
+    Wilddog_Protocol_T *protocol;
+    
     int res = 0;
     Wilddog_Address_T addr_inSend;
+    protocol = (Wilddog_Protocol_T *)dtls_get_app_data(ctx);
 
+    wilddog_assert(protocol, -1);
+    
     addr_inSend.len = session->size;
 #if defined(WILDDOG_PORT_TYPE_WICED) || \
     defined(WILDDOG_PORT_TYPE_QUCETEL) || \
@@ -302,49 +311,35 @@ STATIC int send_to_peer
     addr_inSend.port = session->addr.sin.sin_port;
     memcpy(addr_inSend.ip,&session->addr.sin.sin_addr,session->size);
 #endif
-    res = wilddog_send(fd,&addr_inSend,data,len);
+    res = wilddog_send(protocol->socketFd,&addr_inSend,data,len);
 
     return res;
 }
 
 STATIC int dtls_handle_read(struct dtls_context_t *ctx)
 {
-    int fd;
-    session_t *p_session = &d_conn_sec_dtls.dst;
-    Wilddog_Address_T addr_in;
+    Wilddog_Protocol_T *protocol = NULL;
+    Wilddog_Sec_Tinydtls_T * session = NULL;
 #define MAX_READ_BUF 2000
     static uint8 buf[MAX_READ_BUF];
     int len;
 
-    fd = *(int *)dtls_get_app_data(ctx);
-    if (!fd)
-        return -1;
-#if defined(WILDDOG_PORT_TYPE_WICED) || \
-    defined(WILDDOG_PORT_TYPE_QUCETEL) || \
-    defined(WILDDOG_PORT_TYPE_MXCHIP)
+    protocol = (Wilddog_Protocol_T *)dtls_get_app_data(ctx);
+    wilddog_assert(protocol, -1);
     
-    addr_in.len = d_conn_sec_dtls.dst.addr.len;
-    addr_in.port = d_conn_sec_dtls.dst.addr.port;
-   memcpy(addr_in.ip,&d_conn_sec_dtls.dst.addr.ip,d_conn_sec_dtls.dst.addr.len);
-#else
-    addr_in.len = d_conn_sec_dtls.dst.size;
-    addr_in.port = d_conn_sec_dtls.dst.addr.sin.sin_port;
-    memcpy(addr_in.ip, \
-           &d_conn_sec_dtls.dst.addr.sin.sin_addr, \
-           d_conn_sec_dtls.dst.size);
-#endif
-
+    session = (Wilddog_Sec_Tinydtls_T*)protocol->user_data;
+    wilddog_assert(session, -1);
     memset(buf, 0, MAX_READ_BUF);
-    len = wilddog_receive(fd,&addr_in,buf,MAX_READ_BUF,WILDDOG_RECEIVE_TIMEOUT);
+    len = wilddog_receive(protocol->socketFd,&protocol->addr,buf,MAX_READ_BUF,WILDDOG_RECEIVE_TIMEOUT);
     if (len < 0)
     {
         return 0;// return -1;
     }
     else if(len > 0)
     {
-        dtls_dsrv_log_addr(DTLS_LOG_DEBUG, "peer", p_session);
+        dtls_dsrv_log_addr(DTLS_LOG_DEBUG, "peer", &session->dst);
         dtls_debug_dump("bytes from peer", buf, len);
-        return dtls_handle_message(ctx, p_session, buf, len);
+        return dtls_handle_message(ctx, &session->dst, buf, len);
     }
     return 0;
 }
@@ -357,10 +352,19 @@ int handle_dtls_event
     unsigned short code
     )
 {
-    d_conn_sec_dtls.d_dtlstState = level;
-    if( code == DTLS_EVENT_CONNECTED)
-        d_conn_sec_dtls.d_dtlstState = _TINYDTLS_STATE_CONNECT;
+    Wilddog_Protocol_T *protocol = NULL;
+    Wilddog_Sec_Tinydtls_T * sec_session = NULL;
+
+    protocol = (Wilddog_Protocol_T *)dtls_get_app_data(ctx);
+    wilddog_assert(protocol, -1);
     
+    sec_session = (Wilddog_Sec_Tinydtls_T*)protocol->user_data;
+    wilddog_assert(sec_session, -1);
+
+    sec_session->d_dtlstState = level;
+    if( code == DTLS_EVENT_CONNECTED)
+        sec_session->d_dtlstState = _TINYDTLS_STATE_CONNECT;
+
     return 0;
 }
 
@@ -385,7 +389,7 @@ STATIC dtls_handler_t cb =
 
 STATIC int _wilddog_sec_reconnectInner
     (
-    Wilddog_Conn_Sec_T *wd_sec, 
+    Wilddog_Sec_Tinydtls_T *wd_sec, 
     int timeout,
     int reconnectNum
     )
@@ -419,47 +423,45 @@ STATIC int _wilddog_sec_reconnectInner
     return -1;
 }
 
-Wilddog_Return_T _wilddog_sec_reconnect
-    (
-    Wilddog_Str_T *p_host,
-    u16 d_port,
-    int retryNum
-    )
+Wilddog_Return_T _wilddog_sec_reconnect(Wilddog_Protocol_T *protocol,int retryNum)
 {
     int res = 0;
+    Wilddog_Sec_Tinydtls_T *session = (Wilddog_Sec_Tinydtls_T*)protocol->user_data;
     
-    res = _wilddog_sec_reconnectInner(&d_conn_sec_dtls,
-                                      WILDDOG_RETRANSMITE_TIME,retryNum);
+    wilddog_assert(protocol&&session, -1);
+
+    res = _wilddog_sec_reconnectInner(session,WILDDOG_RETRANSMITE_TIME,retryNum);
     if(res >= 0)
         return res;
         
-    _wilddog_sec_deinit();
-    res = _wilddog_sec_init(p_host, d_port);
+    _wilddog_sec_deinit(protocol);
+    res = _wilddog_sec_init(protocol);
     return res;
 }
 
 /* do not malloc session*/
 STATIC int _wilddog_sec_setSession
     (
-    int fd, 
-    Wilddog_Address_T * addr_in
+    Wilddog_Protocol_T *protocol
     )
 {
-    d_conn_sec_dtls.d_fd = fd;
+    Wilddog_Sec_Tinydtls_T *session = (Wilddog_Sec_Tinydtls_T*)protocol->user_data;
+    
+    wilddog_assert(protocol&&session, -1);
+
 #if defined(WILDDOG_PORT_TYPE_WICED) || \
     defined(WILDDOG_PORT_TYPE_QUCETEL) || \
     defined(WILDDOG_PORT_TYPE_MXCHIP)
 
-    memcpy(&d_conn_sec_dtls.dst.addr.ip,addr_in->ip,addr_in->len);
-    d_conn_sec_dtls.dst.size = addr_in->len;
-    d_conn_sec_dtls.dst.addr.len = addr_in->len;
-    d_conn_sec_dtls.dst.addr.port = addr_in->port;
+    memcpy(&session->dst.addr.ip,protocol->addr.ip,protocol->addr.len);
+    session->dst.size = protocol->addr.len;
+    session->dst.addr.len = protocol->addr.len;
+    session->dst.addr.port = protocol->addr.port;
 #else
-    d_conn_sec_dtls.dst.addr.sin.sin_family = 2;/*AF_INET  ipv4*/
-    memcpy(&d_conn_sec_dtls.dst.addr.sin.sin_addr,addr_in->ip,addr_in->len);
-    d_conn_sec_dtls.dst.size = addr_in->len;
-    
-    d_conn_sec_dtls.dst.addr.sin.sin_port = addr_in->port;
+    session->dst.addr.sin.sin_family = 2;/*AF_INET  ipv4*/
+    memcpy(&session->dst.addr.sin.sin_addr,protocol->addr.ip,protocol->addr.len);
+    session->dst.size = protocol->addr.len;
+    session->dst.addr.sin.sin_port = protocol->addr.port;
 #endif
     return 0;
 }
@@ -473,6 +475,7 @@ STATIC int _wilddog_sec_setSession
 */
 Wilddog_Return_T _wilddog_sec_send
     (
+    Wilddog_Protocol_T *protocol,
     void* p_data, 
     s32 len
     )
@@ -480,15 +483,18 @@ Wilddog_Return_T _wilddog_sec_send
     uint8 *p_buf = p_data;
     s32 sendLen = 0;
     int res = 0;
+    Wilddog_Sec_Tinydtls_T * session = (Wilddog_Sec_Tinydtls_T*)protocol->user_data;
     
-    _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
+    wilddog_assert(protocol&&session, -1);
+
+    _wilddog_sec_setSession(protocol);
     
-    if(d_conn_sec_dtls.d_dtlstState != _TINYDTLS_STATE_CONNECT)
+    if(session->d_dtlstState != _TINYDTLS_STATE_CONNECT)
         return WILDDOG_ERR_SENDERR;
     
     while(sendLen < len)
     {       
-        res = dtls_write(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst, \
+        res = dtls_write(session->dtls_context, &session->dst, \
                          (uint8 *)(p_buf + sendLen), len - sendLen);
         if (res >= 0 )
         {
@@ -513,20 +519,26 @@ Wilddog_Return_T _wilddog_sec_send
 
 int _wilddog_sec_recv
     (
+    Wilddog_Protocol_T *protocol,
     void* p_data, 
     s32 len
     )
 {
     int res = 0;
-    _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
-    d_conn_sec_dtls.p_recvbuf = p_data;
-    d_conn_sec_dtls.d_recvlen = len;
-    d_conn_sec_dtls.d_recvFig = 0;
+    Wilddog_Sec_Tinydtls_T * session = (Wilddog_Sec_Tinydtls_T*)protocol->user_data;
+
+    wilddog_assert(protocol&&session, -1);
+    
+    _wilddog_sec_setSession(protocol);
+    
+    session->p_recvbuf = p_data;
+    session->d_recvlen = len;
+    session->d_recvFig = 0;
     /* decode recv */
     
-    res = dtls_handle_read(d_conn_sec_dtls.dtls_context);
-    if( d_conn_sec_dtls.d_recvFig )
-        res = d_conn_sec_dtls.d_recvlen;
+    res = dtls_handle_read(session->dtls_context);
+    if(session->d_recvFig)
+        res = session->d_recvlen;
 
     return res;
 }
@@ -540,57 +552,64 @@ int _wilddog_sec_recv
  * Output:  N/A
  * Return:  Success: 0 else init failure
 */
-Wilddog_Return_T _wilddog_sec_init
-    (
-    Wilddog_Str_T *p_host,
-    u16 d_port
-    )
+Wilddog_Return_T _wilddog_sec_init(Wilddog_Protocol_T *protocol)
 {
     int res = 0;
     int sec_int_cnt = 0;
-    memset(&d_conn_sec_dtls, 0, sizeof(Wilddog_Conn_Sec_T));
+    Wilddog_Sec_Tinydtls_T * session = NULL;
     
-    wilddog_openSocket(&l_tinyfd);
-    res = _wilddog_sec_getHost(&l_tinyaddr_in,p_host,d_port);
-    if(res <0 )
+    wilddog_assert(protocol, WILDDOG_ERR_NULL);
+    
+    wilddog_openSocket(&protocol->socketFd);
+    res = _wilddog_sec_getHost(&protocol->addr,protocol->host);
+    if(res < 0)
         return res;
-    _wilddog_sec_setSession(l_tinyfd,&l_tinyaddr_in);
+    if(protocol->user_data){
+        wfree(protocol->user_data);
+        protocol->user_data = NULL;
+    }
+    protocol->user_data = wmalloc(sizeof(Wilddog_Sec_Tinydtls_T));
+    if(!protocol->user_data){
+        wilddog_debug_level(WD_DEBUG_ERROR,"Malloc failed!");
+        return WILDDOG_ERR_NULL;
+    }
+
+    session = (Wilddog_Sec_Tinydtls_T*)protocol->user_data;
+    
+    _wilddog_sec_setSession(protocol);
     dtls_init();
 #ifndef WILDDOG_PORT_TYPE_WICED
     tiny_dtls_set_log_level(WD_DEBUG_DTLS);
 #endif
-    d_conn_sec_dtls.dtls_context = dtls_new_context(&d_conn_sec_dtls.d_fd);
+    session->dtls_context = dtls_new_context(protocol);
 
-    if(d_conn_sec_dtls.dtls_context == NULL)
+    if(session->dtls_context == NULL){
         return -1;
+    }
 
     /*@ register dtls cb*/
-    dtls_set_handler(d_conn_sec_dtls.dtls_context, &cb);
+    dtls_set_handler(session->dtls_context, &cb);
 
     /*@ Establishes a DTLS channel with the specified remote peer dst.  
     **@ start client Hello
     */
 
-    res = dtls_connect(d_conn_sec_dtls.dtls_context, &d_conn_sec_dtls.dst);
+    res = dtls_connect(session->dtls_context, &session->dst);
     
     while(sec_int_cnt++ < 100)
     {
-        if(d_conn_sec_dtls.d_dtlstState == _TINYDTLS_STATE_CONNECT)
+        if(session->d_dtlstState == _TINYDTLS_STATE_CONNECT)
             return 0;
 
         /*dtls error */
-        if( d_conn_sec_dtls.d_dtlstState ==  _TINYDTLS_STATE_ERROR)
+        if(session->d_dtlstState ==  _TINYDTLS_STATE_ERROR)
                 break;
 
-        res = dtls_handle_read(d_conn_sec_dtls.dtls_context);
+        res = dtls_handle_read(session->dtls_context);
         if(res < 0)
             break;
     }
 
-/*    res = _wilddog_sec_reconnectInner(d_conn_sec_dtls.dtls_context, 
-                           &d_conn_sec_dtls.dst,
-                           WILDDOG_RETRANSMITE_TIME,
-                           3);*/
     return res;
 }
 
@@ -601,16 +620,21 @@ Wilddog_Return_T _wilddog_sec_init
  * Output:      N/A
  * Return:      Success: 0
 */
-Wilddog_Return_T _wilddog_sec_deinit(void)
+Wilddog_Return_T _wilddog_sec_deinit(Wilddog_Protocol_T *protocol)
 {
-    /* send terminate alert*/   
-    dtls_free_context(d_conn_sec_dtls.dtls_context);
-    if(l_tinyfd)
-        wilddog_closeSocket(l_tinyfd);
+    Wilddog_Sec_Tinydtls_T * session = (Wilddog_Sec_Tinydtls_T *)protocol->user_data;
+
+    wilddog_assert(protocol&&session, WILDDOG_ERR_NULL);
     
-    l_tinyfd = 0;
-    memset(&l_tinyaddr_in,0,sizeof(l_tinyaddr_in));
-    memset(&d_conn_sec_dtls, 0, sizeof(Wilddog_Conn_Sec_T));
+    /* send terminate alert*/
+    dtls_free_context(session->dtls_context);
+    if(protocol->socketFd != -1)
+        wilddog_closeSocket(protocol->socketFd);
+    
+    protocol->socketFd = -1;
+    memset(&protocol->addr,0,sizeof(protocol->addr));
+    wfree(session);
+    protocol->user_data = NULL;
 
     return WILDDOG_ERR_NOERR;
 }

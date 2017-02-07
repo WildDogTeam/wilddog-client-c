@@ -123,6 +123,7 @@ int WD_SYSTEM _wilddog_sec_getHost
         p_remoteAddr->len = l_defaultAddr_t[i].len;
         memcpy(p_remoteAddr->ip, l_defaultAddr_t[i].ip,l_defaultAddr_t[i].len);
         res = 0;
+        wilddog_debug_level(WD_DEBUG_WARN, "Cannot get DNS, use default IP.");
     }
 
 #undef WILDDOG_COAP_LOCAL_HOST

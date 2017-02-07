@@ -74,6 +74,7 @@ STATIC void WD_SYSTEM _wilddog_event_nodeFree
     Wilddog_EventNode_T *node
     )
 {
+    wilddog_debug_level(WD_DEBUG_LOG,"_wilddog_event_nodeFree %s",node->p_url->p_url_path);
     _wilddog_url_freeParsedUrl(node->p_url);
     wfree(node);
 }
@@ -604,8 +605,8 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeDelete
             err =  p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_OFF, arg, 0);
         }
         
-        wilddog_debug_level(WD_DEBUG_LOG, "nodedelete off node path:%s\n", \
-                            arg->p_url->p_url_path);
+        wilddog_debug_level(WD_DEBUG_LOG, "Remove observer node path:%s, error code [%d]", \
+                            arg->p_url->p_url_path,err);
 
         /*if this node is to be closed, but it's son or grandson want's on, then
          *on them.

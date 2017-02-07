@@ -580,7 +580,7 @@ void WD_SYSTEM _wilddog_url_freeParsedUrl(Wilddog_Url_T * p_url)
  * Input:       p_src: Source url.
  *              p_dst: Destination url.
  * Output:      N/A
- * Return:      Same return TRUE, others return FALSE.
+ * Return:      diff return TRUE, others return FALSE.
 */
 BOOL WD_SYSTEM _wilddog_url_diff
     (

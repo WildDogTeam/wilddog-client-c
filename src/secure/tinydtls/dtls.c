@@ -1432,9 +1432,10 @@ dtls_send_multi(dtls_context_t *ctx, dtls_peer_t *peer,
 
   res = dtls_prepare_record(peer, security, type, buf_array, buf_len_array, buf_array_len, sendbuf, &len);
 
-  if (res < 0)
+  if (res < 0){
+    wilddog_debug_level(WD_DEBUG_ERROR,"Prepare record failed");
     return res;
-
+  }
   /* if (peer && MUST_HASH(peer, type, buf, buflen)) */
   /*   update_hs_hash(peer, buf, buflen); */
 

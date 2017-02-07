@@ -49,9 +49,9 @@ coap_pdu_t * WD_SYSTEM coap_pdu_init
   if (size < sizeof(coap_hdr_t) || size > COAP_MAX_PDU_SIZE)
     return NULL;
 
-  pdu = wmalloc(sizeof(coap_pdu_t) + size);
+  pdu = (coap_pdu_t *)wmalloc(sizeof(coap_pdu_t) + size);
 
-  if (pdu) 
+  if (pdu)
   {
     coap_pdu_clear(pdu, size);
     pdu->hdr->id = id;

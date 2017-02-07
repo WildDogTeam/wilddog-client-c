@@ -578,6 +578,7 @@ Wilddog_Return_T wilddog_cancelDisconnectOperations
 */
 Wilddog_Return_T wilddog_goOffline(void)
 {
+    wilddog_debug_level(WD_DEBUG_LOG, "Go offline has been called!");
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_GOOFFLINE, NULL,0);      
 }
 /*
@@ -590,5 +591,6 @@ Wilddog_Return_T wilddog_goOffline(void)
 */
 Wilddog_Return_T wilddog_goOnline(void)
 {
+    wilddog_debug_level(WD_DEBUG_LOG, "Go online has been called!");
     return (Wilddog_Return_T)_wilddog_ct_ioctl(WILDDOG_APICMD_GOONLINE, NULL,0);      
 }

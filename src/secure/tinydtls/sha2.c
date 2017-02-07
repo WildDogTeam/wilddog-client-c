@@ -725,6 +725,8 @@ char *SHA256_End(TINY_SHA256_CTX* context, char buffer[]) {
 	}
 	MEMSET_BZERO(digest, SHA256_DIGEST_LENGTH);
 	return buffer;
+    //just avoid warning.
+    wilddog_debug_level(WD_DEBUG_ALL, "sha512 ended.");
 }
 
 char* SHA256_Data(const sha2_byte* data, size_t len, char digest[SHA256_DIGEST_STRING_LENGTH]) {
@@ -1055,6 +1057,8 @@ char *SHA512_End(SHA512_CTX* context, char buffer[]) {
 	}
 	MEMSET_BZERO(digest, SHA512_DIGEST_LENGTH);
 	return buffer;
+    //just avoid warning.
+    wilddog_debug_level(WD_DEBUG_ALL, "sha512 ended.");
 }
 
 char* SHA512_Data(const sha2_byte* data, size_t len, char digest[SHA512_DIGEST_STRING_LENGTH]) {
@@ -1131,6 +1135,8 @@ char *SHA384_End(SHA384_CTX* context, char buffer[]) {
 	}
 	MEMSET_BZERO(digest, SHA384_DIGEST_LENGTH);
 	return buffer;
+    //just avoid warning.
+    wilddog_debug_level(WD_DEBUG_ALL, "sha512 ended.");
 }
 
 char* SHA384_Data(const sha2_byte* data, size_t len, char digest[SHA384_DIGEST_STRING_LENGTH]) {

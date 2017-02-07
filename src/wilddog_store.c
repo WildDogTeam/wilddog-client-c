@@ -45,10 +45,8 @@ Wilddog_Store_T * WD_SYSTEM _wilddog_store_init(Wilddog_Repo_T* p_repo)
     wilddog_assert(p_repo, NULL);
     
     p_store = (Wilddog_Store_T *)wmalloc(sizeof(Wilddog_Store_T));
-    if(NULL == p_store)
-    {
-        return NULL;
-    }
+    wilddog_assert(p_store, NULL);
+    
     p_store->p_se_auth = (Wilddog_Store_Auth_T *)wmalloc( \
         sizeof(Wilddog_Store_Auth_T));
     if(NULL == p_store->p_se_auth)
@@ -83,9 +81,12 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_store_setAuth
     Wilddog_Conn_T *p_conn = p_store->p_se_repo->p_rp_conn;
     Wilddog_ConnCmd_Arg_T connCmd;
     
-    if(p_authArg->d_len > WILDDOG_AUTH_LEN)
+    if(p_authArg->d_len > WILDDOG_AUTH_LEN){
+        wilddog_debug_level(WD_DEBUG_ERROR, \
+            "Auth data length is %d, more than Max size %d",p_authArg->d_len,WILDDOG_AUTH_LEN);
+        
         return WILDDOG_ERR_INVALID;
-
+    }
     memset(p_store->p_se_auth->p_auth, 0, WILDDOG_AUTH_LEN);
 
     if(!p_authArg->p_data)

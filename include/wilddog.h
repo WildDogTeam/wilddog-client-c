@@ -76,12 +76,12 @@ typedef signed long s32 ;
 #endif
 
 #ifdef WILDDOG_DEBUG
-#define DEBUG_LEVEL WD_DEBUG_ALL
+#define DEBUG_LEVEL WD_DEBUG_LOG
 
 STATIC const char *s_debug[] = {
-    "[ALL]",
-    "[LOG]",
-    "[WARN]",
+    "[ ALL ]",
+    "[ LOG ]",
+    "[WARN ]",
     "[ERROR]",
     "[DEBUG]"
 };

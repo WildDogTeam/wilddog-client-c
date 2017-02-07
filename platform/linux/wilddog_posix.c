@@ -172,7 +172,7 @@ int wilddog_receive
     if(memcmp(addr->ip, &remaddr.sin_addr.s_addr, addr->len) || \
         wilddog_ntohs(remaddr.sin_port) != addr->port)
     {
-        wilddog_debug("ip or port not match!");
+        wilddog_debug_level(WD_DEBUG_WARN,"ip or port not match!");
         return -1;
     }
     else

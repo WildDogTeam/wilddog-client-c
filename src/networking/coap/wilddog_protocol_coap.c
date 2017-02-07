@@ -33,6 +33,7 @@
 #include "wilddog_conn.h"
 
 #define  COAP_CODE_GET(code)   ((code >> 5) * 100 + (code & 0x1F))
+#define WILDDOG_RECONNECT_TIMES (3) //reconnect retry time
 
 typedef struct _WILDDOG_COAP_OBSERVE_DATA{
     u32 last_index;
@@ -132,6 +133,8 @@ STATIC INLINE u32 WD_SYSTEM _wilddog_coap_random(void)
 //not thread safe
 STATIC INLINE u16 WD_SYSTEM _wilddog_coap_getMid(void)
 {
+    //Do not need to care about endian, because we send what, will receive the same.
+    //Only we need is to make sure it will not conflict in short time.
     STATIC u16 mid = 1;
     return mid++;
 }
@@ -144,8 +147,20 @@ STATIC INLINE u16 WD_SYSTEM _wilddog_coap_getMid(void)
 */
 STATIC u32 WD_SYSTEM _wilddog_coap_getToken(u16 mid)
 {
+    //Do not need to care about endian, because we send what, will receive the same.
+    //Only we need is to sure it is randomable.
     u32 token = _wilddog_coap_random();
     return (u32)(((token & (~0xff)) | (mid & 0xff)) & 0xffffffff);
+}
+STATIC coap_opt_t* WD_SYSTEM _wilddog_coap_getSendSessionOption(coap_pdu_t * pdu){
+    //FIXME: We used a simple method, we assume .cs query is the head, 
+    // so coap_check_option's return is .cs query option. 
+    //But we have more than 1 query, such as disconnect , so fix it!!!
+    coap_opt_iterator_t d_oi;
+    
+    wilddog_assert(pdu, NULL);
+
+    return coap_check_option(pdu,COAP_OPTION_URI_QUERY,&d_oi);
 }
 /*
  * Function:    _wilddog_coap_getRecvCode
@@ -172,10 +187,98 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_getRecvCode(coap_pdu_t * pdu)
     }
     return rec_code;
 }
+/*
+ * Function:    _wilddog_coap_addPath
+ * Description: add path to coap packages.
+ * Input:       pdu: coap pdu.
+ *              path: path string.
+ * Output:      N/A
+ * Return:      WILDDOG_ERR_NOERR or WILDDOG_ERR_NULL.
+ * Other:       path can be : 1. "/" 2. "/a" 3. "/a/b" 4. "/a/b/(maybe)" 
+ *                            5. "a" (maybe) 6. "a/b" (maybe)
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addPath(coap_pdu_t *pdu,char *path)
+{
+    char *p_subpath_start = NULL;
+    char *p_subpath_end = NULL;
+    unsigned int total_len = 0;
+    
+    wilddog_assert(pdu, WILDDOG_ERR_NULL);
+
+    if(NULL == path){
+        coap_add_option(pdu, COAP_OPTION_URI_PATH,0, NULL);
+        return WILDDOG_ERR_NOERR;
+    }
+    total_len = strlen((const char*)path);
+    if('/' == path[0] && 1 == total_len){
+        // handle condition 1
+        //coap_add_option(pdu,COAP_OPTION_URI_PATH,total_len, (u8*)path);
+        coap_add_option(pdu, COAP_OPTION_URI_PATH,0, NULL);
+        return WILDDOG_ERR_NOERR;
+    }
+    
+    p_subpath_start = path;
+    //change condition 2/3/4 to 5 or 6
+    if('/' == p_subpath_start[0])
+        p_subpath_start++;
+
+    //now we only need handle condition 5/6
+    while(p_subpath_start){
+        p_subpath_end = _wilddog_strchar(p_subpath_start, '/');
+        if(!p_subpath_end){
+            // path has no / anymore, maybe condition 5 or condition 6's step 2
+            coap_add_option(pdu,COAP_OPTION_URI_PATH,strlen(p_subpath_start),(u8*)p_subpath_start);
+            return WILDDOG_ERR_NOERR;
+        }
+        // now we find /, such as "a" in "a/b", length is end - start.
+        coap_add_option(pdu,COAP_OPTION_URI_PATH,p_subpath_end - p_subpath_start,(u8*)p_subpath_start);
+        //jump "/"
+        p_subpath_start = p_subpath_end + 1;
+    }
+    return WILDDOG_ERR_NOERR;
+}
+/*
+ * Function:    _wilddog_coap_addQuery
+ * Description: add query to coap packages.
+ * Input:       pdu: coap pdu.
+ *              query: query string.
+ * Output:      N/A
+ * Return:      WILDDOG_ERR_NOERR or WILDDOG_ERR_NULL.
+ * Other:       path can be : 1. "a" 2. "a&b"
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_addQuery(coap_pdu_t *pdu,char *query)
+{
+    char *p_subquery_start = NULL;
+    char *p_subquery_end = NULL;
+    
+    wilddog_assert(pdu, WILDDOG_ERR_NULL);
+
+    if(NULL == query){
+        coap_add_option(pdu, COAP_OPTION_URI_QUERY,0, NULL);
+        return WILDDOG_ERR_NOERR;
+    }
+    
+    p_subquery_start = query;
+
+    while(p_subquery_start){
+        p_subquery_end = _wilddog_strchar(p_subquery_start, '&');
+        if(!p_subquery_end){
+            // query has no & anymore, maybe condition 1 or condition 2's step 2
+            coap_add_option(pdu,COAP_OPTION_URI_QUERY,strlen(p_subquery_start),(u8*)p_subquery_start);
+            return WILDDOG_ERR_NOERR;
+        }
+        // now we find &, such as "a" in "a&b", length is end - start.
+        coap_add_option(pdu,COAP_OPTION_URI_QUERY,p_subquery_end - p_subquery_start,(u8*)p_subquery_start);
+        //jump "&"
+        p_subquery_start = p_subquery_end + 1;
+    }
+    return WILDDOG_ERR_NOERR;
+}
+
 
 /*notice, observe_index may not be continually, and may be fallback to 
   little index.
-/* from RFC 7641: https://tools.ietf.org/html/rfc7641#section-3.4
+  from RFC 7641: https://tools.ietf.org/html/rfc7641#section-3.4
    V1 is last index, V2 is recv index, T1 is last recv time
    T2 is now recv time. Condition 3 we do not care , only care 1 and 2
 
@@ -213,13 +316,13 @@ STATIC u32 WD_SYSTEM _wilddog_coap_getRecvObserveIndex(coap_pdu_t * pdu)
         len = coap_opt_length(p_op);
         // max observe data is 3 bytes.
         if(len == 0 || len > 3){
-            wilddog_debug_level(WD_DEBUG_ERROR, "Get an maxage option but length is %ld!",len);
+            wilddog_debug_level(WD_DEBUG_ERROR, "Get an maxage option but length is %d!",len);
             return 0;
         }
         option_value = coap_opt_value(p_op);
         if(NULL == option_value){
             wilddog_debug_level(WD_DEBUG_ERROR, \
-                     "Get an option length is %ld but no value!",len);
+                     "Get an option length is %d but no value!",len);
 
             return 0;
         }
@@ -252,13 +355,13 @@ STATIC u32 WD_SYSTEM _wilddog_coap_getRecvMaxage(coap_pdu_t * pdu)
         len = coap_opt_length(p_op);
         // max maxage data is 4 bytes.
         if(len == 0 || len > 4){
-            wilddog_debug_level(WD_DEBUG_ERROR, "Get an maxage option but length is %ld!",len);
+            wilddog_debug_level(WD_DEBUG_ERROR, "Get an maxage option but length is %d!",len);
             return 0;
         }
         option_value = coap_opt_value(p_op);
         if(NULL == option_value){
             wilddog_debug_level(WD_DEBUG_ERROR, \
-                     "Get an option length is %ld but no value!",len);
+                     "Get an option length is %d but no value!",len);
 
             return 0;
         }
@@ -342,7 +445,6 @@ STATIC int WD_SYSTEM _wilddog_coap_countSize(Wilddog_Coap_Pkt_T pkt){
         //a null path, also will be in coap, but no data
         size += 5;
     }
-    
     //query option
     if(pkt.url->p_url_query){
         //query will be separated into some options by '&', it may be more than 1 option
@@ -353,30 +455,28 @@ STATIC int WD_SYSTEM _wilddog_coap_countSize(Wilddog_Coap_Pkt_T pkt){
         size += num * 5 + strlen((const char*)pkt.url->p_url_query) + 1;
     }
     //may be observe option, observe 0
-    if(WILDDOG_COAP_CMD_ON == pkt.command){
-        size += 5 + 1;
-    }
-        
+    size += 5 + 1;
+    
     //payload, with 0xff ahead.
     size += pkt.data_len + 1;
     return size;
 }
-STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_initSession(void* data, int flag){
-    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+//now we only care one packet, do not thinking about partition.
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_sendPkt(Wilddog_Coap_Sendpkt_Arg_T arg,BOOL isNeedCs, Wilddog_Coap_Observe_Stat_T observeStat)
+{
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
     Wilddog_Coap_Pkt_T pkt;
-    u32 token;
-    Wilddog_Str_T* oldPath = NULL;
-    Wilddog_Str_T* tmp = NULL;
-    int finalPathLen = 0;
-    coap_pdu_t * pdu = NULL;
+    u32 token = 0;
+    coap_pdu_t *pdu = NULL;
+    Wilddog_Str_T *new_query = NULL;
+    int query_len = 0;
+    Wilddog_Str_T *tmp = NULL;
     
-    wilddog_assert(data, WILDDOG_ERR_NULL);
-    wilddog_assert(!arg->p_url->p_url_path, WILDDOG_ERR_NULL);
+    wilddog_assert(arg.protocol&&arg.url&&arg.token&&arg.send_pkt, WILDDOG_ERR_NULL);
 
     //add information for coap header
-    pkt.command = WILDDOG_COAP_CMD_INIT;
     pkt.type = COAP_MESSAGE_CON;
-    pkt.code = COAP_REQUEST_POST;
+    pkt.code = arg.code;
     pkt.version = COAP_DEFAULT_VERSION;
     pkt.mid = _wilddog_coap_getMid();
 
@@ -385,64 +485,682 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_initSession(void* data, int flag
     token = _wilddog_coap_getToken(pkt.mid);
     memcpy(pkt.token,(u8*)&token,WILDDOG_COAP_TOKEN_LEN);
 
-    //in our coap, token is message id and more than mid, tell up layer the message id
-    *(arg->p_message_id) = token;
-    
-    //get user auth token as data.
-    pkt.data = arg->p_data;
-    pkt.data_len = arg->d_data_len;
+    *arg.token = token;
 
-    pkt.url = arg->p_url;
+    //get user data.
+    pkt.data = arg.data;
+    pkt.data_len = arg.data_len;
 
-    //merge session init path with path .cs, assert pkt.url->p_url_path is null
-    finalPathLen = strlen(WILDDOG_COAP_SESSION_PATH) + 1;
-    tmp = (Wilddog_Str_T*)wmalloc(finalPathLen);
-    wilddog_assert(tmp, WILDDOG_ERR_NULL);
-    if(NULL == tmp){
-        wilddog_debug_level(WD_DEBUG_ERROR, "Malloc failed!");
-        return WILDDOG_ERR_NULL;
+    pkt.url = arg.url;
+
+    if(TRUE == isNeedCs){
+        //combine the short token with .cs query option, ".cs=<short token>", etc.
+        if(NULL != arg.url->p_url_query){
+            //query string length  = 
+            //(pkt.url->p_url_query) + (&) + (.cs) + (=) + (short token length) + '\0'
+            query_len = strlen((const char*)arg.url->p_url_query) + 1 + strlen(WILDDOG_COAP_SESSION_QUERY) + 1 + arg.d_session_len + 1;
+        }else{
+            //query string length  = (.cs) + (=) + (short token length) + '\0'
+            query_len = strlen(WILDDOG_COAP_SESSION_QUERY) + 1 + arg.d_session_len + 1;
+        }
+        new_query = (Wilddog_Str_T*)wmalloc(query_len);
+        wilddog_assert(new_query, WILDDOG_ERR_NULL);
+        if(NULL != arg.url->p_url_query){
+            sprintf((char*)new_query, "%s&%s=%s",(const char*)arg.url->p_url_query,WILDDOG_COAP_SESSION_PATH,(const char*)arg.p_session_info);
+        }else{
+            sprintf((char*)new_query, "%s=%s",WILDDOG_COAP_SESSION_PATH,(const char*)arg.p_session_info);
+        }
+        //store old query
+        tmp = arg.url->p_url_query;
+        arg.url->p_url_query = new_query;
     }
-    //store old path
-    oldPath = pkt.url->p_url_path;
-    pkt.url->p_url_path = tmp;
-    snprintf((char*)pkt.url->p_url_path, finalPathLen, "%s", WILDDOG_COAP_SESSION_PATH);
+
     //count pkt size.
     pkt.size = _wilddog_coap_countSize(pkt);
 
     //make a coap packet
     pdu = coap_pdu_init(pkt.type, pkt.code, pkt.mid, pkt.size);
     if(NULL == pdu){
-        wfree(pkt.url->p_url_path);
-        pkt.url->p_url_path = oldPath;
+        //restore query
         wilddog_debug_level(WD_DEBUG_ERROR, "Malloc failed!");
-        return WILDDOG_ERR_NULL;
+        ret = WILDDOG_ERR_NULL;
+        goto END;
     }
+
     //add token
     coap_add_token(pdu, pkt.token_length, pkt.token);
     //add host
     coap_add_option(pdu,COAP_OPTION_URI_HOST,strlen((const char*)pkt.url->p_url_host),pkt.url->p_url_host);
-
+    if(WILDDOG_COAP_OBSERVE_NOOBSERVE != observeStat){
+        u8 observe_value = (WILDDOG_COAP_OBSERVE_ON == observeStat)?0:1;
+        coap_add_option(pdu,COAP_OPTION_OBSERVE,sizeof(observe_value),&observe_value);
+    }
     //add path
-    coap_add_option(pdu,COAP_OPTION_URI_PATH, strlen((const char*)pkt.url->p_url_path),pkt.url->p_url_path);
-
+    _wilddog_coap_addPath(pdu,(char*)pkt.url->p_url_path);
+    //add query
+    if(pkt.url->p_url_query)
+        _wilddog_coap_addQuery(pdu, (char*)pkt.url->p_url_query);
     //add data
     if(pkt.data)
         coap_add_data(pdu,pkt.data_len, pkt.data);
-
-    if(_wilddog_sec_send(arg->protocol, pdu->hdr, pdu->length) < 0){
-        coap_delete_pdu(pdu);
-        wfree(pkt.url->p_url_path);
-        return WILDDOG_ERR_SENDERR;
+    
+    ret = WILDDOG_ERR_NOERR;
+    if(TRUE == arg.isSend){
+        ret = _wilddog_sec_send(arg.protocol, pdu->hdr, pdu->length);
+        if(ret < 0){
+            coap_delete_pdu(pdu);
+            pdu = NULL;
+            wilddog_debug_level(WD_DEBUG_ERROR, "Send Packet %x failed.",(unsigned int)token);
+            ret = WILDDOG_ERR_SENDERR;
+        }else{
+            ret = WILDDOG_ERR_NOERR;
+        }
     }
-    wfree(pkt.url->p_url_path);
-    pkt.url->p_url_path = oldPath;
+    if(pdu){
+        Wilddog_Conn_Pkt_Data_T *out_pkt = *arg.send_pkt;
+        out_pkt->next = NULL;
+        out_pkt->data = (u8*)pdu;
+        out_pkt->len = (u32)(pdu->length&0xffff);
+    }
+END:
+    if(isNeedCs){
+        //resume old query
+        arg.url->p_url_query = tmp;
+        if(new_query)
+            wfree(new_query);
+    }
+    return ret;
+}
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_initSession(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Str_T* tmp = NULL;
+    Wilddog_Str_T* new_path = NULL;
+    int finalPathLen = 0;
+    Wilddog_Coap_Sendpkt_Arg_T send_arg;
+    //now we only care one packet, do not thinking about partition.
+    wilddog_assert(data&&arg->protocol&&arg->p_url&&arg->p_out_data, WILDDOG_ERR_NULL);
 
-    //store the packet to connect layer
-    *(u8**)(arg->p_out_data) = (u8*)pdu;
-    *(arg->p_out_data_len) = (u32)pdu->length;
-    return WILDDOG_ERR_NOERR;
+    //merge session init path with path .cs, assert pkt.url->p_url_path is null
+    finalPathLen = strlen(WILDDOG_COAP_SESSION_PATH) + 1;
+    new_path = (Wilddog_Str_T*)wmalloc(finalPathLen);
+    wilddog_assert(new_path, WILDDOG_ERR_NULL);
+    if(NULL == new_path){
+        wilddog_debug_level(WD_DEBUG_ERROR, "Malloc failed!");
+        return WILDDOG_ERR_NULL;
+    }
+    sprintf((char*)new_path, "%s", WILDDOG_COAP_SESSION_PATH);
+    //store old path
+    tmp = arg->p_url->p_url_path;
+    arg->p_url->p_url_path = new_path;
+    
+    send_arg.protocol = arg->protocol;
+    send_arg.url = arg->p_url;
+    send_arg.code = COAP_REQUEST_POST;
+    send_arg.p_session_info = arg->p_session_info;
+    send_arg.d_session_len = arg->d_session_len;
+    send_arg.data = arg->p_data;
+    send_arg.data_len = arg->d_data_len;
+    send_arg.isSend = TRUE;
+    send_arg.token = arg->p_message_id;
+    send_arg.send_pkt = (Wilddog_Conn_Pkt_Data_T**)arg->p_out_data;
+
+    ret = _wilddog_coap_send_sendPkt(send_arg, FALSE, WILDDOG_COAP_OBSERVE_NOOBSERVE);
+    //resume old path
+    arg->p_url->p_url_path = tmp;
+    if(new_path)
+        wfree(new_path);
+    
+
+    return ret;
+}
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_reconnect(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    wilddog_assert(arg->protocol, WILDDOG_ERR_NULL);
+    //retry WILDDOG_RECONNECT_TIMES times
+    return _wilddog_sec_reconnect(arg->protocol, WILDDOG_RECONNECT_TIMES);
+}
+/*
+    Ping policy: 
+    1. Short: Send GET coap://<appid>.wilddogio.com/.ping?.cs=<short token>
+    2. Long:  Send POST coap://<appid>.wilddogio.com/.rst, payload is long token
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_ping(void* data, int flag){
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    Wilddog_Str_T *new_query = NULL, *new_path = NULL;
+    Wilddog_Str_T *tmp_query = NULL, *tmp_path = NULL;
+    Wilddog_Coap_Sendpkt_Arg_T send_arg;
+
+    wilddog_assert(data&&arg->protocol&&arg->p_url&&arg->p_message_id&&arg->p_session_info&&arg->p_out_data, WILDDOG_ERR_NULL);
+
+    //change url and data
+    if(FALSE == flag){
+        //coap://<appid>.wilddogio.com/.ping?.cs=<short token>
+        int query_len = 0;
+        //query = ".cs" + "=" + "<short token>"
+        query_len = strlen(WILDDOG_COAP_SESSION_QUERY) + 1 + arg->d_session_len + 1;
+        new_query = (Wilddog_Str_T*)wmalloc(query_len);
+        if(NULL == new_query){
+            wilddog_debug_level(WD_DEBUG_ERROR, "Malloc failed");
+            return WILDDOG_ERR_NULL;
+        }
+        sprintf((char*)new_query, "%s=%s",WILDDOG_COAP_SESSION_QUERY,(const char*)arg->p_session_info);
+        new_path = (Wilddog_Str_T*)wmalloc(strlen((const char*)WILDDOG_COAP_SESSION_PING_PATH) + 1);
+        if(NULL == new_path){
+            wfree(new_query);
+            wilddog_debug_level(WD_DEBUG_ERROR, "Malloc failed");
+            return WILDDOG_ERR_NULL;
+        }
+        sprintf((char*)new_path, "%s",WILDDOG_COAP_SESSION_PING_PATH);
+        send_arg.data = NULL;
+        send_arg.data_len = 0;
+    }else{
+        //coap://<appid>.wilddogio.com/.rst  payload = <long token>
+        new_path = (Wilddog_Str_T*)wmalloc(strlen((const char*)WILDDOG_COAP_SESSION_RST_PATH) + 1);
+        if(NULL == new_path){
+            wfree(new_query);
+            wilddog_debug_level(WD_DEBUG_ERROR, "Malloc failed");
+            return WILDDOG_ERR_NULL;
+        }
+        sprintf((char*)new_path, "%s",WILDDOG_COAP_SESSION_RST_PATH);
+        send_arg.data = arg->p_session_info;
+        send_arg.data_len = arg->d_session_len;
+    }
+    
+    //store old query
+    tmp_query = arg->p_url->p_url_query;
+    arg->p_url->p_url_query = new_query;
+    tmp_path = arg->p_url->p_url_path;
+    arg->p_url->p_url_path = new_path;
+
+    send_arg.protocol = arg->protocol;
+    send_arg.url = arg->p_url;
+    send_arg.code = (FALSE == flag) ? (COAP_REQUEST_GET):(COAP_REQUEST_POST);
+    send_arg.p_session_info = arg->p_session_info;
+    send_arg.d_session_len = arg->d_session_len;
+    send_arg.isSend = TRUE;
+    send_arg.token = arg->p_message_id;
+    send_arg.send_pkt = (Wilddog_Conn_Pkt_Data_T**)arg->p_out_data;
+
+    ret = _wilddog_coap_send_sendPkt(send_arg, FALSE, WILDDOG_COAP_OBSERVE_NOOBSERVE);
+
+    //resume old query
+    arg->p_url->p_url_query = tmp_query;
+    if(new_query){
+        wfree(new_query);
+    }
+    arg->p_url->p_url_path = tmp_path;
+    if(new_path){
+        wfree(new_path);
+    }
+
+    return ret;
+}
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_retransmit(void* data, int flag){
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    coap_pdu_t *pdu = NULL;
+    coap_opt_t *opt = NULL;
+    
+    wilddog_assert(arg&&arg->p_data&&arg->protocol, WILDDOG_ERR_NULL);
+
+    pdu = (coap_pdu_t *)arg->p_data;
+    if(arg->d_session_len == WILDDOG_CONN_SESSION_SHORT_LEN - 1){
+        //we must change short session key
+        //find .cs query, change the value to newer
+        opt  = _wilddog_coap_getSendSessionOption(pdu);
+        if(opt){
+            //reflash session data
+            //data = ".cs" + "=" + "<short token>"
+            int query_len;
+            query_len = strlen(WILDDOG_COAP_SESSION_QUERY) + 1 + arg->d_session_len;
+            if(query_len != coap_opt_length(opt)){
+                //not match!
+                wilddog_debug_level(WD_DEBUG_WARN,"Session not match!!!, real is %d, want %d",
+                                    coap_opt_length(opt),query_len);
+            }else{
+                //matched, change old short token to new
+                u8* value = coap_opt_value(opt);
+                wilddog_assert(value, WILDDOG_ERR_NULL);
+                //check again, because _wilddog_coap_getSendSessionOption maybe fail now.
+                if(0 == strncmp((const char*)value, WILDDOG_COAP_SESSION_QUERY, strlen(WILDDOG_COAP_SESSION_QUERY))){
+                    //ignore ".cs=", so value add 4, copy new sort token to query.
+                    memcpy((char*)(value + 4),arg->p_session_info, arg->d_session_len);
+                }
+            }
+        }
+        //observe special operation
+        if(arg->p_proto_data){
+            _Wilddog_Coap_Observe_Data_T * observe_data = (_Wilddog_Coap_Observe_Data_T*)arg->p_proto_data;
+            observe_data->last_index = 0;
+            observe_data->last_recv_time = 0;
+            observe_data->maxage = 0;
+        }
+    }else if(arg->d_session_len == WILDDOG_CONN_SESSION_LONG_LEN - 1){
+        //change long session key
+        //FIXME: now we do not need to change long token, let it go.
+        //If send old token, we only need to reauth.
+        wilddog_debug_level(WD_DEBUG_WARN, "Can not be here!");
+    }
+    ret = _wilddog_sec_send(arg->protocol, pdu->hdr, pdu->length);
+    return (ret < 0) ? (WILDDOG_ERR_SENDERR):(WILDDOG_ERR_NOERR);
 }
 
+/*
+    coap get packet like coap://  a.b.cn / path  ? query=1&query=2
+                         [scheme] [host]  [path]   [     query   ]
+*/
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_getValue(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Coap_Sendpkt_Arg_T send_arg;
+    
+    wilddog_assert(data&&arg->protocol&& \
+                   arg->p_url&&arg->p_session_info&& \
+                   arg->d_session_len&&arg->p_out_data, WILDDOG_ERR_NULL);
+
+    send_arg.protocol = arg->protocol;
+    send_arg.url = arg->p_url;
+    send_arg.code = COAP_REQUEST_GET;
+    send_arg.p_session_info = arg->p_session_info;
+    send_arg.d_session_len = arg->d_session_len;
+    send_arg.data = NULL;
+    send_arg.data_len = 0;
+    send_arg.isSend = flag;
+    send_arg.token = arg->p_message_id;
+    send_arg.send_pkt = (Wilddog_Conn_Pkt_Data_T**)arg->p_out_data;
+    ret = _wilddog_coap_send_sendPkt(send_arg, TRUE, WILDDOG_COAP_OBSERVE_NOOBSERVE);
+
+    return ret;
+}
+
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_setValue(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Coap_Sendpkt_Arg_T send_arg;
+   
+    wilddog_assert(data&&arg->protocol&& \
+                   arg->p_url&&arg->p_session_info&& \
+                   arg->d_session_len&&arg->p_out_data && \
+                   arg->p_data&&arg->d_data_len, WILDDOG_ERR_NULL);
+
+    send_arg.protocol = arg->protocol;
+    send_arg.url = arg->p_url;
+    send_arg.code = COAP_REQUEST_PUT;
+    send_arg.p_session_info = arg->p_session_info;
+    send_arg.d_session_len = arg->d_session_len;
+    send_arg.data = arg->p_data;
+    send_arg.data_len = arg->d_data_len;
+    send_arg.isSend = flag;
+    send_arg.token = arg->p_message_id;
+    send_arg.send_pkt = (Wilddog_Conn_Pkt_Data_T**)arg->p_out_data;
+    ret = _wilddog_coap_send_sendPkt(send_arg, TRUE, WILDDOG_COAP_OBSERVE_NOOBSERVE);
+
+    return ret;
+}
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_push(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Coap_Sendpkt_Arg_T send_arg;
+   
+    wilddog_assert(data&&arg->protocol&& \
+                   arg->p_url&&arg->p_session_info&& \
+                   arg->d_session_len&&arg->p_out_data && \
+                   arg->p_data&&arg->d_data_len, WILDDOG_ERR_NULL);
+
+    send_arg.protocol = arg->protocol;
+    send_arg.url = arg->p_url;
+    send_arg.code = COAP_REQUEST_POST;
+    send_arg.p_session_info = arg->p_session_info;
+    send_arg.d_session_len = arg->d_session_len;
+    send_arg.data = arg->p_data;
+    send_arg.data_len = arg->d_data_len;
+    send_arg.isSend = flag;
+    send_arg.token = arg->p_message_id;
+    send_arg.send_pkt = (Wilddog_Conn_Pkt_Data_T**)arg->p_out_data;
+    ret = _wilddog_coap_send_sendPkt(send_arg, TRUE, WILDDOG_COAP_OBSERVE_NOOBSERVE);
+
+    return ret;
+}
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_remove(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Coap_Sendpkt_Arg_T send_arg;
+   
+    wilddog_assert(data&&arg->protocol&& \
+                   arg->p_url&&arg->p_session_info&& \
+                   arg->d_session_len&&arg->p_out_data, WILDDOG_ERR_NULL);
+
+    send_arg.protocol = arg->protocol;
+    send_arg.url = arg->p_url;
+    send_arg.code = COAP_REQUEST_DELETE;
+    send_arg.p_session_info = arg->p_session_info;
+    send_arg.d_session_len = arg->d_session_len;
+    send_arg.data = arg->p_data;
+    send_arg.data_len = arg->d_data_len;
+    send_arg.isSend = flag;
+    send_arg.token = arg->p_message_id;
+    send_arg.send_pkt = (Wilddog_Conn_Pkt_Data_T**)arg->p_out_data;
+    ret = _wilddog_coap_send_sendPkt(send_arg, TRUE, WILDDOG_COAP_OBSERVE_NOOBSERVE);
+
+    return ret;
+}
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_addObserver(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Coap_Sendpkt_Arg_T send_arg;
+    _Wilddog_Coap_Observe_Data_T *observe_data = NULL;
+    wilddog_assert(data&&arg->protocol&& \
+                   arg->p_url&&arg->p_session_info&& \
+                   arg->d_session_len&&arg->p_out_data, WILDDOG_ERR_NULL);
+
+    observe_data = (_Wilddog_Coap_Observe_Data_T*)wmalloc(sizeof(_Wilddog_Coap_Observe_Data_T));
+    wilddog_assert(observe_data, WILDDOG_ERR_NULL);
+    
+    send_arg.protocol = arg->protocol;
+    send_arg.url = arg->p_url;
+    send_arg.code = COAP_REQUEST_GET;
+    send_arg.p_session_info = arg->p_session_info;
+    send_arg.d_session_len = arg->d_session_len;
+    send_arg.data = NULL;
+    send_arg.data_len = 0;
+    send_arg.isSend = flag;
+    send_arg.token = arg->p_message_id;
+    send_arg.send_pkt = (Wilddog_Conn_Pkt_Data_T**)arg->p_out_data;
+    ret = _wilddog_coap_send_sendPkt(send_arg, TRUE, WILDDOG_COAP_OBSERVE_ON);
+
+    //add proto_data
+    if(WILDDOG_ERR_NOERR == ret){
+        *arg->p_proto_data = (u8*)observe_data;
+    }else{
+        wfree(observe_data);
+    }
+    return ret;
+}
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_removeObserver(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Coap_Sendpkt_Arg_T send_arg;
+    wilddog_assert(data&&arg->protocol&& \
+                   arg->p_url&&arg->p_session_info&& \
+                   arg->d_session_len&&arg->p_out_data, WILDDOG_ERR_NULL);
+    
+    send_arg.protocol = arg->protocol;
+    send_arg.url = arg->p_url;
+    send_arg.code = COAP_REQUEST_GET;
+    send_arg.p_session_info = arg->p_session_info;
+    send_arg.d_session_len = arg->d_session_len;
+    send_arg.data = NULL;
+    send_arg.data_len = 0;
+    send_arg.isSend = flag;
+    send_arg.token = arg->p_message_id;
+    send_arg.send_pkt = (Wilddog_Conn_Pkt_Data_T**)arg->p_out_data;
+    ret = _wilddog_coap_send_sendPkt(send_arg, TRUE, WILDDOG_COAP_OBSERVE_OFF);
+
+    return ret;
+}
+
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_disSetValue(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Coap_Sendpkt_Arg_T send_arg;
+    Wilddog_Str_T *new_query = NULL;
+    int query_len = 0;
+    Wilddog_Str_T *tmp = NULL;
+    
+    wilddog_assert(data&&arg->protocol&& \
+                   arg->p_url&&arg->p_session_info&& \
+                   arg->d_session_len&&arg->p_out_data && \
+                   arg->p_data&&arg->d_data_len, WILDDOG_ERR_NULL);
+
+    //add disconnect function with query .dis=add
+    if(NULL != arg->p_url->p_url_query){
+        //query string length  = 
+        //(pkt.url->p_url_query) + (&) + (.dis=add) + '\0'
+        query_len = strlen((const char*)arg->p_url->p_url_query) + 1 + strlen(WILDDOG_COAP_ADD_DIS_QUERY) + 1;
+    }else{
+        //query string length  = (.dis=add) + '\0'
+        query_len = strlen(WILDDOG_COAP_ADD_DIS_QUERY) + 1;
+    }
+    new_query = (Wilddog_Str_T*)wmalloc(query_len);
+    wilddog_assert(new_query, WILDDOG_ERR_NULL);
+
+    if(NULL != arg->p_url->p_url_query){
+        sprintf((char*)new_query, "%s&%s",(const char*)arg->p_url->p_url_query,WILDDOG_COAP_ADD_DIS_QUERY);
+    }else{
+        sprintf((char*)new_query, "%s",WILDDOG_COAP_ADD_DIS_QUERY);
+    }
+    //store old query
+    tmp = arg->p_url->p_url_query;
+    arg->p_url->p_url_query = new_query;
+
+    send_arg.protocol = arg->protocol;
+    send_arg.url = arg->p_url;
+    send_arg.code = COAP_REQUEST_PUT;
+    send_arg.p_session_info = arg->p_session_info;
+    send_arg.d_session_len = arg->d_session_len;
+    send_arg.data = arg->p_data;
+    send_arg.data_len = arg->d_data_len;
+    send_arg.isSend = flag;
+    send_arg.token = arg->p_message_id;
+    send_arg.send_pkt = (Wilddog_Conn_Pkt_Data_T**)arg->p_out_data;
+    ret = _wilddog_coap_send_sendPkt(send_arg, TRUE, WILDDOG_COAP_OBSERVE_NOOBSERVE);
+
+    //resume old query
+    arg->p_url->p_url_query = tmp;
+    if(new_query)
+        wfree(new_query);
+
+    return ret;
+}
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_disPush(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Coap_Sendpkt_Arg_T send_arg;
+    Wilddog_Str_T *new_query = NULL;
+    int query_len = 0;
+    Wilddog_Str_T *tmp = NULL;
+    
+    wilddog_assert(data&&arg->protocol&& \
+                   arg->p_url&&arg->p_session_info&& \
+                   arg->d_session_len&&arg->p_out_data && \
+                   arg->p_data&&arg->d_data_len, WILDDOG_ERR_NULL);
+
+    //add disconnect function with query .dis=add
+    if(NULL != arg->p_url->p_url_query){
+        //query string length  = 
+        //(pkt.url->p_url_query) + (&) + (.dis=add) + '\0'
+        query_len = strlen((const char*)arg->p_url->p_url_query) + 1 + strlen(WILDDOG_COAP_ADD_DIS_QUERY) + 1;
+    }else{
+        //query string length  = (.dis=add) + '\0'
+        query_len = strlen(WILDDOG_COAP_ADD_DIS_QUERY) + 1;
+    }
+    new_query = (Wilddog_Str_T*)wmalloc(query_len);
+    wilddog_assert(new_query, WILDDOG_ERR_NULL);
+
+    if(NULL != arg->p_url->p_url_query){
+        sprintf((char*)new_query, "%s&%s",(const char*)arg->p_url->p_url_query,WILDDOG_COAP_ADD_DIS_QUERY);
+    }else{
+        sprintf((char*)new_query, "%s",WILDDOG_COAP_ADD_DIS_QUERY);
+    }
+    //store old query
+    tmp = arg->p_url->p_url_query;
+    arg->p_url->p_url_query = new_query;
+
+    send_arg.protocol = arg->protocol;
+    send_arg.url = arg->p_url;
+    send_arg.code = COAP_REQUEST_POST;
+    send_arg.p_session_info = arg->p_session_info;
+    send_arg.d_session_len = arg->d_session_len;
+    send_arg.data = arg->p_data;
+    send_arg.data_len = arg->d_data_len;
+    send_arg.isSend = flag;
+    send_arg.token = arg->p_message_id;
+    send_arg.send_pkt = (Wilddog_Conn_Pkt_Data_T**)arg->p_out_data;
+    ret = _wilddog_coap_send_sendPkt(send_arg, TRUE, WILDDOG_COAP_OBSERVE_NOOBSERVE);
+    
+    //resume old query
+    arg->p_url->p_url_query = tmp;
+    if(new_query)
+        wfree(new_query);
+
+    return ret;
+}
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_disRemove(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Coap_Sendpkt_Arg_T send_arg;
+    Wilddog_Str_T *new_query = NULL;
+    int query_len = 0;
+    Wilddog_Str_T *tmp = NULL;
+    
+    wilddog_assert(data&&arg->protocol&& \
+                   arg->p_url&&arg->p_session_info&& \
+                   arg->d_session_len&&arg->p_out_data, WILDDOG_ERR_NULL);
+    //add disconnect function with query .dis=add
+    if(NULL != arg->p_url->p_url_query){
+        //query string length  = 
+        //(pkt.url->p_url_query) + (&) + (.dis=add) + '\0'
+        query_len = strlen((const char*)arg->p_url->p_url_query) + 1 + strlen(WILDDOG_COAP_ADD_DIS_QUERY) + 1;
+    }else{
+        //query string length  = (.dis=add) + '\0'
+        query_len = strlen(WILDDOG_COAP_ADD_DIS_QUERY) + 1;
+    }
+    new_query = (Wilddog_Str_T*)wmalloc(query_len);
+    wilddog_assert(new_query, WILDDOG_ERR_NULL);
+
+    if(NULL != arg->p_url->p_url_query){
+        sprintf((char*)new_query, "%s&%s",(const char*)arg->p_url->p_url_query,WILDDOG_COAP_ADD_DIS_QUERY);
+    }else{
+        sprintf((char*)new_query, "%s",WILDDOG_COAP_ADD_DIS_QUERY);
+    }
+    //store old query
+    tmp = arg->p_url->p_url_query;
+    arg->p_url->p_url_query = new_query;
+
+    send_arg.protocol = arg->protocol;
+    send_arg.url = arg->p_url;
+    send_arg.code = COAP_REQUEST_DELETE;
+    send_arg.p_session_info = arg->p_session_info;
+    send_arg.d_session_len = arg->d_session_len;
+    send_arg.data = arg->p_data;
+    send_arg.data_len = arg->d_data_len;
+    send_arg.isSend = flag;
+    send_arg.token = arg->p_message_id;
+    send_arg.send_pkt = (Wilddog_Conn_Pkt_Data_T**)arg->p_out_data;
+    ret = _wilddog_coap_send_sendPkt(send_arg, TRUE, WILDDOG_COAP_OBSERVE_NOOBSERVE);
+    
+    //resume old query
+    arg->p_url->p_url_query = tmp;
+    if(new_query)
+        wfree(new_query);
+
+    return ret;
+}
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_disCancel(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Coap_Sendpkt_Arg_T send_arg;
+    Wilddog_Str_T *new_query = NULL;
+    int query_len = 0;
+    Wilddog_Str_T *tmp = NULL;
+    
+    wilddog_assert(data&&arg->protocol&& \
+                   arg->p_url&&arg->p_session_info&& \
+                   arg->d_session_len&&arg->p_out_data, WILDDOG_ERR_NULL);
+    //add disconnect function with query .dis=add
+    if(NULL != arg->p_url->p_url_query){
+        //query string length  = 
+        //(pkt.url->p_url_query) + (&) + (.dis=rm) + '\0'
+        query_len = strlen((const char*)arg->p_url->p_url_query) + 1 + strlen(WILDDOG_COAP_CANCEL_DIS_QUERY) + 1;
+    }else{
+        //query string length  = (.dis=add) + '\0'
+        query_len = strlen(WILDDOG_COAP_CANCEL_DIS_QUERY) + 1;
+    }
+    new_query = (Wilddog_Str_T*)wmalloc(query_len);
+    wilddog_assert(new_query, WILDDOG_ERR_NULL);
+
+    if(NULL != arg->p_url->p_url_query){
+        sprintf((char*)new_query, "%s&%s",(const char*)arg->p_url->p_url_query,WILDDOG_COAP_CANCEL_DIS_QUERY);
+    }else{
+        sprintf((char*)new_query, "%s",WILDDOG_COAP_CANCEL_DIS_QUERY);
+    }
+    //store old query
+    tmp = arg->p_url->p_url_query;
+    arg->p_url->p_url_query = new_query;
+
+    send_arg.protocol = arg->protocol;
+    send_arg.url = arg->p_url;
+    send_arg.code = COAP_REQUEST_DELETE;
+    send_arg.p_session_info = arg->p_session_info;
+    send_arg.d_session_len = arg->d_session_len;
+    send_arg.data = arg->p_data;
+    send_arg.data_len = arg->d_data_len;
+    send_arg.isSend = flag;
+    send_arg.token = arg->p_message_id;
+    send_arg.send_pkt = (Wilddog_Conn_Pkt_Data_T**)arg->p_out_data;
+    ret = _wilddog_coap_send_sendPkt(send_arg, TRUE, WILDDOG_COAP_OBSERVE_NOOBSERVE);
+    
+    //resume old query
+    arg->p_url->p_url_query = tmp;
+    if(new_query)
+        wfree(new_query);
+
+    return ret;
+}
+//send GET coap://<appId>.wilddogio.com/.off
+STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_offline(void* data, int flag){
+    Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
+    Wilddog_Coap_Sendpkt_Arg_T send_arg;
+    Wilddog_Str_T *new_path = NULL;
+    int path_len = 0;
+    Wilddog_Str_T *tmp = NULL;
+    
+    wilddog_assert(data&&arg->protocol&& \
+                   arg->p_url&&arg->p_session_info&& \
+                   arg->d_session_len&&arg->p_out_data, WILDDOG_ERR_NULL);
+    //add disconnect function with query .dis=add
+    if(NULL != arg->p_url->p_url_path){
+        //path string length  = 
+        //(pkt.url->p_url_path) + (/) + (.off) + '\0'
+        path_len = strlen((const char*)arg->p_url->p_url_path) + 1 + strlen(WILDDOG_COAP_OFFLINE_PATH) + 1;
+    }else{
+        //query string length  = (.off) + '\0'
+        path_len = strlen(WILDDOG_COAP_OFFLINE_PATH) + 1;
+    }
+    new_path = (Wilddog_Str_T*)wmalloc(path_len);
+    wilddog_assert(new_path, WILDDOG_ERR_NULL);
+
+    if(NULL != arg->p_url->p_url_path){
+        sprintf((char*)new_path, "%s&%s",(const char*)arg->p_url->p_url_path,WILDDOG_COAP_OFFLINE_PATH);
+    }else{
+        sprintf((char*)new_path, "%s",WILDDOG_COAP_OFFLINE_PATH);
+    }
+    //store old path
+    tmp = arg->p_url->p_url_path;
+    arg->p_url->p_url_path = new_path;
+
+    send_arg.protocol = arg->protocol;
+    send_arg.url = arg->p_url;
+    send_arg.code = COAP_REQUEST_GET;
+    send_arg.p_session_info = arg->p_session_info;
+    send_arg.d_session_len = arg->d_session_len;
+    send_arg.data = arg->p_data;
+    send_arg.data_len = arg->d_data_len;
+    send_arg.isSend = flag;
+    send_arg.token = arg->p_message_id;
+    send_arg.send_pkt = (Wilddog_Conn_Pkt_Data_T**)arg->p_out_data;
+    ret = _wilddog_coap_send_sendPkt(send_arg, TRUE, WILDDOG_COAP_OBSERVE_NOOBSERVE);
+    
+    //resume old query
+    arg->p_url->p_url_path = tmp;
+    if(new_path)
+        wfree(new_path);
+
+    return ret;
+}
 
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_handlePkt(void* data, int flag){
     Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
@@ -482,7 +1200,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_handlePkt(void* data, int f
     //5. get path, only observer may be use path to find the root path, we assume
     //   when root firstly sended, do not send child, when child firstly sended,
     //   send root again, and remove child observe.
-    //6. get block number, fixme: we do not support block [rfc7959]
+    //6. get block number, FIXME: we do not support block [rfc7959]
     //7. get payload
     coap_get_data(pdu,&payload_len,&payload);
 
@@ -495,6 +1213,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_handlePkt(void* data, int f
         if(TRUE == _wilddog_coap_isObserveNew(observe_data->last_index,observe_index)){
             //get new observe, handle it.
             observe_data->last_index = observe_index;
+            //FIXME: we do not use maxage to flash observe packet, only store.
             if(maxage)
                 observe_data->maxage = maxage;
             observe_data->last_recv_time = _wilddog_getTime();
@@ -512,13 +1231,28 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_handlePkt(void* data, int f
 
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_freePkt(void* data, int flag){
     Wilddog_Proto_Cmd_Arg_T * arg = (Wilddog_Proto_Cmd_Arg_T*)data;
+    coap_pdu_t* pdu = (coap_pdu_t*)arg->p_data;
+    coap_pdu_t  *toSend = NULL;
+    u8 type = flag?(COAP_MESSAGE_ACK):(COAP_MESSAGE_RST);
+    wilddog_assert(data && pdu, WILDDOG_ERR_NULL);
 
-    wilddog_assert(data, WILDDOG_ERR_NULL);
-
-    //we only free p_data!!!
-    if(arg->p_data){
-        wfree(arg->p_data);
+    //1. if need, send ack to the src of recvPkt
+    //2. release recvPkt
+    
+    //if is con, match send ack ,other send rst
+    if(COAP_MESSAGE_CON == pdu->hdr->type){
+        toSend = coap_pdu_init(type,0,pdu->hdr->id,WILDDOG_PROTO_MAXSIZE);
+        if(toSend){
+            coap_add_token(toSend,pdu->hdr->token_length,pdu->hdr->token);
+            //we don't care send success or not
+            _wilddog_sec_send(arg->protocol,toSend->hdr,toSend->length);
+            coap_delete_pdu(toSend);
+        }
     }
+
+    //we free recvPkt
+    coap_delete_pdu(pdu);
+    
     return WILDDOG_ERR_NOERR;
 }
 
@@ -534,12 +1268,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_getPkt(void* data, int flag
     recv_data = _wilddog_coap_mallocRecvBuffer(arg->protocol);
     wilddog_assert(recv_data, WILDDOG_ERR_NULL);
     res = _wilddog_sec_recv(arg->protocol,(void*)recv_data,(s32)WILDDOG_PROTO_MAXSIZE);
-    if(res < 0 || res > WILDDOG_PROTO_MAXSIZE){
+    if(res <= 0 || res > WILDDOG_PROTO_MAXSIZE){
         _wilddog_coap_freeRecvBuffer(arg->protocol,recv_data);
-        //wilddog_debug_level(WD_DEBUG_ERROR, "Receive failed, error = %d",res);
-        return WILDDOG_ERR_INVALID;
+        //wilddog_debug_level(WD_DEBUG_LOG, "Receive failed, error = %d",res);
+        return WILDDOG_ERR_RECVTIMEOUT;
     }
-    
     //2. malloc coap buffer, handle coap, get token
     pdu = coap_new_pdu();
     if(NULL == pdu){
@@ -575,20 +1308,22 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_getPkt(void* data, int flag
 /* protocol :: coap  interface */
 Wilddog_Func_T _wilddog_protocol_funcTable[WD_PROTO_CMD_MAX + 1] = 
 {
-    (Wilddog_Func_T) _wilddog_coap_initSession,//init   
-    (Wilddog_Func_T)NULL,//ping
-    (Wilddog_Func_T)NULL,//get
-    (Wilddog_Func_T)NULL,//set
-    (Wilddog_Func_T)NULL,//push
-    (Wilddog_Func_T)NULL,//remove
-    (Wilddog_Func_T)NULL,//on
-    (Wilddog_Func_T)NULL,//off
-    (Wilddog_Func_T)NULL,//dis set
-    (Wilddog_Func_T)NULL,//dis push
-    (Wilddog_Func_T)NULL,//dis remove
-    (Wilddog_Func_T)NULL,//dis cancel
-    (Wilddog_Func_T)NULL,//online
-    (Wilddog_Func_T)NULL,//offline
+    (Wilddog_Func_T) _wilddog_coap_initSession,//init
+    (Wilddog_Func_T)_wilddog_coap_reconnect,
+    (Wilddog_Func_T)_wilddog_coap_send_ping,//ping
+    (Wilddog_Func_T)_wilddog_coap_send_retransmit,//retransmit
+    (Wilddog_Func_T)_wilddog_coap_send_getValue,//get
+    (Wilddog_Func_T)_wilddog_coap_send_setValue,//set
+    (Wilddog_Func_T)_wilddog_coap_send_push,//push
+    (Wilddog_Func_T)_wilddog_coap_send_remove,//remove
+    (Wilddog_Func_T)_wilddog_coap_send_addObserver,//on
+    (Wilddog_Func_T)_wilddog_coap_send_removeObserver,//off
+    (Wilddog_Func_T)_wilddog_coap_send_disSetValue,//dis set
+    (Wilddog_Func_T)_wilddog_coap_send_disPush,//dis push
+    (Wilddog_Func_T)_wilddog_coap_send_disRemove,//dis remove
+    (Wilddog_Func_T)_wilddog_coap_send_disCancel,//dis cancel
+    (Wilddog_Func_T)NULL,//online, the same as init
+    (Wilddog_Func_T)_wilddog_coap_send_offline,//offline
     (Wilddog_Func_T)_wilddog_coap_recv_getPkt,//get pkt
     (Wilddog_Func_T)_wilddog_coap_recv_freePkt,//free pkt
     (Wilddog_Func_T)_wilddog_coap_recv_handlePkt,//handle pkt
@@ -615,7 +1350,13 @@ size_t WD_SYSTEM _wilddog_protocol_ioctl
         cmd < 0)
         return WILDDOG_ERR_INVALID;
 
-    return (size_t)(_wilddog_protocol_funcTable[cmd])(p_args,flags);
+    if(_wilddog_protocol_funcTable[cmd]){
+        return (_wilddog_protocol_funcTable[cmd])(p_args,flags);
+    }
+    else{
+        wilddog_debug_level(WD_DEBUG_ERROR, "Cannot find function %d!",cmd);
+        return WILDDOG_ERR_NULL;
+    }
 }
 
 /*
@@ -665,7 +1406,9 @@ Wilddog_Return_T WD_SYSTEM _wilddog_protocol_deInit(void *data)
 {
     Wilddog_Conn_T *p_conn = (Wilddog_Conn_T*)data;
     _wilddog_sec_deinit(p_conn->p_protocol);
-
+    p_conn->p_protocol->host = NULL;
+    p_conn->p_protocol->user_data = NULL;
+    
     wfree(p_conn->p_protocol);
     return WILDDOG_ERR_NOERR;
 }

@@ -69,6 +69,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_sec_init
     wilddog_assert(protocol, WILDDOG_ERR_NULL);
     
     if(0 != wilddog_openSocket(&protocol->socketFd)){
+        wilddog_debug_level(WD_DEBUG_ERROR, "Can not open socket!");
         return WILDDOG_ERR_INVALID;
     }
 

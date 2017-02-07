@@ -138,7 +138,7 @@ dtls_hmac_finalize(dtls_hmac_context_t *ctx, unsigned char *result) {
   dtls_hash_update(&ctx->data, buf, len);
 
   len = dtls_hash_finalize(result, &ctx->data);
-
+  wilddog_debug_level(WD_DEBUG_ALL, "hmac finalized.");
   return len;
 }
 
