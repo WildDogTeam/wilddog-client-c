@@ -242,6 +242,7 @@ void WD_SYSTEM _wilddog_event_trigger
     )
 {
     Wilddog_EventNode_T *enode = NULL;
+    Wilddog_EventNode_T *enode_next = NULL;
     Wilddog_Repo_T *repo;
     Wilddog_Node_T *obj_node = NULL, *obj_node_prev = NULL;
     Wilddog_Node_T *obj_node_next = NULL;
@@ -265,6 +266,7 @@ void WD_SYSTEM _wilddog_event_trigger
     while(enode)
     {
         u8 pathContainResult = 0;
+        enode_next = enode->next;
         flag = 0;
         p_str = NULL;
         pathContainResult = _wilddog_event_pathContain( \
@@ -317,7 +319,7 @@ void WD_SYSTEM _wilddog_event_trigger
                 wilddog_node_delete(obj_node);
         }
 
-        enode = enode->next;
+        enode = enode_next;
     }
 	/*delete observer node.while receive error */
 
