@@ -49,9 +49,9 @@ extern "C"
                       --------
     Policy:
         1. Init/NotAuthed/Authing: only can send auth packet,other packets must
-           be stored but do not send out.During this time, ping pacet will not be
+           be stored but do not send out.During this time, ping packet will not be
            generated. When stored packets time out, trigger timeout function.
-        2. Authed: Can send any type of packets, and will generate ping packet.
+        2. Authed: We can send any type of packets, and will generate ping packet.
         3. Authing->Authed: All stored packets will be send right now.
         4. Authed->Authing/NotAuthed: the same as 1.
 */
