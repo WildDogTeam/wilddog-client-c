@@ -277,7 +277,6 @@ void WD_SYSTEM _wilddog_event_trigger
             (pathContainResult == WD_EVENT_PATHCONTAIN_SED))
         {
             /*  if could not find the node, new a null node.*/
-            
             p_str = (Wilddog_Str_T *)_wilddog_event_pathRelative( \
                                     (char*)((Wilddog_Url_T *)arg)->p_url_path, \
                                     (char *)enode->p_url->p_url_path);
@@ -291,7 +290,6 @@ void WD_SYSTEM _wilddog_event_trigger
                 obj_node = wilddog_node_createNull(NULL);
             }
             /* store the prev and next, make the temp node as the head*/
-            
             if(obj_node->p_wn_prev != NULL)
             {
                 obj_node_prev = obj_node->p_wn_prev;
@@ -322,8 +320,8 @@ void WD_SYSTEM _wilddog_event_trigger
         enode = enode_next;
     }
 	/*delete observer node.while receive error */
-
-	_wilddog_event_errHandle(&repo->p_rp_store->p_se_event->p_head);
+    if(repo->p_rp_store->p_se_event->p_head)
+    	_wilddog_event_errHandle(&repo->p_rp_store->p_se_event->p_head);
 	
 }
 
@@ -397,7 +395,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
         return WILDDOG_ERR_NULL;
     }
 
-    wilddog_debug_level(WD_DEBUG_LOG, "event node path:%s\n", \
+    wilddog_debug_level(WD_DEBUG_LOG, "event node path:%s", \
                         node->p_url->p_url_path);
 
     node->p_onData = arg->p_complete;
@@ -432,8 +430,11 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
                                 tmp_node->p_url->p_url_host, \
                                 tmp_node->p_url->p_url_path);
 			/*resend it.*/
-			if(tmp_node->state == EVENT_STATE_OFF)
+			if(tmp_node->state == EVENT_STATE_OFF){
+                tmp_node->flag = OFF_FLAG;
+                wilddog_debug_level(WD_DEBUG_WARN,"Node's current state is off, resend.");
 				break;
+            }
             return WILDDOG_ERR_NOERR;
         }
         else
@@ -443,7 +444,6 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
     }
 	if(node)
 	{
-		
 		/* */
 	    if(prev_node == tmp_node)
 	    {
@@ -465,7 +465,6 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
         u8 pathContainResult = _wilddog_event_pathContain(\
                                        (char*)head->p_url->p_url_path, \
                                        (char*)arg->p_url->p_url_path);
-
 		if(pathContainResult == WD_EVENT_PATHCONTAIN_SCD)
 		{
 		    if(head->flag == ON_FLAG)

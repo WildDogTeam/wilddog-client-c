@@ -38,7 +38,7 @@
 
 #define WILDDOG_RETRANSMIT_DEFAULT_INTERVAL (1)//默认的数据包重传间隔,s
 #define WILDDOG_SESSION_OFFLINE_TIMES (3)//session 建立失败多少次后，认为离线
-#define WILDDOG_SESSION_MAX_RETRY_TIME_INTERVAL (150)//session max retry time interval
+#define WILDDOG_SESSION_MAX_RETRY_TIME_INTERVAL (150)//最大离线重试间隔
 #define WILDDOG_SMART_PING
 
 #ifdef WILDDOG_SMART_PING
@@ -125,9 +125,16 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_ping_callback
         }
         case WILDDOG_HTTP_UNAUTHORIZED:
         {
-            //interval -= delta, delta /= 2, send long token right now.
-            p_conn->d_conn_sys.d_curr_ping_interval -= p_conn->d_conn_sys.d_ping_delta;
-            p_conn->d_conn_sys.d_ping_delta /= 2;
+            //delta = 0,means it was stable, but now env changed.
+            if(0 == p_conn->d_conn_sys.d_ping_delta){
+                p_conn->d_conn_sys.d_ping_delta = WILDDOG_DEFAULT_PING_DELTA;
+                p_conn->d_conn_sys.d_curr_ping_interval = WILDDOG_DEFAULT_PING_INTERVAL;
+            }
+            else{
+                //interval -= delta, delta /= 2, send long token right now.
+                p_conn->d_conn_sys.d_curr_ping_interval -= p_conn->d_conn_sys.d_ping_delta;
+                p_conn->d_conn_sys.d_ping_delta /= 2;
+            }
             p_conn->d_conn_sys.d_ping_type = WILDDOG_PING_TYPE_LONG;
             p_conn->d_conn_sys.d_ping_next_send_time = _wilddog_getTime();
             ret = WILDDOG_ERR_NOERR;
@@ -200,6 +207,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_get_callback
 
     }else if(WILDDOG_HTTP_UNAUTHORIZED == error_code){
         p_conn->d_session.d_session_status = WILDDOG_SESSION_NOTAUTHED;
+        return WILDDOG_ERR_IGNORE;
     }else{
         wilddog_debug_level(WD_DEBUG_WARN, "Get an error [%d].",(int)error_code);
     }
@@ -247,6 +255,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_set_callback
         ret = WILDDOG_ERR_NOERR;
     }else if(WILDDOG_HTTP_UNAUTHORIZED == error_code){
         p_conn->d_session.d_session_status = WILDDOG_SESSION_NOTAUTHED;
+        return WILDDOG_ERR_IGNORE;
     }else{
         wilddog_debug_level(WD_DEBUG_WARN, "Get an error [%d].",(int)error_code);
     }
@@ -291,6 +300,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_push_callback
         ret = WILDDOG_ERR_NOERR;
     }else if(WILDDOG_HTTP_UNAUTHORIZED == error_code){
         p_conn->d_session.d_session_status = WILDDOG_SESSION_NOTAUTHED;
+        return WILDDOG_ERR_IGNORE;
     }else{
         wilddog_debug_level(WD_DEBUG_WARN, "Get an error [%d].",(int)error_code);
     }
@@ -342,7 +352,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_remove_callback
         {
             //need reauth, this happened only when server lost our session.
             p_conn->d_session.d_session_status = WILDDOG_SESSION_NOTAUTHED;
-            break;
+            return WILDDOG_ERR_IGNORE;
         }
         case WILDDOG_HTTP_INTERNAL_SERVER_ERR:
         {
@@ -442,6 +452,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_addObserver_callback
 
     }else if(WILDDOG_HTTP_UNAUTHORIZED == error_code){
         p_conn->d_session.d_session_status = WILDDOG_SESSION_NOTAUTHED;
+        return WILDDOG_ERR_IGNORE;
     }else{
         wilddog_debug_level(WD_DEBUG_WARN, "Get an error [%d].",(int)error_code);
     }
@@ -493,6 +504,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_removeObserver_callback
         ret = WILDDOG_ERR_NOERR;
     }else if(WILDDOG_HTTP_UNAUTHORIZED == error_code){
         p_conn->d_session.d_session_status = WILDDOG_SESSION_NOTAUTHED;
+        return WILDDOG_ERR_IGNORE;
     }else{
         wilddog_debug_level(WD_DEBUG_WARN, "Get an error [%d].",(int)error_code);
     }
@@ -534,6 +546,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_disCommon_callback
         ret = WILDDOG_ERR_NOERR;
     }else if(WILDDOG_HTTP_UNAUTHORIZED == error_code){
         p_conn->d_session.d_session_status = WILDDOG_SESSION_NOTAUTHED;
+        return WILDDOG_ERR_IGNORE;
     }else{
         wilddog_debug_level(WD_DEBUG_WARN, "Get an error [%d].",(int)error_code);
     }
@@ -634,6 +647,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_offline_callback
         ret = WILDDOG_ERR_NOERR;
     }else if(WILDDOG_HTTP_UNAUTHORIZED == error_code){
         p_conn->d_session.d_session_status = WILDDOG_SESSION_NOTAUTHED;
+        return WILDDOG_ERR_IGNORE;
     }else{
         wilddog_debug_level(WD_DEBUG_WARN, "Get an error [%d].",(int)error_code);
     }
@@ -1233,7 +1247,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_commonSet(void* data,int flag, W
 #if (DEBUG_LEVEL)<=(WD_DEBUG_LOG)
         {
             int i;
-            wilddog_debug_level(WD_DEBUG_LOG,"Send data is:\n");
+            wilddog_debug_level(WD_DEBUG_LOG,"Send data is:");
             for(i = 0; i < payload->d_dt_len;i++){
                 printf("%02x ", *(u8*)(payload->p_dt_data + i));
             }
@@ -1314,8 +1328,27 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_commonPush(void* data,int flag, 
     LL_APPEND(p_conn->d_conn_user.p_rest_list,pkt);
     p_conn->d_conn_user.d_count++;
     
-    if(arg->p_data)
+    if(arg->p_data){
+#if (DEBUG_LEVEL)<=(WD_DEBUG_LOG)
+        if(arg->p_url->p_url_path)
+            wilddog_debug_level(WD_DEBUG_LOG,"Print data want push: \npath %s", \
+                                arg->p_url->p_url_path);
+        wilddog_debug_printnode(arg->p_data);
+        printf("\n");
+#endif
         payload = _wilddog_node2Payload(arg->p_data);
+#if (DEBUG_LEVEL)<=(WD_DEBUG_LOG)
+        {
+            int i;
+            wilddog_debug_level(WD_DEBUG_LOG,"Send data is:");
+            for(i = 0; i < payload->d_dt_len;i++){
+                printf("%02x ", *(u8*)(payload->p_dt_data + i));
+            }
+            printf("\n");
+        }
+#endif
+    }
+
     //send to server
     command.p_data = NULL;
     command.d_data_len = 0;

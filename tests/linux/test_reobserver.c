@@ -1,10 +1,8 @@
 /*
-* 测试目的： 断网情况下，observer 接收到-10 再次调用observer 是否正常发送出 observer 申请。
-* 测试项： 1、observer 接收到错误是否完全释放 observer。
-*          2、释放后继续订阅子节点，之前订阅的父节点也不能收到推送，验证再次订阅是否受前一次订阅的影响。
+* 测试项： 1、订阅/a，然后让该订阅超时，在超时回调中重新订阅，能重新订阅（注意：有可能触发error回调）。
+*          2、断线重连测试，订阅节点后，断线应重新发送observe。
 *
-* 测试步骤： 1、断网： sudo ifconfig eth0 down 
-*            2、运行测试              
+* 测试步骤： 运行测试
 *
 */
 #include <unistd.h>
@@ -13,174 +11,153 @@
 #include <getopt.h>
 #include <string.h> 
 #include "wilddog.h"
-#include "test_config.h"
 
 #define _TEST_FAIL (-1)
 #define _TEST_SUCCESSFUL (1)
 #define _TEST_SUB_KEY_A  "aa"
 #define _TEST_SUB_KEY_B  "bb"
- 
-Wilddog_T wilddog = 0,wilddog_a,wilddog_b;
 
-
-static int observer_root=0, observer_cb =0, observer_main = 0;
-typedef enum TEST_RSULT{
-	RESULT_NO_REOBSERVER,	
-	RESULT_MAIN_REOBSERVER,
-	RESULT_REOBSERVER,	
-	RESULT_MAX
-}TEST_RSULT_T;
-
-
-static int test_result[RESULT_MAX];
-static int test_count[RESULT_MAX];
-
-STATIC void observer_cb_root
+static int test_result = 1;
+static BOOL isExit = FALSE;
+STATIC void set_cb
+    (
+    void* arg,
+    Wilddog_Return_T err
+    )
+{
+	if(arg)
+		*(BOOL*)arg = TRUE;
+	if((err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED ) &&
+        err != WILDDOG_ERR_RECONNECT)
+    {
+        wilddog_debug_level(WD_DEBUG_LOG,"set error code = %d",err);
+        return;
+    }
+    return;
+}
+STATIC void observer_cb_2
     (
     const Wilddog_Node_T* p_snapshot, 
     void* arg,
     Wilddog_Return_T err
     )
 {
-	if(observer_root )
-	{
-	 	test_result[RESULT_NO_REOBSERVER] = _TEST_FAIL;
-
-	}
-	
-	test_count[RESULT_NO_REOBSERVER] = 1;
+	isExit = TRUE;
 	if((err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED ) &&
         err != WILDDOG_ERR_RECONNECT)
     {
-        wilddog_debug("addObserver error code = %d",err);
-		observer_root = 1;
+        wilddog_debug_level(WD_DEBUG_DEBUG,"addObserver error code = %d",err);
         return;
     }
-
-	wilddog_debug("receive notify");
+	test_result = 0;
+//	wilddog_debug("Second");
     return;
 }
-
-
-STATIC void observer_cb_a
+STATIC void observer_cb_1
     (
     const Wilddog_Node_T* p_snapshot, 
     void* arg,
     Wilddog_Return_T err
     )
 {
-	if(observer_main == 2 )
-	{
-	 	test_result[RESULT_MAIN_REOBSERVER] = _TEST_SUCCESSFUL;
-		test_count[RESULT_MAIN_REOBSERVER] = 1;
-
+	Wilddog_T wilddog = (Wilddog_T)arg;
+	if(0 == wilddog){
+		wilddog_debug_level(WD_DEBUG_LOG,"Reobserve callback triggered");
+		test_result = 0;
+		isExit = TRUE;
 	}
-
 	if((err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED ) &&
         err != WILDDOG_ERR_RECONNECT)
     {
-        wilddog_debug("addObserver error code = %d",err);
-		
-		if(observer_main <1 )
-			observer_main = 1;
-        return;
-    }
-
-	wilddog_debug("receive notify");
-    return;
-}
-STATIC void observer_cb_b
-    (
-    const Wilddog_Node_T* p_snapshot, 
-    void* arg,
-    Wilddog_Return_T err
-    )
-{
-	if(observer_cb )
-	{
-	 	test_result[RESULT_REOBSERVER] = _TEST_SUCCESSFUL;
-		test_count[RESULT_REOBSERVER] = 1;
-
-	}
-
-	if((err < WILDDOG_HTTP_OK || err >= WILDDOG_HTTP_NOT_MODIFIED ) &&
-        err != WILDDOG_ERR_RECONNECT)
-    {
-        wilddog_debug("addObserver error code = %d",err);
-		wilddog_debug("reobserver new");
-		wilddog_addObserver(wilddog_b,WD_ET_VALUECHANGE,observer_cb_b,NULL);
-		observer_cb = 1;
-        return;
-    }
-
-	wilddog_debug("receive notify");
-    return;
-}
-STATIC int test_finish(void)
-{
-	int i;
-	for(i=0;i<(RESULT_MAX);i++){
-		if(test_count[i] == 0){
-			return 0;
+        wilddog_debug_level(WD_DEBUG_LOG,"addObserver error code = %d",err);
+		if(wilddog){
+			wilddog_debug_level(WD_DEBUG_LOG,"Reobserve");
+			wilddog_addObserver(wilddog,WD_ET_VALUECHANGE,observer_cb_1,NULL);
 		}
-		
-	}
-	return 1;
+        return;
+    }
+    return;
 }
-STATIC int test_restult_printf(void)
-{
-	int i,res=0;
-	printf("\n\toffline result :\t");
-	for(i=0;i<RESULT_MAX;i++)
-		if(test_result[i] == _TEST_FAIL){
-			switch(i){
-				case RESULT_NO_REOBSERVER:
-					printf("\n\t\t\tfailt observer get notify which should remove\n");
-					res =-1;
-					break;	
-				case RESULT_MAIN_REOBSERVER:
-					printf("\n\t\t\tmain  reobserver failt\n");					
-					res =-1;
-					break;
-				case RESULT_REOBSERVER:
-					printf("\n\t\t\tcall back reobserver failt\n");
-					res =-1;
-					break;	
-			}
-				
-		}
-	if(res == 0)
-		printf("reobserver test successfuly\n");
-	return res;
-}
+
 int main(int argc, char **argv) 
 {
-    wilddog = wilddog_initWithUrl((Wilddog_Str_T *)TEST_URL);
-	wilddog_a = wilddog_getChild(wilddog,(Wilddog_Str_T*)_TEST_SUB_KEY_A);	
-	wilddog_b = wilddog_getChild(wilddog,(Wilddog_Str_T*)_TEST_SUB_KEY_B);
+	Wilddog_T wilddog = 0,wilddog_child = 0;
+	Wilddog_Str_T * url = NULL;
+	Wilddog_Node_T* node = NULL;
+#ifndef TEST_URL
+	if(argc < 2){
+		printf("Input : \t ./test_reobserver url\n");
+		exit(0);
+	}
+	url = (Wilddog_Str_T *)argv[1];
+#else
+	url = (Wilddog_Str_T *)TEST_URL;
+#endif
+	node = wilddog_node_createUString(NULL,(Wilddog_Str_T*)"1");
 	
-	wilddog_addObserver(wilddog,WD_ET_VALUECHANGE,observer_cb_root,NULL);
-	wilddog_addObserver(wilddog_a,WD_ET_VALUECHANGE,observer_cb_a,NULL);	
-	wilddog_addObserver(wilddog_b,WD_ET_VALUECHANGE,observer_cb_b,NULL);
-
-    while(1)
-    {
-    
-		wilddog_increaseTime(3*1000);
+	printf("Reobserver test 1/2: addObserver nest test start...\n");
+	// 1/2 : addObserver嵌套测试，订阅/a，然后让该订阅超时，在超时回调中重新订阅
+	wilddog = wilddog_initWithUrl(url);
+	wilddog_child = wilddog_getChild(wilddog,(Wilddog_Str_T*)"a");
+	wilddog_setValue(wilddog_child,node,set_cb, (void*)&isExit);
+	while(isExit == FALSE){
+		wilddog_trySync();
+	}
+	isExit = FALSE;
+	test_result = 1;
+	wilddog_addObserver(wilddog_child,WD_ET_VALUECHANGE,observer_cb_1,(void*)wilddog_child);
+	wilddog_goOffline();
+	wilddog_increaseTime(WILDDOG_RETRANSMITE_TIME);//let it timeout
+	printf("Time pass %d seconds...\n",WILDDOG_RETRANSMITE_TIME/1000);
+	fflush(stdout);
+	sleep(WILDDOG_RETRANSMITE_TIME/1000);
+	printf("Wake up.\n");
+	wilddog_goOnline();
+    while(1){
         wilddog_trySync();
-		if(observer_main == 1){
-			observer_main = 2;
-			wilddog_addObserver(wilddog_a,WD_ET_VALUECHANGE,observer_cb_a,NULL);
-		}
-		if(test_finish())
+		if(TRUE == isExit)
 			break;
     }
 
-	wilddog_destroy(&wilddog_a);
-	wilddog_destroy(&wilddog_b);
     wilddog_destroy(&wilddog);
-
-	return test_restult_printf();
+	wilddog_destroy(&wilddog_child);
 	
+	if(1 == test_result){
+		printf("Reobserver test 1/3: addObserver nest test failed!\n");
+		return test_result;
+	}
+	printf("Reobserver test 1/2: addObserver nest test success!\n");
+	// 2/2 : addObserver断线重连测试，订阅
+	printf("Reobserver test 2/2: addObserver offline reobserve test start...\n");
+	isExit = FALSE;
+	test_result = 1;
+	wilddog = wilddog_initWithUrl(url);
+	wilddog_child = wilddog_getChild(wilddog,(Wilddog_Str_T*)"a");
+
+	wilddog_addObserver(wilddog_child,WD_ET_VALUECHANGE,observer_cb_2,(void*)&isExit);
+	while(isExit == FALSE){
+		wilddog_trySync();
+	}
+	isExit = FALSE;
+	printf("Time pass 180 seconds quickly(send offline to server and wait %d seconds)...\n",WILDDOG_RETRANSMITE_TIME/1000);
+	fflush(stdout);
+	wilddog_goOffline();
+	sleep(WILDDOG_RETRANSMITE_TIME/1000);
+	wilddog_goOnline();
+	printf("Wake up.\n");
+	wilddog_setValue(wilddog_child,node,set_cb, NULL);
+	while(isExit == FALSE){
+		wilddog_trySync();
+	}
+    wilddog_destroy(&wilddog);
+	wilddog_destroy(&wilddog_child);
+	if(1 == test_result){
+		printf("Reobserver test 2/2: addObserver offline reobserve test failed!\n");
+		return test_result;
+	}
+	printf("Reobserver test 2/2: addObserver offline reobserve test success!\n");
+
+	wilddog_node_delete(node);
+	return test_result;
 }
 
