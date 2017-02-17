@@ -1135,6 +1135,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sessionInit
     if(res < 0)
         goto _CM_AUTH_ERR;
     
+	_wilddog_cm_cmd_authe_delete(p_cm_l,0);
     /*   add list and send out.*/ 
     sendArg.cmd = WILDDOG_CONN_CMD_AUTH;
     sendArg.p_cm_l =  p_cm_l;
@@ -1142,6 +1143,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_cm_sessionInit
     sendArg.p_pkg = (void*)p_pkg_index;
     if((res = _wilddog_cm_cmd_userSend(&sendArg,0))< 0 )
         goto _CM_AUTH_ERR;
+
 
     return res;
 
