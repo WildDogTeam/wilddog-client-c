@@ -655,11 +655,16 @@ BOOL WD_SYSTEM _wilddog_recv_getOptionValue
         if(d_optionlen && d_optionlen <= d_dstSize)
         {
             p_optionvalue = coap_opt_value(p_op);
-
 #if WILDDOG_LITTLE_ENDIAN == 1 
             _sys_coap_ntol((u8*)p_dst,p_optionvalue,d_optionlen); 
 #else
-            memcpy((u8*)p_dst,p_optionvalue,d_optionlen);
+            //memcpy((u8*)p_dst,p_optionvalue,d_optionlen);
+		{
+			int i;
+			for(i = 0; i < d_optionlen; i++){
+				p_dst[d_dstSize-d_optionlen+i] = p_optionvalue[i];
+			}
+		}
 #endif
 #if 0
     wilddog_debug_level( WD_DEBUG_WARN, \
@@ -765,10 +770,11 @@ Wilddog_Return_T WD_SYSTEM _wilddog_recv_dispatch
                                         COAP_OPTION_OBSERVE,
                                         (u8*)&p_cm_recvArg->d_observerIndx,
                                         sizeof(p_cm_recvArg->d_observerIndx));
-    
+
     wilddog_debug_level(WD_DEBUG_LOG, \
-                        "coap:: receive package observer index : %lu ", \
+                        "coap:: receive package observer index : %x ", \
                         p_cm_recvArg->d_observerIndx);
+    
     /* get maxage.*/
     _wilddog_recv_getOptionValue(p_recvPdu,
                                  COAP_OPTION_MAXAGE, \
