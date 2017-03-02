@@ -96,26 +96,35 @@ STATIC void WD_SYSTEM _wilddog_coap_freeRecvBuffer(Wilddog_Protocol_T *proto,u8*
  * Function:    _wilddog_coap_ntoh
  * Description: Convert the byte order
  * Input:       src: The pointer of the source byte    
- *              len: The length of the source byte
+ *              srcLen: src max bytes
+ *              dstLen: The length of the source byte
  * Output:      dst: The pointer of the destination byte
  * Return:      N/A
 */
 STATIC INLINE void WD_SYSTEM  _wilddog_coap_ntoh
     (
     u8 *dst,
+    const u16 dstLen,
     const u8 *src,
-    const u8 len
+    const u16 srcLen
     )
 {
-    u8 i;
-
-    for(i=0;i<len; i++){
+    u16 i;
+    u16 len = srcLen > dstLen ? dstLen:srcLen;
+    // if srcLen > dstLen, copy lsb
 #if WILDDOG_LITTLE_ENDIAN == 1
-        dst[i] = src[len - i - 1 ];
-#else
-        dst[i] = src[i];
-#endif
+    // lsb is from head
+    for(i = 0; i < len; i++){
+        dst[i] = src[srcLen - i];
     }
+#else
+    //lsb is from tail
+    for(i = 0; i < len; i++){
+        if(dstLen - srcLen + i < 0)
+            continue;
+        dst[dstLen - srcLen + i] = src[i];
+    }
+#endif
 }
 
 /*
@@ -327,7 +336,7 @@ STATIC u32 WD_SYSTEM _wilddog_coap_getRecvObserveIndex(coap_pdu_t * pdu)
             return 0;
         }
         //observe option is in big endian.
-        _wilddog_coap_ntoh((u8*)&observe,option_value,len);
+        _wilddog_coap_ntoh((u8*)&observe,sizeof(observe),option_value,len);
     }
     return observe;
 }
@@ -366,7 +375,7 @@ STATIC u32 WD_SYSTEM _wilddog_coap_getRecvMaxage(coap_pdu_t * pdu)
             return 0;
         }
         //maxage option is in big endian.
-        _wilddog_coap_ntoh((u8*)&maxage,option_value,len);
+        _wilddog_coap_ntoh((u8*)&maxage,sizeof(maxage),option_value,len);
     }
     return maxage;
 }
