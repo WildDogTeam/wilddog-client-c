@@ -408,6 +408,7 @@ int main(int argc, char **argv)
             res = wilddog_auth((u8*)host,(u8*)value, \
                                strlen((const char *)value),
                                auth_callback,(void*)&isFinish);
+			break;
         case TEST_CMD_ONDISSET:
             /*Send the remove method*/
             res = wilddog_onDisconnectSetValue(wilddog,p_head,onDis_callback, \
