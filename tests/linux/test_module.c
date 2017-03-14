@@ -35,7 +35,7 @@ STATIC void addObserver_callback
 int main(int argc, char **argv) 
 {
     Wilddog_T wilddog = 0;
-
+    Wilddog_Str_T* url = NULL;
 #ifndef TEST_URL
 	if(argc < 2){
 		printf("Input : \t ./test_reobserver url\n");

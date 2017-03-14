@@ -819,6 +819,21 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_auth_callback
             p_conn->d_session.d_session_status = WILDDOG_SESSION_NOTAUTHED;
             break;
         }
+#ifdef WILDDOG_AUTH_2_0
+        case WILDDOG_HTTP_UNAUTHORIZED:
+        {
+            wilddog_debug_level(WD_DEBUG_WARN, "Auth failed, clear auth data.");
+            p_conn->d_session.d_session_status = WILDDOG_SESSION_NOTAUTHED;
+
+            //clear user auth token
+            if(p_conn->p_conn_repo->p_rp_store->p_se_callback){
+                (p_conn->p_conn_repo->p_rp_store->p_se_callback)(
+                                      p_conn->p_conn_repo->p_rp_store,
+                                      WILDDOG_STORE_CMD_CLEARAUTH,NULL,0);
+            }
+            break;
+        }
+#endif
         default:
         {
             //WTF! We don't recognize this error code, can do nothing but reauth.
