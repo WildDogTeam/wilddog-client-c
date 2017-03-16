@@ -115,7 +115,7 @@ STATIC INLINE void WD_SYSTEM  _wilddog_coap_ntoh
 #if WILDDOG_LITTLE_ENDIAN == 1
     // lsb is from head
     for(i = 0; i < len; i++){
-        dst[i] = src[srcLen - i];
+        dst[i] = src[srcLen - i - 1];
     }
 #else
     //lsb is from tail
