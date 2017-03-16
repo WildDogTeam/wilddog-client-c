@@ -124,6 +124,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_ping_callback
             break;
         }
         case WILDDOG_HTTP_UNAUTHORIZED:
+        case WILDDOG_HTTP_NOT_ACCEPTABLE:
         {
             //delta = 0,means it was stable, but now env changed.
             if(0 == p_conn->d_conn_sys.d_ping_delta){
@@ -1058,7 +1059,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_pingHandler(Wilddog_Conn_T* p_co
 
     wilddog_assert(p_conn&&p_conn->p_protocol, WILDDOG_ERR_NULL);
     //already handled ping retransmit and timeout, now we handle send
-    if(WILDDOG_SESSION_AUTHED == p_conn->d_session.d_session_status){
+    if(WILDDOG_SESSION_AUTHED == p_conn->d_session.d_session_status && NULL == p_conn->d_conn_sys.p_ping){
         Wilddog_Proto_Cmd_Arg_T command;
         command.p_data = NULL;
         command.d_data_len = 0;
@@ -1077,11 +1078,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_pingHandler(Wilddog_Conn_T* p_co
                 p_conn->d_conn_sys.d_ping_type = WILDDOG_PING_TYPE_SHORT;
             }
             //send to server
-            if(pkt){
+/*            if(pkt){
                 _wilddog_conn_packet_deInit(pkt);
                 wfree(pkt);
                 p_conn->d_conn_sys.p_ping = NULL;
-            }
+            }*/
             pkt = (Wilddog_Conn_Pkt_T*)wmalloc(sizeof(Wilddog_Conn_Pkt_T));
             wilddog_assert(pkt, WILDDOG_ERR_NULL);
             
@@ -1521,6 +1522,10 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_sessionInit(Wilddog_Conn_T *p_co
 STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_sessionRetry(Wilddog_Conn_T *p_conn){
     wilddog_assert(p_conn,WILDDOG_ERR_NULL);
 
+    if(NULL != p_conn->d_conn_sys.p_auth){
+        wilddog_debug_level(WD_DEBUG_WARN, "Session is establishing...");
+        return WILDDOG_ERR_NOERR;
+    }
     if(p_conn->d_conn_sys.d_offline_time != 0){
         //we are now offline, so we need control retry interval.
         u32 sended_time = (1 << p_conn->d_conn_sys.d_online_retry_count);
