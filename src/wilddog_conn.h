@@ -24,7 +24,7 @@ extern "C"
 #include "wilddog_ct.h"
 #include "wilddog_protocol.h"
 
-//#define WILDDOG_AUTH_2_0
+#define WILDDOG_AUTH_2_0
 
 #define WILDDOG_CONN_SESSION_SHORT_LEN (8 + 1)
 #define WILDDOG_CONN_SESSION_LONG_LEN (32 + 1)
