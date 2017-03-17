@@ -192,9 +192,10 @@ Wilddog_Return_T _wilddog_sec_init(Wilddog_Protocol_T *protocol)
     */
     wilddog_openSocket(&protocol->socketFd);
     ret = _wilddog_sec_getHost(&protocol->addr,protocol->host);
-    if(ret < 0)
+    if(ret < 0){
+        wilddog_debug_level(WD_DEBUG_ERROR,"Get host failed!");
         return ret;
-
+    }
     protocol->user_data = wmalloc(sizeof(Wilddog_Sec_Mbedtls_T));
     if(!protocol->user_data){
         wilddog_debug_level(WD_DEBUG_ERROR,"Malloc failed!");

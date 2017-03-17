@@ -783,6 +783,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_auth_callback
             //change observe/rest stored packets' send time to now.
             LL_FOREACH_SAFE(p_conn->d_conn_user.p_observer_list,curr,tmp){
                 if(curr){
+                    if((WILDDOG_CONN_PKT_FLAG_NEVERTIMEOUT & curr->d_flag) == 0x1){
+                        //first observe response packet received before, 
+                        //now re auth, so need register again.
+                        curr->d_register_time = _wilddog_getTime();
+                    }
                     curr->d_flag &= ~WILDDOG_CONN_PKT_FLAG_NEVERTIMEOUT;
                     curr->d_count = 0;
                     curr->d_next_send_time = _wilddog_getTime();

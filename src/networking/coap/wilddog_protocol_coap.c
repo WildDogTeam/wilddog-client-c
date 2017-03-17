@@ -557,8 +557,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_sendPkt(Wilddog_Coap_Sendpk
     if(TRUE == arg.isSend){
         ret = _wilddog_sec_send(arg.protocol, pdu->hdr, pdu->length);
         if(ret < 0){
-            coap_delete_pdu(pdu);
-            pdu = NULL;
+            //coap_delete_pdu(pdu);
+            //pdu = NULL;
             wilddog_debug_level(WD_DEBUG_ERROR, "Send Packet %x failed.",(unsigned int)token);
             ret = WILDDOG_ERR_SENDERR;
         }else{
@@ -1427,7 +1427,6 @@ Wilddog_Protocol_T * WD_SYSTEM _wilddog_protocol_init(void *data)
     protocol->host = p_conn->p_conn_repo->p_rp_url->p_url_host;
     protocol->addr.port = WILDDOG_PORT;
     protocol->callback = _wilddog_protocol_ioctl;
-
     //init socket and ip
     if(WILDDOG_ERR_NOERR != _wilddog_sec_init(protocol)){
         wfree(protocol);

@@ -1206,6 +1206,8 @@ Wilddog_Return_T _wilddog_ct_conn_goOffline()
           cmd.p_repo = p_curr;
           cmd.p_url = p_curr->p_rp_url;
           (p_conn->f_conn_ioctl)(WILDDOG_CONN_CMD_OFFLINE, &cmd, 0);
+      }else if(!p_conn){
+          p_curr->p_rp_conn = _wilddog_conn_init(p_curr);
       }
     }
     return WILDDOG_ERR_NOERR;
@@ -1236,6 +1238,8 @@ Wilddog_Return_T _wilddog_ct_conn_goOnline()
           cmd.p_repo = p_curr;
           cmd.p_url = p_curr->p_rp_url;
           (p_conn->f_conn_ioctl)(WILDDOG_CONN_CMD_ONLINE, &cmd, 0);
+      }else if(!p_conn){
+          p_curr->p_rp_conn = _wilddog_conn_init(p_curr);
       }
     }
     return WILDDOG_ERR_NOERR;
@@ -1282,6 +1286,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_conn_sync
             if(0 != p_conn->d_conn_sys.d_offline_time){
                 offline++;
             }
+        }else if(!p_conn){
+            p_curr->p_rp_conn = _wilddog_conn_init(p_curr);
         }
     }
     if(total == offline){

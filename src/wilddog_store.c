@@ -201,6 +201,11 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_store_ioctl
 {
     Wilddog_Conn_T *p_conn = p_store->p_se_repo->p_rp_conn;
     Wilddog_Event_T *p_rp_event = p_store->p_se_event;
+    if(!p_conn){
+        wilddog_debug("reinit connect layer");
+        p_store->p_se_repo->p_rp_conn = _wilddog_conn_init(p_store->p_se_repo);
+        p_conn = p_store->p_se_repo->p_rp_conn;
+    }
     switch(cmd)
     {
         case WILDDOG_STORE_CMD_GETAUTH:
