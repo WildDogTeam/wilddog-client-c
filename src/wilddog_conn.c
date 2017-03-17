@@ -1010,7 +1010,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_retransmitPkt(Wilddog_Conn_T *p_
     command.protocol = p_conn->p_protocol;
     command.p_out_data = NULL;
     command.p_out_data_len = NULL;
-    command.p_proto_data = NULL;
+    command.p_proto_data = &(pkt->p_proto_data);
     //send pkt must need session info, exclude auth pkt.
     command.p_session_info = p_conn->d_session.short_sid;
     command.d_session_len = WILDDOG_CONN_SESSION_SHORT_LEN - 1;

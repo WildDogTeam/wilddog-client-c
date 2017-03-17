@@ -775,8 +775,8 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_retransmit(void* data, int 
             }
         }
         //observe special operation
-        if(arg->p_proto_data){
-            _Wilddog_Coap_Observe_Data_T * observe_data = (_Wilddog_Coap_Observe_Data_T*)arg->p_proto_data;
+        if(arg->p_proto_data && *(arg->p_proto_data)){
+            _Wilddog_Coap_Observe_Data_T * observe_data = *(_Wilddog_Coap_Observe_Data_T**)arg->p_proto_data;
             observe_data->last_index = 0;
             observe_data->last_recv_time = 0;
             observe_data->maxage = 0;
@@ -1263,6 +1263,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_recv_handlePkt(void* data, int f
             observe_data->last_recv_time = _wilddog_getTime();
         }else{
             //get old observe, ignore it.
+            wilddog_debug_level(WD_DEBUG_WARN,"Received old observe index: last index is %ld, current index is %ld",observe_data->last_index,observe_index);
             error_code = WILDDOG_ERR_IGNORE;
         }
     }
