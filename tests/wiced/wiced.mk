@@ -87,7 +87,7 @@ $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/ssl_cli.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/ssl_srv.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/ssl_tls.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/timing.c \
-$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/wilddog_dtls.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/wilddog_sec_mbedtls.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/x509.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/x509_crt.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/sha512.c \
@@ -116,7 +116,7 @@ $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/peer.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/rijndael.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/session.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/sha2.c \
-$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/wilddog_conn_sec_dtls.c 
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/wilddog_sec_tinydtls.c 
 
 $(NAME)_INCLUDES += $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/
 endif
