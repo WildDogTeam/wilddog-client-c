@@ -119,7 +119,7 @@ int wilddog_send
 #endif
 
     wilddog_debug_level(WD_DEBUG_LOG, \
-                        "addr_in->port = %d, ip = %u.%u.%u.%u\n", \
+                        "addr_in->port = %d, ip = %u.%u.%u.%u", \
                         addr_in->port, addr_in->ip[0], \
                         addr_in->ip[1], addr_in->ip[2], \
                         addr_in->ip[3]);
@@ -172,12 +172,12 @@ int wilddog_receive
     if(memcmp(addr->ip, &remaddr.sin_addr.s_addr, addr->len) || \
         wilddog_ntohs(remaddr.sin_port) != addr->port)
     {
-        wilddog_debug("ip or port not match!");
+        wilddog_debug_level(WD_DEBUG_WARN,"ip or port not match!");
         return -1;
     }
     else
     {
-        wilddog_debug_level(WD_DEBUG_LOG, "received %d packet",recvlen);
+        wilddog_debug_level(WD_DEBUG_LOG, "received %d bytes",recvlen);
     }
 #if WILDDOG_SELFTEST
     {

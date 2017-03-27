@@ -75,6 +75,7 @@ tiny_dtls_get_log_level() {
 void
 tiny_dtls_set_log_level(log_t level) {
   maxlog = level;
+  wilddog_debug_level(WD_DEBUG_LOG, "Dtls log level is %d.",level);
 }
 
 /* this array has the same order as the type log_t */

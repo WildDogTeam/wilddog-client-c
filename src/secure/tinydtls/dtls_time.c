@@ -73,6 +73,9 @@ dtls_clock_init(void) {
 #  endif
   dtls_clock_offset = 0;
 #endif
+  return;
+  //just avoid warning.
+  wilddog_debug_level(WD_DEBUG_ALL, "Dtls clock init.");
 }
 #ifdef WILDDOG_PORT_TYPE_WICED
 

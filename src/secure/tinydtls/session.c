@@ -91,4 +91,6 @@ int
 dtls_session_equals(const session_t *a, const session_t *b) {
   assert(a); assert(b);
   return _dtls_address_equals_impl(a, b);
+  //just avoid warning.
+  wilddog_debug_level(WD_DEBUG_ALL,"Session equal complete.");
 }

@@ -74,6 +74,9 @@ STATIC int WD_SYSTEM _wilddog_sec_getDefaultIpIndex
     int index;
     STATIC int count = 0;
     int totalNum = sizeof(l_defaultAddr_t)/sizeof(Wilddog_Address_T);
+
+    wilddog_assert(p_host, 0);
+    
     index = _wilddog_sec_hashIndex(p_host, totalNum);
 
     index = (index + count) % totalNum;
@@ -86,18 +89,17 @@ STATIC int WD_SYSTEM _wilddog_sec_getDefaultIpIndex
  * Function:    _wilddog_sec_getHost
  * Description: sec layer  get host ip by the name
  *   
- * Input:        p_host: the pointer of the host
- *                  d_port: the port
+ * Input:       p_host: the pointer of the host
+ *              
  * Output:      p_remoteAddr: the pointer of the ip address
  * Return:      the gethostbyname result
 */
 int WD_SYSTEM _wilddog_sec_getHost
     (
     Wilddog_Address_T *p_remoteAddr,
-    Wilddog_Str_T *p_host,
-    u16 d_port
+    Wilddog_Str_T *p_host
     )
-{   
+{
     int res = -1;  
     int i;
 #define WILDDOG_COAP_LOCAL_HOST "s-dal5-coap-1.wilddogio.com"
@@ -109,10 +111,10 @@ int WD_SYSTEM _wilddog_sec_getHost
     res = wilddog_gethostbyname(p_remoteAddr,WILDDOG_COAP_LOCAL_HOST);
     
 #ifdef WILDDOG_SELFTEST                        
-        ramtest_gethostbyname();
+    ramtest_gethostbyname();
 #endif
 #ifdef WILDDOG_SELFTEST     
-        performtest_timeReset();
+    performtest_timeReset();
 #endif
 
     if(-1 == res)
@@ -121,8 +123,8 @@ int WD_SYSTEM _wilddog_sec_getHost
         p_remoteAddr->len = l_defaultAddr_t[i].len;
         memcpy(p_remoteAddr->ip, l_defaultAddr_t[i].ip,l_defaultAddr_t[i].len);
         res = 0;
+        wilddog_debug_level(WD_DEBUG_WARN, "Cannot get DNS, use default IP.");
     }
-    p_remoteAddr->port = d_port;
 
 #undef WILDDOG_COAP_LOCAL_HOST
     return res;

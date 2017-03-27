@@ -10,12 +10,13 @@ extern "C"
  
 #include "wilddog_conn.h"
 
-#define WILDDOG_AUTH_LEN 256
+#define WILDDOG_AUTH_LEN 512
 
 typedef enum WILDDOG_STORE_CMD_T
 {
     WILDDOG_STORE_CMD_GETAUTH = 0,
     WILDDOG_STORE_CMD_GETNODE,
+    WILDDOG_STORE_CMD_CLEARAUTH,
     WILDDOG_STORE_CMD_SETAUTH,
     WILDDOG_STORE_CMD_SENDGET,
     WILDDOG_STORE_CMD_SENDSET,
@@ -61,7 +62,7 @@ typedef struct WILDDOG_STORE_T
 
 
 extern Wilddog_Store_T *_wilddog_store_init(Wilddog_Repo_T* p_repo);
-extern Wilddog_Store_T *_wilddog_store_deinit(Wilddog_Repo_T* p_repo);
+extern Wilddog_Return_T _wilddog_store_deinit(Wilddog_Repo_T* p_repo);
 
 #ifdef __cplusplus
 }

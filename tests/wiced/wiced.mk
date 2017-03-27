@@ -32,7 +32,7 @@ ifeq ($(APP_PROTO_TYPE),coap)
 #COAP_C:=$(wildcard $(WILDDOG_TOP_DIR)/src/networking/$(APP_PROTO_TYPE)/*.c)
 $(NAME)_SOURCES += $(WILDDOG_TOP_DIR)/src/networking/$(APP_PROTO_TYPE)/option.c \
 $(WILDDOG_TOP_DIR)/src/networking/$(APP_PROTO_TYPE)/pdu.c \
-$(WILDDOG_TOP_DIR)/src/networking/$(APP_PROTO_TYPE)/wilddog_conn_coap.c
+$(WILDDOG_TOP_DIR)/src/networking/$(APP_PROTO_TYPE)/wilddog_protocol_coap.c
 
 $(NAME)_INCLUDES += $(WILDDOG_TOP_DIR)/src/networking/coap/
 endif
@@ -87,7 +87,7 @@ $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/ssl_cli.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/ssl_srv.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/ssl_tls.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/timing.c \
-$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/wilddog_dtls.c \
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/wilddog_sec_mbedtls.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/x509.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/x509_crt.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/lib/sha512.c \
@@ -116,7 +116,7 @@ $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/peer.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/rijndael.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/session.c \
 $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/sha2.c \
-$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/wilddog_conn_sec_dtls.c 
+$(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/wilddog_sec_tinydtls.c 
 
 $(NAME)_INCLUDES += $(WILDDOG_TOP_DIR)/src/secure/$(APP_SEC_TYPE)/
 endif
@@ -135,7 +135,6 @@ $(WILDDOG_TOP_DIR)/src/ramtest.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_api.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_common.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_conn.c \
-$(WILDDOG_TOP_DIR)/src/wilddog_conn_manage.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_ct.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_debug.c \
 $(WILDDOG_TOP_DIR)/src/wilddog_event.c \

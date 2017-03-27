@@ -307,5 +307,6 @@ dtls_ccm_decrypt_message(rijndael_ctx *ctx, size_t M, size_t L,
     return len - M;
   
  error:
+  wilddog_debug_level(WD_DEBUG_ERROR,"Error in decrypt.");
   return -1;
 }

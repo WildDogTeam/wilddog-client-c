@@ -428,7 +428,6 @@ STATIC Wilddog_Node_T * WD_SYSTEM _wilddog_c2n_parseMap
     if(currNum == WILDDOG_CBOR_FOLLOW_UNKNOW_LEN)
     {
         /* waiting break*/
-        wilddog_debug_level(WD_DEBUG_WARN, "do not know the length");
         var = TRUE;
         currNum = WILDDOG_CBOR_FOLLOW_UNKNOW_DEFLEN;
     }

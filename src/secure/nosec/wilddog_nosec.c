@@ -2,10 +2,8 @@
 #include "wilddog.h"
 #include "wilddog_config.h"
 #include "wilddog_port.h"
-#include "wilddog_sec_host.h"
-
-STATIC Wilddog_Address_T l_addr_in;
-STATIC int l_fd;
+#include "wilddog_sec.h"
+#include "wilddog_protocol.h"
 
 /*
  * Function:    _wilddog_sec_send
@@ -19,17 +17,18 @@ STATIC int l_fd;
 */
 Wilddog_Return_T WD_SYSTEM _wilddog_sec_send
     (
+    Wilddog_Protocol_T *protocol,
     void* p_data, 
     s32 len
     )
 {
     int res;
-    res = wilddog_send(l_fd,&l_addr_in, p_data, len);
+    res = wilddog_send(protocol->socketFd,&protocol->addr, p_data, len);
     if(res < 0)
     {
-        if(l_fd)
-            wilddog_closeSocket(l_fd);
-        wilddog_openSocket(&l_fd);           
+        if(protocol->socketFd)
+            wilddog_closeSocket(protocol->socketFd);
+        wilddog_openSocket(&protocol->socketFd);        
     }
     return res;
 }
@@ -45,11 +44,12 @@ Wilddog_Return_T WD_SYSTEM _wilddog_sec_send
 */
 int WD_SYSTEM _wilddog_sec_recv
     (
+    Wilddog_Protocol_T *protocol,
     void* p_data, 
     s32 len
     )
 {
-    return wilddog_receive(l_fd, &l_addr_in, p_data, len, \
+    return wilddog_receive(protocol->socketFd, &protocol->addr, p_data, len, \
                            WILDDOG_RECEIVE_TIMEOUT);
 }
 
@@ -62,16 +62,18 @@ int WD_SYSTEM _wilddog_sec_recv
  * Return:      Success: 0
 */
 Wilddog_Return_T WD_SYSTEM _wilddog_sec_init
-   (
-    Wilddog_Str_T *p_host,
-    u16 d_port
+    (
+    Wilddog_Protocol_T *protocol
     )
-{   
-    int res;
-    wilddog_openSocket(&l_fd);
-    res = _wilddog_sec_getHost(&l_addr_in,p_host,d_port);
+{
+    wilddog_assert(protocol, WILDDOG_ERR_NULL);
     
-    return res;
+    if(0 != wilddog_openSocket(&protocol->socketFd)){
+        wilddog_debug_level(WD_DEBUG_ERROR, "Can not open socket!");
+        return WILDDOG_ERR_INVALID;
+    }
+
+    return _wilddog_sec_getHost(&protocol->addr, protocol->host);
 }
 
 /*
@@ -82,10 +84,11 @@ Wilddog_Return_T WD_SYSTEM _wilddog_sec_init
  * Output:      N/A
  * Return:      Success: 0
 */
-Wilddog_Return_T WD_SYSTEM _wilddog_sec_deinit(void)
+Wilddog_Return_T WD_SYSTEM _wilddog_sec_deinit(Wilddog_Protocol_T *protocol)
 {
-    if(l_fd)
-        wilddog_closeSocket(l_fd);
+    if(protocol->socketFd)
+        wilddog_closeSocket(protocol->socketFd);
+    protocol->socketFd = -1;
     return WILDDOG_ERR_NOERR;
 }
 /*
@@ -99,8 +102,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_sec_deinit(void)
 */
 Wilddog_Return_T _wilddog_sec_reconnect
     (
-    Wilddog_Str_T *p_host,
-    u16 d_port,
+    Wilddog_Protocol_T *protocol,
     int retryNum
     )
 {
@@ -108,8 +110,8 @@ Wilddog_Return_T _wilddog_sec_reconnect
     Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
     for(i = 0; i < retryNum; i++)
     {
-        _wilddog_sec_deinit();
-        ret = _wilddog_sec_init(p_host, d_port);
+        _wilddog_sec_deinit(protocol);
+        ret = _wilddog_sec_init(protocol);
         if(WILDDOG_ERR_NOERR == ret)
             return ret;
     }

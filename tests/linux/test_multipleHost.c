@@ -329,6 +329,9 @@ int main(void)
 	multipletest_request(MULTIPLETEST_CMD_ON,client2,&multipleClient[1]);
 	multipletest_request(MULTIPLETEST_CMD_ON,client3,&multipleClient[2]);
 	multiple_trysync();	
+	wilddog_removeObserver(client1,WD_ET_VALUECHANGE);
+	wilddog_removeObserver(client2,WD_ET_VALUECHANGE);
+	wilddog_removeObserver(client3,WD_ET_VALUECHANGE);
 	/*PUSH */
 	
 	printf("\ntest push \n");

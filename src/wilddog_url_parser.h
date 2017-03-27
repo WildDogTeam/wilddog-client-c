@@ -48,6 +48,7 @@ extern Wilddog_Return_T _wilddog_url_getPath
     Wilddog_Str_T** pp_dstPath
     );
 extern Wilddog_Str_T *_wilddog_url_getKey(Wilddog_Str_T * p_path);
+extern Wilddog_Return_T _wilddog_url_copy(Wilddog_Url_T* src, Wilddog_Url_T* dst);
 #ifdef __cplusplus
 }
 #endif

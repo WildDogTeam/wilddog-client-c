@@ -53,7 +53,6 @@ File name : test_disOffLineOnline.c
 #include <getopt.h>
 #include <string.h> 
 #include "wilddog.h"
-#include "test_config.h"
 
 #define TEST_URL_LEN    (128)
 #define TEST_DIS_PATH       "/dis"
@@ -181,7 +180,7 @@ STATIC void dis_getCallBack
     return;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
     int offtime=0;
     int argSet =_DIS_CMD_SET,argPush=_DIS_CMD_PUSH,argRm=_DIS_CMD_RM,argCnc = _DIS_CMD_CNC;
@@ -198,12 +197,21 @@ int main(void)
     memset(p_rmUrl,0,TEST_URL_LEN);
     memset(p_cncUrl,0,TEST_URL_LEN);
 
-
+#ifndef TEST_URL
+	if(argc < 5){
+		printf("Input : \t ./test_disEvent url1 url2 url3 url4 \n");
+		exit(0);
+	}
+    sprintf((char*)p_setUrl,"%s%s",(Wilddog_Str_T*)argv[1],TEST_DIS_PATH);    
+    sprintf((char*)p_pushUrl,"%s%s",(Wilddog_Str_T*)argv[2],TEST_DIS_PATH);
+    sprintf((char*)p_rmUrl,"%s%s",(Wilddog_Str_T*)argv[3],TEST_DIS_PATH);    
+    sprintf((char*)p_cncUrl,"%s%s",(Wilddog_Str_T*)argv[4],TEST_DIS_PATH);
+#else
     sprintf((char*)p_setUrl,"%s%s",TEST_URL,TEST_DIS_PATH);    
     sprintf((char*)p_pushUrl,"%s%s",TEST_URL2,TEST_DIS_PATH);
     sprintf((char*)p_rmUrl,"%s%s",TEST_URL3,TEST_DIS_PATH);    
     sprintf((char*)p_cncUrl,"%s%s",TEST_URL4,TEST_DIS_PATH);
-    
+#endif
     printf("\n\tStart dis_event\\Offline\\Online test:\n\n");
     printf("\tdis set url %s \n",p_setUrl);
     printf("\tdis push url %s\n",p_pushUrl);    
