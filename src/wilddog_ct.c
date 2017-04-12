@@ -562,9 +562,12 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_destoryRepo
     wilddog_assert(p_repo, WILDDOG_ERR_NULL);
     p_repoHead = _wilddog_ct_getRepoHead(); 
     
-    p_repo->p_rp_store = _wilddog_store_deinit(p_repo);
-    p_repo->p_rp_conn  = _wilddog_conn_deinit(p_repo);
-
+    _wilddog_store_deinit(p_repo);
+    _wilddog_conn_deinit(p_repo);
+    
+    p_repo->p_rp_store = NULL;
+    p_repo->p_rp_conn  = NULL;
+    
     _wilddog_url_freeParsedUrl(p_repo->p_rp_url);
     p_repo->p_rp_url = NULL;
     LL_DELETE((*p_repoHead), p_repo);
@@ -1203,6 +1206,8 @@ Wilddog_Return_T _wilddog_ct_conn_goOffline()
           cmd.p_repo = p_curr;
           cmd.p_url = p_curr->p_rp_url;
           (p_conn->f_conn_ioctl)(WILDDOG_CONN_CMD_OFFLINE, &cmd, 0);
+      }else if(!p_conn){
+          p_curr->p_rp_conn = _wilddog_conn_init(p_curr);
       }
     }
     return WILDDOG_ERR_NOERR;
@@ -1233,6 +1238,8 @@ Wilddog_Return_T _wilddog_ct_conn_goOnline()
           cmd.p_repo = p_curr;
           cmd.p_url = p_curr->p_rp_url;
           (p_conn->f_conn_ioctl)(WILDDOG_CONN_CMD_ONLINE, &cmd, 0);
+      }else if(!p_conn){
+          p_curr->p_rp_conn = _wilddog_conn_init(p_curr);
       }
     }
     return WILDDOG_ERR_NOERR;
@@ -1255,6 +1262,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_conn_sync
     Wilddog_Repo_T** p_head = _wilddog_ct_getRepoHead();
     Wilddog_Repo_T* p_curr, *p_tmp;
     Wilddog_Conn_T * p_conn;
+    int total=0,offline=0;
 #ifdef WILDDOG_FORCE_OFFLINE
     if(TRUE == _wilddog_ct_getOfflineForced()){
         return WILDDOG_ERR_CLIENTOFFLINE;
@@ -1274,6 +1282,23 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_ct_conn_sync
             cmd.p_repo = p_curr;
             (p_conn->f_conn_ioctl)(WILDDOG_CONN_CMD_TRYSYNC, &cmd, 0);
 			_wilddog_syncTime();
+            total++;
+            if(0 != p_conn->d_conn_sys.d_offline_time){
+                offline++;
+            }
+        }else if(!p_conn){
+            p_curr->p_rp_conn = _wilddog_conn_init(p_curr);
+        }
+    }
+    if(total == offline){
+        //all repo offline, then we offline
+        if(TRUE == _wilddog_ct_getOnlineStatus()){
+            _wilddog_ct_setOnlineStatus(FALSE);
+        }
+    }else{
+        //online
+        if(FALSE == _wilddog_ct_getOnlineStatus()){
+            _wilddog_ct_setOnlineStatus(TRUE);
         }
     }
     return WILDDOG_ERR_NOERR;

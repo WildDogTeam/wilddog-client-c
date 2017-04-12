@@ -339,9 +339,9 @@ void stab_test_cycle(void)
 
 int main(void)
 {
-	
 	stab_test_cycle();
 	return 0;
+	wilddog_debug();//just avoid warning.
 }
 
 #endif /* WILDDOG_SELFTEST*/

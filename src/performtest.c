@@ -290,6 +290,7 @@ void WD_SYSTEM performtest_getHandleRecvTime(void)
 void WD_SYSTEM performtest_init( u32 delay_tm,u32 tree_num, u8 request_num)
 {
     memset(&g_performtest,0,sizeof(g_performtest));
+    wilddog_debug_level(WD_DEBUG_LOG, "perform test start!");
     g_performtest.tree_num = tree_num;
     g_performtest.request_num = request_num;
     g_performtest.d_tm_trysync_delay = delay_tm;
@@ -510,11 +511,8 @@ void WD_SYSTEM performtest_handle
         return;
     }
     perform_count = 0;
-    wilddog_debug();
     performtest_setSysState(SYS_AUTHRECV);
-    wilddog_debug();
     performtest_timeReset();
-    wilddog_debug();
 
     os_timer_disarm(&test_timer2);
     os_timer_setfn(&test_timer2, (os_timer_func_t *)perform_sync, NULL);
@@ -523,6 +521,11 @@ void WD_SYSTEM performtest_handle
     return;
 }
 #endif
+#else
+void WD_SYSTEM performtest_init(void)
+{
+    wilddog_debug_level(WD_DEBUG_LOG, "perform test cannot start, define WILDDOG_SELFTEST!");
+}
 
 
 #endif

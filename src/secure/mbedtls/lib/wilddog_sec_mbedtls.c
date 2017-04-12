@@ -4,7 +4,7 @@
 #include "wilddog.h"
 #include "wilddog_debug.h"
 #include "wilddog_config.h"
-#include "wilddog_sec_host.h"
+#include "wilddog_sec.h"
 
 #include "wilddog_port.h"
 #include "mbedtls/net.h"
@@ -20,30 +20,18 @@
 #include "test_lib.h"
 #define SERVER_NAME "Li"
 
-STATIC Wilddog_Address_T l_addr_in;
-STATIC int l_fd;
+typedef struct WILDDOG_SEC_MBEDTLS_T{
+    Wilddog_Address_T addr;
+    int fd;
+    mbedtls_entropy_context entropy;
+    mbedtls_ctr_drbg_context ctr_drbg;
+    mbedtls_ssl_context ssl;
+    mbedtls_ssl_config conf;
+    mbedtls_x509_crt cacert;
+    mbedtls_timing_delay_context timer;
+}Wilddog_Sec_Mbedtls_T;
 
 extern int mbedtls_debug_get_threshold(void);
-typedef struct _ctx
-{
-    int fd;
-    Wilddog_Address_T * addr_in;
-}CTX;
-
-CTX ctx;
-
-//ssl_context ssl;
-//entropy_context entropy;
-//ctr_drbg_context ctr_drbg;    
-//x509_crt cacert;
-
-//mbedtls_net_context server_fd;
-mbedtls_entropy_context entropy;
-mbedtls_ctr_drbg_context ctr_drbg;
-mbedtls_ssl_context ssl;
-mbedtls_ssl_config conf;
-mbedtls_x509_crt cacert;
-mbedtls_timing_delay_context timer;
 
 /*
  * Function:    _wilddog_dtls_debug
@@ -70,18 +58,6 @@ STATIC void _wilddog_dtls_debug
 }
 
 /*
- * Function:    wilddog_getssl
- * Description: get ssl context struct
- * Input:       N/A
- * Output:      N/A
- * Return:      ssl context struct
-*/
-STATIC mbedtls_ssl_context *wilddog_getssl(void)
-{
-    return &ssl;
-}
-
-/*
  * Function:    _net_send
  * Description: The net send function without timeout
  * Input:       ctx: The context   
@@ -91,13 +67,10 @@ STATIC mbedtls_ssl_context *wilddog_getssl(void)
 */
 int _net_send( void *ctx, const unsigned char *buf, size_t len )
 {
-    int fd;
-    Wilddog_Address_T * addr_in;
-    CTX content;
-    content = *((CTX *)ctx);
-    fd = content.fd;
-    addr_in = content.addr_in;
-    return wilddog_send(fd, addr_in, (void*)buf, (s32)len);
+    Wilddog_Protocol_T *protocol = (Wilddog_Protocol_T *)ctx;
+
+    wilddog_assert(protocol, WILDDOG_ERR_NULL);
+    return wilddog_send(protocol->socketFd, &protocol->addr, (void*)buf, (s32)len);
 
 }
 
@@ -111,17 +84,12 @@ int _net_send( void *ctx, const unsigned char *buf, size_t len )
 */
 int _net_recv( void *ctx, unsigned char *buf, size_t len )
 {
-    int fd;
-    Wilddog_Address_T * addr_in;
-    CTX content;
-    
-    content = *((CTX *)ctx);
-    fd = content.fd;
-    addr_in = content.addr_in;
-    
-    return wilddog_receive(fd, addr_in, (void*)buf, (s32)len, \
-                            WILDDOG_RECEIVE_TIMEOUT);
+    Wilddog_Protocol_T *protocol = (Wilddog_Protocol_T *)ctx;
 
+    wilddog_assert(protocol, WILDDOG_ERR_NULL);
+
+    return wilddog_receive(protocol->socketFd, &protocol->addr, (void*)buf, (s32)len, \
+                            WILDDOG_RECEIVE_TIMEOUT);
 }
 
 /*
@@ -141,15 +109,11 @@ int _net_recv_timeout
     uint32_t timeout
     )
 {
-    int fd;
-    Wilddog_Address_T * addr_in;
-    CTX content;
-    
-    content = *((CTX *)ctx);
-    fd = content.fd;
-    addr_in = content.addr_in;
-    
-    return wilddog_receive(fd, addr_in, (void*)buf, (s32)len, timeout);
+    Wilddog_Protocol_T *protocol = (Wilddog_Protocol_T *)ctx;
+
+    wilddog_assert(protocol, WILDDOG_ERR_NULL);
+
+    return wilddog_receive(protocol->socketFd, &protocol->addr, (void*)buf, (s32)len, timeout);
 }
 
 /*
@@ -162,13 +126,15 @@ int _net_recv_timeout
 */
 Wilddog_Return_T _wilddog_sec_send
     (
+    Wilddog_Protocol_T *protocol,
     void* p_data, 
     s32 len
     )
 {
     int ret;
-
-    do ret = mbedtls_ssl_write( wilddog_getssl(),(unsigned char *) p_data, len);
+    Wilddog_Sec_Mbedtls_T * mbed = (Wilddog_Sec_Mbedtls_T*)protocol->user_data;
+    wilddog_assert(protocol&&mbed, WILDDOG_ERR_NULL);
+    do ret = mbedtls_ssl_write(&mbed->ssl,(unsigned char *) p_data, len);
     while( ret == MBEDTLS_ERR_SSL_WANT_READ ||
            ret == MBEDTLS_ERR_SSL_WANT_WRITE );
 
@@ -184,20 +150,23 @@ Wilddog_Return_T _wilddog_sec_send
 */
 int _wilddog_sec_recv
     (
+    Wilddog_Protocol_T *protocol,
     void* p_data, 
     s32 len
     )
 {
     int ret;
+    Wilddog_Sec_Mbedtls_T * mbed = (Wilddog_Sec_Mbedtls_T*)protocol->user_data;
+    wilddog_assert(protocol&&mbed, WILDDOG_ERR_NULL);
 
     do
     {
-        ret = mbedtls_ssl_read( wilddog_getssl(),(unsigned char *)p_data, len );
+        ret = mbedtls_ssl_read(&mbed->ssl,(unsigned char *)p_data, len );
     }
     while( ret == MBEDTLS_ERR_SSL_WANT_READ ||
            ret == MBEDTLS_ERR_SSL_WANT_WRITE );
 
-    return wilddog_getssl()->in_left ;
+    return mbed->ssl.in_left ;
 }
 
 /*
@@ -208,21 +177,32 @@ int _wilddog_sec_recv
  * Output:      N/A
  * Return:      Success: 0    Faied: <0
 */
-Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
+Wilddog_Return_T _wilddog_sec_init(Wilddog_Protocol_T *protocol)
 {
     int ret;
     uint32_t flags;
     const char *pers = "dtls_client";
+    
+    Wilddog_Sec_Mbedtls_T * mbed = NULL;
+    
+    wilddog_assert(protocol, WILDDOG_ERR_NULL);
 
     /* open socket
     ** get host by name
     */
-    wilddog_openSocket(&l_fd);
-    if( (ret = _wilddog_sec_getHost(&l_addr_in,p_host,d_port)) <0 )
+    wilddog_openSocket(&protocol->socketFd);
+    ret = _wilddog_sec_getHost(&protocol->addr,protocol->host);
+    if(ret < 0){
+        wilddog_debug_level(WD_DEBUG_ERROR,"Get host failed!");
         return ret;
-        
-    ctx.fd = l_fd;
-    ctx.addr_in = &l_addr_in;
+    }
+    protocol->user_data = wmalloc(sizeof(Wilddog_Sec_Mbedtls_T));
+    if(!protocol->user_data){
+        wilddog_debug_level(WD_DEBUG_ERROR,"Malloc failed!");
+        return WILDDOG_ERR_NULL;
+    }
+
+    mbed = (Wilddog_Sec_Mbedtls_T*)protocol->user_data;
 
     mbedtls_debug_set_threshold( 0 );
     wilddog_debug_level(WD_DEBUG_LOG, "debug_threshold: %d\n", \
@@ -231,19 +211,19 @@ Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
      * 0. Initialize the RNG and the session data
      */
 //    mbedtls_net_init( &server_fd );
-    mbedtls_ssl_init( &ssl );
-    mbedtls_ssl_config_init( &conf );
-    mbedtls_x509_crt_init( &cacert );
-    mbedtls_ctr_drbg_init( &ctr_drbg );
+    mbedtls_ssl_init( &mbed->ssl );
+    mbedtls_ssl_config_init( &mbed->conf);
+    mbedtls_x509_crt_init( &mbed->cacert);
+    mbedtls_ctr_drbg_init( &mbed->ctr_drbg );
 
     wilddog_debug_level(WD_DEBUG_LOG, \
                         "\n  . Seeding the random number generator..." );
     fflush( stdout );
 
-    mbedtls_entropy_init( &entropy );
-    ret = mbedtls_ctr_drbg_seed(&ctr_drbg, \
+    mbedtls_entropy_init( &mbed->entropy );
+    ret = mbedtls_ctr_drbg_seed(&mbed->ctr_drbg, \
                                 mbedtls_entropy_func, \
-                                &entropy, \
+                                &mbed->entropy, \
                                 (const unsigned char *) pers, \
                                 strlen( pers ));
     if( ret != 0 )
@@ -254,9 +234,7 @@ Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
         
         return WILDDOG_ERR_INVALID;
     }
-
-    wilddog_debug_level(WD_DEBUG_LOG, " ok\n" );
-
+    
     /*
      * 0. Initialize certificates
      */
@@ -268,7 +246,7 @@ Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
     ramtest_skipLastmalloc();
 #endif 
 
-    ret = mbedtls_x509_crt_parse(&cacert, \
+    ret = mbedtls_x509_crt_parse(&mbed->cacert, \
                                  (const unsigned char *) mbedtls_test_cas_pem, \
                                  mbedtls_test_cas_pem_len );
 
@@ -278,10 +256,10 @@ Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
 
     wilddog_debug_level(WD_DEBUG_LOG, \
                         "cacert version:%d\n", \
-                        cacert.version);
+                        mbed->cacert.version);
     wilddog_debug_level(WD_DEBUG_LOG, \
                         "cacert next version:%d\n", \
-                        cacert.next->version);
+                        mbed->cacert.next->version);
 
     if( ret < 0 )
     {
@@ -292,15 +270,13 @@ Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
         return WILDDOG_ERR_INVALID;
     }
 
-    wilddog_debug_level(WD_DEBUG_LOG, " ok (%d skipped)\n", ret );
-
     /*
      * 2. Setup stuff
      */
     wilddog_debug_level(WD_DEBUG_LOG, "  . Setting up the DTLS structure..." );
     fflush( stdout );
 
-    ret = mbedtls_ssl_config_defaults(&conf,
+    ret = mbedtls_ssl_config_defaults(&mbed->conf,
                                       MBEDTLS_SSL_IS_CLIENT,
                                       MBEDTLS_SSL_TRANSPORT_DATAGRAM,
                                       MBEDTLS_SSL_PRESET_DEFAULT );
@@ -314,17 +290,15 @@ Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
         return WILDDOG_ERR_INVALID;
     }
 
-    wilddog_debug_level(WD_DEBUG_LOG, " ok\n" );
-
     /* OPTIONAL is usually a bad choice for security, but makes interop easier
      * in this simplified example, in which the ca chain is hardcoded.
      * Production code should set a proper ca chain and use REQUIRED. */
-    mbedtls_ssl_conf_authmode( &conf, MBEDTLS_SSL_VERIFY_REQUIRED );
-    mbedtls_ssl_conf_ca_chain( &conf, &cacert, NULL );
-    mbedtls_ssl_conf_rng( &conf, mbedtls_ctr_drbg_random, &ctr_drbg );
-    mbedtls_ssl_conf_dbg( &conf, _wilddog_dtls_debug, stdout );
+    mbedtls_ssl_conf_authmode( &mbed->conf, MBEDTLS_SSL_VERIFY_REQUIRED );
+    mbedtls_ssl_conf_ca_chain( &mbed->conf, &mbed->cacert, NULL );
+    mbedtls_ssl_conf_rng( &mbed->conf, mbedtls_ctr_drbg_random, &mbed->ctr_drbg );
+    mbedtls_ssl_conf_dbg( &mbed->conf, _wilddog_dtls_debug, stdout );
 
-    if( ( ret = mbedtls_ssl_setup( &ssl, &conf ) ) != 0 )
+    if( ( ret = mbedtls_ssl_setup( &mbed->ssl, &mbed->conf ) ) != 0 )
     {
         wilddog_debug_level(WD_DEBUG_ERROR, 
                             " failed\n  ! mbedtls_ssl_setup returned %d\n\n", 
@@ -333,7 +307,7 @@ Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
         return WILDDOG_ERR_INVALID;
     }
 
-    if( ( ret = mbedtls_ssl_set_hostname( &ssl, SERVER_NAME ) ) != 0 )
+    if( ( ret = mbedtls_ssl_set_hostname( &mbed->ssl, SERVER_NAME ) ) != 0 )
     {
         wilddog_debug_level(WD_DEBUG_ERROR, 
                         " failed\n  ! mbedtls_ssl_set_hostname returned %d\n\n",
@@ -342,28 +316,26 @@ Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
         return WILDDOG_ERR_INVALID;
     }
     
-    mbedtls_ssl_set_bio(&ssl, 
-                        &ctx,
+    mbedtls_ssl_set_bio(&mbed->ssl, 
+                        protocol,
                         _net_send, 
                         _net_recv, 
                         _net_recv_timeout );
     
-    mbedtls_ssl_conf_read_timeout(&conf, WILDDOG_RECEIVE_TIMEOUT);
+    mbedtls_ssl_conf_read_timeout(&mbed->conf, WILDDOG_RECEIVE_TIMEOUT);
 
-    mbedtls_ssl_set_timer_cb(&ssl, 
-                             &timer, 
+    mbedtls_ssl_set_timer_cb(&mbed->ssl, 
+                             &mbed->timer, 
                              mbedtls_timing_set_delay,
                              mbedtls_timing_get_delay );
-    
-    wilddog_debug_level(WD_DEBUG_LOG, " ok\n" );
-                         
+                             
     /*
      * 4. Handshake
      */
     wilddog_debug_level(WD_DEBUG_LOG,"  . Performing the SSL/TLS handshake...");
     fflush( stdout );
     
-    do ret = mbedtls_ssl_handshake( &ssl );
+    do ret = mbedtls_ssl_handshake( &mbed->ssl );
     while( ret == MBEDTLS_ERR_SSL_WANT_READ ||
            ret == MBEDTLS_ERR_SSL_WANT_WRITE );
 
@@ -376,8 +348,6 @@ Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
         return WILDDOG_ERR_INVALID;
     }
 
-    wilddog_debug_level(WD_DEBUG_LOG, " ok\n" );
-
     /*
      * 5. Verify the server certificate
      */
@@ -387,7 +357,7 @@ Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
      * handshake would not succeed if the peer's cert is bad.  Even if we used
      * SSL_VERIFY_OPTIONAL, we would bail out here if ret != 0 */
 
-    if( ( flags = mbedtls_ssl_get_verify_result( &ssl ) ) != 0 )
+    if( ( flags = mbedtls_ssl_get_verify_result( &mbed->ssl ) ) != 0 )
     {
         char vrfy_buf[512];
 
@@ -413,32 +383,37 @@ Wilddog_Return_T _wilddog_sec_init( Wilddog_Str_T *p_host,u16 d_port)
  * Output:      N/A
  * Return:      Success: 0
 */
-Wilddog_Return_T _wilddog_sec_deinit(void)
+Wilddog_Return_T _wilddog_sec_deinit(Wilddog_Protocol_T *protocol)
 {
     int ret;
+    Wilddog_Sec_Mbedtls_T * mbed = (Wilddog_Sec_Mbedtls_T*)protocol->user_data;
     /*
      * 8. Done, cleanly close the connection
      */
-
+    wilddog_assert(protocol&&mbed, WILDDOG_ERR_NULL);
+    
     wilddog_debug_level(WD_DEBUG_LOG, "  . Closing the connection..." );
 
     /* No error checking, the connection might be closed already */
-    do ret = mbedtls_ssl_close_notify( wilddog_getssl() );
+    do ret = mbedtls_ssl_close_notify(&mbed->ssl);
     while( ret == MBEDTLS_ERR_SSL_WANT_WRITE );
     ret = 0;
 
     wilddog_debug_level(WD_DEBUG_LOG, " done\n" );
 
-    if( l_fd != -1 )
-        wilddog_closeSocket( l_fd );
-//    mbedtls_net_free( &server_fd );
+    if(protocol->socketFd != -1)
+        wilddog_closeSocket(protocol->socketFd);
+    protocol->socketFd = -1;
+    memset(&protocol->addr,0,sizeof(protocol->addr));
 
-    mbedtls_x509_crt_free( &cacert );
-    mbedtls_ssl_free( &ssl );
-    mbedtls_ssl_config_free( &conf );
-    mbedtls_ctr_drbg_free( &ctr_drbg );
-    mbedtls_entropy_free( &entropy );
+    mbedtls_x509_crt_free( &mbed->cacert );
+    mbedtls_ssl_free( &mbed->ssl );
+    mbedtls_ssl_config_free( &mbed->conf );
+    mbedtls_ctr_drbg_free( &mbed->ctr_drbg );
+    mbedtls_entropy_free( &mbed->entropy );
 
+    wfree(mbed);
+    protocol->user_data = NULL;
     return WILDDOG_ERR_NOERR;
 }
 /*
@@ -450,19 +425,14 @@ Wilddog_Return_T _wilddog_sec_deinit(void)
  * Output:      N/A
  * Return:      Success: 0    Faied: < 0
 */
-Wilddog_Return_T _wilddog_sec_reconnect
-    (
-    Wilddog_Str_T *p_host,
-    u16 d_port,
-    int retryNum
-    )
+Wilddog_Return_T _wilddog_sec_reconnect(Wilddog_Protocol_T *protocol,int retryNum)
 {
     int i;
     Wilddog_Return_T ret = WILDDOG_ERR_INVALID;
     for(i = 0; i < retryNum; i++)
     {
-        _wilddog_sec_deinit();
-        ret = _wilddog_sec_init(p_host, d_port);
+        _wilddog_sec_deinit(protocol);
+        ret = _wilddog_sec_init(protocol);
         if(WILDDOG_ERR_NOERR == ret)
             return ret;
     }

@@ -531,9 +531,10 @@ int mbedtls_net_send( void *ctx, const unsigned char *buf, size_t len )
     int ret;
     int fd = ((mbedtls_net_context *) ctx)->fd;
 
-    if( fd < 0 )
+    if( fd < 0 ){
+        wilddog_debug_level(WD_DEBUG_ERROR, "Invalid context.");
         return( MBEDTLS_ERR_NET_INVALID_CONTEXT );
-
+    }
     ret = (int) write( fd, buf, len );
 
     if( ret < 0 )
@@ -564,13 +565,14 @@ int mbedtls_net_send( void *ctx, const unsigned char *buf, size_t len )
  */
 void mbedtls_net_free( mbedtls_net_context *ctx )
 {
-    if( ctx->fd == -1 )
+    if( ctx->fd == -1 ){
         return;
-
+    }
     shutdown( ctx->fd, 2 );
     close( ctx->fd );
 
     ctx->fd = -1;
 }
+#else
 
 #endif /* MBEDTLS_NET_C */

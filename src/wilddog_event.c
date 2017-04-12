@@ -74,6 +74,7 @@ STATIC void WD_SYSTEM _wilddog_event_nodeFree
     Wilddog_EventNode_T *node
     )
 {
+    wilddog_debug_level(WD_DEBUG_LOG,"_wilddog_event_nodeFree %s",node->p_url->p_url_path);
     _wilddog_url_freeParsedUrl(node->p_url);
     wfree(node);
 }
@@ -241,6 +242,7 @@ void WD_SYSTEM _wilddog_event_trigger
     )
 {
     Wilddog_EventNode_T *enode = NULL;
+    Wilddog_EventNode_T *enode_next = NULL;
     Wilddog_Repo_T *repo;
     Wilddog_Node_T *obj_node = NULL, *obj_node_prev = NULL;
     Wilddog_Node_T *obj_node_next = NULL;
@@ -260,10 +262,11 @@ void WD_SYSTEM _wilddog_event_trigger
 
     enode = repo->p_rp_store->p_se_event->p_head;
     
-    /*TODO: use the type to check which event can be triggered */
+    /* Event bubbling, trigger all relative events. */
     while(enode)
     {
         u8 pathContainResult = 0;
+        enode_next = enode->next;
         flag = 0;
         p_str = NULL;
         pathContainResult = _wilddog_event_pathContain( \
@@ -274,7 +277,6 @@ void WD_SYSTEM _wilddog_event_trigger
             (pathContainResult == WD_EVENT_PATHCONTAIN_SED))
         {
             /*  if could not find the node, new a null node.*/
-            
             p_str = (Wilddog_Str_T *)_wilddog_event_pathRelative( \
                                     (char*)((Wilddog_Url_T *)arg)->p_url_path, \
                                     (char *)enode->p_url->p_url_path);
@@ -288,7 +290,6 @@ void WD_SYSTEM _wilddog_event_trigger
                 obj_node = wilddog_node_createNull(NULL);
             }
             /* store the prev and next, make the temp node as the head*/
-            
             if(obj_node->p_wn_prev != NULL)
             {
                 obj_node_prev = obj_node->p_wn_prev;
@@ -316,11 +317,11 @@ void WD_SYSTEM _wilddog_event_trigger
                 wilddog_node_delete(obj_node);
         }
 
-        enode = enode->next;
+        enode = enode_next;
     }
 	/*delete observer node.while receive error */
-
-	_wilddog_event_errHandle(&repo->p_rp_store->p_se_event->p_head);
+    if(repo->p_rp_store->p_se_event->p_head)
+    	_wilddog_event_errHandle(&repo->p_rp_store->p_se_event->p_head);
 	
 }
 
@@ -394,7 +395,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
         return WILDDOG_ERR_NULL;
     }
 
-    wilddog_debug_level(WD_DEBUG_LOG, "event node path:%s\n", \
+    wilddog_debug_level(WD_DEBUG_LOG, "event node path:%s", \
                         node->p_url->p_url_path);
 
     node->p_onData = arg->p_complete;
@@ -420,6 +421,7 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
         }
         else if( ((cmpResult == 0) && (slen == dlen)) )
         {
+            /*oh no, find a node already exists.*/
             tmp_node->p_onData = arg->p_complete;
             tmp_node->p_dataArg = arg->p_completeArg;
             _wilddog_event_nodeFree(node);
@@ -428,8 +430,11 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
                                 tmp_node->p_url->p_url_host, \
                                 tmp_node->p_url->p_url_path);
 			/*resend it.*/
-			if(tmp_node->state == EVENT_STATE_OFF)
+			if(tmp_node->state == EVENT_STATE_OFF){
+                tmp_node->flag = OFF_FLAG;
+                wilddog_debug_level(WD_DEBUG_WARN,"Node's current state is off, resend.");
 				break;
+            }
             return WILDDOG_ERR_NOERR;
         }
         else
@@ -439,7 +444,6 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
     }
 	if(node)
 	{
-		
 		/* */
 	    if(prev_node == tmp_node)
 	    {
@@ -461,7 +465,6 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeAdd
         u8 pathContainResult = _wilddog_event_pathContain(\
                                        (char*)head->p_url->p_url_path, \
                                        (char*)arg->p_url->p_url_path);
-
 		if(pathContainResult == WD_EVENT_PATHCONTAIN_SCD)
 		{
 		    if(head->flag == ON_FLAG)
@@ -597,14 +600,18 @@ Wilddog_Return_T WD_SYSTEM _wilddog_event_nodeDelete
     
     if(node->flag == ON_FLAG)
     {
+
         if(p_conn && p_conn->f_conn_ioctl)
         {
             err =  p_conn->f_conn_ioctl(WILDDOG_CONN_CMD_OFF, arg, 0);
         }
         
-        wilddog_debug_level(WD_DEBUG_LOG, "nodedelete off node path:%s\n", \
-                            arg->p_url->p_url_path);
+        wilddog_debug_level(WD_DEBUG_LOG, "Remove observer node path:%s, error code [%d]", \
+                            arg->p_url->p_url_path,err);
 
+        /*if this node is to be closed, but it's son or grandson want's on, then
+         *on them.
+        */
         prev_node = node;
         node = node->next;
         while(node)
@@ -738,7 +745,6 @@ Wilddog_Event_T* WD_SYSTEM _wilddog_event_init(Wilddog_Store_T *p_store)
     if(p_event == NULL)
     {
         wilddog_debug_level( WD_DEBUG_ERROR, "cannot wmalloc Wilddog_Event_T");
-
         return NULL;
     }
 

@@ -374,8 +374,7 @@ void WD_SYSTEM parsed_url_free(struct parsed_url *purl)
  * Output:      N/A
  * Return:      success return 0, failed return nagative number.
 */
-
-int WD_SYSTEM _wilddogurl_checkPath(Wilddog_Str_T *p_path)
+int WD_SYSTEM _wilddog_url_checkPath(Wilddog_Str_T *p_path)
 {
     int len , i;
     u8 data;
@@ -404,6 +403,42 @@ int WD_SYSTEM _wilddogurl_checkPath(Wilddog_Str_T *p_path)
             if(data == '/' && p_path[i + 1] == '/')
                 return WILDDOG_ERR_INVALID;
         }
+    }
+    return WILDDOG_ERR_NOERR;
+}
+
+Wilddog_Return_T WD_SYSTEM _wilddog_url_copy(Wilddog_Url_T* src, Wilddog_Url_T* dst){
+    wilddog_assert(src && dst, WILDDOG_ERR_NULL);
+
+    if(src->p_url_host){
+        dst->p_url_host = (Wilddog_Str_T*)wmalloc(strlen((const char*)src->p_url_host) + 1);
+        if(NULL == dst->p_url_host){
+            wilddog_debug_level(WD_DEBUG_ERROR, "malloc dst->p_url_host failed!");
+            return WILDDOG_ERR_NULL;
+        }
+        strcpy((char*)dst->p_url_host,(char*)src->p_url_host);
+    }
+    if(src->p_url_path){
+        dst->p_url_path = (Wilddog_Str_T*)wmalloc(strlen((const char*)src->p_url_path) + 1);
+        if(NULL == dst->p_url_path){
+            wilddog_debug_level(WD_DEBUG_ERROR, "malloc dst->p_url_host failed!");
+            wfree(dst->p_url_host);
+            dst->p_url_host = NULL;
+            return WILDDOG_ERR_NULL;
+        }
+        strcpy((char*)dst->p_url_path,(char*)src->p_url_path);
+    }
+    if(src->p_url_query){
+        dst->p_url_query = (Wilddog_Str_T*)wmalloc(strlen((const char*)src->p_url_query) + 1);
+        if(NULL == dst->p_url_query){
+            wilddog_debug_level(WD_DEBUG_ERROR, "malloc dst->p_url_host failed!");
+            wfree(dst->p_url_host);
+            wfree(dst->p_url_path);
+            dst->p_url_host = NULL;
+            dst->p_url_path = NULL;
+            return WILDDOG_ERR_NULL;
+        }
+        strcpy((char*)dst->p_url_query,(char*)src->p_url_query);
     }
     return WILDDOG_ERR_NOERR;
 }
@@ -468,7 +503,7 @@ Wilddog_Url_T * WD_SYSTEM _wilddog_url_parseUrl(Wilddog_Str_T * url)
         len += strlen((const char*)p_paresd_url->path);
 
         if(WILDDOG_ERR_NOERR != \
-           _wilddogurl_checkPath((Wilddog_Str_T*)p_paresd_url->path)
+           _wilddog_url_checkPath((Wilddog_Str_T*)p_paresd_url->path)
            )
         {
 #ifdef WILDDOG_ADD_ONLINESTAT
@@ -545,7 +580,7 @@ void WD_SYSTEM _wilddog_url_freeParsedUrl(Wilddog_Url_T * p_url)
  * Input:       p_src: Source url.
  *              p_dst: Destination url.
  * Output:      N/A
- * Return:      Same return TRUE, others return FALSE.
+ * Return:      diff return TRUE, others return FALSE.
 */
 BOOL WD_SYSTEM _wilddog_url_diff
     (
@@ -710,7 +745,7 @@ STATIC Wilddog_Str_T * WD_SYSTEM _wilddog_url_getChildStr
         return NULL;
     }
     
-    if(WILDDOG_ERR_NOERR != _wilddogurl_checkPath(childName))
+    if(WILDDOG_ERR_NOERR != _wilddog_url_checkPath(childName))
     {
         wilddog_debug_level(WD_DEBUG_ERROR, "check path error!");
         return NULL;

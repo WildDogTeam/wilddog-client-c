@@ -94,9 +94,10 @@ netq_next(netq_t *p) {
 
 void
 netq_remove(list_t queue, netq_t *p) {
-  if (!queue || !p)
+  if (!queue || !p){
+    wilddog_debug_level(WD_DEBUG_ERROR, "netq remove failed with empty.");
     return;
-
+  }
   list_remove(queue, p);
 }
 

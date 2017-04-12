@@ -561,6 +561,7 @@ dtls_decrypt(const unsigned char *src, size_t length,
   if (ret < 0) {
     /* cleanup everything in case the key has the wrong size */
     dtls_warn("cannot set rijndael key\n");
+    wilddog_debug_level(WD_DEBUG_WARN,"Cannot set rijndael key.");
     goto error;
   }
 

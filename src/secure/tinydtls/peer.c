@@ -80,6 +80,7 @@ dtls_new_peer(const session_t *session) {
 
     if (!peer->security_params[0]) {
       dtls_free_peer(peer);
+      wilddog_debug_level(WD_DEBUG_ERROR,"New dtls peer failed.");
       return NULL;
     }
 

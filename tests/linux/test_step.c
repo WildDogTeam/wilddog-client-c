@@ -62,7 +62,6 @@ STATIC void test_step_deleteFunc(void* arg, Wilddog_Return_T err)
 
 STATIC void test_step_setFunc(void* arg, Wilddog_Return_T err)
 {
-	
 	*(BOOL*)arg = TRUE;
 	printf("\t set err =%d \n",err);	
 	l_step.res_setValueSuccess = TRUE;
@@ -74,7 +73,6 @@ STATIC void test_step_getFunc(
 	void* arg, 
 	Wilddog_Return_T err)
 {
-	
 	*(BOOL*)arg = TRUE;
 	printf("\t get err =%d \n",err);	
 	l_step.res_getValueSuccess = TRUE;
@@ -86,7 +84,6 @@ STATIC void test_step_getObserverFunc(
 	void* arg, 
 	Wilddog_Return_T err)
 {
-	
 	*(BOOL*)arg = TRUE;
 	printf("\t res_addObserverSuccess err =%d \n",err);	
 	l_step.res_addObserverSuccess = TRUE;
@@ -177,7 +174,6 @@ int main(void)
 	Wilddog_Node_T *L4c1 = NULL,*L4c2 = NULL,
 					*L4c3 = NULL,*L4c4 = NULL,*L4c5 = NULL;
 
-        
 	memset(host,0,sizeof(host));
     test_gethost(host,TEST_URL);
     printf(" \t host %s \n",host);
@@ -323,7 +319,6 @@ int main(void)
 		wilddog_trySync();
 	}
 
-
 	isFinished = FALSE;
 	wilddog_addObserver(wilddog, WD_ET_VALUECHANGE, test_step_getObserverFunc, \
 		(void*)&isFinished);
@@ -344,5 +339,6 @@ int main(void)
 	test_step_printf();
 
 	return test_step_res();
+	wilddog_debug("");//just avoid warning
 }
 

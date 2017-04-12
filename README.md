@@ -1,4 +1,4 @@
-#WildDog SDK说明
+# WildDog SDK说明
 WildDog C/嵌入式SDK是WildDog在C/嵌入式场景下的客户端，使用者调用api接口即可实现和云端的通信、消息订阅功能。如有什么意见、建议或合作意向，可访问`www.wilddog.com`。
 
 WildDog C/嵌入式的SDK 使用的是CoAP UDP + DTLS + CBOR技术。
@@ -11,7 +11,7 @@ CoAP是唯一的国际物联网应用层标准，我们对选择何种协议并�
 
 我们在Linux平台下采用C/嵌入式SDK实现了一个远程调用shell脚本的工具，欢迎大家使用，路径：`https://github.com/WildDogTeam/liveshell`
 
-##1. 目录结构
+## 1. 目录结构
 
 	├── docs
 	├── examples
@@ -22,13 +22,13 @@ CoAP是唯一的国际物联网应用层标准，我们对选择何种协议并�
 	├── tests
 	└── tools
 
-####docs
+#### docs
 SDK文档。
 
-####examples
+#### examples
 各个平台下的demo例子。
 
-####include
+#### include
 目录中各个文件内容如下：
 
 *	wilddog.h : 基本数据结构和宏定义
@@ -37,28 +37,28 @@ SDK文档。
 *	wilddog_port.h : 平台相关接口函数
 *	widdog_debug.h : debug相关函数声明
 
-####platform
+#### platform
 
 该目录根据不同平台分为不同子目录，分别为linux和wiced等。
 
-####project
+#### project
 
 demo例子的工程目录。
 
-####src
+#### src
 
 平台无关目录。
 
-####tests
+#### tests
 
 测试文件。
 
-####tools
+#### tools
 
 各个平台使用的一些工具。
 
 ----
-##2. 快速入门
+## 2. 快速入门
 
 编译SDK，编译后的库文件在lib目录下
 
@@ -81,17 +81,14 @@ demo例子的工程目录。
 
 
 ----
-##3. 移植说明
+## 3. 移植说明
 
-SDK已经在WICED、ESP8266、庆科MICO、树莓派、Arduino Yun、OpenWRT中成功移植，可参考docs目录。
+SDK已经在WICED、树莓派、Arduino Yun、OpenWRT中成功移植，可参考 docs 目录。
 
 ----
-##4. 其他参考
+## 4. 其他参考
 
 SDK 文档: https://z.wilddog.com/
 
 WICED 文档和sdk获取:http://www.broadcom.com/products/wiced/wifi/
 
-Espressif sdk获取: http://espressif.com/zh-hans/%E6%9C%80%E6%96%B0sdk%E5%8F%91%E5%B8%83/
-
-庆科 SDK获取：http://mico.io/wiki/doku.php

@@ -639,6 +639,8 @@ int ecc_ecdsa_validate(const uint32_t *x, const uint32_t *y, const uint32_t *e, 
 int ecc_is_valid_key(const uint32_t * priv_key)
 {
 	return isGreater(ecc_order_m, priv_key, arrayLength) == 1;
+    //just avoid warning.
+    wilddog_debug_level(WD_DEBUG_LOG, "ecc is valid_key?");
 }
 
 /*

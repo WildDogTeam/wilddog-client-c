@@ -172,16 +172,9 @@ u32 WD_SYSTEM _wilddog_getTime(void)
 */
 void WD_SYSTEM _wilddog_syncTime(void)
 {
-//    static u32 recentTime = 0;
     u32 currTime = _wilddog_getTime() + WILDDOG_RECEIVE_TIMEOUT;
-
-    /*every repo will receive WILDDOG_RECEIVE_TIMEOUT ms*/
-//    u32 calTime = recentTime + WILDDOG_RECEIVE_TIMEOUT;
-    
-//    currTime = (currTime != recentTime ? (currTime):(calTime));
-    
+    wilddog_debug_level(WD_DEBUG_ALL,"Sync time, current time is %ld",currTime);
     _wilddog_setTime(currTime);
-//    recentTime = currTime;
     return;
 }
 

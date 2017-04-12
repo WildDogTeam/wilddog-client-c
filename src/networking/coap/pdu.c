@@ -49,9 +49,9 @@ coap_pdu_t * WD_SYSTEM coap_pdu_init
   if (size < sizeof(coap_hdr_t) || size > COAP_MAX_PDU_SIZE)
     return NULL;
 
-  pdu = wmalloc(sizeof(coap_pdu_t) + size);
+  pdu = (coap_pdu_t *)wmalloc(sizeof(coap_pdu_t) + size);
 
-  if (pdu) 
+  if (pdu)
   {
     coap_pdu_clear(pdu, size);
     pdu->hdr->id = id;
@@ -276,13 +276,13 @@ int WD_SYSTEM coap_pdu_parse
   if (pdu->max_size < length) 
   {
     wilddog_debug_level(WD_DEBUG_ERROR, \
-                        "pdu:: insufficient space to store parsed PDU\n");
+                        "pdu:: insufficient space to store parsed PDU");
     return 0;
   }
 
   if (length < sizeof(coap_hdr_t)) 
   {
-    wilddog_debug_level(WD_DEBUG_ERROR, "pdu:: discarded invalid PDU\n");
+    wilddog_debug_level(WD_DEBUG_ERROR, "pdu:: discarded invalid PDU");
   }
 
   pdu->hdr->version = data[0] >> 6;
@@ -296,7 +296,7 @@ int WD_SYSTEM coap_pdu_parse
     if (length != sizeof(coap_hdr_t) || pdu->hdr->token_length) 
     {
       wilddog_debug_level(WD_DEBUG_ERROR, \
-                          "pdu:: empty message is not empty\n");
+                          "pdu:: empty message is not empty");
       goto discard;
     }
   }
@@ -304,7 +304,7 @@ int WD_SYSTEM coap_pdu_parse
   if (length < sizeof(coap_hdr_t) + pdu->hdr->token_length
       || pdu->hdr->token_length > 8) 
   {
-    wilddog_debug_level(WD_DEBUG_ERROR, "pdu:: coap_pdu_parse: invalid Token\n");
+    wilddog_debug_level(WD_DEBUG_ERROR, "pdu:: coap_pdu_parse: invalid Token");
     goto discard;
   }
 
@@ -328,7 +328,7 @@ int WD_SYSTEM coap_pdu_parse
 
     if (!next_option_safe(&opt, (size_t *)&length)) 
     {
-      wilddog_debug_level(WD_DEBUG_ERROR, "pdu:: coap_pdu_parse: drop\n");
+      wilddog_debug_level(WD_DEBUG_ERROR, "pdu:: coap_pdu_parse: drop");
       goto discard;
     }
   }
@@ -342,13 +342,9 @@ int WD_SYSTEM coap_pdu_parse
     if (!length) 
     {
       wilddog_debug_level(WD_DEBUG_ERROR, \
-                    "pdu:: message ending in payload start marker\n");
+                    "pdu:: message ending in payload start marker");
       goto discard;
     }
-
-    wilddog_debug_level(WD_DEBUG_LOG, \
-                      "pdu:: set data to %p (pdu ends at %p)\n", (unsigned char *)opt,
-                      (unsigned char *)pdu->hdr + pdu->length);
     pdu->data = (unsigned char *)opt;
   }
 
