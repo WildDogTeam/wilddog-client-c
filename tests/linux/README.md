@@ -1,5 +1,5 @@
-#Test
-##1.文件结构和说明
+# Test
+## 1.文件结构和说明
     
 	├── test_config.h
 	├── test_disEvent.c
@@ -22,7 +22,7 @@
 *   `test_step.c` : API可用性测试
 *	`test_reobserver.c` : 重复 observer测试
 
-##2.配置说明
+## 2.配置说明
 
 每个测试项均需要在云端建立树，修改并获取以测试其准确性和稳定性。用户可以修改`test_config.h`配置测试使用的URL：
 
@@ -32,7 +32,7 @@
 - `TEST_URL4` ： 多云端测试其中一个URL。
 - `TEST_AUTH` ： 与`TEST_URL`建立会话的Auth。
 
-##3.使用步骤
+## 3.使用步骤
 
 1. 配置`test_config.h`，确定测试时使用的云端URL。
 2. 进入SDK的顶层目录，修改`tests/linux/test_config.h`,执行 `make test`编译并在`bin`目录下生成测试的可执行文件：
@@ -45,7 +45,7 @@
 
 3. 直接执行对应的可执行文件，会在终端看到测试结果。
 
-##4.自动化测试
+## 4.自动化测试
 
 1. 进入tools/linux下，运行autotest.sh，例如：
 
@@ -54,7 +54,7 @@
 
 2. 等待console返回测试结果。
 
-###autotest.sh参数说明
+### autotest.sh参数说明
 
 	-s <arg> : 必选项，指定测试的APP_SEC_TYPE，可选项：nosec|tinydtls|mbedtls
 	-1 <arg> : 可选项，指定TEST_URL的Appid（也可在tests/linux/test_config.h中修改）
