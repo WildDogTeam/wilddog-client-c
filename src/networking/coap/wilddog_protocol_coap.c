@@ -166,10 +166,21 @@ STATIC coap_opt_t* WD_SYSTEM _wilddog_coap_getSendSessionOption(coap_pdu_t * pdu
     // so coap_check_option's return is .cs query option. 
     //But we have more than 1 query, such as disconnect , so fix it!!!
     coap_opt_iterator_t d_oi;
-    
-    wilddog_assert(pdu, NULL);
+    coap_opt_t * opt = NULL;
 
-    return coap_check_option(pdu,COAP_OPTION_URI_QUERY,&d_oi);
+    wilddog_assert(pdu, NULL);
+    opt = coap_check_option(pdu,COAP_OPTION_URI_QUERY,&d_oi);
+    while(opt){
+        u8* value = coap_opt_value(opt);
+        if (value){
+            if(0 == strncmp((const char*)value, WILDDOG_COAP_SESSION_QUERY, strlen(WILDDOG_COAP_SESSION_QUERY)))
+                return opt;
+            else{
+                opt = coap_option_next(&d_oi);
+            }
+        }
+    }
+    return opt;
 }
 /*
  * Function:    _wilddog_coap_getRecvCode

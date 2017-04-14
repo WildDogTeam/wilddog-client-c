@@ -141,6 +141,13 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_ping_callback
             ret = WILDDOG_ERR_NOERR;
             break;
         }
+        case WILDDOG_HTTP_PRECONDITION_FAIL:
+        {
+            p_conn->d_session.d_session_status = WILDDOG_SESSION_NOTAUTHED;
+            wilddog_debug_level(WD_DEBUG_ERROR, "Resource overrun!");
+            ret = WILDDOG_ERR_INVALID;
+            break;
+        }
         default:
         {
             wilddog_debug_level(WD_DEBUG_WARN, "Get an error [%d].",(int)error_code);
@@ -804,13 +811,21 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_auth_callback
             p_conn->d_conn_sys.d_online_retry_count = 0;
             break;
         }
-        case WILDDOG_HTTP_BAD_REQUEST:/*fall down*/
-        case WILDDOG_HTTP_PRECONDITION_FAIL:
+        case WILDDOG_HTTP_BAD_REQUEST:
         {
             //cannot find this repo, stop to send auth data.
             p_conn->d_session.d_session_status = WILDDOG_SESSION_INIT;
             wilddog_debug_level(WD_DEBUG_ERROR, \
-                "Can not find host %s or resource overrun!", p_conn->p_conn_repo->p_rp_url->p_url_host);
+                "Can not find host %s!", p_conn->p_conn_repo->p_rp_url->p_url_host);
+            ret = WILDDOG_ERR_INVALID;
+            break;
+        }        
+        case WILDDOG_HTTP_PRECONDITION_FAIL:
+        {
+            //resouces overrun, make it offline
+            p_conn->d_session.d_session_status = WILDDOG_SESSION_NOTAUTHED;
+            p_conn->d_conn_sys.d_online_retry_count++;
+            p_conn->d_conn_sys.d_offline_time = _wilddog_getTime();
             ret = WILDDOG_ERR_INVALID;
             break;
         }
