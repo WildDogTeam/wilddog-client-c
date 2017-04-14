@@ -404,11 +404,14 @@ int main(int argc, char **argv)
                                       (void*)&isFinish);
             break;
         case TEST_CMD_SETAUTH:
-            wilddog_debug("TEST_CMD_SETAUTH token = %s",value);
-            res = wilddog_auth((u8*)host,(u8*)value, \
-                               strlen((const char *)value),
-                               auth_callback,(void*)&isFinish);
-			break;
+            wilddog_debug("TEST_CMD_SETAUTH token = %s",authData);
+            if(authFlag != TRUE){
+                //send auth
+                res = wilddog_auth((u8*)host,(u8*)authData, \
+                                   strlen((const char *)authData),
+                                   auth_callback,(void*)&isFinish);
+            }
+            break;
         case TEST_CMD_ONDISSET:
             /*Send the remove method*/
             res = wilddog_onDisconnectSetValue(wilddog,p_head,onDis_callback, \

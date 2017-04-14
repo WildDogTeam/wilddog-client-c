@@ -756,13 +756,13 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_retransmit(void* data, int 
         opt  = _wilddog_coap_getSendSessionOption(pdu);
         if(opt){
             //reflash session data
-            //data = ".cs" + "=" + "<short token>"
-            int query_len;
-            query_len = strlen(WILDDOG_COAP_SESSION_QUERY) + 1 + arg->d_session_len;
-            if(query_len != coap_opt_length(opt)){
+            //data = ".cs" + "=" + "<short token>" + "[other query]"
+            int min_query_len;
+            min_query_len = strlen(WILDDOG_COAP_SESSION_QUERY) + 1 + arg->d_session_len;
+            if(min_query_len > coap_opt_length(opt)){
                 //not match!
                 wilddog_debug_level(WD_DEBUG_WARN,"Session not match!!!, real is %d, want %d",
-                                    coap_opt_length(opt),query_len);
+                                    coap_opt_length(opt),min_query_len);
             }else{
                 //matched, change old short token to new
                 u8* value = coap_opt_value(opt);
