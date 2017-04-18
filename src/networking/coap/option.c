@@ -180,7 +180,6 @@ coap_opt_t *WD_SYSTEM coap_option_next(coap_opt_iterator_t *oi)
 
   if (opt_finished(oi))
     return NULL;
-
   while (1) 
   {
     /* oi->option always points to the next option to deliver; as

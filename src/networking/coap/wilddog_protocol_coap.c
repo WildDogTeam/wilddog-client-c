@@ -166,10 +166,21 @@ STATIC coap_opt_t* WD_SYSTEM _wilddog_coap_getSendSessionOption(coap_pdu_t * pdu
     // so coap_check_option's return is .cs query option. 
     //But we have more than 1 query, such as disconnect , so fix it!!!
     coap_opt_iterator_t d_oi;
-    
-    wilddog_assert(pdu, NULL);
+    coap_opt_t * opt = NULL;
 
-    return coap_check_option(pdu,COAP_OPTION_URI_QUERY,&d_oi);
+    wilddog_assert(pdu, NULL);
+    opt = coap_check_option(pdu,COAP_OPTION_URI_QUERY,&d_oi);
+    while(opt){
+        u8* value = coap_opt_value(opt);
+        if (value){
+            if(0 == strncmp((const char*)value, WILDDOG_COAP_SESSION_QUERY, strlen(WILDDOG_COAP_SESSION_QUERY)))
+                return opt;
+            else{
+                opt = coap_option_next(&d_oi);
+            }
+        }
+    }
+    return opt;
 }
 /*
  * Function:    _wilddog_coap_getRecvCode
@@ -756,13 +767,13 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_coap_send_retransmit(void* data, int 
         opt  = _wilddog_coap_getSendSessionOption(pdu);
         if(opt){
             //reflash session data
-            //data = ".cs" + "=" + "<short token>"
-            int query_len;
-            query_len = strlen(WILDDOG_COAP_SESSION_QUERY) + 1 + arg->d_session_len;
-            if(query_len != coap_opt_length(opt)){
+            //data = ".cs" + "=" + "<short token>" + "[other query]"
+            int min_query_len;
+            min_query_len = strlen(WILDDOG_COAP_SESSION_QUERY) + 1 + arg->d_session_len;
+            if(min_query_len > coap_opt_length(opt)){
                 //not match!
                 wilddog_debug_level(WD_DEBUG_WARN,"Session not match!!!, real is %d, want %d",
-                                    coap_opt_length(opt),query_len);
+                                    coap_opt_length(opt),min_query_len);
             }else{
                 //matched, change old short token to new
                 u8* value = coap_opt_value(opt);
