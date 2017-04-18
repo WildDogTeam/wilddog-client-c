@@ -822,8 +822,10 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_auth_callback
         }        
         case WILDDOG_HTTP_PRECONDITION_FAIL:
         {
-            //resouces overrun, make it offline
-            p_conn->d_session.d_session_status = WILDDOG_SESSION_NOTAUTHED;
+            //resouces overrun, auth failed, stop
+            wilddog_debug_level(WD_DEBUG_ERROR,"Resources overrun, SDK stopped!");
+            p_conn->d_conn_sys.d_auth_fail_count++;
+            p_conn->d_session.d_session_status = WILDDOG_SESSION_INIT;
             p_conn->d_conn_sys.d_online_retry_count++;
             p_conn->d_conn_sys.d_offline_time = _wilddog_getTime();
             ret = WILDDOG_ERR_INVALID;
@@ -831,7 +833,7 @@ STATIC Wilddog_Return_T WD_SYSTEM _wilddog_conn_auth_callback
         }
         case WILDDOG_HTTP_INTERNAL_SERVER_ERR:
         {
-            //Oh, server down! Wait time to resend this packet.
+            //Server down, let retransmitHandler send auth packet again.
             wilddog_debug_level(WD_DEBUG_ERROR, "Receive server internal error");
             return WILDDOG_ERR_IGNORE;
         }
